@@ -1,0 +1,5 @@
+/debug
+/release
+/aosp
+mybuild.sh
+push.sh
