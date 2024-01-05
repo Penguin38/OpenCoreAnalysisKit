@@ -18,24 +18,20 @@
 #define CORE_ARM_CORE_H_
 
 #include "api/core.h"
-#include "base/mem_map.h"
+#include "base/memory_map.h"
 #include <memory>
 
 namespace arm {
 
 class Core : public CoreApi {
 public:
-    Core() {}
-    Core(std::unique_ptr<MemMap>& map) {
-        coreptr = std::move(map);
-    }
+    Core(std::unique_ptr<MemoryMap>& map)
+        : CoreApi(map) {}
     ~Core();
 private:
     bool load();
     void unload();
     const char* getMachine();
-
-    std::unique_ptr<MemMap> coreptr;
 };
 
 } // namespace arm

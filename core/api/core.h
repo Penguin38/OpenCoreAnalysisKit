@@ -17,8 +17,12 @@
 #ifndef CORE_API_CORE_H_
 #define CORE_API_CORE_H_
 
+#include "base/memory_map.h"
+#include "common/load_block.h"
 #include <stdint.h>
 #include <sys/types.h>
+#include <memory>
+#include <vector>
 
 /*
              ---------- <-
@@ -74,13 +78,26 @@ public:
     static bool Load(const char* corefile);
     static void UnLoad();
     static const char* GetMachine();
+    static uint64_t GetReal(uint64_t vaddr);
+    static uint64_t GetVirtual(uint64_t raddr);
     CoreApi() {}
-    virtual ~CoreApi() = default;
+    CoreApi(std::unique_ptr<MemoryMap>& map) {
+        mCore = std::move(map);
+    }
+    virtual ~CoreApi();
+    uint64_t begin();
+    void addLoadBlock(std::unique_ptr<LoadBlock>& block);
+    void removeAllLoadBlock();
+    uint64_t v2r(uint64_t vaddr);
+    uint64_t r2v(uint64_t raddr);
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;
     virtual void unload() = 0;
     virtual const char* getMachine() = 0;
+
+    std::unique_ptr<MemoryMap> mCore;
+    std::vector<std::unique_ptr<LoadBlock>> mLoad;
 };
 
 #endif // CORE_API_CORE_H_

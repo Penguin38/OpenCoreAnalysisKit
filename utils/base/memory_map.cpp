@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "base/mem_map.h"
+#include "base/memory_map.h"
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <iostream>
 
-MemMap* MemMap::MmapFile(const char* file) {
+MemoryMap* MemoryMap::MmapFile(const char* file) {
     int fd;
     struct stat sb;
 
@@ -32,27 +32,28 @@ MemMap* MemMap::MmapFile(const char* file) {
     if (fstat(fd, &sb) == -1)
         return nullptr;
 
-    MemMap *map = MmapFile(fd, sb.st_size, 0);
+    MemoryMap *map = MmapFile(fd, sb.st_size, 0);
     close(fd);
     if (map) {
-        map->file_path = file;
+        map->mName = file;
     }
     return map;
 }
 
-MemMap* MemMap::MmapFile(int fd, uint64_t size, uint64_t off) {
-    MemMap *map = nullptr;
+MemoryMap* MemoryMap::MmapFile(int fd, uint64_t size, uint64_t off) {
+    MemoryMap *map = nullptr;
     if (fd > 0) {
         void* mem = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, off);
         if (mem != MAP_FAILED) {
-            map = new MemMap(mem, size, off);
+            map = new MemoryMap(mem, size, off);
         }
     }
     return map;
 }
 
-MemMap::~MemMap() {
-    if (mem != MAP_FAILED) {
-        munmap(mem, size);
+MemoryMap::~MemoryMap() {
+    if (mBegin != MAP_FAILED) {
+        munmap(mBegin, mSize);
     }
+    std::cout << __func__ << " " << this << std::endl;
 }

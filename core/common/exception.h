@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef CORE_RISCV64_CORE_H_
-#define CORE_RISCV64_CORE_H_
+#ifndef CORE_COMMON_EXCEPTION_H_
+#define CORE_COMMON_EXCEPTION_H_
 
-#include "api/core.h"
-#include "base/memory_map.h"
-#include <memory>
+#include <stdint.h>
+#include <sys/types.h>
+#include <sstream>
+#include <exception>
+#include <string>
 
-namespace riscv64 {
-
-class Core : public CoreApi {
-public:
-    Core(std::unique_ptr<MemoryMap>& map)
-        : CoreApi(map) {}
-    ~Core();
+class InvalidAddressException : public std::exception {
 private:
-    bool load();
-    void unload();
-    const char* getMachine();
+    uint64_t addr;
+    std::string error;
+public:
+    InvalidAddressException(uint64_t p) : addr(p) {
+        std::ostringstream ss;
+        ss << "Invalid address 0x" << std::hex << addr;
+        error.append(ss.str());
+    }
+
+    const char * what() const throw() {
+        return error.c_str();
+    }
 };
 
-} // namespace riscv64
-
-#endif // CORE_RISCV64_CORE_H_
+#endif  // CORE_COMMON_EXCEPTION_H_

@@ -21,7 +21,7 @@
 #include "x64/core.h"
 #include "x86/core.h"
 #include "common/elf.h"
-#include "base/mem_map.h"
+#include "common/exception.h"
 #include <linux/elf.h>
 #include <string.h>
 #include <memory>
@@ -32,7 +32,7 @@ CoreApi* CoreApi::INSTANCE = nullptr;
 bool CoreApi::Load(const char* corefile) {
     UnLoad();
     if (!INSTANCE) {
-        std::unique_ptr<MemMap> map(MemMap::MmapFile(corefile));
+        std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(corefile));
         if (map) {
             ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
             if (memcmp(header->ident, ELFMAG, 4)) {
@@ -77,8 +77,10 @@ bool CoreApi::Load(const char* corefile) {
 void CoreApi::UnLoad() {
     if (INSTANCE) {
         INSTANCE->unload();
+        INSTANCE->removeAllLoadBlock();
         delete INSTANCE;
         INSTANCE = nullptr;
+        std::cout << __func__ << std::endl;
     }
 }
 
@@ -87,4 +89,45 @@ const char* CoreApi::GetMachine() {
         return INSTANCE->getMachine();
     }
     return "unknown";
+}
+
+CoreApi::~CoreApi() {
+    mCore.reset();
+    std::cout << __func__ << " " << this << std::endl;
+}
+
+uint64_t CoreApi::begin() {
+    return reinterpret_cast<uint64_t>(mCore->data());
+}
+
+void CoreApi::addLoadBlock(std::unique_ptr<LoadBlock>& block) {
+    mLoad.push_back(std::move(block));
+}
+
+void CoreApi::removeAllLoadBlock() {
+    mLoad.clear();
+}
+
+uint64_t CoreApi::GetReal(uint64_t vaddr) {
+    return INSTANCE->v2r(vaddr);
+}
+
+uint64_t CoreApi::GetVirtual(uint64_t raddr) {
+    return INSTANCE->r2v(raddr);
+}
+
+uint64_t CoreApi::v2r(uint64_t vaddr) {
+    for (const auto& block : mLoad) {
+        if (block->virtualContains(vaddr) && block->isValid())
+            return block->begin();
+    }
+    throw InvalidAddressException(vaddr);
+}
+
+uint64_t CoreApi::r2v(uint64_t raddr) {
+    for (const auto& block : mLoad) {
+        if (block->realContains(raddr))
+            return block->vaddr();
+    }
+    throw InvalidAddressException(raddr);
 }

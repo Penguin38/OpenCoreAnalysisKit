@@ -31,7 +31,6 @@ const char* Core::getMachine() {
 }
 
 Core::~Core() {
-    coreptr.reset();
 }
 
 } // namespace riscv64

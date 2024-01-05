@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-#ifndef UTILS_BASE_MEM_MAP_H_
-#define UTILS_BASE_MEM_MAP_H_
+#ifndef UTILS_BASE_MEMORY_MAP_H_
+#define UTILS_BASE_MEMORY_MAP_H_
 
 #include <stdint.h>
 #include <sys/types.h>
 #include <string>
 
-class MemMap {
+class MemoryMap {
 public:
-    static MemMap* MmapFile(const char* file);
-    void* data() { return mem; }
-    std::string getFile() { return file_path; }
-    ~MemMap();
+    static MemoryMap* MmapFile(const char* file);
+    void* data() { return mBegin; }
+    std::string getName() { return mName; }
+    ~MemoryMap();
 private:
-    static MemMap* MmapFile(int fd, uint64_t size, uint64_t off);
-    MemMap(void *m, uint64_t s, uint64_t off)
-        : mem(m), size(s) {}
+    static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);
+    MemoryMap(void *m, uint64_t s, uint64_t off)
+        : mBegin(m), mSize(s), mOffset(off) {}
 
-    void* mem;
-    uint64_t size;
-    uint64_t off;
-    std::string file_path;
+    std::string mName;
+    void* mBegin;
+    uint64_t mSize;
+    uint64_t mOffset;
 };
 
-#endif  // UTILS_BASE_MEM_MAP_H_
+#endif  // UTILS_BASE_MEMORY_MAP_H_

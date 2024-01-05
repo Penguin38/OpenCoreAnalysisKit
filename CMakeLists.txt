@@ -27,7 +27,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 ${AUTO_VAR_INIT_ZERO} -O2 -
 
 include_directories(utils)
 add_library(utils STATIC
-            utils/base/mem_map.cpp)
+            utils/base/memory_map.cpp)
 
 include_directories(core)
 add_library(core STATIC
@@ -36,7 +36,8 @@ add_library(core STATIC
             core/arm/core.cpp
             core/riscv64/core.cpp
             core/x64/core.cpp
-            core/x86/core.cpp)
+            core/x86/core.cpp
+            core/common/load_block.cpp)
 target_link_libraries(core utils)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl")
