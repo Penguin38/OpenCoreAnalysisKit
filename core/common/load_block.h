@@ -23,6 +23,10 @@
 
 class LoadBlock {
 public:
+    static constexpr int FLAG_X = (1 << 0);    /* Segment is executable */
+    static constexpr int FLAG_W = (1 << 1);    /* Segment is writable */
+    static constexpr int FLAG_R = (1 << 2);    /* Segment is readable */
+
     uint64_t begin();
     uint64_t vaddr() { return mVaddr; }
     uint32_t flags() { return mFlags; }

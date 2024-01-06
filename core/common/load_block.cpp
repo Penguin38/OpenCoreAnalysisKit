@@ -27,7 +27,7 @@ uint64_t LoadBlock::begin() {
 }
 
 bool LoadBlock::isValid() {
-    if (mFileSize || mMmapAddr || mOverlayAddr)
+    if ((mFlags & FLAG_R) && (mFileSize || mMmapAddr || mOverlayAddr))
         return true;
     return false;
 }

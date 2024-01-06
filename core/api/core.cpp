@@ -100,7 +100,7 @@ uint64_t CoreApi::begin() {
     return reinterpret_cast<uint64_t>(mCore->data());
 }
 
-void CoreApi::addLoadBlock(std::unique_ptr<LoadBlock>& block) {
+void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
     mLoad.push_back(std::move(block));
 }
 
@@ -119,7 +119,7 @@ uint64_t CoreApi::GetVirtual(uint64_t raddr) {
 uint64_t CoreApi::v2r(uint64_t vaddr) {
     for (const auto& block : mLoad) {
         if (block->virtualContains(vaddr) && block->isValid())
-            return block->begin();
+            return block->begin() + (vaddr - block->vaddr());
     }
     throw InvalidAddressException(vaddr);
 }
@@ -127,7 +127,7 @@ uint64_t CoreApi::v2r(uint64_t vaddr) {
 uint64_t CoreApi::r2v(uint64_t raddr) {
     for (const auto& block : mLoad) {
         if (block->realContains(raddr))
-            return block->vaddr();
+            return block->vaddr() + (raddr - block->begin());
     }
     throw InvalidAddressException(raddr);
 }

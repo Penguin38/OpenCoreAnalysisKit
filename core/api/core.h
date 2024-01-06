@@ -86,7 +86,7 @@ public:
     }
     virtual ~CoreApi();
     uint64_t begin();
-    void addLoadBlock(std::unique_ptr<LoadBlock>& block);
+    void addLoadBlock(std::shared_ptr<LoadBlock>& block);
     void removeAllLoadBlock();
     uint64_t v2r(uint64_t vaddr);
     uint64_t r2v(uint64_t raddr);
@@ -97,7 +97,7 @@ private:
     virtual const char* getMachine() = 0;
 
     std::unique_ptr<MemoryMap> mCore;
-    std::vector<std::unique_ptr<LoadBlock>> mLoad;
+    std::vector<std::shared_ptr<LoadBlock>> mLoad;
 };
 
 #endif // CORE_API_CORE_H_

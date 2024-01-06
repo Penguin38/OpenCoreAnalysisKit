@@ -27,7 +27,7 @@ bool Core::load() {
 
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (phdr[num].p_type == PT_LOAD) {
-            std::unique_ptr<LoadBlock> block(new LoadBlock(phdr[num].p_flags,
+            std::shared_ptr<LoadBlock> block(new LoadBlock(phdr[num].p_flags,
                                              phdr[num].p_offset,
                                              phdr[num].p_vaddr,
                                              phdr[num].p_paddr,
