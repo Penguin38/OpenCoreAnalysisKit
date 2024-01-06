@@ -25,7 +25,8 @@ class MemoryMap {
 public:
     static MemoryMap* MmapFile(const char* file);
     void* data() { return mBegin; }
-    std::string getName() { return mName; }
+    uint64_t size() { return mSize; }
+    std::string& getName() { return mName; }
     ~MemoryMap();
 private:
     static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);

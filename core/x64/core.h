@@ -18,8 +18,6 @@
 #define CORE_X64_CORE_H_
 
 #include "api/core.h"
-#include "base/memory_map.h"
-#include <memory>
 
 namespace x64 {
 
@@ -31,7 +29,8 @@ public:
 private:
     bool load();
     void unload();
-    const char* getMachine();
+    const char* getMachine() { return "x64"; }
+    int getPointSize() { return 64; }
 };
 
 } // namespace x64

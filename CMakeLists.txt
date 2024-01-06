@@ -37,6 +37,7 @@ add_library(core STATIC
             core/riscv64/core.cpp
             core/x64/core.cpp
             core/x86/core.cpp
+            core/common/note_block.cpp
             core/common/load_block.cpp)
 target_link_libraries(core utils)
 

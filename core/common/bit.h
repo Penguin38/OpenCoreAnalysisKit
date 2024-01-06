@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef CORE_ARM64_CORE_H_
-#define CORE_ARM64_CORE_H_
+#ifndef CORE_COMMON_BIT_H_
+#define CORE_COMMON_BIT_H_
 
-#include "api/core.h"
+#include <type_traits>
 
-namespace arm64 {
+template<typename T>
+constexpr T RoundDown(T x, std::remove_reference_t<T> n) {
+  return (x & -n);
+}
 
-class Core : public CoreApi {
-public:
-    Core(std::unique_ptr<MemoryMap>& map)
-        : CoreApi(map) {}
-    ~Core();
-private:
-    bool load();
-    void unload();
-    const char* getMachine() { return "arm64"; }
-    int getPointSize() { return 64; }
-};
+template<typename T>
+constexpr T RoundUp(T x, std::remove_reference_t<T> n) {
+  return RoundDown(x + n - 1, n);
+}
 
-} // namespace arm64
-
-#endif // CORE_ARM64_CORE_H_
+#endif // CORE_COMMON_BIT_H_

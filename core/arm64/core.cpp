@@ -16,8 +16,6 @@
 
 #include "arm64/core.h"
 #include <linux/elf.h>
-#include <memory>
-#include <iostream>
 
 namespace arm64 {
 
@@ -36,16 +34,23 @@ bool Core::load() {
                                              phdr[num].p_align));
             block->setOriAddr(begin() + phdr[num].p_offset);
             addLoadBlock(block);
+        } else if (phdr[num].p_type == PT_NOTE) {
+            std::unique_ptr<NoteBlock> block(new NoteBlock(phdr[num].p_flags,
+                                             phdr[num].p_offset,
+                                             phdr[num].p_vaddr,
+                                             phdr[num].p_paddr,
+                                             phdr[num].p_filesz,
+                                             phdr[num].p_memsz,
+                                             phdr[num].p_align));
+            block->setOriAddr(begin() + phdr[num].p_offset);
+            block->parseNote();
+            addNoteBlock(block);
         }
     }
     return true;
 }
 
 void Core::unload() {
-}
-
-const char* Core::getMachine() {
-    return "arm64";
 }
 
 Core::~Core() {

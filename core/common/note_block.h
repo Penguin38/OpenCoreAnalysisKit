@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef CORE_ARM64_CORE_H_
-#define CORE_ARM64_CORE_H_
+#ifndef CORE_COMMON_NOTE_BLOCK_H_
+#define CORE_COMMON_NOTE_BLOCK_H_
 
-#include "api/core.h"
+#include "common/block.h"
+#include "common/auxv.h"
+#include <memory>
+#include <vector>
 
-namespace arm64 {
-
-class Core : public CoreApi {
+class NoteBlock : public Block {
 public:
-    Core(std::unique_ptr<MemoryMap>& map)
-        : CoreApi(map) {}
-    ~Core();
+    NoteBlock(uint32_t f, uint64_t off, uint64_t va, uint64_t pa,
+            uint64_t filesz, uint64_t memsz, uint64_t align)
+            : Block(f, off, va, pa, filesz, memsz, align) {}
+
+    void parseNote();
+    ~NoteBlock() { std::cout << __func__ << " " << this << std::endl; }
 private:
-    bool load();
-    void unload();
-    const char* getMachine() { return "arm64"; }
-    int getPointSize() { return 64; }
+    void parseNote64();
+    void parseNote32();
+    std::vector<std::unique_ptr<Auxv>> mAuxv;
 };
 
-} // namespace arm64
-
-#endif // CORE_ARM64_CORE_H_
+#endif  // CORE_COMMON_NOTE_BLOCK_H_

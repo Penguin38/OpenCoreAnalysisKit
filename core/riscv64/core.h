@@ -18,8 +18,6 @@
 #define CORE_RISCV64_CORE_H_
 
 #include "api/core.h"
-#include "base/memory_map.h"
-#include <memory>
 
 namespace riscv64 {
 
@@ -31,7 +29,8 @@ public:
 private:
     bool load();
     void unload();
-    const char* getMachine();
+    const char* getMachine() { return "riscv64"; }
+    int getPointSize() { return 64; }
 };
 
 } // namespace riscv64

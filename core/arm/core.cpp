@@ -15,7 +15,6 @@
  */
 
 #include "arm/core.h"
-#include <iostream>
 
 namespace arm {
 
@@ -24,10 +23,6 @@ bool Core::load() {
 }
 
 void Core::unload() {
-}
-
-const char* Core::getMachine() {
-    return "arm";
 }
 
 Core::~Core() {

@@ -23,8 +23,7 @@
 #include "common/elf.h"
 #include "common/exception.h"
 #include <linux/elf.h>
-#include <string.h>
-#include <memory>
+#include <cstring>
 #include <iostream>
 
 CoreApi* CoreApi::INSTANCE = nullptr;
@@ -78,6 +77,7 @@ void CoreApi::UnLoad() {
     if (INSTANCE) {
         INSTANCE->unload();
         INSTANCE->removeAllLoadBlock();
+        INSTANCE->removeAllNoteBlock();
         delete INSTANCE;
         INSTANCE = nullptr;
         std::cout << __func__ << std::endl;
@@ -91,6 +91,10 @@ const char* CoreApi::GetMachine() {
     return "unknown";
 }
 
+int CoreApi::GetPointSize() {
+    return INSTANCE->getPointSize();
+}
+
 CoreApi::~CoreApi() {
     mCore.reset();
     std::cout << __func__ << " " << this << std::endl;
@@ -98,6 +102,14 @@ CoreApi::~CoreApi() {
 
 uint64_t CoreApi::begin() {
     return reinterpret_cast<uint64_t>(mCore->data());
+}
+
+uint64_t CoreApi::size() {
+    return mCore->size();
+}
+
+std::string& CoreApi::getName() {
+    return mCore->getName();
 }
 
 void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
@@ -130,4 +142,12 @@ uint64_t CoreApi::r2v(uint64_t raddr) {
             return block->vaddr() + (raddr - block->begin());
     }
     throw InvalidAddressException(raddr);
+}
+
+void CoreApi::addNoteBlock(std::unique_ptr<NoteBlock>& block) {
+    mNote.push_back(std::move(block));
+}
+
+void CoreApi::removeAllNoteBlock() {
+    mNote.clear();
 }

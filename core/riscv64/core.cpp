@@ -15,7 +15,6 @@
  */
 
 #include "riscv64/core.h"
-#include <iostream>
 
 namespace riscv64 {
 
@@ -24,10 +23,6 @@ bool Core::load() {
 }
 
 void Core::unload() {
-}
-
-const char* Core::getMachine() {
-    return "riscv64";
 }
 
 Core::~Core() {

@@ -1,5 +1,6 @@
 #include "api/core.h"
 #include "common/exception.h"
+#include "common/bit.h"
 #include <iostream>
 
 int main(int argc, const char* argv[]) {
@@ -12,6 +13,8 @@ int main(int argc, const char* argv[]) {
     } catch (InvalidAddressException e) {
         std::cout << e.what() << std::endl;
     }
+    std::cout << std::hex << RoundUp(0x1994, 0x1000) << std::endl;
+    std::cout << std::hex << RoundDown(0x1994, 0x1000) << std::endl;
     CoreApi::UnLoad();
     return 0;
 }

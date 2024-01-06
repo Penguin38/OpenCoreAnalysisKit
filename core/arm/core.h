@@ -18,8 +18,6 @@
 #define CORE_ARM_CORE_H_
 
 #include "api/core.h"
-#include "base/memory_map.h"
-#include <memory>
 
 namespace arm {
 
@@ -31,7 +29,8 @@ public:
 private:
     bool load();
     void unload();
-    const char* getMachine();
+    const char* getMachine() { return "arm"; }
+    int getPointSize() { return 32; }
 };
 
 } // namespace arm

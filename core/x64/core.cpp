@@ -15,7 +15,6 @@
  */
 
 #include "x64/core.h"
-#include <iostream>
 
 namespace x64 {
 
@@ -24,10 +23,6 @@ bool Core::load() {
 }
 
 void Core::unload() {
-}
-
-const char* Core::getMachine() {
-    return "x64";
 }
 
 Core::~Core() {

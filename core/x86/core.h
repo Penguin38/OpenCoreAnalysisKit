@@ -18,8 +18,6 @@
 #define CORE_X86_CORE_H_
 
 #include "api/core.h"
-#include "base/memory_map.h"
-#include <memory>
 
 namespace x86 {
 
@@ -31,7 +29,8 @@ public:
 private:
     bool load();
     void unload();
-    const char* getMachine();
+    const char* getMachine() { return "x86"; }
+    int getPointSize() { return 32; }
 };
 
 } // namespace x86

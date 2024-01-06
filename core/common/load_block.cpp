@@ -21,30 +21,30 @@ uint64_t LoadBlock::begin() {
         return mOverlayAddr;
     if (mMmapAddr)
         return mMmapAddr;
-    if (mOriAddr)
-        return mOriAddr;
+    if (oraddr())
+        return oraddr();
     return 0x0;
 }
 
 bool LoadBlock::isValid() {
-    if ((mFlags & FLAG_R) && (mFileSize || mMmapAddr || mOverlayAddr))
+    if ((flags() & FLAG_R) && (isValidBlock() || mMmapAddr || mOverlayAddr))
         return true;
     return false;
 }
 
-bool LoadBlock::virtualContains(uint64_t vaddr) {
-    if (vaddr >= mVaddr && vaddr < (mVaddr + mMemSize))
+bool LoadBlock::virtualContains(uint64_t addr) {
+    if (addr >= vaddr() && addr < (vaddr() + size()))
         return true;
     return false;
 }
 
 bool LoadBlock::realContains(uint64_t raddr) {
     if (mOverlayAddr) {
-        return (raddr >= mOverlayAddr && raddr < (mOverlayAddr + mMemSize));
+        return (raddr >= mOverlayAddr && raddr < (mOverlayAddr + size()));
     } else if (mMmapAddr) {
-        return (raddr >= mMmapAddr && raddr < (mMmapAddr + mMemSize));
-    } else if (mOriAddr) {
-        return (raddr >= mOriAddr && raddr < (mOriAddr + mMemSize));
+        return (raddr >= mMmapAddr && raddr < (mMmapAddr + size()));
+    } else if (oraddr()) {
+        return (raddr >= oraddr() && raddr < (oraddr() + size()));
     }
     return false;
 }

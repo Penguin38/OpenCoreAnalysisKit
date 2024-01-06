@@ -15,7 +15,6 @@
  */
 
 #include "x86/core.h"
-#include <iostream>
 
 namespace x86 {
 
@@ -24,10 +23,6 @@ bool Core::load() {
 }
 
 void Core::unload() {
-}
-
-const char* Core::getMachine() {
-    return "x86";
 }
 
 Core::~Core() {
