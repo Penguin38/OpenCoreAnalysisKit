@@ -69,7 +69,7 @@
 class Auxv {
 public:
     inline uint64_t type() { return mType; }
-    inline uint32_t value() { return mValue; }
+    inline uint64_t value() { return mValue; }
 
     Auxv(uint64_t t, uint64_t v) : mType(t), mValue(v) {}
     ~Auxv() { std::cout << __func__ << " " << this << std::endl; }

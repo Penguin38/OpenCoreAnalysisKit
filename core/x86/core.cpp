@@ -15,10 +15,12 @@
  */
 
 #include "x86/core.h"
+#include <linux/elf.h>
 
 namespace x86 {
 
 bool Core::load() {
+    load32(this);
     return true;
 }
 

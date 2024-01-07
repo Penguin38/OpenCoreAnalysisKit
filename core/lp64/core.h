@@ -14,26 +14,32 @@
  * limitations under the License.
  */
 
-#ifndef CORE_RISCV64_CORE_H_
-#define CORE_RISCV64_CORE_H_
+#ifndef CORE_LP64_CORE_H_
+#define CORE_LP64_CORE_H_
 
 #include "api/core.h"
-#include "lp64/core.h"
+#include <functional>
 
-namespace riscv64 {
+namespace lp64 {
 
-class Core : public CoreApi, lp64::Core {
+class Auxv {
 public:
-    Core(std::unique_ptr<MemoryMap>& map)
-        : CoreApi(map) {}
-    ~Core();
-private:
-    bool load();
-    void unload();
-    const char* getMachine() { return "riscv64"; }
-    int getPointSize() { return 64; }
+    uint64_t type;
+    uint64_t value;
 };
 
-} // namespace riscv64
+class File {
+public:
+    uint64_t begin;
+    uint64_t end;
+    uint64_t offset;
+};
 
-#endif // CORE_RISCV64_CORE_H_
+class Core {
+public:
+    bool load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
+};
+
+} // namespace lp64
+
+#endif // CORE_LP64_CORE_H_

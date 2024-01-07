@@ -15,10 +15,12 @@
  */
 
 #include "arm/core.h"
+#include <linux/elf.h>
 
 namespace arm {
 
 bool Core::load() {
+    load32(this);
     return true;
 }
 

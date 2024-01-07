@@ -128,6 +128,18 @@ uint64_t CoreApi::GetVirtual(uint64_t raddr) {
     return INSTANCE->r2v(raddr);
 }
 
+uint64_t CoreApi::FindAuxv(uint64_t type) {
+    return INSTANCE->findAuxv(type);
+}
+
+ThreadApi* CoreApi::FindThread(int tid) {
+    return INSTANCE->findThread(tid);
+}
+
+void CoreApi::DumpFile() {
+    INSTANCE->dumpFile();
+}
+
 uint64_t CoreApi::v2r(uint64_t vaddr) {
     for (const auto& block : mLoad) {
         if (block->virtualContains(vaddr) && block->isValid())
@@ -150,4 +162,33 @@ void CoreApi::addNoteBlock(std::unique_ptr<NoteBlock>& block) {
 
 void CoreApi::removeAllNoteBlock() {
     mNote.clear();
+}
+
+uint64_t CoreApi::findAuxv(uint64_t type) {
+    for (const auto& block : mNote) {
+        for (const auto& auxv : block->getAuxv()) {
+            if (auxv->type() == type)
+                return auxv->value();
+        }
+    }
+    return 0x0;
+}
+
+ThreadApi* CoreApi::findThread(int tid) {
+    for (const auto& block : mNote) {
+        for (const auto& thread : block->getThread()) {
+            if (thread->pid() == tid)
+                return thread.get();
+        }
+    }
+    return nullptr;
+}
+
+void CoreApi::dumpFile() {
+    for (const auto& block : mNote) {
+        for (const auto& file : block->getFile()) {
+            std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
+                << file->offset() << " " << file->name() << std::endl;
+        }
+    }
 }

@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef CORE_RISCV64_CORE_H_
-#define CORE_RISCV64_CORE_H_
+#ifndef CORE_LP32_CORE_H_
+#define CORE_LP32_CORE_H_
 
 #include "api/core.h"
-#include "lp64/core.h"
 
-namespace riscv64 {
+namespace lp32 {
 
-class Core : public CoreApi, lp64::Core {
+class Core {
 public:
-    Core(std::unique_ptr<MemoryMap>& map)
-        : CoreApi(map) {}
-    ~Core();
-private:
-    bool load();
-    void unload();
-    const char* getMachine() { return "riscv64"; }
-    int getPointSize() { return 64; }
+    bool load32(CoreApi* api);
 };
 
-} // namespace riscv64
+} // namespace lp32
 
-#endif // CORE_RISCV64_CORE_H_
+#endif // CORE_LP32_CORE_H_

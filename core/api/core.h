@@ -17,6 +17,7 @@
 #ifndef CORE_API_CORE_H_
 #define CORE_API_CORE_H_
 
+#include "api/thread.h"
 #include "base/memory_map.h"
 #include "common/load_block.h"
 #include "common/note_block.h"
@@ -83,6 +84,10 @@ public:
     static int GetPointSize();
     static uint64_t GetReal(uint64_t vaddr);
     static uint64_t GetVirtual(uint64_t raddr);
+    static uint64_t FindAuxv(uint64_t type);
+    static ThreadApi* FindThread(int tid);
+    static void DumpFile();
+
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
         mCore = std::move(map);
@@ -97,6 +102,9 @@ public:
     inline uint64_t r2v(uint64_t raddr);
     void addNoteBlock(std::unique_ptr<NoteBlock>& block);
     void removeAllNoteBlock();
+    uint64_t findAuxv(uint64_t type);
+    ThreadApi* findThread(int tid);
+    void dumpFile();
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;

@@ -19,6 +19,8 @@
 
 #include "common/block.h"
 #include "common/auxv.h"
+#include "common/file.h"
+#include "api/thread.h"
 #include <memory>
 #include <vector>
 
@@ -28,12 +30,17 @@ public:
             uint64_t filesz, uint64_t memsz, uint64_t align)
             : Block(f, off, va, pa, filesz, memsz, align) {}
 
-    void parseNote();
-    ~NoteBlock() { std::cout << __func__ << " " << this << std::endl; }
+    void addAuxvItem(uint64_t type, uint64_t value);
+    void addFileItem(uint64_t begin, uint64_t end, uint64_t offset, uint64_t pos);
+    void addThreadItem(void *thread);
+    std::vector<std::unique_ptr<Auxv>>& getAuxv() { return mAuxv; }
+    std::vector<std::unique_ptr<File>>& getFile() { return mFile; }
+    std::vector<std::unique_ptr<ThreadApi>>& getThread() { return mThread; }
+    ~NoteBlock();
 private:
-    void parseNote64();
-    void parseNote32();
+    std::vector<std::unique_ptr<ThreadApi>> mThread;
     std::vector<std::unique_ptr<Auxv>> mAuxv;
+    std::vector<std::unique_ptr<File>> mFile;
 };
 
 #endif  // CORE_COMMON_NOTE_BLOCK_H_

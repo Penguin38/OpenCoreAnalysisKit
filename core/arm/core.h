@@ -18,10 +18,11 @@
 #define CORE_ARM_CORE_H_
 
 #include "api/core.h"
+#include "lp32/core.h"
 
 namespace arm {
 
-class Core : public CoreApi {
+class Core : public CoreApi, lp32::Core {
 public:
     Core(std::unique_ptr<MemoryMap>& map)
         : CoreApi(map) {}

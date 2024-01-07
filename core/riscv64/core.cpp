@@ -15,11 +15,15 @@
  */
 
 #include "riscv64/core.h"
+#include <linux/elf.h>
 
 namespace riscv64 {
 
 bool Core::load() {
-    return true;
+    auto callback = [](uint64_t type, uint64_t pos) -> void * {
+        return nullptr;
+    };
+    return load64(this, callback);
 }
 
 void Core::unload() {

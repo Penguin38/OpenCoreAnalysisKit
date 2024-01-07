@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-#include "api/core.h"
 #include "note_block.h"
-#include "common/bit.h"
-#include <linux/elf.h>
 
-void NoteBlock::parseNote() {
-    switch(CoreApi::GetPointSize()) {
-        case 64: parseNote64(); break;
-        case 32: parseNote32(); break;
+void NoteBlock::addAuxvItem(uint64_t type, uint64_t value) {
+    std::unique_ptr<Auxv> auxv = std::make_unique<Auxv>(type, value);
+    mAuxv.push_back(std::move(auxv));
+}
+
+void NoteBlock::addFileItem(uint64_t begin, uint64_t end, uint64_t offset, uint64_t pos) {
+    const char* name = reinterpret_cast<const char*>(pos);
+    std::unique_ptr<File> file = std::make_unique<File>(begin, end, offset << 12, name);
+    mFile.push_back(std::move(file));
+}
+
+void NoteBlock::addThreadItem(void *thread) {
+    if (thread) {
+        std::unique_ptr<ThreadApi> api(reinterpret_cast<ThreadApi *>(thread));
+        mThread.push_back(std::move(api));
     }
 }
 
-void NoteBlock::parseNote64() {
-    std::cout << __func__ << std::endl;
-    if (isValidBlock()) {
-        uint64_t pos = oraddr();
-        uint64_t end = oraddr() + realSize();
-        while (pos < end) {
-            Elf64_Nhdr *nhdr = reinterpret_cast<Elf64_Nhdr *>(pos);
-            pos = pos + RoundUp(nhdr->n_descsz, 0x4) + sizeof(Elf64_Nhdr) + sizeof(uint64_t);
-        }
-    }
-}
-
-void NoteBlock::parseNote32() {
-    std::cout << __func__ << std::endl;
+NoteBlock::~NoteBlock() {
+    std::cout << __func__ << " " << this << std::endl;
+    mThread.clear();
+    mAuxv.clear();
+    mFile.clear();
 }

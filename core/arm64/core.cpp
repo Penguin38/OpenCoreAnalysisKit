@@ -15,39 +15,25 @@
  */
 
 #include "arm64/core.h"
+#include "arm64/thread_info.h"
+#include "common/prstatus.h"
+#include <string.h>
 #include <linux/elf.h>
 
 namespace arm64 {
 
 bool Core::load() {
-    Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(begin());
-    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(begin() + ehdr->e_phoff);
-
-    for (int num = 0; num < ehdr->e_phnum; ++num) {
-        if (phdr[num].p_type == PT_LOAD) {
-            std::shared_ptr<LoadBlock> block(new LoadBlock(phdr[num].p_flags,
-                                             phdr[num].p_offset,
-                                             phdr[num].p_vaddr,
-                                             phdr[num].p_paddr,
-                                             phdr[num].p_filesz,
-                                             phdr[num].p_memsz,
-                                             phdr[num].p_align));
-            block->setOriAddr(begin() + phdr[num].p_offset);
-            addLoadBlock(block);
-        } else if (phdr[num].p_type == PT_NOTE) {
-            std::unique_ptr<NoteBlock> block(new NoteBlock(phdr[num].p_flags,
-                                             phdr[num].p_offset,
-                                             phdr[num].p_vaddr,
-                                             phdr[num].p_paddr,
-                                             phdr[num].p_filesz,
-                                             phdr[num].p_memsz,
-                                             phdr[num].p_align));
-            block->setOriAddr(begin() + phdr[num].p_offset);
-            block->parseNote();
-            addNoteBlock(block);
+    auto callback = [](uint64_t type, uint64_t pos) -> void * {
+        switch(type) {
+            case NT_PRSTATUS:
+                Elf64_prstatus* prs = reinterpret_cast<Elf64_prstatus *>(pos);
+                ThreadInfo* thread = new ThreadInfo(prs->pr_pid);
+                memcpy(&thread->reg, &prs->pr_reg, sizeof(Register));
+                return thread;
         }
-    }
-    return true;
+        return nullptr;
+    };
+    return load64(this, callback);
 }
 
 void Core::unload() {

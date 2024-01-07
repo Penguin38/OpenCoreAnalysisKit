@@ -18,10 +18,11 @@
 #define CORE_X64_CORE_H_
 
 #include "api/core.h"
+#include "lp64/core.h"
 
 namespace x64 {
 
-class Core : public CoreApi {
+class Core : public CoreApi, lp64::Core {
 public:
     Core(std::unique_ptr<MemoryMap>& map)
         : CoreApi(map) {}
