@@ -18,12 +18,26 @@
 #define CORE_LP32_CORE_H_
 
 #include "api/core.h"
+#include <functional>
 
 namespace lp32 {
 
+class Auxv {
+public:
+    uint32_t type;
+    uint32_t value;
+};
+
+class File {
+public:
+    uint32_t begin;
+    uint32_t end;
+    uint32_t offset;
+};
+
 class Core {
 public:
-    bool load32(CoreApi* api);
+    bool load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
 };
 
 } // namespace lp32

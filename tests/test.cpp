@@ -1,12 +1,13 @@
 #include "api/core.h"
 #include "api/thread.h"
 #include "arm64/thread_info.h"
+#include "arm/thread_info.h"
 #include "common/exception.h"
 #include "common/bit.h"
+#include <string.h>
 #include <iostream>
 
 int main(int argc, const char* argv[]) {
-    std::string machine = CoreApi::GetMachine();
     std::cout << CoreApi::Load(argv[1]) << std::endl;
     std::cout << CoreApi::GetMachine() << std::endl;
     std::cout << std::hex << *(uint64_t *)CoreApi::GetReal(0x12c00018) << std::endl;
@@ -21,8 +22,15 @@ int main(int argc, const char* argv[]) {
     std::cout << std::hex << CoreApi::FindAuxv(AT_EXECFN) << std::endl;
 
     ThreadApi* thread = CoreApi::FindThread(1745);
-    if (thread && machine == "arm64") {
+    if (thread && !strcmp(CoreApi::GetMachine(), "arm64")) {
         arm64::ThreadInfo* info = reinterpret_cast<arm64::ThreadInfo *>(thread);
+        std::cout << std::hex << info->reg.pc << std::endl;
+    }
+
+    ThreadApi* thread1 = CoreApi::FindThread(7836);
+    std::cout << "thread1 " << thread1 << std::endl;
+    if (thread1 && !strcmp(CoreApi::GetMachine(), "arm")) {
+        arm::ThreadInfo* info = reinterpret_cast<arm::ThreadInfo *>(thread1);
         std::cout << std::hex << info->reg.pc << std::endl;
     }
 

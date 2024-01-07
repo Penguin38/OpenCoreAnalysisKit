@@ -50,4 +50,37 @@ typedef struct elf64_prstatus {
 
 } // namespace arm64
 
+namespace arm {
+
+struct pt_regs {
+    uint32_t  regs[13];
+    uint32_t  sp;
+    uint32_t  lr;
+    uint32_t  pc;
+    uint32_t  cpsr;
+} __attribute__((aligned(1)));
+
+typedef struct elf32_prstatus {
+    uint32_t             pr_si_signo;
+    uint32_t             pr_si_code;
+    uint32_t             pr_si_errno;
+    uint16_t             pr_cursig;
+    uint16_t             __padding1;
+    uint32_t             pr_sigpend;
+    uint32_t             pr_sighold;
+    uint32_t             pr_pid;
+    uint32_t             pr_ppid;
+    uint32_t             pr_pgrp;
+    uint32_t             pd_sid;
+    uint64_t             pr_utime;
+    uint64_t             pr_stime;
+    uint64_t             pr_cutime;
+    uint64_t             pr_cstime;
+    struct pt_regs       pr_reg;
+    uint32_t             pr_fpvalid;
+    uint32_t             __padding2;
+} __attribute__((packed, aligned(1))) Elf32_prstatus;
+
+} // namespace arm
+
 #endif  // CORE_COMMON_PRSTATUS_H_

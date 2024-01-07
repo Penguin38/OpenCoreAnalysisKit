@@ -15,13 +15,25 @@
  */
 
 #include "arm/core.h"
+#include "arm/thread_info.h"
+#include "common/prstatus.h"
+#include <string.h>
 #include <linux/elf.h>
 
 namespace arm {
 
 bool Core::load() {
-    load32(this);
-    return true;
+    auto callback = [](uint64_t type, uint64_t pos) -> void * {
+        switch(type) {
+            case NT_PRSTATUS:
+                Elf32_prstatus* prs = reinterpret_cast<Elf32_prstatus *>(pos);
+                ThreadInfo* thread = new ThreadInfo(prs->pr_pid);
+                memcpy(&thread->reg, &prs->pr_reg, sizeof(Register));
+                return thread;
+        }
+        return nullptr;
+    };
+    return load32(this, callback);
 }
 
 void Core::unload() {

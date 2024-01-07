@@ -20,8 +20,10 @@
 namespace x86 {
 
 bool Core::load() {
-    load32(this);
-    return true;
+    auto callback = [](uint64_t type, uint64_t pos) -> void * {
+        return nullptr;
+    };
+    return load32(this, callback);
 }
 
 void Core::unload() {
