@@ -14,28 +14,31 @@
  * limitations under the License.
  */
 
-#ifndef CORE_ARM_CORE_H_
-#define CORE_ARM_CORE_H_
+#ifndef CORE_COMMON_LINKMAP_H_
+#define CORE_COMMON_LINKMAP_H_
 
-#include "api/core.h"
-#include "lp32/core.h"
+#include <stdint.h>
+#include <sys/types.h>
+#include <string>
+#include <iostream>
 
-namespace arm {
-
-class Core : public CoreApi, lp32::Core {
+class LinkMap {
 public:
-    Core(std::unique_ptr<MemoryMap>& map)
-        : CoreApi(map) {}
-    ~Core();
+    inline uint64_t begin() { return mBegin; }
+    inline std::string& name() { return mName; }
+    inline LoadBlock* block() { return mBlock; }
+
+    LinkMap(uint64_t b, const char* name, LoadBlock* block)
+            : mBegin(b) {
+        if (name) mName = name;
+        mBlock = block;
+    }
+    ~LinkMap() { std::cout << __func__ << " " << this << std::endl; }
 private:
-    bool load();
-    void unload();
-    const char* getMachine() { return "arm"; }
-    int getPointSize() { return 32; }
-    void loadDebug() { setDebug(loadDebug32(this)); }
-    void loadLinkMap() { loadLinkMap32(this); }
+    //  file member
+    uint64_t mBegin;
+    std::string mName;
+    LoadBlock* mBlock;
 };
 
-} // namespace arm
-
-#endif // CORE_ARM_CORE_H_
+#endif  // CORE_COMMON_LINKMAP_H_

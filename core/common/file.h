@@ -30,7 +30,7 @@ public:
     inline std::string& name() { return mName; }
 
     File(uint64_t b, uint64_t e, uint64_t off, const char* name)
-            : mBegin(b), mEnd(e), mOffset(off) { mName.append(name); }
+            : mBegin(b), mEnd(e), mOffset(off) { mName = name; }
     ~File() { std::cout << __func__ << " " << this << std::endl; }
 private:
     //  file member

@@ -32,6 +32,8 @@ private:
     void unload();
     const char* getMachine() { return "x86"; }
     int getPointSize() { return 32; }
+    void loadDebug() { setDebug(loadDebug32(this)); }
+    void loadLinkMap() { loadLinkMap32(this); }
 };
 
 } // namespace x86

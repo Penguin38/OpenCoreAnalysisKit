@@ -20,6 +20,12 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#define EM_386		3
+#define EM_ARM		40
+#define EM_X86_64	62
+#define EM_AARCH64	183
+#define EM_RISCV	243
+
 class ElfHeader {
 public:
     uint8_t  ident[16];

@@ -16,6 +16,7 @@
 
 #include "lp32/core.h"
 #include "common/bit.h"
+#include "common/exception.h"
 #include <string.h>
 #include <linux/elf.h>
 
@@ -88,6 +89,73 @@ bool Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callba
         }
     }
     return true;
+}
+
+uint64_t Core::loadDebug32(CoreApi* api) {
+    uint64_t phdr = api->findAuxv(AT_PHDR);
+    uint64_t phent = api->findAuxv(AT_PHENT);
+    uint64_t phnum = api->findAuxv(AT_PHNUM);
+    uint64_t execfn = api->findAuxv(AT_EXECFN);
+
+    if (!CoreApi::IsVirtualValid(phdr)) {
+        std::string name;
+        if (CoreApi::IsVirtualValid(execfn)) {
+            name.append(reinterpret_cast<const char*>(CoreApi::GetReal(execfn)));
+        }
+        std::cout << "Not found execfn [" << name << "]." << std::endl;
+        return 0x0;
+    }
+
+    int index = 0;
+    Elf32_Phdr *dyphdr = nullptr;
+    Elf32_Phdr *cphdr = reinterpret_cast<Elf32_Phdr *>(CoreApi::GetReal(phdr));
+    while (index < phnum) {
+        if (cphdr[index].p_type == PT_DYNAMIC) {
+            dyphdr = &cphdr[index];
+            break;
+        }
+        index++;
+    }
+
+    if (dyphdr) {
+        std::cout << dyphdr << std::endl;
+        return FindDynamic(reinterpret_cast<uint64_t>(cphdr) - cphdr->p_vaddr, reinterpret_cast<uint64_t>(dyphdr), DT_DEBUG);
+    }
+    return 0x0;
+}
+
+void Core::loadLinkMap32(CoreApi* api) {
+    uint64_t debug = CoreApi::GetDebug();
+    if (!debug) {
+        std::cout << "Not found debug." << std::endl;
+        return;
+    }
+
+    try {
+        Debug* dbg = reinterpret_cast<Debug *>(CoreApi::GetReal(debug));
+        uint32_t map = dbg->map;
+        while (map) {
+            LinkMap* link = reinterpret_cast<LinkMap*>(CoreApi::GetReal(map));
+            api->addLinkMap(link->addr, link->name);
+            map = link->next;
+        }
+    } catch (InvalidAddressException e) {
+        std::cout << e.what() << std::endl;
+    }
+}
+
+uint32_t Core::FindDynamic(uint64_t load, uint64_t phdr, uint32_t type) {
+    Elf32_Phdr *dyphdr = reinterpret_cast<Elf32_Phdr *>(phdr);
+    Dynamic *dynamic = reinterpret_cast<Dynamic *>(load + dyphdr->p_vaddr);
+    int numdynamic = dyphdr->p_filesz / sizeof(Dynamic);
+    int index = 0;
+    while (index < numdynamic) {
+        if (dynamic[index].type == type) {
+            return dynamic[index].value;
+        }
+        index++;
+    }
+    return 0x0;
 }
 
 } // namespace lp32

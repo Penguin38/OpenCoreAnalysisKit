@@ -76,6 +76,7 @@ bool CoreApi::Load(const char* corefile) {
 void CoreApi::UnLoad() {
     if (INSTANCE) {
         INSTANCE->unload();
+        INSTANCE->removeAllLinkMap();
         INSTANCE->removeAllLoadBlock();
         INSTANCE->removeAllNoteBlock();
         delete INSTANCE;
@@ -116,6 +117,15 @@ void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
     mLoad.push_back(std::move(block));
 }
 
+LoadBlock* CoreApi::findLoadBlock(uint64_t vaddr) {
+    for (const auto& block : mLoad) {
+        if (block->virtualContains(vaddr)) {
+            return block.get();
+        }
+    }
+    return nullptr;
+}
+
 void CoreApi::removeAllLoadBlock() {
     mLoad.clear();
 }
@@ -128,6 +138,10 @@ uint64_t CoreApi::GetVirtual(uint64_t raddr) {
     return INSTANCE->r2v(raddr);
 }
 
+bool CoreApi::IsVirtualValid(uint64_t vaddr) {
+    return INSTANCE->virtualValid(vaddr);
+}
+
 uint64_t CoreApi::FindAuxv(uint64_t type) {
     return INSTANCE->findAuxv(type);
 }
@@ -136,8 +150,34 @@ ThreadApi* CoreApi::FindThread(int tid) {
     return INSTANCE->findThread(tid);
 }
 
+void CoreApi::addLinkMap(uint64_t begin, uint64_t name) {
+    std::unique_ptr<LinkMap> linkmap;
+    if (IsVirtualValid(name)) {
+        linkmap = std::make_unique<LinkMap>(begin,
+                            reinterpret_cast<const char*>(v2r(name)),
+                            findLoadBlock(begin));
+    } else {
+        linkmap = std::make_unique<LinkMap>(begin, nullptr, findLoadBlock(begin));
+    }
+    mLinkMap.push_back(std::move(linkmap));
+}
+
+void CoreApi::removeAllLinkMap() {
+    mLinkMap.clear();
+}
+
+uint64_t CoreApi::GetDebug() {
+    if (!INSTANCE->mDebug)
+        INSTANCE->loadDebug();
+    return INSTANCE->mDebug;
+}
+
 void CoreApi::DumpFile() {
     INSTANCE->dumpFile();
+}
+
+void CoreApi::DumpLinkMap() {
+    INSTANCE->dumpLinkMap();
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr) {
@@ -154,6 +194,15 @@ uint64_t CoreApi::r2v(uint64_t raddr) {
             return block->vaddr() + (raddr - block->begin());
     }
     throw InvalidAddressException(raddr);
+}
+
+bool CoreApi::virtualValid(uint64_t vaddr) {
+    for (const auto& block : mLoad) {
+        if (block->virtualContains(vaddr)) {
+            return block->isValid();
+        }
+    }
+    return false;
 }
 
 void CoreApi::addNoteBlock(std::unique_ptr<NoteBlock>& block) {
@@ -190,5 +239,15 @@ void CoreApi::dumpFile() {
             std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
                 << file->offset() << " " << file->name() << std::endl;
         }
+    }
+}
+
+void CoreApi::dumpLinkMap() {
+    if (mLinkMap.size() == 0) {
+        loadLinkMap();
+    }
+
+    for (const auto& map : mLinkMap) {
+        std::cout << std::hex << "[" << map->begin() << "] " << map->name() << std::endl;
     }
 }

@@ -18,6 +18,7 @@
 #define CORE_COMMON_LOAD_BLOCK_H_
 
 #include "common/block.h"
+#include <string>
 
 class LoadBlock : public Block {
 public:
@@ -36,10 +37,13 @@ public:
 
     void setMmapAddr(uint64_t addr) { mMmapAddr = addr; }
     void setOverlayAddr(uint64_t addr) { mOverlayAddr = addr; }
+    void setName(const char* name) { mName = name; }
+    inline std::string& name() { return mName; }
     ~LoadBlock() { std::cout << __func__ << " " << this << std::endl; }
 private:
     uint64_t mMmapAddr;
     uint64_t mOverlayAddr;
+    std::string mName;
 };
 
 #endif  // CORE_COMMON_LOAD_BLOCK_H_

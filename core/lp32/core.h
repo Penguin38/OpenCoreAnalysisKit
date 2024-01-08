@@ -35,9 +35,33 @@ public:
     uint32_t offset;
 };
 
+class Debug {
+public:
+    uint32_t version;
+    uint32_t map;
+};
+
+class LinkMap {
+public:
+    uint32_t addr;
+    uint32_t name;
+    uint32_t ld;
+    uint32_t next;
+    uint32_t prev;
+};
+
+class Dynamic {
+public:
+    uint32_t type;
+    uint32_t value;
+};
+
 class Core {
 public:
     bool load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
+    uint64_t loadDebug32(CoreApi* api);
+    void loadLinkMap32(CoreApi* api);
+    static uint32_t FindDynamic(uint64_t load, uint64_t phdr, uint32_t type);
 };
 
 } // namespace lp32

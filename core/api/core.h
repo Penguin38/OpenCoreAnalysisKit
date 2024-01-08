@@ -21,11 +21,13 @@
 #include "base/memory_map.h"
 #include "common/load_block.h"
 #include "common/note_block.h"
+#include "common/link_map.h"
 #include <stdint.h>
 #include <sys/types.h>
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 
 /*
              ---------- <-
@@ -84,9 +86,13 @@ public:
     static int GetPointSize();
     static uint64_t GetReal(uint64_t vaddr);
     static uint64_t GetVirtual(uint64_t raddr);
+    static bool IsVirtualValid(uint64_t vaddr);
     static uint64_t FindAuxv(uint64_t type);
     static ThreadApi* FindThread(int tid);
+    static uint64_t GetDebug();
+    // Command
     static void DumpFile();
+    static void DumpLinkMap();
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
@@ -97,24 +103,35 @@ public:
     uint64_t size();
     std::string& getName();
     void addLoadBlock(std::shared_ptr<LoadBlock>& block);
+    LoadBlock* findLoadBlock(uint64_t vaddr);
     void removeAllLoadBlock();
     inline uint64_t v2r(uint64_t vaddr);
     inline uint64_t r2v(uint64_t raddr);
+    inline bool virtualValid(uint64_t vaddr);
     void addNoteBlock(std::unique_ptr<NoteBlock>& block);
     void removeAllNoteBlock();
     uint64_t findAuxv(uint64_t type);
     ThreadApi* findThread(int tid);
+    void setDebug(uint64_t debug) { mDebug = debug; }
+    void addLinkMap(uint64_t begin, uint64_t name);
+    void removeAllLinkMap();
     void dumpFile();
+    void dumpLinkMap();
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;
     virtual void unload() = 0;
     virtual const char* getMachine() = 0;
     virtual int getPointSize() = 0;
+    virtual void loadDebug() = 0;
+    virtual void loadLinkMap() = 0;
 
     std::unique_ptr<MemoryMap> mCore;
     std::vector<std::shared_ptr<LoadBlock>> mLoad;
     std::vector<std::unique_ptr<NoteBlock>> mNote;
+    std::vector<std::unique_ptr<LinkMap>> mLinkMap;
+protected:
+    uint64_t mDebug;
 };
 
 #endif // CORE_API_CORE_H_

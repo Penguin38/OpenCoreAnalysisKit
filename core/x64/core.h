@@ -32,6 +32,8 @@ private:
     void unload();
     const char* getMachine() { return "x64"; }
     int getPointSize() { return 64; }
+    void loadDebug() { setDebug(loadDebug64(this)); }
+    void loadLinkMap() { loadLinkMap64(this); }
 };
 
 } // namespace x64

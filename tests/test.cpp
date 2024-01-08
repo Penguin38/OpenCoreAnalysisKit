@@ -34,7 +34,10 @@ int main(int argc, const char* argv[]) {
         std::cout << std::hex << info->reg.pc << std::endl;
     }
 
+    std::cout << std::hex << CoreApi::GetDebug() << std::endl;
+
     CoreApi::DumpFile();
+    CoreApi::DumpLinkMap();
     CoreApi::UnLoad();
     return 0;
 }
