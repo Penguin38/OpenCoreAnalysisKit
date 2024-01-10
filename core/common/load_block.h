@@ -28,7 +28,13 @@ public:
     static constexpr int FLAG_W = (1 << 1);    /* Segment is writable */
     static constexpr int FLAG_R = (1 << 2);    /* Segment is readable */
 
-    uint64_t begin();
+    static constexpr int OPT_READ_OR = (1 << 0);
+    static constexpr int OPT_READ_MMAP = (1 << 1);
+    static constexpr int OPT_READ_OVERLAY = (1 << 2);
+    static constexpr int OPT_READ_ALL = OPT_READ_OR | OPT_READ_MMAP | OPT_READ_OVERLAY;
+
+    uint64_t begin() { return begin(OPT_READ_ALL); }
+    uint64_t begin(int opt);
     bool isValid();
     bool virtualContains(uint64_t vaddr);
     bool realContains(uint64_t raddr);

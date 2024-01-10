@@ -80,6 +80,11 @@
                                     ----------
 */
 
+static constexpr int OPT_READ_OR = LoadBlock::OPT_READ_OR;
+static constexpr int OPT_READ_MMAP = LoadBlock::OPT_READ_MMAP;
+static constexpr int OPT_READ_OVERLAY = LoadBlock::OPT_READ_OVERLAY;
+static constexpr int OPT_READ_ALL = LoadBlock::OPT_READ_ALL;
+
 class CoreApi {
 public:
     static bool Load(const char* corefile);
@@ -87,7 +92,10 @@ public:
     static const char* GetMachineName();
     static int GetMachine();
     static int GetPointSize();
-    static uint64_t GetReal(uint64_t vaddr);
+    static uint64_t GetReal(uint64_t vaddr) {
+        return GetReal(vaddr, OPT_READ_ALL);
+    }
+    static uint64_t GetReal(uint64_t vaddr, int opt);
     static uint64_t GetVirtual(uint64_t raddr);
     static bool IsVirtualValid(uint64_t vaddr);
     static uint64_t FindAuxv(uint64_t type);
@@ -99,7 +107,10 @@ public:
     static void ExecFile(const char* file);
     static void SysRoot(const char* dir);
     static void Write(uint64_t vaddr, uint64_t value);
-    static void Read(uint64_t vaddr, uint64_t size, uint8_t* buf);
+    static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf) {
+        return Read(vaddr, size, buf, OPT_READ_ALL);
+    }
+    static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt);
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
@@ -112,7 +123,7 @@ public:
     void addLoadBlock(std::shared_ptr<LoadBlock>& block);
     LoadBlock* findLoadBlock(uint64_t vaddr);
     void removeAllLoadBlock();
-    inline uint64_t v2r(uint64_t vaddr);
+    inline uint64_t v2r(uint64_t vaddr, int opt);
     inline uint64_t r2v(uint64_t raddr);
     inline bool virtualValid(uint64_t vaddr);
     void addNoteBlock(std::unique_ptr<NoteBlock>& block);

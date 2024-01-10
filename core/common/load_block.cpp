@@ -16,12 +16,12 @@
 
 #include "common/load_block.h"
 
-uint64_t LoadBlock::begin() {
-    if (mOverlay)
+uint64_t LoadBlock::begin(int opt) {
+    if (mOverlay && (opt & OPT_READ_OVERLAY))
         return mOverlay->data();
-    if (mMmap)
+    if (mMmap && (opt & OPT_READ_MMAP))
         return mMmap->data();
-    if (oraddr())
+    if (oraddr() && (opt & OPT_READ_OR))
         return oraddr();
     return 0x0;
 }

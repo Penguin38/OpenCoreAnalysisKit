@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file ercept in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either erpress or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "api/core.h"
 #include "api/thread.h"
 #include "arm64/thread_info.h"
@@ -17,9 +33,21 @@ int main(int argc, const char* argv[]) {
     CoreApi::Write(0x6f718f2000, 0xdeaddeaddeaddeadUL);
 
     uint8_t value[0x100];
+    memset(value, 0x0, sizeof(value));
     uint64_t beginaddr = 0x12c00018;
     CoreApi::Read(beginaddr, sizeof(value), value);
     int count = sizeof(value) / sizeof(uint64_t);
+    for (int index = 0; index < count; index += 2) {
+        std::cout << std::hex << (beginaddr + index * 0x8) << ": "
+                  << std::setw(16) << std::setfill('0') << reinterpret_cast<uint64_t *>(value)[index] << "  "
+                  << std::setw(16) << std::setfill('0') << reinterpret_cast<uint64_t *>(value)[index + 1] << "  "
+                  << Utils::ConvertAscii(reinterpret_cast<uint64_t *>(value)[index], 8)
+                  << Utils::ConvertAscii(reinterpret_cast<uint64_t *>(value)[index + 1], 8) << std::endl;
+    }
+
+    std::cout << std::endl;
+    memset(value, 0x0, sizeof(value));
+    CoreApi::Read(beginaddr, sizeof(value), value, OPT_READ_MMAP);
     for (int index = 0; index < count; index += 2) {
         std::cout << std::hex << (beginaddr + index * 0x8) << ": "
                   << std::setw(16) << std::setfill('0') << reinterpret_cast<uint64_t *>(value)[index] << "  "

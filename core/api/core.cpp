@@ -138,8 +138,8 @@ void CoreApi::removeAllLoadBlock() {
     mLoad.clear();
 }
 
-uint64_t CoreApi::GetReal(uint64_t vaddr) {
-    return INSTANCE->v2r(vaddr);
+uint64_t CoreApi::GetReal(uint64_t vaddr, int opt) {
+    return INSTANCE->v2r(vaddr, opt);
 }
 
 uint64_t CoreApi::GetVirtual(uint64_t raddr) {
@@ -162,7 +162,7 @@ void CoreApi::addLinkMap(uint64_t begin, uint64_t name) {
     std::unique_ptr<LinkMap> linkmap;
     if (IsVirtualValid(name)) {
         linkmap = std::make_unique<LinkMap>(begin,
-                            reinterpret_cast<const char*>(v2r(name)),
+                            reinterpret_cast<const char*>(v2r(name, OPT_READ_ALL)),
                             findLoadBlock(begin));
     } else {
         linkmap = std::make_unique<LinkMap>(begin, nullptr, findLoadBlock(begin));
@@ -256,23 +256,34 @@ void CoreApi::Write(uint64_t vaddr, uint64_t value) {
     }
 }
 
-void CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf) {
+bool CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt) {
     LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
     if (!block)
-        return;
+        return false;
+
+    uint64_t raddr = GetReal(vaddr, opt);
+    if (!raddr)
+        return false;
 
     if ((vaddr + size) > (block->vaddr() + block->size())) {
         uint64_t newsize = (block->vaddr() + block->size() - vaddr);
-        memcpy(buf, reinterpret_cast<void *>(GetReal(vaddr)), newsize);
+        memcpy(buf, reinterpret_cast<void *>(raddr), newsize);
     } else {
-        memcpy(buf, reinterpret_cast<void *>(GetReal(vaddr)), size);
+        memcpy(buf, reinterpret_cast<void *>(raddr), size);
     }
+    return true;
 }
 
-uint64_t CoreApi::v2r(uint64_t vaddr) {
+uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {
     for (const auto& block : mLoad) {
-        if (block->virtualContains(vaddr) && block->isValid())
-            return block->begin() + (vaddr - block->vaddr());
+        if (block->virtualContains(vaddr) && block->isValid()) {
+            uint64_t raddr = block->begin(opt);
+            if (raddr) {
+                return raddr + (vaddr - block->vaddr());
+            } else {
+                return 0x0;
+            }
+        }
     }
     throw InvalidAddressException(vaddr);
 }
