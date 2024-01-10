@@ -22,8 +22,10 @@
 #include "common/load_block.h"
 #include "common/note_block.h"
 #include "common/link_map.h"
+#include "common/file.h"
 #include <stdint.h>
 #include <sys/types.h>
+#include <functional>
 #include <memory>
 #include <vector>
 #include <string>
@@ -82,7 +84,8 @@ class CoreApi {
 public:
     static bool Load(const char* corefile);
     static void UnLoad();
-    static const char* GetMachine();
+    static const char* GetMachineName();
+    static int GetMachine();
     static int GetPointSize();
     static uint64_t GetReal(uint64_t vaddr);
     static uint64_t GetVirtual(uint64_t raddr);
@@ -93,6 +96,10 @@ public:
     // Command
     static void DumpFile();
     static void DumpLinkMap();
+    static void ExecFile(const char* file);
+    static void SysRoot(const char* dir);
+    static void Write(uint64_t vaddr, uint64_t value);
+    static void Read(uint64_t vaddr, uint64_t size, uint8_t* buf);
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
@@ -115,16 +122,18 @@ public:
     void setDebug(uint64_t debug) { mDebug = debug; }
     void addLinkMap(uint64_t begin, uint64_t name);
     void removeAllLinkMap();
-    void dumpFile();
-    void dumpLinkMap();
+    void foreachFile(std::function<void (File *)> callback);
+    void foreachLinkMap(std::function<void (LinkMap *)> callback);
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;
     virtual void unload() = 0;
-    virtual const char* getMachine() = 0;
+    virtual const char* getMachineName() = 0;
+    virtual int getMachine() = 0;
     virtual int getPointSize() = 0;
     virtual void loadDebug() = 0;
     virtual void loadLinkMap() = 0;
+    virtual void sysroot(uint64_t begin, const char* file) = 0;
 
     std::unique_ptr<MemoryMap> mCore;
     std::vector<std::shared_ptr<LoadBlock>> mLoad;

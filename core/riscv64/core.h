@@ -19,6 +19,7 @@
 
 #include "api/core.h"
 #include "lp64/core.h"
+#include "common/elf.h"
 
 namespace riscv64 {
 
@@ -30,10 +31,12 @@ public:
 private:
     bool load();
     void unload();
-    const char* getMachine() { return "riscv64"; }
+    const char* getMachineName() { return "riscv64"; }
+    int getMachine() { return EM_RISCV; }
     int getPointSize() { return 64; }
     void loadDebug() { setDebug(loadDebug64(this)); }
     void loadLinkMap() { loadLinkMap64(this); }
+    void sysroot(uint64_t begin, const char* file) { dlopen64(this, begin, file); }
 };
 
 } // namespace riscv64

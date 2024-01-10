@@ -17,17 +17,17 @@
 #include "common/load_block.h"
 
 uint64_t LoadBlock::begin() {
-    if (mOverlayAddr)
-        return mOverlayAddr;
-    if (mMmapAddr)
-        return mMmapAddr;
+    if (mOverlay)
+        return mOverlay->data();
+    if (mMmap)
+        return mMmap->data();
     if (oraddr())
         return oraddr();
     return 0x0;
 }
 
 bool LoadBlock::isValid() {
-    if ((flags() & FLAG_R) && (isValidBlock() || mMmapAddr || mOverlayAddr))
+    if ((flags() & FLAG_R) && (isValidBlock() || mMmap || mOverlay))
         return true;
     return false;
 }
@@ -39,12 +39,40 @@ bool LoadBlock::virtualContains(uint64_t addr) {
 }
 
 bool LoadBlock::realContains(uint64_t raddr) {
-    if (mOverlayAddr) {
-        return (raddr >= mOverlayAddr && raddr < (mOverlayAddr + size()));
-    } else if (mMmapAddr) {
-        return (raddr >= mMmapAddr && raddr < (mMmapAddr + size()));
+    if (mOverlay) {
+        return (raddr >= mOverlay->data() && raddr < (mOverlay->data() + size()));
+    } else if (mMmap) {
+        return (raddr >= mMmap->data() && raddr < (mMmap->data() + size()));
     } else if (oraddr()) {
         return (raddr >= oraddr() && raddr < (oraddr() + size()));
     }
     return false;
+}
+
+void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, size(), offset));
+    if (map) {
+        mMmap = std::move(map);
+    }
+}
+
+void LoadBlock::setOverlay(uint64_t addr, uint64_t value) {
+    if (!mOverlay) {
+        std::unique_ptr<MemoryMap> map;
+        if (isValid()) {
+            std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapMem(begin(), size()));
+            map = std::move(tmp);
+        } else {
+            std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapZeroMem(size()));
+            map = std::move(tmp);
+        }
+        if (map) {
+            mOverlay = std::move(map);
+            std::cout << "New overlay [" << std::hex << vaddr() << ", " << vaddr() + size() << ")" << std::endl;
+        }
+    }
+    std::cout << "Overlay(" << std::hex << addr << ") "
+              << "Old(" << *reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - vaddr())) << ") "
+              << "New(" << value << ")" << std::endl;
+    *reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - vaddr())) = value;
 }

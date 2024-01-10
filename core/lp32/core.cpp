@@ -15,7 +15,9 @@
  */
 
 #include "lp32/core.h"
+#include "common/elf.h"
 #include "common/bit.h"
+#include "common/load_block.h"
 #include "common/exception.h"
 #include <string.h>
 #include <linux/elf.h>
@@ -118,7 +120,6 @@ uint64_t Core::loadDebug32(CoreApi* api) {
     }
 
     if (dyphdr) {
-        std::cout << dyphdr << std::endl;
         return FindDynamic(reinterpret_cast<uint64_t>(cphdr) - cphdr->p_vaddr, reinterpret_cast<uint64_t>(dyphdr), DT_DEBUG);
     }
     return 0x0;
@@ -142,6 +143,58 @@ void Core::loadLinkMap32(CoreApi* api) {
     } catch (InvalidAddressException e) {
         std::cout << e.what() << std::endl;
     }
+}
+
+bool Core::dlopen32(CoreApi* api, uint32_t begin, const char* file) {
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file));
+    if (map) {
+        ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
+        if (memcmp(header->ident, ELFMAG, 4)) {
+            std::cout << "Invalid ELF file (" << file << ")"<< std::endl;
+            return false;
+        }
+
+        if (header->type != ET_DYN) {
+            std::cout << "Invalid shared object file (" << file << ")"<< std::endl;
+            return false;
+        }
+
+        if (header->machine != CoreApi::GetMachine()) {
+            std::cout << "Invalid match machine(" << header->machine << ") (" << file << ")"<< std::endl;
+            return false;
+        }
+
+        Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
+        Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
+
+        LoadBlock* begin_block = api->findLoadBlock(begin);
+        int loadidx = 0;
+        for (int index = 0; index < ehdr->e_phnum; ++index) {
+            if (phdr[index].p_type != PT_LOAD)
+                continue;
+
+            uint32_t current = begin_block->vaddr() + RoundDown(phdr[index].p_vaddr, phdr[index].p_align);
+            LoadBlock* block = api->findLoadBlock(current);
+
+            if (!block)
+                continue;
+
+            if (current != block->vaddr())
+                break;
+
+            if (!(phdr[index].p_flags & PF_W) && !(block->flags() & PF_W)
+                    && !(loadidx && !phdr[index].p_offset)) {
+                uint32_t page_offset = RoundDown(phdr[index].p_offset, 0x1000);
+                block->setMmapFile(file, page_offset);
+                std::cout << "Load [" << index << "] segment ["
+                    << std::hex << current << ", " << current + block->size() << ") "
+                    << file << " ["<< page_offset << "]" << std::endl;
+            }
+            ++loadidx;
+        }
+        return true;
+    }
+    return false;
 }
 
 uint32_t Core::FindDynamic(uint64_t load, uint64_t phdr, uint32_t type) {

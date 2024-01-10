@@ -37,7 +37,7 @@ public:
               mFileSize(filesz), mMemSize(memsz), mAlign(align) {}
 
     ~Block() { std::cout << __func__ << " " << this << std::endl; }
-    void setOriAddr(uint64_t addr) { mOriAddr = addr; }
+    void setOriAddr(uint64_t addr) { if (isValidBlock()) mOriAddr = addr; }
 private:
     //  program member
     uint32_t mFlags;

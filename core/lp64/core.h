@@ -61,6 +61,7 @@ public:
     bool load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
     uint64_t loadDebug64(CoreApi* api);
     void loadLinkMap64(CoreApi* api);
+    bool dlopen64(CoreApi* api, uint64_t begin, const char* file);
     static uint64_t FindDynamic(uint64_t load, uint64_t phdr, uint64_t type);
 };
 

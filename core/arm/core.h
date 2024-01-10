@@ -19,6 +19,7 @@
 
 #include "api/core.h"
 #include "lp32/core.h"
+#include "common/elf.h"
 
 namespace arm {
 
@@ -30,10 +31,12 @@ public:
 private:
     bool load();
     void unload();
-    const char* getMachine() { return "arm"; }
+    const char* getMachineName() { return "arm"; }
+    int getMachine() { return EM_ARM; }
     int getPointSize() { return 32; }
     void loadDebug() { setDebug(loadDebug32(this)); }
     void loadLinkMap() { loadLinkMap32(this); }
+    void sysroot(uint64_t begin, const char* file) { dlopen32(this, begin, file); }
 };
 
 } // namespace arm

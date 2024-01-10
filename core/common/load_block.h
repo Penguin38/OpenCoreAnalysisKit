@@ -18,7 +18,9 @@
 #define CORE_COMMON_LOAD_BLOCK_H_
 
 #include "common/block.h"
+#include "base/memory_map.h"
 #include <string>
+#include <memory>
 
 class LoadBlock : public Block {
 public:
@@ -35,15 +37,19 @@ public:
             uint64_t filesz, uint64_t memsz, uint64_t align)
             : Block(f, off, va, pa, filesz, memsz, align) {}
 
-    void setMmapAddr(uint64_t addr) { mMmapAddr = addr; }
-    void setOverlayAddr(uint64_t addr) { mOverlayAddr = addr; }
-    void setName(const char* name) { mName = name; }
-    inline std::string& name() { return mName; }
-    ~LoadBlock() { std::cout << __func__ << " " << this << std::endl; }
+    void setMmapFile(const char* file, uint64_t offset);
+    void setOverlay(uint64_t addr, uint64_t value);
+    bool isMmapBlock() { return mMmap != nullptr; }
+    bool isOverlayBlock() { return mOverlay != nullptr; }
+    inline std::string& name() { return mMmap->getName(); }
+    ~LoadBlock() {
+        std::cout << __func__ << " " << this << std::endl;
+        mOverlay.reset();
+        mMmap.reset();
+    }
 private:
-    uint64_t mMmapAddr;
-    uint64_t mOverlayAddr;
-    std::string mName;
+    std::unique_ptr<MemoryMap> mMmap;
+    std::unique_ptr<MemoryMap> mOverlay;
 };
 
 #endif  // CORE_COMMON_LOAD_BLOCK_H_

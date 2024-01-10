@@ -22,6 +22,7 @@
 #include "x86/core.h"
 #include "common/elf.h"
 #include "common/exception.h"
+#include "base/utils.h"
 #include <linux/elf.h>
 #include <cstring>
 #include <iostream>
@@ -85,11 +86,18 @@ void CoreApi::UnLoad() {
     }
 }
 
-const char* CoreApi::GetMachine() {
+const char* CoreApi::GetMachineName() {
+    if (INSTANCE) {
+        return INSTANCE->getMachineName();
+    }
+    return "unknown";
+}
+
+int CoreApi::GetMachine() {
     if (INSTANCE) {
         return INSTANCE->getMachine();
     }
-    return "unknown";
+    return EM_NONE;
 }
 
 int CoreApi::GetPointSize() {
@@ -102,7 +110,7 @@ CoreApi::~CoreApi() {
 }
 
 uint64_t CoreApi::begin() {
-    return reinterpret_cast<uint64_t>(mCore->data());
+    return mCore->data();
 }
 
 uint64_t CoreApi::size() {
@@ -173,11 +181,92 @@ uint64_t CoreApi::GetDebug() {
 }
 
 void CoreApi::DumpFile() {
-    INSTANCE->dumpFile();
+    auto callback = [](File* file) {
+        std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
+            << file->offset() << " " << file->name() << std::endl;
+    };
+    INSTANCE->foreachFile(callback);
 }
 
 void CoreApi::DumpLinkMap() {
-    INSTANCE->dumpLinkMap();
+    auto callback = [](LinkMap* map) {
+        LoadBlock* block = map->block();
+        if (block) {
+            std::string name;
+            if (block->isMmapBlock()) {
+                name = block->name();
+            } else {
+                name = map->name();
+            }
+            std::string valid;
+            if (block->isValid()) {
+                valid.append("[*]");
+                if (block->isOverlayBlock()) {
+                    valid.append("(OVERLAY)");
+                } else if (block->isMmapBlock()) {
+                    valid.append("(MMAP)");
+                }
+            } else {
+                valid.append("[EMPTY]");
+            }
+
+            std::cout << std::hex << "[" << block->vaddr() << ", " << block->vaddr() + block->size() << ") "
+                      << name << " " << valid << std::endl;
+        } else {
+            std::cout << std::hex << "[" << map->begin() << "] " << map->name() << " [unknown]" << std::endl;
+        }
+    };
+    INSTANCE->foreachLinkMap(callback);
+}
+
+void CoreApi::ExecFile(const char* file) {
+    uint64_t phdr = FindAuxv(AT_PHDR);
+    uint64_t execfn = FindAuxv(AT_EXECFN);
+    if (IsVirtualValid(phdr) && IsVirtualValid(execfn)) {
+        INSTANCE->sysroot(phdr, reinterpret_cast<const char*>(GetReal(execfn)));
+    }
+}
+
+void CoreApi::SysRoot(const char* path) {
+    std::vector<char *> dirs;
+    std::unique_ptr<char> newpath(strdup(path));
+    char *token = strtok(newpath.get(), ":");
+    while (token != nullptr) {
+        dirs.push_back(token);
+        token = strtok(nullptr, ":");
+    }
+
+    auto callback = [dirs](LinkMap* map) {
+        std::string filepath;
+        for (char *dir : dirs) {
+            if (Utils::SearchFile(dir, &filepath, map->name()))
+                break;
+        }
+        if (filepath.length() > 0) {
+            INSTANCE->sysroot(map->begin(), filepath.c_str());
+        }
+    };
+    INSTANCE->foreachLinkMap(callback);
+}
+
+void CoreApi::Write(uint64_t vaddr, uint64_t value) {
+    LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
+    if (block) {
+        block->setOverlay(vaddr, value);
+    }
+}
+
+void CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf) {
+    LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
+    if (!block)
+        return;
+
+    if ((vaddr + size) > (block->vaddr() + block->size())) {
+        uint64_t newsize = (block->vaddr() + block->size() - vaddr);
+        memcpy(buf, reinterpret_cast<void *>(GetReal(vaddr)), newsize);
+    } else {
+        memcpy(buf, reinterpret_cast<void *>(GetReal(vaddr)), size);
+    }
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr) {
@@ -233,21 +322,20 @@ ThreadApi* CoreApi::findThread(int tid) {
     return nullptr;
 }
 
-void CoreApi::dumpFile() {
+void CoreApi::foreachFile(std::function<void (File *)> callback) {
     for (const auto& block : mNote) {
         for (const auto& file : block->getFile()) {
-            std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
-                << file->offset() << " " << file->name() << std::endl;
+            callback(file.get());
         }
     }
 }
 
-void CoreApi::dumpLinkMap() {
+void CoreApi::foreachLinkMap(std::function<void (LinkMap *)> callback) {
     if (mLinkMap.size() == 0) {
         loadLinkMap();
     }
 
     for (const auto& map : mLinkMap) {
-        std::cout << std::hex << "[" << map->begin() << "] " << map->name() << std::endl;
+        callback(map.get());
     }
 }
