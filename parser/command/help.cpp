@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-#include "ui/ui_thread.h"
-#include "work/work_thread.h"
 #include "command/help.h"
-#include "command/cmd_core.h"
-#include "command/command_manager.h"
-#include <iostream>
 
-int main(int argc, const char* argv[]) {
-    CommandManager::Init();
-    CommandManager::PushInlineCommand(new Help());
-    CommandManager::PushInlineCommand(new CoreCommand());
-
-    UiThread ui;
-    while (1) {
-        std::string cmdline;
-        ui.GetCommand(&cmdline);
-        WorkThread work(cmdline);
-        work.Join();
-        ui.Wake();
-    }
-    ui.Join();
+int Help::main(int argc, char* const argv[]) {
     return 0;
+}
+
+void Help::usage() {
+
 }

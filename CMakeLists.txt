@@ -48,7 +48,14 @@ add_library(core STATIC
 target_link_libraries(core utils)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl")
-add_executable(core-parser parser/core_parser.cpp)
+include_directories(parser)
+add_executable(core-parser
+               parser/ui/ui_thread.cpp
+               parser/work/work_thread.cpp
+               parser/command/command_manager.cpp
+               parser/command/help.cpp
+               parser/command/cmd_core.cpp
+               parser/core_parser.cpp)
 target_link_libraries(core-parser core)
 
 add_executable(test tests/test.cpp)

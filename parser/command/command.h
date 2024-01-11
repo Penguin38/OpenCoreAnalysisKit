@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-#include "ui/ui_thread.h"
-#include "work/work_thread.h"
-#include "command/help.h"
-#include "command/cmd_core.h"
-#include "command/command_manager.h"
+#ifndef PARSER_COMMAND_COMMAND_H_
+#define PARSER_COMMAND_COMMAND_H_
+
+#include <string>
 #include <iostream>
 
-int main(int argc, const char* argv[]) {
-    CommandManager::Init();
-    CommandManager::PushInlineCommand(new Help());
-    CommandManager::PushInlineCommand(new CoreCommand());
+class Command {
+public:
+    Command(const char* c) { cmd = c; }
+    inline std::string& get() { return cmd; }
+    virtual ~Command() {}
+    virtual int main(int argc, char* const argv[]) = 0;
+    virtual void usage() = 0;
+private:
+    std::string cmd;
+};
 
-    UiThread ui;
-    while (1) {
-        std::string cmdline;
-        ui.GetCommand(&cmdline);
-        WorkThread work(cmdline);
-        work.Join();
-        ui.Wake();
-    }
-    ui.Join();
-    return 0;
-}
+#endif // PARSER_COMMAND_COMMAND_H_

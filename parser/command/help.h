@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-#include "ui/ui_thread.h"
-#include "work/work_thread.h"
-#include "command/help.h"
-#include "command/cmd_core.h"
-#include "command/command_manager.h"
-#include <iostream>
+#ifndef PARSER_COMMAND_HELP_H_
+#define PARSER_COMMAND_HELP_H_
 
-int main(int argc, const char* argv[]) {
-    CommandManager::Init();
-    CommandManager::PushInlineCommand(new Help());
-    CommandManager::PushInlineCommand(new CoreCommand());
+#include "command/command.h"
 
-    UiThread ui;
-    while (1) {
-        std::string cmdline;
-        ui.GetCommand(&cmdline);
-        WorkThread work(cmdline);
-        work.Join();
-        ui.Wake();
-    }
-    ui.Join();
-    return 0;
-}
+class Help : public Command {
+public:
+    Help() : Command("help") {}
+    ~Help() {}
+    int main(int argc, char* const argv[]);
+    void usage();
+};
+
+#endif // PARSER_COMMAND_HELP_H_
