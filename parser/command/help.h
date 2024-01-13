@@ -24,7 +24,9 @@ public:
     Help() : Command("help") {}
     ~Help() {}
     int main(int argc, char* const argv[]);
-    void usage();
+    void usage() {}
+    void printCommands();
+    void printCommandUsage(const char* cmd);
 };
 
 #endif // PARSER_COMMAND_HELP_H_

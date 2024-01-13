@@ -25,51 +25,53 @@
 #include "base/utils.h"
 #include <linux/elf.h>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 
 CoreApi* CoreApi::INSTANCE = nullptr;
 
+bool CoreApi::IsReady() {
+    return INSTANCE != nullptr;
+}
+
 bool CoreApi::Load(const char* corefile) {
     UnLoad();
-    if (!INSTANCE) {
-        std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(corefile));
-        if (map) {
-            ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
-            if (memcmp(header->ident, ELFMAG, 4)) {
-                std::cout << "Invalid ELF file." << std::endl;
-                return false;
-            }
-    
-            if (header->type != ET_CORE) {
-                std::cout << "Invalid Core file." << std::endl;
-                return false;
-            }
-            
-            switch(header->machine) {
-                case EM_AARCH64:
-                    INSTANCE = new arm64::Core(map);
-                    break;
-                case EM_ARM:
-                    INSTANCE = new arm::Core(map);
-                    break;
-                case EM_RISCV:
-                    INSTANCE = new riscv64::Core(map);
-                    break;
-                case EM_X86_64:
-                    INSTANCE = new x64::Core(map);
-                    break;
-                case EM_386:
-                    INSTANCE = new x86::Core(map);
-                    break;
-                default:
-                    std::cout << "Not support machine (" << header->machine << ")" << std::endl;
-                    break;
-            }
-
-            if (INSTANCE) {
-                return INSTANCE->load();
-            }
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(corefile));
+    if (map) {
+        ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
+        if (memcmp(header->ident, ELFMAG, 4)) {
+            std::cout << "Invalid ELF file." << std::endl;
+            return false;
         }
+
+        if (header->type != ET_CORE) {
+            std::cout << "Invalid Core file." << std::endl;
+            return false;
+        }
+
+        switch(header->machine) {
+            case EM_AARCH64:
+                INSTANCE = new arm64::Core(map);
+                break;
+            case EM_ARM:
+                INSTANCE = new arm::Core(map);
+                break;
+            case EM_RISCV:
+                INSTANCE = new riscv64::Core(map);
+                break;
+            case EM_X86_64:
+                INSTANCE = new x64::Core(map);
+                break;
+            case EM_386:
+                INSTANCE = new x86::Core(map);
+                break;
+            default:
+                std::cout << "Not support machine (" << header->machine << ")" << std::endl;
+                break;
+        }
+
+        if (INSTANCE)
+            return INSTANCE->load();
     }
     return false;
 }
@@ -87,17 +89,11 @@ void CoreApi::UnLoad() {
 }
 
 const char* CoreApi::GetMachineName() {
-    if (INSTANCE) {
-        return INSTANCE->getMachineName();
-    }
-    return "unknown";
+    return INSTANCE->getMachineName();
 }
 
 int CoreApi::GetMachine() {
-    if (INSTANCE) {
-        return INSTANCE->getMachine();
-    }
-    return EM_NONE;
+    return INSTANCE->getMachine();
 }
 
 int CoreApi::GetPointSize() {
@@ -186,6 +182,31 @@ void CoreApi::DumpFile() {
             << file->offset() << " " << file->name() << std::endl;
     };
     INSTANCE->foreachFile(callback);
+}
+
+void CoreApi::ForeachFile(std::function<void (File *)> callback) {
+    INSTANCE->foreachFile(callback);
+}
+
+void CoreApi::DumpAuxv() {
+    auto callback = [](Auxv* auxv) {
+        if (auxv->type() == AT_EXECFN || auxv->type() == AT_PLATFORM) {
+            std::string name;
+            if (IsVirtualValid(auxv->value())) {
+                name = reinterpret_cast<const char*>(GetReal(auxv->value()));
+            }
+            std::cout << std::hex <<std::setw(6) << auxv->type() << "  "
+                      << std::setw(16) << auxv->to_string() << "  "
+                      << "0x" << auxv->value() << "  "
+                      << " " << name<< std::endl;
+        } else {
+            std::cout << std::hex << std::setw(6) << auxv->type() << "  "
+                      << std::setw(16) << auxv->to_string() << "  "
+                      << "0x" << auxv->value() << std::endl;
+        }
+        Utils::ResetWFill();
+    };
+    INSTANCE->foreachAuxv(callback);
 }
 
 void CoreApi::DumpLinkMap() {
@@ -337,6 +358,14 @@ void CoreApi::foreachFile(std::function<void (File *)> callback) {
     for (const auto& block : mNote) {
         for (const auto& file : block->getFile()) {
             callback(file.get());
+        }
+    }
+}
+
+void CoreApi::foreachAuxv(std::function<void (Auxv *)> callback) {
+    for (const auto& block : mNote) {
+        for (const auto& auxv : block->getAuxv()) {
+            callback(auxv.get());
         }
     }
 }

@@ -90,6 +90,7 @@ bool Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callba
             api->addNoteBlock(block);
         }
     }
+    std::cout << "Core load (" << this << ") " << api->getName() << std::endl;
     return true;
 }
 

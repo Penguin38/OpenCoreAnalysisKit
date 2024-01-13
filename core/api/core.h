@@ -87,6 +87,7 @@ static constexpr int OPT_READ_ALL = LoadBlock::OPT_READ_ALL;
 
 class CoreApi {
 public:
+    static bool IsReady();
     static bool Load(const char* corefile);
     static void UnLoad();
     static const char* GetMachineName();
@@ -103,6 +104,8 @@ public:
     static uint64_t GetDebug();
     // Command
     static void DumpFile();
+    static void ForeachFile(std::function<void (File *)> callback);
+    static void DumpAuxv();
     static void DumpLinkMap();
     static void ExecFile(const char* file);
     static void SysRoot(const char* dir);
@@ -114,6 +117,7 @@ public:
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
+        mDebug = 0x0;
         mCore = std::move(map);
     }
     virtual ~CoreApi();
@@ -134,6 +138,7 @@ public:
     void addLinkMap(uint64_t begin, uint64_t name);
     void removeAllLinkMap();
     void foreachFile(std::function<void (File *)> callback);
+    void foreachAuxv(std::function<void (Auxv *)> callback);
     void foreachLinkMap(std::function<void (LinkMap *)> callback);
 private:
     static CoreApi* INSTANCE;

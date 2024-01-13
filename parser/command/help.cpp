@@ -15,11 +15,30 @@
  */
 
 #include "command/help.h"
+#include "command/command_manager.h"
 
-int Help::main(int argc, char* const argv[]) {
-    return 0;
+void Help::printCommandUsage(const char* cmd) {
+    Command* command = CommandManager::FindCommand(cmd);
+    if (command) {
+        return command->usage();
+    } else {
+        std::cout << "Not found command \"" << cmd << "\"." << std::endl;
+    }
 }
 
-void Help::usage() {
+void Help::printCommands() {
+    int index = 0;
+    auto callback = [&index](Command* command) {
+        std::cout << command->get() << std::endl;
+    };
+    CommandManager::ForeachCommand(callback);
+}
 
+int Help::main(int argc, char* const argv[]) {
+    if (!argc) {
+        printCommands();
+    } else {
+        printCommandUsage(argv[0]);
+    }
+    return 0;
 }

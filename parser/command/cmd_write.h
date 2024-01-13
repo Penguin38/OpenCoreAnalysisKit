@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-#include "command/cmd_core.h"
-#include "api/core.h"
+#ifndef PARSER_COMMAND_CMD_WRITE_H_
+#define PARSER_COMMAND_CMD_WRITE_H_
 
-int CoreCommand::main(int argc, char* const argv[]) {
-    return CoreApi::Load(argv[0]);
-}
+#include "command/command.h"
 
-void CoreCommand::usage() {
-    std::cout << "Usage: core /tmp/default.core" << std::endl;
-}
+class WriteCommand : public Command {
+public:
+    WriteCommand() : Command("write", "wd") {}
+    ~WriteCommand() {}
+    int main(int argc, char* const argv[]);
+    void usage();
+};
+
+#endif // PARSER_COMMAND_CMD_WRITE_H_

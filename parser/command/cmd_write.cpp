@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-#include "command/cmd_core.h"
+#include "command/cmd_write.h"
+#include "base/utils.h"
 #include "api/core.h"
 
-int CoreCommand::main(int argc, char* const argv[]) {
-    return CoreApi::Load(argv[0]);
+int WriteCommand::main(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady() || (argc < 2)) 
+        return 0;
+
+    uint64_t address = Utils::atol(argv[0]);
+    uint64_t value = Utils::atol(argv[1]);
+    CoreApi::Write(address, value);
+    return 0;
 }
 
-void CoreCommand::usage() {
-    std::cout << "Usage: core /tmp/default.core" << std::endl;
+void WriteCommand::usage() {
+    std::cout << "Usage: write|wd address value" << std::endl;
 }

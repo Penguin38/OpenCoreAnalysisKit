@@ -24,6 +24,10 @@ public:
     static bool SearchFile(const std::string& directory, std::string* result, const std::string& name);
     static void ListFiles(const std::string& directory, std::string* result, const std::string& name);
     static std::string ConvertAscii(uint64_t value, int len);
+    static uint64_t atol(const char* src);
+    static void ResetWFill();
+    static void FreopenWrite(const char* path);
+    static void CloseWriteout();
 };
 
 #endif // UTILS_BASE_UTILS_H_

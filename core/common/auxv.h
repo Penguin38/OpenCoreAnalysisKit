@@ -71,6 +71,39 @@ public:
     inline uint64_t type() { return mType; }
     inline uint64_t value() { return mValue; }
 
+    inline std::string to_string() {
+        switch(mType) {
+            case AT_NULL: return "AT_NULL";
+            case AT_IGNORE: return "AT_IGNORE";
+            case AT_EXECFD: return "AT_EXECFD";
+            case AT_PHDR: return "AT_PHDR";
+            case AT_PHENT: return "AT_PHENT";
+            case AT_PHNUM: return "AT_PHNUM";
+            case AT_PAGESZ: return "AT_PAGESZ";
+            case AT_BASE: return "AT_BASE";
+            case AT_FLAGS: return "AT_FLAGS";
+            case AT_ENTRY: return "AT_ENTRY";
+            case AT_NOTELF: return "AT_NOTELF";
+            case AT_UID: return "AT_UID";
+            case AT_EUID: return "AT_EUID";
+            case AT_GID: return "AT_GID";
+            case AT_EGID: return "AT_EGID";
+            case AT_PLATFORM: return "AT_PLATFORM";
+            case AT_HWCAP: return "AT_HWCAP";
+            case AT_CLKTCK: return "AT_CLKTCK";
+            case AT_SECURE: return "AT_SECURE";
+            case AT_BASE_PLATFORM: return "AT_BASE_PLATFORM";
+            case AT_RANDOM: return "AT_RANDOM";
+            case AT_HWCAP2: return "AT_HWCAP2";
+            case AT_EXECFN: return "AT_EXECFN";
+            case AT_SYSINFO: return "AT_SYSINFO";
+            case AT_SYSINFO_EHDR: return "AT_SYSINFO_EHDR";
+            case AT_MINSIGSTKSZ: return "AT_MINSIGSTKSZ";
+            default:
+                return "AT_UNKNOW";
+        }
+    }
+
     Auxv(uint64_t t, uint64_t v) : mType(t), mValue(v) {}
     ~Auxv() { std::cout << __func__ << " " << this << std::endl; }
 private:

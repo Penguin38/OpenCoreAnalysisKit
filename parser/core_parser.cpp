@@ -14,18 +14,43 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "ui/ui_thread.h"
 #include "work/work_thread.h"
-#include "command/help.h"
-#include "command/cmd_core.h"
+#include "command/command.h"
 #include "command/command_manager.h"
+#include <unistd.h>
 #include <iostream>
+
+class QuitCommand : public Command {
+public:
+    QuitCommand() : Command("quit", "q") {}
+    ~QuitCommand() {}
+    void usage() {}
+    int main(int /*argc*/, char* const * /*argv[]*/) {
+        if (CoreApi::IsReady()) {
+            CoreApi::UnLoad();
+        }
+        _exit(0);
+        return 0;
+    }
+};
+
+class VersionCommand : public Command {
+public:
+    VersionCommand() : Command("version") {}
+    ~VersionCommand() {}
+    void usage() {}
+    int main(int /*argc*/, char* const * /*argv[]*/) {
+        std::cout << "1.0" << std::endl;
+        return 0;
+    }
+};
 
 int main(int argc, const char* argv[]) {
     CommandManager::Init();
-    CommandManager::PushInlineCommand(new Help());
-    CommandManager::PushInlineCommand(new CoreCommand());
-
+    CommandManager::PushInlineCommand(new VersionCommand());
+    CommandManager::PushInlineCommand(new QuitCommand());
     UiThread ui;
     while (1) {
         std::string cmdline;

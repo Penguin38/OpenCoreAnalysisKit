@@ -20,6 +20,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <dirent.h>
+#include <stdio.h>
+#include <inttypes.h>
 #include <filesystem>
 #include <iostream>
 
@@ -87,4 +89,23 @@ std::string Utils::ConvertAscii(uint64_t value, int len) {
         }
     }
     return sb;
+}
+
+uint64_t Utils::atol(const char* src) {
+    uint64_t value;
+    sscanf(src, "%" PRIx64 "", &value);
+    return value;
+}
+
+void Utils::ResetWFill() {
+    std::setw(0);
+    std::setfill(' ');
+}
+
+void Utils::FreopenWrite(const char* path) {
+    freopen(path, "w", stdout);
+}
+
+void Utils::CloseWriteout() {
+    dup2(fileno(stdin), 1);
 }

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#include "command/cmd_core.h"
+#include "command/cmd_auxv.h"
 #include "api/core.h"
 
-int CoreCommand::main(int argc, char* const argv[]) {
-    return CoreApi::Load(argv[0]);
+int AuxvCommand::main(int argc, char* const argv[]) {
+    if (CoreApi::IsReady()) 
+        CoreApi::DumpAuxv();
+    return 0;
 }
 
-void CoreCommand::usage() {
-    std::cout << "Usage: core /tmp/default.core" << std::endl;
-}

@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-#include "command/cmd_core.h"
+#include "command/cmd_exec.h"
 #include "api/core.h"
 
-int CoreCommand::main(int argc, char* const argv[]) {
-    return CoreApi::Load(argv[0]);
+int ExecCommand::main(int argc, char* const argv[]) {
+    if (CoreApi::IsReady() && argc > 0) {
+        CoreApi::ExecFile(argv[0]);
+    }
+    return 0;
 }
 
-void CoreCommand::usage() {
-    std::cout << "Usage: core /tmp/default.core" << std::endl;
+void ExecCommand::usage() {
+    std::cout << "Usage: exec /system/bin/app_process64" << std::endl;
 }

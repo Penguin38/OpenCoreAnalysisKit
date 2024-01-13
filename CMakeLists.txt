@@ -55,6 +55,14 @@ add_executable(core-parser
                parser/command/command_manager.cpp
                parser/command/help.cpp
                parser/command/cmd_core.cpp
+               parser/command/cmd_exec.cpp
+               parser/command/cmd_sysroot.cpp
+               parser/command/cmd_auxv.cpp
+               parser/command/cmd_file.cpp
+               parser/command/cmd_linkmap.cpp
+               parser/command/cmd_read.cpp
+               parser/command/cmd_write.cpp
+               parser/command/cmd_shell.cpp
                parser/core_parser.cpp)
 target_link_libraries(core-parser core)
 

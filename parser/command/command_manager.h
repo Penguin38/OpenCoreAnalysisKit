@@ -20,6 +20,7 @@
 #include "command/command.h"
 #include <vector>
 #include <memory>
+#include <functional>
 #include <iostream>
 
 class CommandManager {
@@ -27,11 +28,18 @@ public:
     static int Execute(const char* cmd, int argc, char* const argv[]);
     static void PushInlineCommand(Command* command);
     static void PushExtendCommand(Command* command);
-    static void Init() { INSTANCE = new CommandManager; }
+    static void ForeachCommand(std::function<void (Command *)> callback);
+    static Command* FindCommand(const char* cmd);
+    static void Init();
+    ~CommandManager() {
+        inline_commands.clear();
+        extend_commands.clear();
+    }
 private:
-    int execute(const char* cmd, int argc, char* const argv[]);
     void pushInlineCommand(Command* command);
     void pushExtendCommand(Command* command);
+    void foreachInlineCommand(std::function<void (Command *)> callback);
+    void foreachExtendCommand(std::function<void (Command *)> callback);
     static CommandManager* INSTANCE;
     std::vector<std::unique_ptr<Command>> inline_commands;
     std::vector<std::unique_ptr<Command>> extend_commands;
