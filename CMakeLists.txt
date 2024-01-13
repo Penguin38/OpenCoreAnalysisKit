@@ -68,3 +68,5 @@ target_link_libraries(core-parser core)
 
 add_executable(test tests/test.cpp)
 target_link_libraries(test core)
+
+add_executable(cloctime tests/time.cpp)
