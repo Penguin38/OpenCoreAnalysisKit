@@ -28,7 +28,7 @@ public:
     static int Execute(const char* cmd, int argc, char* const argv[]);
     static void PushInlineCommand(Command* command);
     static void PushExtendCommand(Command* command);
-    static void ForeachCommand(std::function<void (Command *)> callback);
+    static void ForeachCommand(std::function<bool (Command *)> callback);
     static Command* FindCommand(const char* cmd);
     static void Init();
     ~CommandManager() {
@@ -38,8 +38,8 @@ public:
 private:
     void pushInlineCommand(Command* command);
     void pushExtendCommand(Command* command);
-    void foreachInlineCommand(std::function<void (Command *)> callback);
-    void foreachExtendCommand(std::function<void (Command *)> callback);
+    void foreachInlineCommand(std::function<bool (Command *)> callback);
+    void foreachExtendCommand(std::function<bool (Command *)> callback);
     static CommandManager* INSTANCE;
     std::vector<std::unique_ptr<Command>> inline_commands;
     std::vector<std::unique_ptr<Command>> extend_commands;

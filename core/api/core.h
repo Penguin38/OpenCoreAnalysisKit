@@ -104,7 +104,7 @@ public:
     static uint64_t GetDebug();
     // Command
     static void DumpFile();
-    static void ForeachFile(std::function<void (File *)> callback);
+    static void ForeachFile(std::function<bool (File *)> callback);
     static void DumpAuxv();
     static void DumpLinkMap();
     static void ExecFile(const char* file);
@@ -114,6 +114,8 @@ public:
         return Read(vaddr, size, buf, OPT_READ_ALL);
     }
     static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt);
+    static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback);
+    static LoadBlock* FindLoadBlock(uint64_t vaddr);
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
@@ -137,9 +139,10 @@ public:
     void setDebug(uint64_t debug) { mDebug = debug; }
     void addLinkMap(uint64_t begin, uint64_t name);
     void removeAllLinkMap();
-    void foreachFile(std::function<void (File *)> callback);
-    void foreachAuxv(std::function<void (Auxv *)> callback);
-    void foreachLinkMap(std::function<void (LinkMap *)> callback);
+    void foreachFile(std::function<bool (File *)> callback);
+    void foreachAuxv(std::function<bool (Auxv *)> callback);
+    void foreachLinkMap(std::function<bool (LinkMap *)> callback);
+    void foreachLoadBlock(std::function<bool (LoadBlock *)> callback);
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;

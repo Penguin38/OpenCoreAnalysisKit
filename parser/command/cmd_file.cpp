@@ -25,10 +25,13 @@ int FileCommand::main(int argc, char* const argv[]) {
             CoreApi::DumpFile();
         } else {
             uint64_t address = Utils::atol(argv[0]);
-            auto callback = [address](File* file) {
-                if (address >= file->begin() && address < file->end())
+            auto callback = [address](File* file) -> bool {
+                if (address >= file->begin() && address < file->end()) {
                     std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
                               << file->offset() << " " << file->name() << std::endl;
+                    return true;
+                }
+                return false;
             };
             CoreApi::ForeachFile(callback);
         }

@@ -177,19 +177,20 @@ uint64_t CoreApi::GetDebug() {
 }
 
 void CoreApi::DumpFile() {
-    auto callback = [](File* file) {
+    auto callback = [](File* file) -> bool {
         std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
             << file->offset() << " " << file->name() << std::endl;
+        return false;
     };
     INSTANCE->foreachFile(callback);
 }
 
-void CoreApi::ForeachFile(std::function<void (File *)> callback) {
+void CoreApi::ForeachFile(std::function<bool (File *)> callback) {
     INSTANCE->foreachFile(callback);
 }
 
 void CoreApi::DumpAuxv() {
-    auto callback = [](Auxv* auxv) {
+    auto callback = [](Auxv* auxv) -> bool {
         if (auxv->type() == AT_EXECFN || auxv->type() == AT_PLATFORM) {
             std::string name;
             if (IsVirtualValid(auxv->value())) {
@@ -205,12 +206,13 @@ void CoreApi::DumpAuxv() {
                       << "0x" << auxv->value() << std::endl;
         }
         Utils::ResetWFill();
+        return false;
     };
     INSTANCE->foreachAuxv(callback);
 }
 
 void CoreApi::DumpLinkMap() {
-    auto callback = [](LinkMap* map) {
+    auto callback = [](LinkMap* map) -> bool {
         LoadBlock* block = map->block();
         if (block) {
             std::string name;
@@ -236,6 +238,7 @@ void CoreApi::DumpLinkMap() {
         } else {
             std::cout << std::hex << "[" << map->begin() << "] " << map->name() << " [unknown]" << std::endl;
         }
+        return false;
     };
     INSTANCE->foreachLinkMap(callback);
 }
@@ -273,7 +276,7 @@ void CoreApi::SysRoot(const char* path) {
         token = strtok(nullptr, ":");
     }
 
-    auto callback = [dirs](LinkMap* map) {
+    auto callback = [dirs](LinkMap* map) -> bool {
         std::string filepath;
         for (char *dir : dirs) {
             if (Utils::SearchFile(dir, &filepath, map->name()))
@@ -282,6 +285,7 @@ void CoreApi::SysRoot(const char* path) {
         if (filepath.length() > 0) {
             INSTANCE->sysroot(map->begin(), filepath.c_str());
         }
+        return false;
     };
     INSTANCE->foreachLinkMap(callback);
 }
@@ -309,6 +313,14 @@ bool CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt) {
         memcpy(buf, reinterpret_cast<void *>(raddr), size);
     }
     return true;
+}
+
+void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback) {
+    INSTANCE->foreachLoadBlock(callback);
+}
+
+LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr) {
+    return INSTANCE->findLoadBlock(vaddr);
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {
@@ -370,28 +382,40 @@ ThreadApi* CoreApi::findThread(int tid) {
     return nullptr;
 }
 
-void CoreApi::foreachFile(std::function<void (File *)> callback) {
+void CoreApi::foreachFile(std::function<bool (File *)> callback) {
     for (const auto& block : mNote) {
         for (const auto& file : block->getFile()) {
-            callback(file.get());
+            if (callback(file.get()))
+                return;
         }
     }
 }
 
-void CoreApi::foreachAuxv(std::function<void (Auxv *)> callback) {
+void CoreApi::foreachAuxv(std::function<bool (Auxv *)> callback) {
     for (const auto& block : mNote) {
         for (const auto& auxv : block->getAuxv()) {
-            callback(auxv.get());
+            if (callback(auxv.get()))
+                return;
         }
     }
 }
 
-void CoreApi::foreachLinkMap(std::function<void (LinkMap *)> callback) {
+void CoreApi::foreachLinkMap(std::function<bool (LinkMap *)> callback) {
     if (mLinkMap.size() == 0) {
         loadLinkMap();
     }
 
     for (const auto& map : mLinkMap) {
-        callback(map.get());
+        if (callback(map.get()))
+            break;
+    }
+}
+
+void CoreApi::foreachLoadBlock(std::function<bool (LoadBlock *)> callback) {
+    for (const auto& block : mLoad) {
+        if (block->isValid()) {
+            if (callback(block.get()))
+                break;
+        }
     }
 }

@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-#include "command/help.h"
-#include "command/command_manager.h"
+#include "command/cmd_getprop.h"
+#include "properties/property.h"
+#include "base/utils.h"
+#include "api/core.h"
+#include <iostream>
 
-void Help::printCommandUsage(const char* cmd) {
-    Command* command = CommandManager::FindCommand(cmd);
-    if (command) {
-        return command->usage();
-    } else {
-        std::cout << "Not found command \"" << cmd << "\"." << std::endl;
-    }
-}
-
-void Help::printCommands() {
-    int index = 0;
-    auto callback = [&index](Command* command) -> bool {
-        std::cout << command->get() << std::endl;
-        return false;
+void GetPropCommand::printProperties() {
+    auto callback = [](android::PropInfo& info) {
+        if (info.Ptr()) {
+            std::cout << "[" <<info.name() << "]: [" << info.value() << "]" << std::endl;
+        }
     };
-    CommandManager::ForeachCommand(callback);
+    android::Property::Foreach(callback);
 }
 
-int Help::main(int argc, char* const argv[]) {
+int GetPropCommand::main(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady())
+        return 0;
+
     if (!argc) {
-        printCommands();
+        printProperties();
     } else {
-        printCommandUsage(argv[0]);
+        std::cout << android::Property::Get(argv[0]) << std::endl;
     }
     return 0;
+}
+
+void GetPropCommand::usage() {
+    std::cout << "Usage: getprop [NAME]" << std::endl;
 }

@@ -47,26 +47,40 @@ add_library(core STATIC
             core/common/load_block.cpp)
 target_link_libraries(core utils)
 
+include_directories(android)
+add_library(android STATIC
+            android/properties/prop_info.cpp
+            android/properties/prop_area.cpp
+            android/properties/property.cpp)
+target_link_libraries(core)
+
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl")
 include_directories(parser)
+
+add_library(parser STATIC
+            parser/command/command_manager.cpp
+            parser/command/help.cpp
+            parser/command/command_manager.cpp
+            parser/command/help.cpp
+            parser/command/cmd_core.cpp
+            parser/command/cmd_exec.cpp
+            parser/command/cmd_sysroot.cpp
+            parser/command/cmd_auxv.cpp
+            parser/command/cmd_file.cpp
+            parser/command/cmd_linkmap.cpp
+            parser/command/cmd_read.cpp
+            parser/command/cmd_write.cpp
+            parser/command/cmd_getprop.cpp
+            parser/command/cmd_shell.cpp)
+target_link_libraries(parser android core utils)
+
 add_executable(core-parser
                parser/ui/ui_thread.cpp
                parser/work/work_thread.cpp
-               parser/command/command_manager.cpp
-               parser/command/help.cpp
-               parser/command/cmd_core.cpp
-               parser/command/cmd_exec.cpp
-               parser/command/cmd_sysroot.cpp
-               parser/command/cmd_auxv.cpp
-               parser/command/cmd_file.cpp
-               parser/command/cmd_linkmap.cpp
-               parser/command/cmd_read.cpp
-               parser/command/cmd_write.cpp
-               parser/command/cmd_shell.cpp
                parser/core_parser.cpp)
-target_link_libraries(core-parser core)
+target_link_libraries(core-parser parser)
 
 add_executable(test tests/test.cpp)
-target_link_libraries(test core)
+target_link_libraries(test parser)
 
 add_executable(cloctime tests/time.cpp)

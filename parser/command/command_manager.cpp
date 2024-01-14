@@ -24,6 +24,7 @@
 #include "command/cmd_linkmap.h"
 #include "command/cmd_read.h"
 #include "command/cmd_write.h"
+#include "command/cmd_getprop.h"
 #include "command/cmd_shell.h"
 #include "common/exception.h"
 #include "base/utils.h"
@@ -41,6 +42,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new LinkMapCommand());
     CommandManager::PushInlineCommand(new ReadCommand());
     CommandManager::PushInlineCommand(new WriteCommand());
+    CommandManager::PushInlineCommand(new GetPropCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
     CommandManager::PushInlineCommand(new Help());
 }
@@ -94,30 +96,34 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
     return 0;
 }
 
-void CommandManager::ForeachCommand(std::function<void (Command *)> callback) {
+void CommandManager::ForeachCommand(std::function<bool (Command *)> callback) {
     INSTANCE->foreachInlineCommand(callback);
     INSTANCE->foreachExtendCommand(callback);
 }
 
 Command* CommandManager::FindCommand(const char* cmd) {
     Command* result = nullptr;
-    auto callback = [cmd, &result](Command* command) {
+    auto callback = [cmd, &result](Command* command) -> bool {
         if (command->get() == cmd || command->shortcut() == cmd) {
             result = command;
+            return true;
         }
+        return false;
     };
     ForeachCommand(callback);
     return result;
 }
 
-void CommandManager::foreachInlineCommand(std::function<void (Command *)> callback) {
+void CommandManager::foreachInlineCommand(std::function<bool (Command *)> callback) {
     for (const auto& command : inline_commands)
-        callback(command.get());
+        if (callback(command.get()))
+            break;
 }
 
-void CommandManager::foreachExtendCommand(std::function<void (Command *)> callback) {
+void CommandManager::foreachExtendCommand(std::function<bool (Command *)> callback) {
     for (const auto& command : extend_commands)
-        callback(command.get());
+        if (callback(command.get()))
+            break;
 }
 
 void CommandManager::PushInlineCommand(Command* command) {
