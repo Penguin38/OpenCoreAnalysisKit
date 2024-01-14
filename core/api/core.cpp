@@ -300,7 +300,7 @@ void CoreApi::Write(uint64_t vaddr, uint64_t value) {
 bool CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt) {
     LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
     if (!block)
-        return false;
+        throw InvalidAddressException(vaddr);
 
     uint64_t raddr = GetReal(vaddr, opt);
     if (!raddr)

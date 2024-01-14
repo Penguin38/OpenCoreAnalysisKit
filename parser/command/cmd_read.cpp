@@ -28,6 +28,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
     int opt;
     uint64_t begin = Utils::atol(argv[0]);
     uint64_t end = 0;
+    char* filepath = nullptr;
     int read_opt = OPT_READ_ALL;
 
     int option_index = 0;
@@ -36,14 +37,18 @@ int ReadCommand::main(int argc, char* const argv[]) {
         {"mmap",    no_argument,       0,  1 },
         {"overlay", no_argument,       0,  2 },
         {"end",     required_argument, 0, 'e'},
+        {"file",    required_argument, 0, 'f'},
         {0,         0,                 0,  0 }
     };
     
-    while ((opt = getopt_long(argc, argv, "e:012",
+    while ((opt = getopt_long(argc, argv, "e:f:012",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'e':
                 end = Utils::atol(optarg);
+                break;
+            case 'f':
+                filepath = optarg;
                 break;
             case 0:
                 read_opt = OPT_READ_OR;
@@ -60,25 +65,37 @@ int ReadCommand::main(int argc, char* const argv[]) {
     // reset
     optind = 0;
 
+    LoadBlock* block = CoreApi::FindLoadBlock(begin);
+    if (block && end > (block->vaddr() + block->size()))
+        end = block->vaddr() + block->size();
+
     int count = (end - begin) / 8;
     if (begin >= end || !count) {
         uint64_t* value = reinterpret_cast<uint64_t *>(CoreApi::GetReal(begin, read_opt));
         if (value) {
-            std::string ascii = Utils::ConvertAscii(*value, 8);
-            std::cout << std::hex << begin << ": "
-                      << std::setw(16) << std::setfill('0')
-                      << (*value) << "  " << ascii << std::endl;
+            if (!filepath) {
+                std::string ascii = Utils::ConvertAscii(*value, 8);
+                std::cout << std::hex << begin << ": "
+                          << std::setw(16) << std::setfill('0')
+                          << (*value) << "  " << ascii << std::endl;
+            } else {
+                saveBinary(filepath, value, end - begin);
+            }
         }
     } else {
         uint8_t* buf = reinterpret_cast<uint8_t*>(malloc(count * 8));
         if (CoreApi::Read(begin, count * 8, buf, read_opt)) {
             uint64_t* value = reinterpret_cast<uint64_t *>(buf);
-            for (int i = 0; i < count; i += 2) {
-                std::cout << std::hex << (begin + i * 8) << ": "
-                          << std::setw(16) << std::setfill('0') << value[i] << "  "
-                          << std::setw(16) << std::setfill('0') << value[i + 1] << "  "
-                          << Utils::ConvertAscii(value[i], 8)
-                          << Utils::ConvertAscii(value[i + 1], 8) << std::endl;
+            if (!filepath) {
+                for (int i = 0; i < count; i += 2) {
+                    std::cout << std::hex << (begin + i * 8) << ": "
+                              << std::setw(16) << std::setfill('0') << value[i] << "  "
+                              << std::setw(16) << std::setfill('0') << value[i + 1] << "  "
+                              << Utils::ConvertAscii(value[i], 8)
+                              << Utils::ConvertAscii(value[i + 1], 8) << std::endl;
+                }
+            } else {
+                saveBinary(filepath, value, end - begin);
             }
         }
         free(buf);
@@ -87,8 +104,19 @@ int ReadCommand::main(int argc, char* const argv[]) {
     return 0;
 }
 
+void ReadCommand::saveBinary(char* path, uint64_t* real, uint64_t size) {
+    if (path) {
+        FILE* fp = fopen(path, "wb");
+        if (fp) {
+            fwrite(real, size, 1, fp);
+            fclose(fp);
+            std::cout << "Saved [" << path << "]." << std::endl;
+        }
+    }
+}
+
 void ReadCommand::usage() {
-    std::cout << "Usage: read|rd begin [-e end] [--opt]" << std::endl;
+    std::cout << "Usage: read|rd begin [-e end] [--opt] [-f path]" << std::endl;
     std::cout << "         opt: --origin --mmap --overlay" << std::endl;
 }
 

@@ -25,6 +25,7 @@ public:
     ~ReadCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
+    void saveBinary(char* path, uint64_t* real, uint64_t size);
 };
 
 #endif // PARSER_COMMAND_CMD_READ_H_
