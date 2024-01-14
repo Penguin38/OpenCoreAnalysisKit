@@ -121,7 +121,7 @@ uint64_t Core::loadDebug64(CoreApi* api) {
     }
 
     if (dyphdr) {
-        return FindDynamic(reinterpret_cast<uint64_t>(cphdr) - cphdr->p_vaddr, reinterpret_cast<uint64_t>(dyphdr), DT_DEBUG);
+        return FindDynamic(phdr - cphdr->p_vaddr, reinterpret_cast<uint64_t>(dyphdr), DT_DEBUG);
     }
     return 0x0;
 }
@@ -200,7 +200,7 @@ bool Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
 
 uint64_t Core::FindDynamic(uint64_t load, uint64_t phdr, uint64_t type) {
     Elf64_Phdr *dyphdr = reinterpret_cast<Elf64_Phdr *>(phdr);
-    Dynamic *dynamic = reinterpret_cast<Dynamic *>(load + dyphdr->p_vaddr);
+    Dynamic *dynamic = reinterpret_cast<Dynamic *>(CoreApi::GetReal(load + dyphdr->p_vaddr));
     int numdynamic = dyphdr->p_filesz / sizeof(Dynamic);
     int index = 0;
     while (index < numdynamic) {

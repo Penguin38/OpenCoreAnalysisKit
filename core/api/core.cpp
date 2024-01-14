@@ -240,11 +240,27 @@ void CoreApi::DumpLinkMap() {
     INSTANCE->foreachLinkMap(callback);
 }
 
-void CoreApi::ExecFile(const char* file) {
+void CoreApi::ExecFile(const char* path) {
+    std::vector<char *> dirs;
+    std::unique_ptr<char> newpath(strdup(path));
+    char *token = strtok(newpath.get(), ":");
+    while (token != nullptr) {
+        dirs.push_back(token);
+        token = strtok(nullptr, ":");
+    }
+
     uint64_t phdr = FindAuxv(AT_PHDR);
     uint64_t execfn = FindAuxv(AT_EXECFN);
     if (IsVirtualValid(phdr) && IsVirtualValid(execfn)) {
-        INSTANCE->sysroot(phdr, reinterpret_cast<const char*>(GetReal(execfn)));
+        std::string filepath;
+        std::string search = reinterpret_cast<const char*>(GetReal(execfn));
+        for (char *dir : dirs) {
+            if (Utils::SearchFile(dir, &filepath, search))
+                break;
+        }
+        if (filepath.length() > 0) {
+            INSTANCE->sysroot(phdr, filepath.c_str());
+        }
     }
 }
 
