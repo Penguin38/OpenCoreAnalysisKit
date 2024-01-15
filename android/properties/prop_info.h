@@ -51,8 +51,8 @@ public:
     constexpr static uint32_t kLongLegacyErrorBufferSize = 56;
 
     static void Init();
-    std::string name();
-    std::string value();
+    inline std::string name() { return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, name)); }
+    inline std::string value() { return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, value)); }
 };
 
 } // android

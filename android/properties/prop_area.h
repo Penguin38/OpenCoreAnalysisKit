@@ -43,15 +43,42 @@ struct PropArea_SizeTable {
 extern struct PropArea_OffsetTable __PropArea_offset__;
 extern struct PropArea_SizeTable __PropArea_size__;
 
-namespace android {
-class Propbt {
-public:
+struct Propbt_OffsetTable {
     uint32_t namelen;
     uint32_t prop;
     uint32_t left;
     uint32_t right;
     uint32_t children;
-    char name[0];
+    uint32_t name;
+};
+
+struct Propbt_SizeTable {
+    uint32_t THIS;
+    uint32_t namelen;
+    uint32_t prop;
+    uint32_t left;
+    uint32_t right;
+    uint32_t children;
+    uint32_t name;
+};
+
+extern struct Propbt_OffsetTable __Propbt_offset__;
+extern struct Propbt_SizeTable __Propbt_size__;
+
+namespace android {
+class Propbt : public api::MemoryRef {
+public:
+    Propbt(uint64_t v) : MemoryRef(v) {}
+    template<typename U> Propbt(U *v) : MemoryRef(v) {}
+    template<typename U> Propbt& operator=(U* other) { init(other); return *this; }
+    static void Init();
+
+    inline uint32_t namelen() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, namelen)); }
+    inline uint32_t prop() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, prop)); }
+    inline uint32_t left() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, left)); }
+    inline uint32_t right() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, right)); }
+    inline uint32_t children() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, children)); }
+    inline char* name() { return reinterpret_cast<char *>(Real() + OFFSET(Propbt, name)); }
 };
 
 class PropArea : public api::MemoryRef {
@@ -65,19 +92,19 @@ public:
     constexpr static uint32_t PROP_AREA_VERSION = 0xfc6ed0ab;
 
     static void Init();
-    uint32_t magic();
-    uint32_t version();
-    char* data();
+    inline uint32_t magic() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(PropArea, magic_)); }
+    inline uint32_t version() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(PropArea, version_)); }
+    inline char* data() { return reinterpret_cast<char*>(Ptr() + OFFSET(PropArea, data_)); }
 
     void* toPropObj(uint32_t off);
-    Propbt* toPropbt(uint32_t off);
+    Propbt toPropbt(uint32_t off);
     PropInfo toPropInfo(uint32_t off);
-    Propbt* rootNode();
+    Propbt rootNode();
 
-    PropInfo findProperty(Propbt* const trie, const char* name);
-    Propbt* findPropbt(Propbt* const bt, const char* name, uint32_t namelen);
+    PropInfo findProperty(Propbt& trie, const char* name);
+    Propbt findPropbt(Propbt& bt, const char* name, uint32_t namelen);
     PropInfo find(const char* name);
-    bool foreachProperty(Propbt* const trie, std::function<void (PropInfo& pi)> propfn);
+    bool foreachProperty(Propbt& trie, std::function<void (PropInfo& pi)> propfn);
     bool foreach(std::function<void (PropInfo& pi)> propfn);
 };
 } // android

@@ -54,7 +54,12 @@ add_library(android STATIC
             android/properties/property.cpp)
 target_link_libraries(core)
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl")
+set(LINKER_PTHREAD "")
+if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
+set(LINKER_PTHREAD "-lpthread")
+endif()
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl ${LINKER_PTHREAD}")
+
 include_directories(parser)
 
 add_library(parser STATIC

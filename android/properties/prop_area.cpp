@@ -40,32 +40,44 @@ void android::PropArea::Init() {
     };
 }
 
-uint32_t android::PropArea::magic() {
-    return *reinterpret_cast<uint32_t *>(Real() + OFFSET(PropArea, magic_));
-}
+struct Propbt_OffsetTable __Propbt_offset__;
+struct Propbt_SizeTable __Propbt_size__;
 
-uint32_t android::PropArea::version() {
-    return *reinterpret_cast<uint32_t *>(Real() + OFFSET(PropArea, version_));
-}
+void android::Propbt::Init() {
+    __Propbt_offset__ = {
+        .namelen = 0,
+        .prop = 4,
+        .left = 8,
+        .right = 12,
+        .children = 16,
+        .name = 20,
+    };
 
-char* android::PropArea::data() {
-    return reinterpret_cast<char*>(Ptr() + OFFSET(PropArea, data_));
+    __Propbt_size__ = {
+        .THIS = 20,
+        .namelen = 4,
+        .prop = 4,
+        .left = 4,
+        .right = 4,
+        .children = 4,
+        .name = 0,
+    };
 }
 
 void* android::PropArea::toPropObj(uint32_t off) {
     return data() + off;
 }
 
-inline android::Propbt* android::PropArea::toPropbt(uint32_t off) {
-    return reinterpret_cast<android::Propbt*>(toPropObj(off));
+inline android::Propbt android::PropArea::toPropbt(uint32_t off) {
+    return toPropObj(off);
 }
 
 inline android::PropInfo android::PropArea::toPropInfo(uint32_t off) {
     return toPropObj(off);
 }
 
-inline android::Propbt* android::PropArea::rootNode() {
-    return reinterpret_cast<android::Propbt*>(toPropObj(0));
+inline android::Propbt android::PropArea::rootNode() {
+    return toPropObj(0);
 }
 
 static int ComparePropName(const char* one, uint32_t one_len, const char* two, uint32_t two_len) {
@@ -77,46 +89,44 @@ static int ComparePropName(const char* one, uint32_t one_len, const char* two, u
         return strncmp(one, two, one_len);
 }
 
-android::Propbt* android::PropArea::findPropbt(android::Propbt* const bt, const char* name, uint32_t namelen) {
-    android::Propbt* current = bt;
+android::Propbt android::PropArea::findPropbt(android::Propbt& bt, const char* name, uint32_t namelen) {
+    android::Propbt current = bt;
     while (true) {
-        if (!current) {
-            return nullptr;
+        if (!current.Ptr()) {
+            return 0x0;
         }
-        android::Propbt* core_current = reinterpret_cast<android::Propbt*>(CoreApi::GetReal((uint64_t)current));
 
-        const int ret = ComparePropName(name, namelen, core_current->name, core_current->namelen);
+        const int ret = ComparePropName(name, namelen, current.name(), current.namelen());
         if (ret == 0) {
             return current;
         }
 
         if (ret < 0) {
-            uint32_t left_offset = core_current->left;
+            uint32_t left_offset = current.left();
             if (left_offset != 0) {
                 current = toPropbt(left_offset);
             } else {
-                return nullptr;
+                return 0x0;
             }
         } else {
-            uint32_t right_offset = core_current->right;
+            uint32_t right_offset = current.right();
             if (right_offset != 0) {
                 current = toPropbt(right_offset);
             } else {
-                return nullptr;
+                return 0x0;
             }
         }
     }
 }
 
-android::PropInfo android::PropArea::findProperty(android::Propbt* const trie, const char* name) {
-    if (!trie) return 0x0;
+android::PropInfo android::PropArea::findProperty(android::Propbt& trie, const char* name) {
+    if (!trie.Ptr()) return 0x0;
 
     const char* remaining_name = name;
 
-    android::Propbt* current = trie;
+    android::Propbt current = trie;
 
     while(true) {
-        android::Propbt* core_current = reinterpret_cast<android::Propbt*>(CoreApi::GetReal((uint64_t)current));
 
         const char* sep = strchr(remaining_name, '.');
         const bool want_subtree = (sep != nullptr);
@@ -126,19 +136,19 @@ android::PropInfo android::PropArea::findProperty(android::Propbt* const trie, c
             return 0x0;
         }
 
-        android::Propbt* root = nullptr;
-        uint32_t children_offset = core_current->children;
+        android::Propbt root = 0x0;
+        uint32_t children_offset = current.children();
 
         if (children_offset != 0) {
             root = toPropbt(children_offset);
         }
 
-        if (!root) {
+        if (!root.Ptr()) {
             return 0x0;
         }
 
         current = findPropbt(root, remaining_name, substr_size);
-        if (!current) {
+        if (!current.Ptr()) {
             return 0x0;
         }
 
@@ -147,8 +157,7 @@ android::PropInfo android::PropArea::findProperty(android::Propbt* const trie, c
         remaining_name = sep + 1;
     }
 
-    android::Propbt* core_current = reinterpret_cast<android::Propbt*>(CoreApi::GetReal((uint64_t)current));
-    uint32_t prop_offset = core_current->prop;
+    uint32_t prop_offset = current.prop();
     if (prop_offset != 0) {
         return toPropInfo(prop_offset);
     } else {
@@ -160,32 +169,35 @@ android::PropInfo android::PropArea::find(const char* name) {
     if (version() != PROP_AREA_VERSION || magic() != PROP_AREA_MAGIC) {
         return 0x0;
     }
-    return findProperty(rootNode(), name);
+    android::Propbt root = rootNode();
+    return findProperty(root, name);
 }
 
-bool android::PropArea::foreachProperty(android::Propbt* const trie, std::function<void (android::PropInfo& pi)> propfn) {
-    if (!trie) return false;
-    android::Propbt* core_trie = reinterpret_cast<android::Propbt*>(CoreApi::GetReal((uint64_t)trie));
+bool android::PropArea::foreachProperty(android::Propbt& trie, std::function<void (android::PropInfo& pi)> propfn) {
+    if (!trie.Ptr()) return false;
 
-    uint32_t left_offset = core_trie->left;
+    uint32_t left_offset = trie.left();
     if (left_offset != 0) {
-        const int err = foreachProperty(toPropbt(left_offset), propfn);
+        android::Propbt left_node = toPropbt(left_offset);
+        const int err = foreachProperty(left_node, propfn);
         if (err < 0) return false;
     }
-    uint32_t prop_offset = core_trie->prop;
+    uint32_t prop_offset = trie.prop();
     if (prop_offset != 0) {
         android::PropInfo info = toPropInfo(prop_offset);
         if (!info.Ptr()) return false;
         if (propfn) propfn(info);
     }
-    uint32_t children_offset = core_trie->children;
+    uint32_t children_offset = trie.children();
     if (children_offset != 0) {
-        const int err = foreachProperty(toPropbt(children_offset), propfn);
+        android::Propbt children_node = toPropbt(children_offset);
+        const int err = foreachProperty(children_node, propfn);
         if (err < 0) return false;
     }
-    uint32_t right_offset = core_trie->right;
+    uint32_t right_offset = trie.right();
     if (right_offset != 0) {
-        const int err = foreachProperty(toPropbt(right_offset), propfn);
+        android::Propbt right_node = toPropbt(right_offset);
+        const int err = foreachProperty(right_node, propfn);
         if (err < 0) return false;
     }
 
@@ -196,5 +208,6 @@ bool android::PropArea::foreach(std::function<void (android::PropInfo& pi)> prop
     if (version() != PROP_AREA_VERSION || magic() != PROP_AREA_MAGIC) {
         return false;
     }
-    return foreachProperty(rootNode(), propfn);
+    android::Propbt root = rootNode();
+    return foreachProperty(root, propfn);
 }

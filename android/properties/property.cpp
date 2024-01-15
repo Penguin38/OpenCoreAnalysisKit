@@ -22,6 +22,7 @@
 void android::Property::Init() {
     android::PropInfo::Init();
     android::PropArea::Init();
+    android::Propbt::Init();
 }
 
 std::string android::Property::Get(const char *name) {
@@ -31,7 +32,8 @@ std::string android::Property::Get(const char *name) {
 std::string android::Property::Get(const char *name, const char* def) {
     android::PropInfo result = 0x0;
     auto callback = [name, def, &result](LoadBlock *block) -> bool {
-        if (block->size() == android::PropArea::PA_SIZE) {
+        if (block->size() >= android::PropArea::PA_SIZE
+                && !(block->size() % android::PropArea::PA_SIZE)) {
             android::PropArea area = block->vaddr();
             android::PropInfo info = area.find(name);
 
@@ -52,7 +54,8 @@ std::string android::Property::Get(const char *name, const char* def) {
 
 void android::Property::Foreach(std::function<void (android::PropInfo& info)> propfn) {
     auto callback = [&propfn](LoadBlock *block) -> bool {
-        if (block->size() == android::PropArea::PA_SIZE) {
+        if (block->size() >= android::PropArea::PA_SIZE
+                && !(block->size() % android::PropArea::PA_SIZE)) {
             android::PropArea area = block->vaddr();
             area.foreach(propfn);
         }

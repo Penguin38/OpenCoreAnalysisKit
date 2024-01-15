@@ -33,11 +33,3 @@ void android::PropInfo::Init() {
         .name = 0,
     };
 }
-
-std::string android::PropInfo::name() {
-    return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, name));
-}
-
-std::string android::PropInfo::value() {
-    return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, value));
-}

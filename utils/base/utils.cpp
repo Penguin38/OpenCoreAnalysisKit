@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <filesystem>
+#include <iomanip>
 #include <iostream>
 
 bool Utils::SearchFile(const std::string& directory, std::string* result, const std::string& name) {
