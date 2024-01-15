@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "api/core.h"
 #include "arm64/core.h"
 #include "arm/core.h"
@@ -40,12 +41,12 @@ bool CoreApi::Load(const char* corefile) {
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
         if (memcmp(header->ident, ELFMAG, 4)) {
-            std::cout << "Invalid ELF file." << std::endl;
+            LOGI("Invalid ELF file.\n");
             return false;
         }
 
         if (header->type != ET_CORE) {
-            std::cout << "Invalid Core file." << std::endl;
+            LOGI("Invalid Core file.\n");
             return false;
         }
 
@@ -66,7 +67,7 @@ bool CoreApi::Load(const char* corefile) {
                 INSTANCE = new x86::Core(map);
                 break;
             default:
-                std::cout << "Not support machine (" << header->machine << ")" << std::endl;
+                LOGI("Not support machine (%d)\n", header->machine);
                 break;
         }
 
@@ -84,7 +85,6 @@ void CoreApi::UnLoad() {
         INSTANCE->removeAllNoteBlock();
         delete INSTANCE;
         INSTANCE = nullptr;
-        std::cout << __func__ << std::endl;
     }
 }
 
@@ -101,8 +101,8 @@ int CoreApi::GetPointSize() {
 }
 
 CoreApi::~CoreApi() {
+    LOGI("Remove core (%p) %s\n", this, mCore->getName().c_str());
     mCore.reset();
-    std::cout << __func__ << " " << this << std::endl;
 }
 
 uint64_t CoreApi::begin() {
@@ -178,8 +178,8 @@ uint64_t CoreApi::GetDebug() {
 
 void CoreApi::DumpFile() {
     auto callback = [](File* file) -> bool {
-        std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
-            << file->offset() << " " << file->name() << std::endl;
+        LOGI("[%lx, %lx) %lx %s\n", file->begin(), file->end(),
+                                    file->offset(), file->name().c_str());
         return false;
     };
     INSTANCE->foreachFile(callback);
@@ -196,16 +196,11 @@ void CoreApi::DumpAuxv() {
             if (IsVirtualValid(auxv->value())) {
                 name = reinterpret_cast<const char*>(GetReal(auxv->value()));
             }
-            std::cout << std::hex <<std::setw(6) << auxv->type() << "  "
-                      << std::setw(16) << auxv->to_string() << "  "
-                      << "0x" << auxv->value() << "  "
-                      << " " << name<< std::endl;
+            LOGI("%6lx  %16s  0x%lx %s\n", auxv->type(), auxv->to_string().c_str(),
+                                            auxv->value(), name.c_str());
         } else {
-            std::cout << std::hex << std::setw(6) << auxv->type() << "  "
-                      << std::setw(16) << auxv->to_string() << "  "
-                      << "0x" << auxv->value() << std::endl;
+            LOGI("%6lx  %16s  0x%lx\n", auxv->type(), auxv->to_string().c_str(), auxv->value());
         }
-        Utils::ResetWFill();
         return false;
     };
     INSTANCE->foreachAuxv(callback);
@@ -233,10 +228,11 @@ void CoreApi::DumpLinkMap() {
                 valid.append("[EMPTY]");
             }
 
-            std::cout << std::hex << "[" << block->vaddr() << ", " << block->vaddr() + block->size() << ") "
-                      << name << " " << valid << std::endl;
+            LOGI("[%lx, %lx) %s %s\n", block->vaddr(), block->vaddr() + block->size(),
+                                       name.c_str(), valid.c_str());
         } else {
-            std::cout << std::hex << "[" << map->begin() << "] " << map->name() << " [unknown]" << std::endl;
+            LOGI("[%lx, %lx) %s [unknown]\n", block->vaddr(), block->vaddr() + block->size(),
+                                       block->name().c_str());
         }
         return false;
     };
@@ -291,16 +287,12 @@ void CoreApi::SysRoot(const char* path) {
 }
 
 void CoreApi::Write(uint64_t vaddr, uint64_t value) {
-    LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
-    if (block) {
-        block->setOverlay(vaddr, value);
-    }
+    LoadBlock* block = FindLoadBlock(vaddr);
+    block->setOverlay(vaddr, value);
 }
 
 bool CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt) {
-    LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
-    if (!block)
-        throw InvalidAddressException(vaddr);
+    LoadBlock* block = FindLoadBlock(vaddr);
 
     uint64_t raddr = GetReal(vaddr, opt);
     if (!raddr)
@@ -319,8 +311,11 @@ void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback) {
     INSTANCE->foreachLoadBlock(callback);
 }
 
-LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr) {
-    return INSTANCE->findLoadBlock(vaddr);
+LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr, bool check) {
+    LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
+    if (check && block && block->isValid())
+        return block;
+    throw InvalidAddressException(vaddr);
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {

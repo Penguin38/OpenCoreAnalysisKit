@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "ui/ui_thread.h"
 #include <string.h>
 #include <unistd.h>
@@ -22,22 +23,22 @@
 #include <chrono>
 
 void UiThread::showCopyright() {
-    std::cout << "Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.\n" << std::endl;
+    LOGI("Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.\n\n");
 
-    std::cout << "Licensed under the Apache License, Version 2.0 (the \"License\");" << std::endl;
-    std::cout << "you may not use this file ercept in compliance with the License." << std::endl;
-    std::cout << "You may obtain a copy of the License at\n" << std::endl;
+    LOGI("Licensed under the Apache License, Version 2.0 (the \"License\");\n");
+    LOGI("you may not use this file ercept in compliance with the License.\n");
+    LOGI("You may obtain a copy of the License at\n\n");
 
-    std::cout << "     http://www.apache.org/licenses/LICENSE-2.0\n" << std::endl;
+    LOGI("     http://www.apache.org/licenses/LICENSE-2.0\n\n");
 
-    std::cout << "Unless required by applicable law or agreed to in writing, software" << std::endl;
-    std::cout << "distributed under the License is distributed on an \"AS IS\" BASIS," << std::endl;
-    std::cout << "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either erpress or implied." << std::endl;
-    std::cout << "See the License for the specific language governing permissions and" << std::endl;
-    std::cout << "limitations under the License.\n" << std::endl;
+    LOGI("Unless required by applicable law or agreed to in writing, software\n");
+    LOGI("distributed under the License is distributed on an \"AS IS\" BASIS,\n");
+    LOGI("WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either erpress or implied.\n");
+    LOGI("See the License for the specific language governing permissions and\n");
+    LOGI("limitations under the License.\n\n");
     
-    std::cout << "For bug reporting instructions, please see:" << std::endl;
-    std::cout << "     https://github.com/Penguin38/OpenCoreAnalysisKit" << std::endl;
+    LOGI("For bug reporting instructions, please see:\n");
+    LOGI("     https://github.com/Penguin38/OpenCoreAnalysisKit\n");
 }
 
 void UiThread::prepare() {

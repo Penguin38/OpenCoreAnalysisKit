@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/cmd_getprop.h"
 #include "properties/property.h"
 #include "base/utils.h"
@@ -23,7 +24,7 @@
 void GetPropCommand::printProperties() {
     auto callback = [](android::PropInfo& info) {
         if (info.Ptr()) {
-            std::cout << "[" <<info.name() << "]: [" << info.value() << "]" << std::endl;
+            LOGI("[%s]: [%s]\n", info.name().c_str(), info.value().c_str());
         }
     };
     android::Property::Foreach(callback);
@@ -36,11 +37,11 @@ int GetPropCommand::main(int argc, char* const argv[]) {
     if (!argc) {
         printProperties();
     } else {
-        std::cout << android::Property::Get(argv[0]) << std::endl;
+        LOGI("%s\n", android::Property::Get(argv[0]).c_str());
     }
     return 0;
 }
 
 void GetPropCommand::usage() {
-    std::cout << "Usage: getprop [NAME]" << std::endl;
+    LOGI("Usage: getprop [NAME]\n");
 }

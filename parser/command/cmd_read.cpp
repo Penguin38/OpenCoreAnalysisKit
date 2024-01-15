@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/cmd_read.h"
 #include "base/utils.h"
 #include "api/core.h"
@@ -75,9 +76,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
         if (value) {
             if (!filepath) {
                 std::string ascii = Utils::ConvertAscii(*value, 8);
-                std::cout << std::hex << begin << ": "
-                          << std::setw(16) << std::setfill('0')
-                          << (*value) << "  " << ascii << std::endl;
+                LOGI("%lx: %016lx  %s\n", begin, (*value), ascii.c_str());
             } else {
                 saveBinary(filepath, value, end - begin);
             }
@@ -88,11 +87,8 @@ int ReadCommand::main(int argc, char* const argv[]) {
             uint64_t* value = reinterpret_cast<uint64_t *>(buf);
             if (!filepath) {
                 for (int i = 0; i < count; i += 2) {
-                    std::cout << std::hex << (begin + i * 8) << ": "
-                              << std::setw(16) << std::setfill('0') << value[i] << "  "
-                              << std::setw(16) << std::setfill('0') << value[i + 1] << "  "
-                              << Utils::ConvertAscii(value[i], 8)
-                              << Utils::ConvertAscii(value[i + 1], 8) << std::endl;
+                    LOGI("%lx: %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
+                            Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
                 }
             } else {
                 saveBinary(filepath, value, end - begin);
@@ -100,7 +96,6 @@ int ReadCommand::main(int argc, char* const argv[]) {
         }
         free(buf);
     }
-    Utils::ResetWFill();
     return 0;
 }
 
@@ -110,13 +105,13 @@ void ReadCommand::saveBinary(char* path, uint64_t* real, uint64_t size) {
         if (fp) {
             fwrite(real, size, 1, fp);
             fclose(fp);
-            std::cout << "Saved [" << path << "]." << std::endl;
+            LOGI("Saved [%s].\n", path);
         }
     }
 }
 
 void ReadCommand::usage() {
-    std::cout << "Usage: read|rd begin [-e end] [--opt] [-f path]" << std::endl;
-    std::cout << "         opt: --origin --mmap --overlay" << std::endl;
+    LOGI("Usage: read|rd begin [-e end] [--opt] [-f path]\n");
+    LOGI("         opt: --origin --mmap --overlay\n");
 }
 

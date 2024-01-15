@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/cmd_write.h"
 #include "base/utils.h"
 #include "api/core.h"
@@ -29,5 +30,5 @@ int WriteCommand::main(int argc, char* const argv[]) {
 }
 
 void WriteCommand::usage() {
-    std::cout << "Usage: write|wd address value" << std::endl;
+    LOGI("Usage: write|wd address value\n");
 }

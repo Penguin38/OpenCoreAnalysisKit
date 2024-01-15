@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/command_manager.h"
 #include "command/help.h"
 #include "command/cmd_core.h"
@@ -26,6 +27,7 @@
 #include "command/cmd_write.h"
 #include "command/cmd_getprop.h"
 #include "command/cmd_shell.h"
+#include "command/cmd_debug.h"
 #include "common/exception.h"
 #include "base/utils.h"
 #include <string.h>
@@ -44,6 +46,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new WriteCommand());
     CommandManager::PushInlineCommand(new GetPropCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
+    CommandManager::PushInlineCommand(new DebugCommand());
     CommandManager::PushInlineCommand(new Help());
 }
 
@@ -88,10 +91,10 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
             }
             return command->main(argc, argv);
         } catch (InvalidAddressException e) {
-            std::cout << e.what() << std::endl;
+            LOGI("%s\n", e.what());
         }
     } else {
-        std::cout << "Not found command." << std::endl;
+        LOGI("Not found command.\n");
     }
     return 0;
 }

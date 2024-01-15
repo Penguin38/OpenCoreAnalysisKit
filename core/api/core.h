@@ -115,7 +115,10 @@ public:
     }
     static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt);
     static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback);
-    static LoadBlock* FindLoadBlock(uint64_t vaddr);
+    static LoadBlock* FindLoadBlock(uint64_t vaddr) {
+        return FindLoadBlock(vaddr, true);
+    }
+    static LoadBlock* FindLoadBlock(uint64_t vaddr, bool check);
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {

@@ -28,7 +28,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 ${AUTO_VAR_INIT_ZERO} -O2 -
 include_directories(utils)
 add_library(utils STATIC
             utils/base/utils.cpp
-            utils/base/memory_map.cpp)
+            utils/base/memory_map.cpp
+            utils/logger/log.cpp)
 if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
 target_link_libraries(utils stdc++fs)
 endif()
@@ -76,7 +77,8 @@ add_library(parser STATIC
             parser/command/cmd_read.cpp
             parser/command/cmd_write.cpp
             parser/command/cmd_getprop.cpp
-            parser/command/cmd_shell.cpp)
+            parser/command/cmd_shell.cpp
+            parser/command/cmd_debug.cpp)
 target_link_libraries(parser android core utils)
 
 add_executable(core-parser

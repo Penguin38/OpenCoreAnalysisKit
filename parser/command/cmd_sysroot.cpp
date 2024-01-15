@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/cmd_sysroot.h"
 #include "api/core.h"
 
@@ -25,5 +26,5 @@ int SysRootCommand::main(int argc, char* const argv[]) {
 }
 
 void SysRootCommand::usage() {
-    std::cout << "Usage: sysroot /system:/apex:/vendor" << std::endl;
+    LOGI("Usage: sysroot /system:/apex:/vendor\n");
 }

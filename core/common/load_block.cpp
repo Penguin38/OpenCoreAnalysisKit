@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "common/load_block.h"
 
 uint64_t LoadBlock::begin(int opt) {
@@ -68,11 +69,9 @@ void LoadBlock::setOverlay(uint64_t addr, uint64_t value) {
         }
         if (map) {
             mOverlay = std::move(map);
-            std::cout << "New overlay [" << std::hex << vaddr() << ", " << vaddr() + size() << ")" << std::endl;
+            LOGI("New overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
         }
     }
-    std::cout << "Overlay(" << std::hex << addr << ") "
-              << "Old(" << *reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - vaddr())) << ") "
-              << "New(" << value << ")" << std::endl;
+    LOGI("Overlay(%lx) Old(%016lx) New(%016lx)\n", addr, *reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - vaddr())), value);
     *reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - vaddr())) = value;
 }

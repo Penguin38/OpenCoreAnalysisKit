@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/cmd_file.h"
 #include "base/utils.h"
 #include "api/core.h"
@@ -27,8 +28,7 @@ int FileCommand::main(int argc, char* const argv[]) {
             uint64_t address = Utils::atol(argv[0]);
             auto callback = [address](File* file) -> bool {
                 if (address >= file->begin() && address < file->end()) {
-                    std::cout << std::hex << "[" << file->begin() << ", " << file->end() << ") "
-                              << file->offset() << " " << file->name() << std::endl;
+                    LOGI("[%lx, %lx) %lx %s\n", file->begin(), file->end(), file->offset(), file->name().c_str());
                     return true;
                 }
                 return false;
@@ -40,5 +40,5 @@ int FileCommand::main(int argc, char* const argv[]) {
 }
 
 void FileCommand::usage() {
-    std::cout << "Usage: file [virtaul address]" << std::endl;
+    LOGI("Usage: file [virtaul address]\n");
 }

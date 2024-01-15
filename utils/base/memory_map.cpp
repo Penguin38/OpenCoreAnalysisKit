@@ -92,5 +92,4 @@ MemoryMap::~MemoryMap() {
     if (mBegin != MAP_FAILED) {
         munmap(mBegin, mSize);
     }
-    std::cout << __func__ << " " << this << std::endl;
 }

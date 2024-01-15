@@ -35,7 +35,6 @@ void NoteBlock::addThreadItem(void *thread) {
 }
 
 NoteBlock::~NoteBlock() {
-    std::cout << __func__ << " " << this << std::endl;
     mThread.clear();
     mAuxv.clear();
     mFile.clear();

@@ -24,7 +24,7 @@ public:
     inline int pid() { return mPid; }
 
     ThreadApi(int tid) : mPid(tid) {}
-    ~ThreadApi() { std::cout << __func__ << " " << this << std::endl; }
+    ~ThreadApi() {}
 private:
     int mPid;
 };

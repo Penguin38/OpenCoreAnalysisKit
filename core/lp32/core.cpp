@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "lp32/core.h"
 #include "common/elf.h"
 #include "common/bit.h"
@@ -90,7 +91,7 @@ bool Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callba
             api->addNoteBlock(block);
         }
     }
-    std::cout << "Core load (" << this << ") " << api->getName() << std::endl;
+    LOGI("Core load (%p) %s\n", this, api->getName().c_str());
     return true;
 }
 
@@ -105,7 +106,7 @@ uint64_t Core::loadDebug32(CoreApi* api) {
         if (CoreApi::IsVirtualValid(execfn)) {
             name.append(reinterpret_cast<const char*>(CoreApi::GetReal(execfn)));
         }
-        std::cout << "Not found execfn [" << name << "]." << std::endl;
+        LOGW("WARN: Not found execfn [%s].\n", name.c_str());
         return 0x0;
     }
 
@@ -129,7 +130,7 @@ uint64_t Core::loadDebug32(CoreApi* api) {
 void Core::loadLinkMap32(CoreApi* api) {
     uint64_t debug = CoreApi::GetDebug();
     if (!debug) {
-        std::cout << "Not found debug." << std::endl;
+        LOGW("WARN: Not found debug.\n");
         return;
     }
 
@@ -142,7 +143,7 @@ void Core::loadLinkMap32(CoreApi* api) {
             map = link->next;
         }
     } catch (InvalidAddressException e) {
-        std::cout << e.what() << std::endl;
+        LOGI("%s\n", e.what());
     }
 }
 
@@ -151,17 +152,17 @@ bool Core::dlopen32(CoreApi* api, uint32_t begin, const char* file) {
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
         if (memcmp(header->ident, ELFMAG, 4)) {
-            std::cout << "Invalid ELF file (" << file << ")"<< std::endl;
+            LOGE("ERROR: Invalid ELF file (%s)\n", file);
             return false;
         }
 
         if (header->type != ET_DYN) {
-            std::cout << "Invalid shared object file (" << file << ")"<< std::endl;
+            LOGE("ERROR: Invalid shared object file (%s)\n", file);
             return false;
         }
 
         if (header->machine != CoreApi::GetMachine()) {
-            std::cout << "Invalid match machine(" << header->machine << ") (" << file << ")"<< std::endl;
+            LOGE("ERROR: Invalid match machine(%d) (%s)\n", header->machine, file);
             return false;
         }
 
@@ -187,9 +188,7 @@ bool Core::dlopen32(CoreApi* api, uint32_t begin, const char* file) {
                     && !(loadidx && !phdr[index].p_offset)) {
                 uint32_t page_offset = RoundDown(phdr[index].p_offset, 0x1000);
                 block->setMmapFile(file, page_offset);
-                std::cout << "Load [" << index << "] segment ["
-                    << std::hex << current << ", " << current + block->size() << ") "
-                    << file << " ["<< page_offset << "]" << std::endl;
+                LOGI("Load [%d] segment [%x, %lx) %s [%x]\n", index, current, current + block->size(), file, page_offset);
             }
             ++loadidx;
         }

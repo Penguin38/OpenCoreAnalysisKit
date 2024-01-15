@@ -105,7 +105,7 @@ public:
     }
 
     Auxv(uint64_t t, uint64_t v) : mType(t), mValue(v) {}
-    ~Auxv() { std::cout << __func__ << " " << this << std::endl; }
+    ~Auxv() {}
 private:
     //  auxv member
     uint64_t mType;

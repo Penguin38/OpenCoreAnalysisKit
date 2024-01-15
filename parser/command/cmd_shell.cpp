@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/cmd_shell.h"
 #include "base/utils.h"
 #include "api/core.h"
@@ -44,7 +45,7 @@ int ShellCommand::main(int argc, char* const argv[], std::function<void ()> call
             close(fd[0]);
         }
         if (execvp(cmd, argv) == -1)
-            std::cout << "Unknown command " << cmd << ".  Try \"help\"." << std::endl;
+            LOGI("Unknown command %s .  Try \"help\".\n", cmd);
         exit(0);
     } else if (pid > 0) {
         if (callback) {
@@ -61,5 +62,5 @@ int ShellCommand::main(int argc, char* const argv[], std::function<void ()> call
 }
 
 void ShellCommand::usage() {
-    std::cout << "Usage: shell|sh cmd ..." << std::endl;
+    LOGI("Usage: shell|sh cmd ...\n");
 }

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "logger/log.h"
-#include "command/cmd_exec.h"
-#include "api/core.h"
+#ifndef PARSER_COMMAND_CMD_DEBUG_H_
+#define PARSER_COMMAND_CMD_DEBUG_H_
 
-int ExecCommand::main(int argc, char* const argv[]) {
-    if (CoreApi::IsReady() && argc > 0) {
-        CoreApi::ExecFile(argv[0]);
-    }
-    return 0;
-}
+#include "command/command.h"
 
-void ExecCommand::usage() {
-    LOGI("Usage: exec /system/bin/app_process64\n");
-}
+class DebugCommand : public Command {
+public:
+    DebugCommand() : Command("debug") {}
+    ~DebugCommand() {}
+    int main(int argc, char* const argv[]);
+    void usage();
+};
+
+#endif // PARSER_COMMAND_CMD_DEBUG_H_

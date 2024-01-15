@@ -45,12 +45,8 @@ public:
 
     inline uint64_t Ptr() { return vaddr; }
     inline uint64_t Real() {
-        if (!block) {
-            block = CoreApi::FindLoadBlock(vaddr);
-        }
-
-        if (block) return block->begin() + (vaddr - block->vaddr());
-        return 0x0;
+        if (!block) block = CoreApi::FindLoadBlock(vaddr);
+        return block->begin() + (vaddr - block->vaddr());
     }
 private:
     uint64_t vaddr;

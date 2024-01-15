@@ -62,7 +62,7 @@ public:
 class ThreadInfo : public ThreadApi {
 public:
     ThreadInfo(int tid) : ThreadApi(tid) {}
-    ~ThreadInfo() { std::cout << __func__ << " " << this << std::endl; }
+    ~ThreadInfo() {}
 
     Register  reg;
 };

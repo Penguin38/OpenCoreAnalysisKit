@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "base/utils.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -23,7 +24,6 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <filesystem>
-#include <iomanip>
 #include <iostream>
 
 bool Utils::SearchFile(const std::string& directory, std::string* result, const std::string& name) {
@@ -48,7 +48,7 @@ bool Utils::SearchFile(const std::string& directory, std::string* result, const 
 void Utils::ListFiles(const std::string& directory, std::string* result, const std::string& name) {
     DIR* dirp = opendir(directory.c_str());
     if (dirp == nullptr) {
-        std::cout << "Cannot opendir " << directory << std::endl;
+        LOGI("Cannot opendir %s\n", directory.c_str());
         return;
     }
 
@@ -96,11 +96,6 @@ uint64_t Utils::atol(const char* src) {
     uint64_t value;
     sscanf(src, "%" PRIx64 "", &value);
     return value;
-}
-
-void Utils::ResetWFill() {
-    std::setw(0);
-    std::setfill(' ');
 }
 
 void Utils::FreopenWrite(const char* path) {

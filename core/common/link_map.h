@@ -33,7 +33,7 @@ public:
         if (name) mName = name;
         mBlock = block;
     }
-    ~LinkMap() { std::cout << __func__ << " " << this << std::endl; }
+    ~LinkMap() {}
 private:
     //  file member
     uint64_t mBegin;

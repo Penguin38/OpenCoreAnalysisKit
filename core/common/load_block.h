@@ -49,7 +49,6 @@ public:
     bool isOverlayBlock() { return mOverlay != nullptr; }
     inline std::string& name() { return mMmap->getName(); }
     ~LoadBlock() {
-        std::cout << __func__ << " " << this << std::endl;
         mOverlay.reset();
         mMmap.reset();
     }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/help.h"
 #include "command/command_manager.h"
 
@@ -22,14 +23,14 @@ void Help::printCommandUsage(const char* cmd) {
     if (command) {
         return command->usage();
     } else {
-        std::cout << "Not found command \"" << cmd << "\"." << std::endl;
+        LOGI("Not found command (%s).\n", cmd);
     }
 }
 
 void Help::printCommands() {
     int index = 0;
     auto callback = [&index](Command* command) -> bool {
-        std::cout << command->get() << std::endl;
+        LOGI("%s\n", command->get().c_str());
         return false;
     };
     CommandManager::ForeachCommand(callback);

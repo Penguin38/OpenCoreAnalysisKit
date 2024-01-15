@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "api/core.h"
 #include "ui/ui_thread.h"
 #include "work/work_thread.h"
@@ -42,7 +43,7 @@ public:
     ~VersionCommand() {}
     void usage() {}
     int main(int /*argc*/, char* const * /*argv[]*/) {
-        std::cout << "1.0" << std::endl;
+        LOGI("1,0\n");
         return 0;
     }
 };
