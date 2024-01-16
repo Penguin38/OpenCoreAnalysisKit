@@ -49,11 +49,21 @@ add_library(core STATIC
 target_link_libraries(core utils)
 
 include_directories(android)
+include_directories(android/art)
 add_library(android STATIC
+            android/android.cpp
+
             android/properties/prop_info.cpp
             android/properties/prop_area.cpp
-            android/properties/property.cpp)
-target_link_libraries(core)
+            android/properties/property.cpp
+
+            android/art/runtime/mirror/object.cpp
+            android/art/runtime/mirror/class.cpp
+            android/art/runtime/mirror/array.cpp
+
+            android/art/dex/primitive.cpp
+            android/art/dex/modifiers.cpp)
+target_link_libraries(android core)
 
 set(LINKER_PTHREAD "")
 if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
@@ -77,6 +87,7 @@ add_library(parser STATIC
             parser/command/cmd_read.cpp
             parser/command/cmd_write.cpp
             parser/command/cmd_getprop.cpp
+            parser/command/cmd_print.cpp
             parser/command/cmd_shell.cpp
             parser/command/cmd_debug.cpp)
 target_link_libraries(parser android core utils)

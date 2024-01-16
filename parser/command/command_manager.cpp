@@ -26,6 +26,7 @@
 #include "command/cmd_read.h"
 #include "command/cmd_write.h"
 #include "command/cmd_getprop.h"
+#include "command/cmd_print.h"
 #include "command/cmd_shell.h"
 #include "command/cmd_debug.h"
 #include "common/exception.h"
@@ -36,6 +37,7 @@ CommandManager* CommandManager::INSTANCE;
 
 void CommandManager::Init() {
     INSTANCE = new CommandManager;
+    // core
     CommandManager::PushInlineCommand(new CoreCommand());
     CommandManager::PushInlineCommand(new ExecCommand());
     CommandManager::PushInlineCommand(new SysRootCommand());
@@ -44,7 +46,12 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new LinkMapCommand());
     CommandManager::PushInlineCommand(new ReadCommand());
     CommandManager::PushInlineCommand(new WriteCommand());
+
+    // android
     CommandManager::PushInlineCommand(new GetPropCommand());
+    CommandManager::PushInlineCommand(new PrintCommand());
+
+    // other
     CommandManager::PushInlineCommand(new ShellCommand());
     CommandManager::PushInlineCommand(new DebugCommand());
     CommandManager::PushInlineCommand(new Help());
