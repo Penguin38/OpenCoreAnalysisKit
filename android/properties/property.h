@@ -18,15 +18,18 @@
 #define ANDROID_PROPERTIES_PROPERTY_H_
 
 #include "properties/prop_info.h"
-#include <string>
 #include <functional>
 
 namespace android {
 class Property {
 public:
     static void Init();
-    static std::string Get(const char *name);
-    static std::string Get(const char *name, const char* def);
+    static const char* Get(const char *name);
+    static const char* Get(const char *name, const char* def);
+    static int64_t GetInt64(const char *name);
+    static int64_t GetInt64(const char *name, int64_t def);
+    static int32_t GetInt32(const char *name);
+    static int32_t GetInt32(const char *name, int32_t def);
     static void Foreach(std::function<void (PropInfo& info)> callback);
 };
 } // android

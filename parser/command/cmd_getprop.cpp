@@ -24,7 +24,7 @@
 void GetPropCommand::printProperties() {
     auto callback = [](android::PropInfo& info) {
         if (info.Ptr()) {
-            LOGI("[%s]: [%s]\n", info.name().c_str(), info.value().c_str());
+            LOGI("[%s]: [%s]\n", info.name(), info.value());
         }
     };
     android::Property::Foreach(callback);
@@ -37,7 +37,7 @@ int GetPropCommand::main(int argc, char* const argv[]) {
     if (!argc) {
         printProperties();
     } else {
-        LOGI("%s\n", android::Property::Get(argv[0]).c_str());
+        LOGI("%s\n", android::Property::Get(argv[0]));
     }
     return 0;
 }

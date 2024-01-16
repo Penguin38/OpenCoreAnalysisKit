@@ -43,16 +43,18 @@ extern struct PropInfo_SizeTable __PropInfo_size__;
 namespace android {
 class PropInfo : public api::MemoryRef {
 public:
-    PropInfo(uint64_t v) : MemoryRef(v) {}
-    template<typename U> PropInfo(U *v) : MemoryRef(v) {}
-    template<typename U> PropInfo& operator=(U* other) { init(other); return *this; }
+    PropInfo(uint64_t v) : api::MemoryRef(v) {}
+    PropInfo(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    PropInfo(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+    template<typename U> PropInfo(U *v) : api::MemoryRef(v) {}
+    template<typename U> PropInfo(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     constexpr static uint32_t kLongFlag = 1 << 16;
     constexpr static uint32_t kLongLegacyErrorBufferSize = 56;
 
     static void Init();
-    inline std::string name() { return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, name)); }
-    inline std::string value() { return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, value)); }
+    inline const char* name() { return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, name)); }
+    inline const char* value() { return reinterpret_cast<const char*>(Real() + OFFSET(PropInfo, value)); }
 };
 
 } // android

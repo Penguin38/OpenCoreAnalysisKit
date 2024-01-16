@@ -68,9 +68,11 @@ extern struct Propbt_SizeTable __Propbt_size__;
 namespace android {
 class Propbt : public api::MemoryRef {
 public:
-    Propbt(uint64_t v) : MemoryRef(v) {}
-    template<typename U> Propbt(U *v) : MemoryRef(v) {}
-    template<typename U> Propbt& operator=(U* other) { init(other); return *this; }
+    Propbt(uint64_t v) : api::MemoryRef(v) {}
+    Propbt(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    Propbt(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+    template<typename U> Propbt(U *v) : api::MemoryRef(v) {}
+    template<typename U> Propbt(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     static void Init();
 
     inline uint32_t namelen() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, namelen)); }
@@ -78,14 +80,15 @@ public:
     inline uint32_t left() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, left)); }
     inline uint32_t right() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, right)); }
     inline uint32_t children() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, children)); }
-    inline char* name() { return reinterpret_cast<char *>(Real() + OFFSET(Propbt, name)); }
+    inline const char* name() { return reinterpret_cast<const char *>(Real() + OFFSET(Propbt, name)); }
 };
 
 class PropArea : public api::MemoryRef {
 public:
-    PropArea(uint64_t v) : MemoryRef(v) {}
-    template<typename U> PropArea(U *v) : MemoryRef(v) {}
-    template<typename U> PropArea& operator=(U* other) { init(other); return *this; }
+    PropArea(uint64_t v) : api::MemoryRef(v) {}
+    PropArea(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    PropArea(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
+    template<typename U> PropArea(U *v) : api::MemoryRef(v) {}
 
     constexpr static uint32_t PA_SIZE = 128 * 1024;
     constexpr static uint32_t PROP_AREA_MAGIC = 0x504f5250;

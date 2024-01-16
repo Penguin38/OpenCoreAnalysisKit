@@ -69,15 +69,17 @@ void* android::PropArea::toPropObj(uint32_t off) {
 }
 
 inline android::Propbt android::PropArea::toPropbt(uint32_t off) {
-    return toPropObj(off);
+    android::Propbt bt(toPropObj(off), this);
+    return bt;
 }
 
 inline android::PropInfo android::PropArea::toPropInfo(uint32_t off) {
-    return toPropObj(off);
+    android::PropInfo info(toPropObj(off), this);
+    return info;
 }
 
 inline android::Propbt android::PropArea::rootNode() {
-    return toPropObj(0);
+    return toPropbt(0);
 }
 
 static int ComparePropName(const char* one, uint32_t one_len, const char* two, uint32_t two_len) {

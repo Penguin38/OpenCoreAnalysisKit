@@ -18,8 +18,10 @@
 #define CORE_API_MEMORY_REF_H_
 
 #include "api/core.h"
+#include "common/exception.h"
 #include <stdint.h>
 #include <sys/types.h>
+#include <iostream>
 
 /*
  *  api::MemoryRef ref = vaddr;
@@ -36,15 +38,28 @@ class MemoryRef {
 public:
     MemoryRef(uint64_t v) : vaddr(v), block(nullptr) {}
     MemoryRef(const MemoryRef& ref) : vaddr(ref.vaddr), block(ref.block) {}
-    template<typename U> MemoryRef(U *v) { vaddr = reinterpret_cast<uint64_t>(v); }
-    template<typename U> MemoryRef& operator=(U* other) { init(other); return *this; }
-    template<typename U> void init(U* other) { vaddr = reinterpret_cast<uint64_t>(other); }
+    MemoryRef(uint64_t v, LoadBlock* b) : vaddr(v) { checkCopyBlock(b); }
+    MemoryRef(uint64_t v, MemoryRef& ref) : vaddr(v) { copyRef(ref); }
+    MemoryRef(uint64_t v, MemoryRef* ref) : vaddr(v) { copyRef(ref); }
+
+    template<typename U> MemoryRef(U *v) { init(v); }
+    template<typename U> MemoryRef(U *v, LoadBlock* b) { init(v); checkCopyBlock(b); }
+    template<typename U> MemoryRef(U *v, MemoryRef& ref) { init(v); copyRef(ref); }
+    template<typename U> MemoryRef(U *v, MemoryRef* ref) { init(v); copyRef(ref); }
+
+    template<typename U> void init(U* other) { vaddr = reinterpret_cast<uint64_t>(other); block = nullptr; }
+    inline void checkCopyBlock(LoadBlock* b) { if (b->virtualContains(vaddr)) block = b; }
+    inline void copyRef(MemoryRef& ref) { checkCopyBlock(ref.block); }
+    inline void copyRef(MemoryRef* ref) { checkCopyBlock(ref->block); }
 
     bool operator==(uint64_t v) { return vaddr == v; }
     bool operator!=(uint64_t v) { return vaddr != v; }
 
     inline uint64_t Ptr() { return vaddr; }
     inline uint64_t Real() {
+        if (!vaddr)
+            throw InvalidAddressException(vaddr);
+
         if (!block) block = CoreApi::FindLoadBlock(vaddr);
         return block->begin() + (vaddr - block->vaddr());
     }

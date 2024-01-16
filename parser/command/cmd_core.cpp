@@ -25,22 +25,22 @@ int CoreCommand::main(int argc, char* const argv[]) {
         // symbols init for later
         android::Property::Init();
 
-        LOGI("  * ID: %s\n", android::Property::Get("ro.build.id", "<unknown>").c_str());
-        LOGI("  * Name: %s\n", android::Property::Get("ro.product.name", "<unknown>").c_str());
-        LOGI("  * Model: %s\n", android::Property::Get("ro.product.model", "<unknown>").c_str());
-        LOGI("  * Manufacturer: %s\n", android::Property::Get("ro.product.manufacturer", "<unknown>").c_str());
-        LOGI("  * Brand: %s\n", android::Property::Get("ro.product.brand", "<unknown>").c_str());
-        LOGI("  * Hardware: %s\n", android::Property::Get("ro.hardware", "<unknown>").c_str());
-        LOGI("  * ABIS: %s\n", android::Property::Get("ro.product.cpu.abilist", "<unknown>").c_str());
-        LOGI("  * Incremental: %s\n", android::Property::Get("ro.build.version.incremental", "<unknown>").c_str());
-        LOGI("  * Release: %s\n", android::Property::Get("ro.build.version.release", "<unknown>").c_str());
-        LOGI("  * Security: %s\n", android::Property::Get("ro.build.version.security_patch", "<unknown>").c_str());
-        LOGI("  * Type: %s\n", android::Property::Get("ro.build.type", "<unknown>").c_str());
-        LOGI("  * Tag: %s\n", android::Property::Get("ro.build.tags", "<unknown>").c_str());
-        LOGI("  * Fingerprint: %s\n", android::Property::Get("ro.build.fingerprint", "<unknown>").c_str());
-        LOGI("  * Time: %s\n", android::Property::Get("ro.build.date.utc", "<unknown>").c_str());
-        LOGI("  * Debuggable: %s\n", android::Property::Get("ro.debuggable", "<unknown>").c_str());
-        LOGI("  * Sdk: %s\n", android::Property::Get("ro.build.version.sdk", "<unknown>").c_str());
+        LOGI("  * ID: %s\n", android::Property::Get("ro.build.id", "<unknown>"));
+        LOGI("  * Name: %s\n", android::Property::Get("ro.product.name", "<unknown>"));
+        LOGI("  * Model: %s\n", android::Property::Get("ro.product.model", "<unknown>"));
+        LOGI("  * Manufacturer: %s\n", android::Property::Get("ro.product.manufacturer", "<unknown>"));
+        LOGI("  * Brand: %s\n", android::Property::Get("ro.product.brand", "<unknown>"));
+        LOGI("  * Hardware: %s\n", android::Property::Get("ro.hardware", "<unknown>"));
+        LOGI("  * ABIS: %s\n", android::Property::Get("ro.product.cpu.abilist", "<unknown>"));
+        LOGI("  * Incremental: %s\n", android::Property::Get("ro.build.version.incremental", "<unknown>"));
+        LOGI("  * Release: %s\n", android::Property::Get("ro.build.version.release", "<unknown>"));
+        LOGI("  * Security: %s\n", android::Property::Get("ro.build.version.security_patch", "<unknown>"));
+        LOGI("  * Type: %s\n", android::Property::Get("ro.build.type", "<unknown>"));
+        LOGI("  * Tag: %s\n", android::Property::Get("ro.build.tags", "<unknown>"));
+        LOGI("  * Fingerprint: %s\n", android::Property::Get("ro.build.fingerprint", "<unknown>"));
+        LOGI("  * Time: %s\n", android::Property::Get("ro.build.date.utc", "<unknown>"));
+        LOGI("  * Debuggable: %s\n", android::Property::Get("ro.debuggable", "<unknown>"));
+        LOGI("  * Sdk: %d\n", android::Property::GetInt32("ro.build.version.sdk"));
     }
     return ret;
 }

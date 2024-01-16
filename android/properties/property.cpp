@@ -15,8 +15,11 @@
  */
 
 #include "api/core.h"
+#include "base/utils.h"
+#include "common/exception.h"
 #include "properties/prop_area.h"
 #include "properties/property.h"
+#include <string.h>
 #include <iostream>
 
 void android::Property::Init() {
@@ -25,30 +28,55 @@ void android::Property::Init() {
     android::Propbt::Init();
 }
 
-std::string android::Property::Get(const char *name) {
+const char* android::Property::Get(const char *name) {
     return Get(name, "");
 }
 
-std::string android::Property::Get(const char *name, const char* def) {
+const char* android::Property::Get(const char *name, const char* def) {
     android::PropInfo result = 0x0;
     auto callback = [name, def, &result](LoadBlock *block) -> bool {
         if (block->size() >= android::PropArea::PA_SIZE
                 && !(block->size() % android::PropArea::PA_SIZE)) {
-            android::PropArea area = block->vaddr();
-            android::PropInfo info = area.find(name);
+            try {
+                android::PropArea area(block->vaddr(), block);
+                android::PropInfo info = area.find(name);
 
-            if (info.Ptr()) {
-                result = info;
-                return true;
+                if (info.Ptr()) {
+                    result = info;
+                    return true;
+                }
+            } catch (InvalidAddressException e) {
+                // do nothing
             }
         }
         return false;
     };
     CoreApi::ForeachLoadBlock(callback);
 
-    if (result.Ptr()) {
-        return reinterpret_cast<const char*>(result.Real() + OFFSET(PropInfo, value));
-    }
+    if (result.Ptr())
+        return result.value();
+    return def;
+}
+
+int64_t android::Property::GetInt64(const char *name) {
+    return GetInt64(name, 0L);
+}
+
+int64_t android::Property::GetInt64(const char *name, int64_t def) {
+    const char* value = Get(name);
+    if (strcmp(value, ""))
+        return atol(value);
+    return def;
+}
+
+int32_t android::Property::GetInt32(const char *name) {
+    return GetInt32(name, 0);
+}
+
+int32_t android::Property::GetInt32(const char *name, int32_t def) {
+    const char* value = Get(name);
+    if (strcmp(value, ""))
+        return atoi(value);
     return def;
 }
 
@@ -56,7 +84,7 @@ void android::Property::Foreach(std::function<void (android::PropInfo& info)> pr
     auto callback = [&propfn](LoadBlock *block) -> bool {
         if (block->size() >= android::PropArea::PA_SIZE
                 && !(block->size() % android::PropArea::PA_SIZE)) {
-            android::PropArea area = block->vaddr();
+            android::PropArea area(block->vaddr(), block);
             area.foreach(propfn);
         }
         return false;
