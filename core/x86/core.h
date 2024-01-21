@@ -34,6 +34,7 @@ private:
     const char* getMachineName() { return "x86"; }
     int getMachine() { return EM_386; }
     int getPointSize() { return 32; }
+    uint64_t getVabitsMask() { return 0xFFFFFFFFULL; }
     void loadDebug() { setDebug(loadDebug32(this)); }
     void loadLinkMap() { loadLinkMap32(this); }
     void sysroot(uint64_t begin, const char* file) { dlopen32(this, begin, file); }

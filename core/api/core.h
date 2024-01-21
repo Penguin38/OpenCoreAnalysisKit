@@ -93,6 +93,8 @@ public:
     static const char* GetMachineName();
     static int GetMachine();
     static int GetPointSize();
+    static uint64_t GetPointMask();
+    static uint64_t GetVabitsMask();
     static uint64_t GetReal(uint64_t vaddr) {
         return GetReal(vaddr, OPT_READ_ALL);
     }
@@ -153,6 +155,7 @@ private:
     virtual const char* getMachineName() = 0;
     virtual int getMachine() = 0;
     virtual int getPointSize() = 0;
+    virtual uint64_t getVabitsMask() = 0;
     virtual void loadDebug() = 0;
     virtual void loadLinkMap() = 0;
     virtual void sysroot(uint64_t begin, const char* file) = 0;

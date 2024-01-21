@@ -16,6 +16,7 @@
 
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/class.h"
+#include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
 
 struct Object_OffsetTable __Object_offset__;
@@ -136,6 +137,8 @@ uint64_t Object::SizeOf() {
         Class clazz = *this;
         return clazz.SizeOf();
     } else if (IsString()) {
+        String value = *this;
+        return value.SizeOf();
     } else {
         return GetClass().GetObjectSize();
     }

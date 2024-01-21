@@ -60,9 +60,15 @@ add_library(android STATIC
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp
             android/art/runtime/mirror/array.cpp
+            android/art/runtime/mirror/string.cpp
+            android/art/runtime/mirror/dex_cache.cpp
 
             android/art/dex/primitive.cpp
-            android/art/dex/modifiers.cpp)
+            android/art/dex/modifiers.cpp
+            android/art/dex/utf.cpp
+            android/art/dex/descriptors_names.cpp
+            android/art/dex/dex_file.cpp
+            android/art/dex/dex_file_structs.cpp)
 target_link_libraries(android core)
 
 set(LINKER_PTHREAD "")

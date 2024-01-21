@@ -31,7 +31,7 @@
 
 #define OFFSET(X, Y) (__##X##_offset__.Y)
 #define MEMBER_SIZE(X, Y) (__##X##_size__.Y)
-#define SIZE(X) (__##X##_size__.THIS)
+#define SIZEOF(X) (__##X##_size__.THIS)
 
 namespace api {
 class MemoryRef {
@@ -61,7 +61,7 @@ public:
             throw InvalidAddressException(vaddr);
 
         if (!block) block = CoreApi::FindLoadBlock(vaddr);
-        return block->begin() + (vaddr - block->vaddr());
+        return block->begin() + ((vaddr & block->VabitsMask()) - block->vaddr());
     }
 private:
     uint64_t vaddr;

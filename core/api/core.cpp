@@ -100,6 +100,15 @@ int CoreApi::GetPointSize() {
     return INSTANCE->getPointSize();
 }
 
+uint64_t CoreApi::GetPointMask() {
+    uint64_t point_size = GetPointSize();
+    return ((1ULL << (point_size - 1)) - 1) | (1ULL << (point_size - 1));
+}
+
+uint64_t CoreApi::GetVabitsMask() {
+    return INSTANCE->getVabitsMask();
+}
+
 CoreApi::~CoreApi() {
     LOGI("Remove core (%p) %s\n", this, mCore->getName().c_str());
     mCore.reset();
@@ -323,7 +332,7 @@ uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {
         if (block->virtualContains(vaddr) && block->isValid()) {
             uint64_t raddr = block->begin(opt);
             if (raddr) {
-                return raddr + (vaddr - block->vaddr());
+                return raddr + ((vaddr & block->VabitsMask()) - block->vaddr());
             } else {
                 return 0x0;
             }

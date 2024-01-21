@@ -44,11 +44,14 @@ public:
     bool isMmapBlock() { return mMmap != nullptr; }
     bool isOverlayBlock() { return mOverlay != nullptr; }
     inline std::string& name() { return mMmap->getName(); }
+    void setVabitsMask(uint64_t mask) { mVabitsMask = mask; }
+    inline uint64_t VabitsMask() { return mVabitsMask; }
     ~LoadBlock() {
         mOverlay.reset();
         mMmap.reset();
     }
 private:
+    uint64_t mVabitsMask;
     std::unique_ptr<MemoryMap> mMmap;
     std::unique_ptr<MemoryMap> mOverlay;
 };

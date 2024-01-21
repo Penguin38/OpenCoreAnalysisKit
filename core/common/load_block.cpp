@@ -34,7 +34,8 @@ bool LoadBlock::isValid() {
 }
 
 bool LoadBlock::virtualContains(uint64_t addr) {
-    if (addr >= vaddr() && addr < (vaddr() + size()))
+    uint64_t clocaddr = addr & mVabitsMask;
+    if (clocaddr >= vaddr() && clocaddr < (vaddr() + size()))
         return true;
     return false;
 }

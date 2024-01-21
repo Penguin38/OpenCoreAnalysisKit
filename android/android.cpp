@@ -17,10 +17,24 @@
 #include "android.h"
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/class.h"
+#include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
+#include "runtime/mirror/dex_cache.h"
+#include "dex/dex_file.h"
+#include "dex/dex_file_structs.h"
 
 void Android::Init() {
     art::mirror::Object::Init();
     art::mirror::Class::Init();
+    art::mirror::String::Init();
     art::mirror::Array::Init();
+    art::mirror::DexCache::Init();
+    art::DexFile::Init();
+    art::dex::TypeId::Init();
+    art::dex::StringId::Init();
+    art::dex::FieldId::Init();
+    art::dex::MethodId::Init();
+    art::dex::ProtoId::Init();
+    art::dex::TypeList::Init();
+    art::dex::TypeItem::Init();
 }

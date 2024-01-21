@@ -19,8 +19,12 @@
 
 #include "api/memory_ref.h"
 #include "runtime/mirror/object.h"
+#include "runtime/mirror/string.h"
+#include "runtime/mirror/dex_cache.h"
 #include "runtime/class_status.h"
 #include "dex/primitive.h"
+#include "dex/dex_file.h"
+#include <string>
 
 struct Class_OffsetTable {
     uint32_t class_loader_;
@@ -159,6 +163,12 @@ public:
     uint32_t GetAccessFlags();
     uint32_t SizeOf();
     uint32_t GetClassSize();
+    std::string PrettyDescriptor();
+    const char *GetDescriptor(std::string* storage);
+    String GetName();
+    DexFile GetDexFile();
+    DexCache GetDexCache();
+    dex::TypeIndex GetDexTypeIndex();
 };
 
 } // namespace mirror

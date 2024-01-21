@@ -32,8 +32,8 @@ int DebugCommand::main(int argc, char* const argv[]) {
     int opt;
     int option_index = 0;
     static struct option long_options[] = {
-        {"info",    no_argument,       0, Logger::LEVEL_INFO},
         {"debug",   no_argument,       0, Logger::LEVEL_DEBUG},
+        {"info",    no_argument,       0, Logger::LEVEL_INFO},
         {"warn",    no_argument,       0, Logger::LEVEL_WARN},
         {"error",   no_argument,       0, Logger::LEVEL_ERROR},
         {"fatal",   no_argument,       0, Logger::LEVEL_FATAL},

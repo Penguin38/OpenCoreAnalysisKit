@@ -18,6 +18,10 @@
 #define PARSER_COMMAND_CMD_PRINT_H_
 
 #include "command/command.h"
+#include "runtime/mirror/object.h"
+#include "runtime/mirror/string.h"
+#include "runtime/mirror/class.h"
+#include "runtime/mirror/array.h"
 
 class PrintCommand : public Command {
 public:
@@ -25,6 +29,10 @@ public:
     ~PrintCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
+    void DumpObject(art::mirror::Object& object, bool binary, bool ref, int deep);
+    void DumpClass(art::mirror::Class& clazz);
+    void DumpArray(art::mirror::Array& array);
+    void DumpInstance(art::mirror::Object& object);
 };
 
 #endif // PARSER_COMMAND_CMD_PRINT_H_

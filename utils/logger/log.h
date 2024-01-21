@@ -23,39 +23,40 @@
 #include <string.h>
 #include <sys/types.h>
 
-#define LOGI(...) \
-do { \
-    printf(__VA_ARGS__); \
-} while(0)
-
 #define LOGD(...) \
 do { \
-    if (Logger::GetLevel() > Logger::LEVEL_INFO) \
+    if (!Logger::GetLevel()) \
+        printf(__VA_ARGS__); \
+} while(0)
+
+#define LOGI(...) \
+do { \
+    if (!Logger::GetLevel() || Logger::GetLevel() > Logger::LEVEL_DEBUG) \
         printf(__VA_ARGS__); \
 } while(0)
 
 #define LOGW(...) \
 do { \
-    if (Logger::GetLevel() > Logger::LEVEL_DEBUG) \
+    if (!Logger::GetLevel() || Logger::GetLevel() > Logger::LEVEL_INFO) \
         printf(__VA_ARGS__); \
 } while(0)
 
 #define LOGE(...) \
 do { \
-    if (Logger::GetLevel() > Logger::LEVEL_WARN) \
+    if (!Logger::GetLevel() || Logger::GetLevel() > Logger::LEVEL_WARN) \
         printf(__VA_ARGS__); \
 } while(0)
 
 #define LOGF(...) \
 do { \
-    if (Logger::GetLevel() > Logger::LEVEL_ERROR) \
+    if (!Logger::GetLevel() || Logger::GetLevel() > Logger::LEVEL_ERROR) \
         printf(__VA_ARGS__); \
 } while(0)
 
 class Logger {
 public:
-    constexpr static uint32_t LEVEL_INFO =    0;
-    constexpr static uint32_t LEVEL_DEBUG =   1;
+    constexpr static uint32_t LEVEL_DEBUG =   0;
+    constexpr static uint32_t LEVEL_INFO =    1;
     constexpr static uint32_t LEVEL_WARN =    2;
     constexpr static uint32_t LEVEL_ERROR =   3;
     constexpr static uint32_t LEVEL_FATAL =   4;

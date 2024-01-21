@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/class_flags.h"
 #include "dex/primitive.h"
 #include "dex/modifiers.h"
+#include "dex/descriptors_names.h"
 
 struct Class_OffsetTable __Class_offset__;
 struct Class_SizeTable __Class_size__;
@@ -286,6 +288,58 @@ uint32_t Class::SizeOf() {
 
 uint32_t Class::GetClassSize() {
     return class_size();
+}
+
+std::string Class::PrettyDescriptor() {
+    std::string temp;
+    std::string result;
+    AppendPrettyDescriptor(GetDescriptor(&temp), &result);
+    return result;
+}
+
+const char* Class::GetDescriptor(std::string* storage) {
+    uint64_t dim = 0u;
+    Class klass = *this;
+    while (klass.Ptr() && klass.IsArrayClass()) {
+        ++dim;
+        klass = klass.GetComponentType();
+    }
+    if (klass.IsProxyClass()) {
+        *storage = DotToDescriptor(klass.GetName().ToModifiedUtf8().c_str());
+    } else {
+        const char* descriptor;
+        if (klass.IsPrimitive()) {
+            descriptor = Primitive::Descriptor(klass.GetPrimitiveType());
+        } else {
+            DexFile dex_file = klass.GetDexFile();
+            dex::TypeId type_id = dex_file.GetTypeId(klass.GetDexTypeIndex());
+            descriptor = dex_file.GetTypeDescriptor(type_id);
+        }
+        if (dim == 0x0) {
+            return descriptor;
+        }
+        *storage = descriptor;
+    }
+    storage->insert(0u, dim, '[');
+    return storage->c_str();
+}
+
+String Class::GetName() {
+    String name_(name(), this);
+    return name_;
+}
+
+DexFile Class::GetDexFile() {
+    return GetDexCache().GetDexFile();
+}
+
+DexCache Class::GetDexCache() {
+    DexCache dex_cache_(dex_cache(), this);
+    return dex_cache_;
+}
+
+dex::TypeIndex Class::GetDexTypeIndex() {
+    return dex::TypeIndex(static_cast<uint16_t>(dex_type_idx()));
 }
 
 } // namespcae mirror
