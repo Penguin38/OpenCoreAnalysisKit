@@ -24,10 +24,6 @@
 
 class LoadBlock : public Block {
 public:
-    static constexpr int FLAG_X = (1 << 0);    /* Segment is executable */
-    static constexpr int FLAG_W = (1 << 1);    /* Segment is writable */
-    static constexpr int FLAG_R = (1 << 2);    /* Segment is readable */
-
     static constexpr int OPT_READ_OR = (1 << 0);
     static constexpr int OPT_READ_MMAP = (1 << 1);
     static constexpr int OPT_READ_OVERLAY = (1 << 2);

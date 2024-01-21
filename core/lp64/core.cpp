@@ -38,6 +38,9 @@ bool Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callba
                                              phdr[num].p_filesz,
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
+            if (!(block->flags() & Block::FLAG_R))
+                continue;
+
             block->setOriAddr(api->begin() + phdr[num].p_offset);
             api->addLoadBlock(block);
         } else if (phdr[num].p_type == PT_NOTE) {
@@ -48,11 +51,10 @@ bool Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callba
                                              phdr[num].p_filesz,
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
-            block->setOriAddr(api->begin() + phdr[num].p_offset);
-
             if (!block->isValidBlock())
-                return false;
+                continue;
 
+            block->setOriAddr(api->begin() + phdr[num].p_offset);
             uint64_t pos = block->oraddr();
             uint64_t end = block->oraddr() + block->realSize();
             while (pos < end) {

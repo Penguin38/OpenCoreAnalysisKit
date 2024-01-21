@@ -23,6 +23,10 @@
 
 class Block {
 public:
+    static constexpr int FLAG_X = (1 << 0);    /* Segment is executable */
+    static constexpr int FLAG_W = (1 << 1);    /* Segment is writable */
+    static constexpr int FLAG_R = (1 << 2);    /* Segment is readable */
+
     inline uint64_t vaddr() { return mVaddr; }
     inline uint32_t flags() { return mFlags; }
     inline uint64_t size() { return mMemSize; }
