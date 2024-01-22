@@ -43,6 +43,7 @@ bool Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callba
 
             block->setOriAddr(api->begin() + phdr[num].p_offset);
             block->setVabitsMask(CoreApi::GetVabitsMask());
+            block->setPointMask(CoreApi::GetPointMask());
             api->addLoadBlock(block);
         } else if (phdr[num].p_type == PT_NOTE) {
             std::unique_ptr<NoteBlock> block(new NoteBlock(phdr[num].p_flags,

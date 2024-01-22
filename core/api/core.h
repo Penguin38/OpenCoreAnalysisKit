@@ -90,6 +90,7 @@ public:
     static bool IsReady();
     static bool Load(const char* corefile);
     static void UnLoad();
+    static const char* GetName();
     static const char* GetMachineName();
     static int GetMachine();
     static int GetPointSize();
@@ -105,6 +106,7 @@ public:
     static ThreadApi* FindThread(int tid);
     static uint64_t GetDebug();
     // Command
+    static void Dump();
     static void DumpFile();
     static void ForeachFile(std::function<bool (File *)> callback);
     static void DumpAuxv();

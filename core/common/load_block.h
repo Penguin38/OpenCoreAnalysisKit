@@ -45,13 +45,17 @@ public:
     bool isOverlayBlock() { return mOverlay != nullptr; }
     inline std::string& name() { return mMmap->getName(); }
     void setVabitsMask(uint64_t mask) { mVabitsMask = mask; }
+    void setPointMask(uint64_t mask) { mPointMask = mask; }
     inline uint64_t VabitsMask() { return mVabitsMask; }
+    inline uint64_t PointMask() { return mPointMask; }
+
     ~LoadBlock() {
         mOverlay.reset();
         mMmap.reset();
     }
 private:
     uint64_t mVabitsMask;
+    uint64_t mPointMask;
     std::unique_ptr<MemoryMap> mMmap;
     std::unique_ptr<MemoryMap> mOverlay;
 };

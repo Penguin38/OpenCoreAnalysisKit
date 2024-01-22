@@ -87,9 +87,9 @@ public:
     inline bool operator!=(DexFile& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
-    inline uint64_t data_begin() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexFile, data_begin_)) & CoreApi::GetPointMask(); }
-    inline uint64_t type_ids() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexFile, type_ids_)) & CoreApi::GetPointMask(); }
-    inline uint64_t string_ids() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexFile, string_ids_)) & CoreApi::GetPointMask(); }
+    inline uint64_t data_begin() { return VALUEOF(DexFile, data_begin_); }
+    inline uint64_t type_ids() { return VALUEOF(DexFile, type_ids_); }
+    inline uint64_t string_ids() { return VALUEOF(DexFile, string_ids_); }
 
     uint8_t* DataBegin();
     dex::TypeId GetTypeId(dex::TypeIndex idx);

@@ -58,9 +58,6 @@ int PrintCommand::main(int argc, char* const argv[]) {
     // reset
     optind = 0;
 
-    // symbols init for later
-    Android::Init();
-
     art::mirror::Object ref = Utils::atol(argv[0]);
     DumpObject(ref, binary, reference, deep);
     return 0;

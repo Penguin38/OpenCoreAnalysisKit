@@ -23,7 +23,7 @@ int WriteCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || (argc < 2)) 
         return 0;
 
-    uint64_t address = Utils::atol(argv[0]);
+    uint64_t address = Utils::atol(argv[0]) & CoreApi::GetVabitsMask();
     uint64_t value = Utils::atol(argv[1]);
     CoreApi::Write(address, value);
     return 0;

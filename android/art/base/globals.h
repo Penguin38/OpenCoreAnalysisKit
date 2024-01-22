@@ -21,11 +21,19 @@
 
 namespace art {
 
-static const size_t kPageSize = 0x1000;
-static const size_t kStackAlignment = 16;
-static const size_t kBitsPerByte = 8;
-static const size_t kBitsPerByteLog2 = 3;
-static const int kBitsPerIntPtrT = 8 * kBitsPerByte;
+static constexpr size_t KB = 1024;
+static constexpr size_t MB = KB * KB;
+static constexpr size_t GB = KB * KB * KB;
+
+// Runtime sizes.
+static constexpr size_t kBitsPerByte = 8;
+static constexpr size_t kBitsPerByteLog2 = 3;
+static constexpr int kBitsPerIntPtrT = 8 * kBitsPerByte;
+
+// Required stack alignment
+static constexpr size_t kStackAlignment = 16;
+
+static constexpr size_t kPageSize = 0x1000;
 
 } // namespace art
 

@@ -27,6 +27,7 @@
 #include "command/cmd_write.h"
 #include "command/cmd_getprop.h"
 #include "command/cmd_print.h"
+#include "command/cmd_env.h"
 #include "command/cmd_shell.h"
 #include "command/cmd_debug.h"
 #include "common/exception.h"
@@ -52,6 +53,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new PrintCommand());
 
     // other
+    CommandManager::PushInlineCommand(new EnvCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
     CommandManager::PushInlineCommand(new DebugCommand());
     CommandManager::PushInlineCommand(new Help());

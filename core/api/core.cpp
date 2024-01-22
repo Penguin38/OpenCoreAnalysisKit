@@ -88,6 +88,10 @@ void CoreApi::UnLoad() {
     }
 }
 
+const char* CoreApi::GetName() {
+    return INSTANCE->getName().c_str();
+}
+
 const char* CoreApi::GetMachineName() {
     return INSTANCE->getMachineName();
 }
@@ -183,6 +187,14 @@ uint64_t CoreApi::GetDebug() {
     if (!INSTANCE->mDebug)
         INSTANCE->loadDebug();
     return INSTANCE->mDebug;
+}
+
+void CoreApi::Dump() {
+    LOGI("Core env: %s\n", GetName());
+    LOGI("  * Machine: %s\n", GetMachineName());
+    LOGI("  * PointSize: %d\n", GetPointSize());
+    LOGI("  * PointMask: 0x%lx\n", GetPointMask());
+    LOGI("  * VabitsMask: 0x%lx\n", GetVabitsMask());
 }
 
 void CoreApi::DumpFile() {

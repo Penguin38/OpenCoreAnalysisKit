@@ -32,6 +32,7 @@
 #define OFFSET(X, Y) (__##X##_offset__.Y)
 #define MEMBER_SIZE(X, Y) (__##X##_size__.Y)
 #define SIZEOF(X) (__##X##_size__.THIS)
+#define VALUEOF(X, Y) (*reinterpret_cast<uint64_t *>(Real() + OFFSET(X, Y)) & PointMask())
 
 namespace api {
 class MemoryRef {
@@ -63,6 +64,7 @@ public:
         if (!block) block = CoreApi::FindLoadBlock(vaddr);
         return block->begin() + ((vaddr & block->VabitsMask()) - block->vaddr());
     }
+    inline uint64_t PointMask() { return block->PointMask(); }
 private:
     uint64_t vaddr;
     LoadBlock* block;

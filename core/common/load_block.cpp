@@ -73,6 +73,7 @@ void LoadBlock::setOverlay(uint64_t addr, uint64_t value) {
             LOGI("New overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
         }
     }
-    LOGI("Overlay(%lx) Old(%016lx) New(%016lx)\n", addr, *reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - vaddr())), value);
-    *reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - vaddr())) = value;
+    uint64_t clocaddr = addr & mVabitsMask;
+    LOGI("Overlay(%lx) Old(%016lx) New(%016lx)\n", addr, *reinterpret_cast<uint64_t *>(mOverlay->data() + (clocaddr - vaddr())), value);
+    *reinterpret_cast<uint64_t *>(mOverlay->data() + (clocaddr - vaddr())) = value;
 }

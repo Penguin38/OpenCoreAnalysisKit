@@ -94,6 +94,7 @@ add_library(parser STATIC
             parser/command/cmd_write.cpp
             parser/command/cmd_getprop.cpp
             parser/command/cmd_print.cpp
+            parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
             parser/command/cmd_debug.cpp)
 target_link_libraries(parser android core utils)

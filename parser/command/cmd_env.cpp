@@ -15,22 +15,29 @@
  */
 
 #include "logger/log.h"
-#include "command/cmd_core.h"
-#include "android.h"
+#include "command/cmd_env.h"
 #include "api/core.h"
+#include "android.h"
 
-int CoreCommand::main(int argc, char* const argv[]) {
-    bool ret = CoreApi::Load(argv[0]);
-    if (ret) {
-        CoreApi::Dump();
-        // symbols init for later
-        Android::Clean(); // clean prev core env
-        Android::Init();
-        Android::Dump();
-    }
-    return ret;
+int EnvCommand::main(int argc, char* const argv[]) {
+    if (!argc)
+        return dumpEnv();
+
+    return 0;
 }
 
-void CoreCommand::usage() {
-    LOGI("Usage: core /tmp/default.core\n");
+int EnvCommand::dumpEnv() {
+    if (CoreApi::IsReady()) {
+        CoreApi::Dump();
+    }
+
+    if (Android::IsReady()) {
+        Android::Dump();
+    }
+
+    return 0;
+}
+
+void EnvCommand::usage() {
+    LOGI("Usage: env --[opt] [value]\n");
 }

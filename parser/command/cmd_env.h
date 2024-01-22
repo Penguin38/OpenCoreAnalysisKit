@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-#include "logger/log.h"
-#include "command/cmd_core.h"
-#include "android.h"
-#include "api/core.h"
+#ifndef PARSER_COMMAND_CMD_ENV_H_
+#define PARSER_COMMAND_CMD_ENV_H_
 
-int CoreCommand::main(int argc, char* const argv[]) {
-    bool ret = CoreApi::Load(argv[0]);
-    if (ret) {
-        CoreApi::Dump();
-        // symbols init for later
-        Android::Clean(); // clean prev core env
-        Android::Init();
-        Android::Dump();
-    }
-    return ret;
-}
+#include "command/command.h"
 
-void CoreCommand::usage() {
-    LOGI("Usage: core /tmp/default.core\n");
-}
+class EnvCommand : public Command {
+public:
+    EnvCommand() : Command("env") {}
+    ~EnvCommand() {}
+    int main(int argc, char* const argv[]);
+    int dumpEnv();
+    void usage();
+};
+
+#endif // PARSER_COMMAND_CMD_ENV_H_

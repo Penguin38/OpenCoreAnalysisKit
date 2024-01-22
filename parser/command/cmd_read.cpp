@@ -27,7 +27,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
         return 0;
 
     int opt;
-    uint64_t begin = Utils::atol(argv[0]);
+    uint64_t begin = Utils::atol(argv[0]) & CoreApi::GetVabitsMask();
     uint64_t end = 0;
     char* filepath = nullptr;
     int read_opt = OPT_READ_ALL;
@@ -46,7 +46,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'e':
-                end = Utils::atol(optarg);
+                end = Utils::atol(optarg) & CoreApi::GetVabitsMask();
                 break;
             case 'f':
                 filepath = optarg;
