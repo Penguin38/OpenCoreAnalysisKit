@@ -42,6 +42,7 @@ class Object : public api::MemoryRef {
 public:
     Object(uint32_t v) : api::MemoryRef(v) {}
     Object(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    Object(uint32_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Object(uint32_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> Object(U *v) : api::MemoryRef(v) {}
     template<typename U> Object(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}

@@ -103,7 +103,7 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
             LOGI("%s\n", e.what());
         }
     } else {
-        LOGI("Not found command.\n");
+        LOGI("Not found command (%s).\n", cmd);
     }
     return 0;
 }

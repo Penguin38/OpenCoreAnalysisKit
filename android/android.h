@@ -17,16 +17,44 @@
 #ifndef ANDROID_ANDROID_H_
 #define ANDROID_ANDROID_H_
 
+#include "runtime/art_field.h"
+#include "runtime/mirror/class.h"
 #include <stdint.h>
 #include <sys/types.h>
+#include <functional>
 #include <string>
+#include <vector>
+#include <memory>
 
 #define INVALID_VALUE "<unknown>"
 
 class Android {
 public:
+    static constexpr int R = 30;
+    static constexpr int S = 31;
+    static constexpr int S_V2 = 32;
+    static constexpr int TIRAMISU = 33;
+    static constexpr int UPSIDE_DOWN_CAKE = 34;
+    static constexpr int VANILLA_ICE_CREAM = 35;
+
+    enum BasicType {
+        basic_object = 2,
+        basic_boolean = 4,
+        basic_char = 5,
+        basic_float = 6,
+        basic_double = 7,
+        basic_byte = 8,
+        basic_short = 9,
+        basic_int = 10,
+        basic_long = 11,
+    };
+
+    static Android::BasicType SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out);
+    static Android::BasicType SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out, const char* def);
+
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
+    static bool IsSdkReady() { return IsReady() && Sdk() >= R; }
     static void Init();
     static void Clean();
     static void Dump();
@@ -46,8 +74,32 @@ public:
     static const char* Fingerprint() { return INSTANCE->fingerprint.c_str(); }
     static const char* Time() { return INSTANCE->time.c_str(); }
     static const char* Debuggable() { return INSTANCE->debuggable.c_str(); }
+
+    // Configure
+    static void OnSdkChanged(int sdk);
+
+    class SdkListener {
+    public:
+        SdkListener(int sdk, std::function<void ()> fn) : minisdk(sdk) { init = fn; }
+        int minisdk;
+        std::function<void ()> init;
+        void execute(int sdk) {
+            if (sdk >= minisdk) {
+                init();
+            }
+        }
+    };
+    static void RegisterSdkListener(int minisdk, std::function<void ()> fn);
+
+    // API
+    static void ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
+    static void ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
 private:
     void init();
+    void onSdkChanged(int sdk);
+    void preLoad();
+    void preLoadLater();
+
     int sdk;
     std::string id;
     std::string name;
@@ -64,6 +116,8 @@ private:
     std::string fingerprint;
     std::string time;
     std::string debuggable;
+protected:
+    std::vector<std::unique_ptr<SdkListener>> mSdkListeners;
 };
 
 #endif // ANDROID_ANDROID_H_

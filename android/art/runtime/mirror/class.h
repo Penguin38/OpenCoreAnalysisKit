@@ -18,6 +18,7 @@
 #define ANDROID_ART_RUNTIME_MIRROR_CLASS_H_
 
 #include "api/memory_ref.h"
+#include "runtime/art_field.h"
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/dex_cache.h"
@@ -72,7 +73,9 @@ class Class : public Object {
 public:
     Class(uint32_t v) : Object(v) {}
     Class(const Object& ref) : Object(ref) {}
+    Class(const api::MemoryRef& ref) : Object(ref) {}
     Class(uint32_t v, Object* ref) : Object(v, ref) {}
+    Class(uint32_t v, api::MemoryRef* ref) : Object(v, ref) {}
 
     inline bool operator==(Object& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Object& ref) { return Ptr() != ref.Ptr(); }
@@ -169,6 +172,10 @@ public:
     DexFile GetDexFile();
     DexCache GetDexCache();
     dex::TypeIndex GetDexTypeIndex();
+    uint32_t NumInstanceFields();
+    uint64_t GetIFields();
+    uint32_t NumStaticFields();
+    uint64_t GetSFields();
 };
 
 } // namespace mirror

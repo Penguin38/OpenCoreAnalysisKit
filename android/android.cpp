@@ -18,31 +18,80 @@
 #include "android.h"
 #include "properties/property.h"
 #include "runtime/mirror/object.h"
-#include "runtime/mirror/class.h"
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
 #include "runtime/mirror/dex_cache.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
+#include "base/length_prefixed_array.h"
 
 Android* Android::INSTANCE = nullptr;
+
+Android::BasicType Android::SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out) {
+    char c = sig[0];
+    Android::BasicType ret;
+    uint64_t size;
+
+    switch (c) {
+        case '[':
+        case 'L':
+            ret = basic_object;
+            size = 4;
+            break;
+        case 'Z':
+            ret = basic_boolean;
+            size = 1;
+            break;
+        case 'C':
+            ret = basic_char;
+            size = 2;
+            break;
+        case 'F':
+            ret = basic_float;
+            size = 4;
+            break;
+        case 'D':
+            ret = basic_double;
+            size = 8;
+            break;
+        case 'B':
+            ret = basic_byte;
+            size = 1;
+            break;
+        case 'S':
+            ret = basic_short;
+            size = 2;
+            break;
+        case 'I':
+            ret = basic_int;
+            size = 4;
+            break;
+        case 'J':
+            ret = basic_long;
+            size = 8;
+            break;
+        default:
+            __builtin_unreachable();
+    }
+
+    if (size_out != nullptr) {
+        *size_out = size;
+    }
+    return ret;
+}
+
+Android::BasicType Android::SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out, const char* def) {
+    char c = sig[0];
+    if (c == '\0') {
+        return SignatureToBasicTypeAndSize(def, size_out);
+    } else {
+        return SignatureToBasicTypeAndSize(sig, size_out);
+    }
+}
 
 void Android::Init() {
     if (!INSTANCE) {
         INSTANCE = new Android();
-        art::mirror::Object::Init();
-        art::mirror::Class::Init();
-        art::mirror::String::Init();
-        art::mirror::Array::Init();
-        art::mirror::DexCache::Init();
-        art::DexFile::Init();
-        art::dex::TypeId::Init();
-        art::dex::StringId::Init();
-        art::dex::FieldId::Init();
-        art::dex::MethodId::Init();
-        art::dex::ProtoId::Init();
-        art::dex::TypeList::Init();
-        art::dex::TypeItem::Init();
         INSTANCE->init();
     }
 }
@@ -55,7 +104,7 @@ void Android::Clean() {
 }
 
 void Android::init() {
-    android::Property::Init();
+    preLoad();
     sdk = android::Property::GetInt32("ro.build.version.sdk");
     id = android::Property::Get("ro.build.id", INVALID_VALUE);
     name = android::Property::Get("ro.product.name", INVALID_VALUE);
@@ -72,6 +121,77 @@ void Android::init() {
     fingerprint = android::Property::Get("ro.build.fingerprint", INVALID_VALUE);
     time = android::Property::Get("ro.build.date.utc", INVALID_VALUE);
     debuggable = android::Property::Get("ro.debuggable", INVALID_VALUE);
+    preLoadLater();
+}
+
+void Android::preLoad() {
+    android::Property::Init();
+
+    art::ArtField::Init();
+
+    art::mirror::Object::Init();
+    art::mirror::Class::Init();
+    art::mirror::String::Init();
+    art::mirror::Array::Init();
+    art::mirror::DexCache::Init();
+
+    art::dex::TypeId::Init();
+    art::dex::StringId::Init();
+    art::dex::FieldId::Init();
+    art::dex::MethodId::Init();
+    art::dex::ProtoId::Init();
+    art::dex::TypeList::Init();
+    art::dex::TypeItem::Init();
+
+    art::LengthPrefixedArray::Init();
+
+    // preLoadLater listener
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::DexFile::Init34);
+}
+
+void Android::preLoadLater() {
+    art::DexFile::Init();
+
+    LOGI("Switch android(%d) env.\n", sdk);
+    for (const auto& listener : mSdkListeners) {
+        listener->execute(sdk);
+    }
+}
+
+void Android::RegisterSdkListener(int minisdk, std::function<void ()> fn) {
+    std::unique_ptr<Android::SdkListener> listener = std::make_unique<Android::SdkListener>(minisdk, fn);
+    INSTANCE->mSdkListeners.push_back(std::move(listener));
+}
+
+void Android::OnSdkChanged(int sdk) {
+    if (sdk < R) {
+        LOGI("Invaild sdk(%d)\n", sdk);
+        return;
+    }
+    INSTANCE->onSdkChanged(sdk);
+}
+
+void Android::onSdkChanged(int current_sdk) {
+    if (sdk != current_sdk) {
+        sdk = current_sdk;
+        preLoadLater();
+    }
+}
+
+void Android::ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
+    uint32_t size = clazz.NumInstanceFields();
+    for (int i = 0; i < size; ++i) {
+        art::ArtField field(clazz.GetIFields() + i * SIZEOF(ArtField), clazz);
+        if (fn(field)) break;
+    }
+}
+
+void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
+    uint32_t size = clazz.NumStaticFields();
+    for (int i = 0; i < size; ++i) {
+        art::ArtField field(clazz.GetIFields() + i * SIZEOF(ArtField), clazz);
+        if (fn(field)) break;
+    }
 }
 
 void Android::Dump() {

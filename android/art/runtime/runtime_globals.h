@@ -18,14 +18,16 @@
 #define ANDROID_ART_RUNTIME_RUNTIME_GLOBALS_H_
 
 #include "base/globals.h"
-#include <sys/types.h>
 
 namespace art {
 
-static const size_t kVRegSize = 4;
-static const size_t kObjectAlignmentShift = 3;
-static const size_t kObjectAlignment = 1u << kObjectAlignmentShift;
-static const size_t kLargeObjectAlignment = kPageSize;
+// Size of Dex virtual registers.
+static constexpr size_t kVRegSize = 4;
+
+// Required object alignment
+static constexpr size_t kObjectAlignmentShift = 3;
+static constexpr size_t kObjectAlignment = 1u << kObjectAlignmentShift;
+static constexpr size_t kLargeObjectAlignment = kPageSize;
 
 } // namespace art
 

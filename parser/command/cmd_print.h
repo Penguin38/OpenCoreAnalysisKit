@@ -19,9 +19,11 @@
 
 #include "command/command.h"
 #include "runtime/mirror/object.h"
-#include "runtime/mirror/string.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/array.h"
+#include "runtime/art_field.h"
+#include "android.h"
+#include <string>
 
 class PrintCommand : public Command {
 public:
@@ -29,10 +31,14 @@ public:
     ~PrintCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
-    void DumpObject(art::mirror::Object& object, bool binary, bool ref, int deep);
-    void DumpClass(art::mirror::Class& clazz);
-    void DumpArray(art::mirror::Array& array);
-    void DumpInstance(art::mirror::Object& object);
+    static void DumpObject(art::mirror::Object& object);
+    static void DumpClass(art::mirror::Class& clazz);
+    static void DumpArray(art::mirror::Array& array);
+    static void DumpInstance(art::mirror::Object& object);
+    static void PrintField(const char* format, art::mirror::Class& clazz,
+                           art::mirror::Object& object, art::ArtField& field);
+    static std::string FormatSize(uint64_t size);
+    static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref);
 };
 
 #endif // PARSER_COMMAND_CMD_PRINT_H_

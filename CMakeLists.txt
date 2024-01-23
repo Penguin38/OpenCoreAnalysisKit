@@ -57,6 +57,8 @@ add_library(android STATIC
             android/properties/prop_area.cpp
             android/properties/property.cpp
 
+            android/art/runtime/art_field.cpp
+
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp
             android/art/runtime/mirror/array.cpp
@@ -68,7 +70,9 @@ add_library(android STATIC
             android/art/dex/utf.cpp
             android/art/dex/descriptors_names.cpp
             android/art/dex/dex_file.cpp
-            android/art/dex/dex_file_structs.cpp)
+            android/art/dex/dex_file_structs.cpp
+
+            android/art/base/length_prefixed_array.cpp)
 target_link_libraries(android core)
 
 set(LINKER_PTHREAD "")

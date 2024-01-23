@@ -20,6 +20,7 @@
 #include "dex/primitive.h"
 #include "dex/modifiers.h"
 #include "dex/descriptors_names.h"
+#include "base/length_prefixed_array.h"
 
 struct Class_OffsetTable __Class_offset__;
 struct Class_SizeTable __Class_size__;
@@ -340,6 +341,26 @@ DexCache Class::GetDexCache() {
 
 dex::TypeIndex Class::GetDexTypeIndex() {
     return dex::TypeIndex(static_cast<uint16_t>(dex_type_idx()));
+}
+
+uint32_t Class::NumInstanceFields() {
+    LengthPrefixedArray arr(ifields(), this);
+    return arr.Ptr() ? arr.size() : 0u;
+}
+
+uint64_t Class::GetIFields() {
+    LengthPrefixedArray arr(ifields(), this);
+    return arr.Ptr() ? arr.data() : 0u;
+}
+
+uint32_t Class::NumStaticFields() {
+    LengthPrefixedArray arr(sfields(), this);
+    return arr.Ptr() ? arr.size() : 0u;
+}
+
+uint64_t Class::GetSFields() {
+    LengthPrefixedArray arr(sfields(), this);
+    return arr.Ptr() ? arr.data() : 0u;
 }
 
 } // namespcae mirror

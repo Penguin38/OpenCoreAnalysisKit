@@ -149,6 +149,9 @@ public:
     inline bool operator!=(FieldId& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    inline uint16_t class_idx() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(FieldId, class_idx_)); }
+    inline uint16_t type_idx() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(FieldId, type_idx_)); }
+    inline uint32_t name_idx() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(FieldId, name_idx_)); }
 };
 
 class MethodId : public api::MemoryRef {

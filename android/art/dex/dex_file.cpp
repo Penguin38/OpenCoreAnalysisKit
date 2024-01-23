@@ -24,6 +24,7 @@ struct DexFile_SizeTable __DexFile_size__;
 namespace art {
 
 void DexFile::Init() {
+    // 30 ~ 33
     if (CoreApi::GetPointSize() == 64) {
         __DexFile_offset__ = {
             .begin_ = 8,
@@ -46,11 +47,11 @@ void DexFile::Init() {
             .hiddenapi_class_data_ = 160,
             .oat_dex_file_ = 168,
             .container_ = 176,
-            .is_compact_dex_ = 192,
+            .is_compact_dex_ = 184,
         };
 
          __DexFile_size__ = {
-            .THIS = 200,
+            .THIS = 192,
             .begin_ = 8,
             .size_ = 8,
             .data_begin_ = 8,
@@ -70,7 +71,7 @@ void DexFile::Init() {
             .num_call_site_ids_ = 8,
             .hiddenapi_class_data_ = 8,
             .oat_dex_file_ = 8,
-            .container_ = 16,
+            .container_ = 8,
             .is_compact_dex_ = 1,
         };
     } else {
@@ -95,10 +96,10 @@ void DexFile::Init() {
             .hiddenapi_class_data_ = 80,
             .oat_dex_file_ = 84,
             .container_ = 88,
-            .is_compact_dex_ = 96,
+            .is_compact_dex_ = 92,
         };
 
-         __DexFile_size__ = {
+        __DexFile_size__ = {
             .THIS = 100,
             .begin_ = 4,
             .size_ = 4,
@@ -119,9 +120,24 @@ void DexFile::Init() {
             .num_call_site_ids_ = 4,
             .hiddenapi_class_data_ = 4,
             .oat_dex_file_ = 4,
-            .container_ = 8,
+            .container_ = 4,
             .is_compact_dex_ = 1,
         };
+    }
+}
+
+void DexFile::Init34() {
+    // 34 ~ x
+    if (CoreApi::GetPointSize() == 64) {
+        __DexFile_offset__.is_compact_dex_ = 192;
+
+        __DexFile_size__.THIS = 200;
+        __DexFile_size__.container_ = 16;
+    } else {
+        __DexFile_offset__.is_compact_dex_ = 96;
+
+        __DexFile_size__.THIS = 100;
+        __DexFile_size__.container_ = 8;
     }
 }
 
@@ -163,6 +179,22 @@ const char* DexFile::GetStringDataAndUtf16Length(dex::StringId& string_id, uint3
     const uint8_t* ptr = reinterpret_cast<const uint8_t *>(ref.Real());
     *utf16_length = DecodeUnsignedLeb128(&ptr);
     return reinterpret_cast<const char*>(ptr);
+}
+
+dex::FieldId DexFile::GetFieldId(uint32_t idx) {
+    dex::FieldId field_id(field_ids() + SIZEOF(FieldId) * idx, this);
+    return field_id;
+}
+
+const char* DexFile::GetFieldTypeDescriptor(dex::FieldId& field_id) {
+    dex::TypeIndex idx(field_id.type_idx());
+    dex::TypeId type_id = GetTypeId(idx);
+    return GetTypeDescriptor(type_id);
+}
+
+const char* DexFile::GetFieldName(dex::FieldId& field_id) {
+    dex::StringIndex idx(field_id.name_idx());
+    return StringDataByIdx(idx);
 }
 
 } // namespace art

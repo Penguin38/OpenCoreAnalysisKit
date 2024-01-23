@@ -87,9 +87,11 @@ public:
     inline bool operator!=(DexFile& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    static void Init34();
     inline uint64_t data_begin() { return VALUEOF(DexFile, data_begin_); }
     inline uint64_t type_ids() { return VALUEOF(DexFile, type_ids_); }
     inline uint64_t string_ids() { return VALUEOF(DexFile, string_ids_); }
+    inline uint64_t field_ids() { return VALUEOF(DexFile, field_ids_); }
 
     uint8_t* DataBegin();
     dex::TypeId GetTypeId(dex::TypeIndex idx);
@@ -98,6 +100,9 @@ public:
     const char* StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_t* utf16_length);
     dex::StringId GetStringId(dex::StringIndex idx);
     const char* GetStringDataAndUtf16Length(dex::StringId& string_id, uint32_t* utf16_length);
+    dex::FieldId GetFieldId(uint32_t idx);
+    const char* GetFieldTypeDescriptor(dex::FieldId& field_id);
+    const char* GetFieldName(dex::FieldId& field_id);
 };
 
 } // namespace art
