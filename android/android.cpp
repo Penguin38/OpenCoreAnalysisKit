@@ -180,18 +180,34 @@ void Android::onSdkChanged(int current_sdk) {
 
 void Android::ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
     uint32_t size = clazz.NumInstanceFields();
-    for (int i = 0; i < size; ++i) {
-        art::ArtField field(clazz.GetIFields() + i * SIZEOF(ArtField), clazz);
+    if (!size) return;
+    art::ArtField field(clazz.GetIFields(), clazz);
+    int i = 0;
+    do {
         if (fn(field)) break;
-    }
+        i++;
+        if (i < size) {
+            field.MovePtr(SIZEOF(ArtField));
+        } else {
+            break;
+        }
+    } while(true);
 }
 
 void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
     uint32_t size = clazz.NumStaticFields();
-    for (int i = 0; i < size; ++i) {
-        art::ArtField field(clazz.GetIFields() + i * SIZEOF(ArtField), clazz);
+    if (!size) return;
+    art::ArtField field(clazz.GetSFields(), clazz);
+    int i = 0;
+    do {
         if (fn(field)) break;
-    }
+        i++;
+        if (i < size) {
+            field.MovePtr(SIZEOF(ArtField));
+        } else {
+            break;
+        }
+    } while(true);
 }
 
 void Android::Dump() {

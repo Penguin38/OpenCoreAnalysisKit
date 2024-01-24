@@ -198,7 +198,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz, art
             LOGI(" = 0x%x\n", field.GetShort(object));
             break;
         case Android::basic_int:
-            if (clazz.IsStringClass() && field.offset() == OFFSET(String, count_)) {
+            if (field.offset() == OFFSET(String, count_) && clazz.IsStringClass()) {
                 art::mirror::String str = object;
                 LOGI(" = 0x%x\n", str.GetLength());
                 break;

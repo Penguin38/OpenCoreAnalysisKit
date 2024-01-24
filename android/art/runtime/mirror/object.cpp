@@ -39,7 +39,12 @@ void Object::Init() {
 }
 
 Class Object::GetClass() {
-    Class clazz(klass(), this); 
+    if (!klass_cache.Ptr()) {
+        klass_cache = klass();
+        klass_cache.copyRef(this);
+        klass_cache.Prepare(false);
+    }
+    Class clazz(klass(), klass_cache);
     return clazz;
 }
 

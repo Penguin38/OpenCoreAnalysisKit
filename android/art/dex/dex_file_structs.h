@@ -111,6 +111,7 @@ class TypeId : public api::MemoryRef {
 public:
     TypeId(uint64_t v) : api::MemoryRef(v) {}
     TypeId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    TypeId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     TypeId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> TypeId(U *v) : api::MemoryRef(v) {}
     template<typename U> TypeId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
@@ -126,6 +127,7 @@ class StringId : public api::MemoryRef {
 public:
     StringId(uint64_t v) : api::MemoryRef(v) {}
     StringId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    StringId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     StringId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> StringId(U *v) : api::MemoryRef(v) {}
     template<typename U> StringId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
@@ -141,6 +143,7 @@ class FieldId : public api::MemoryRef {
 public:
     FieldId(uint64_t v) : api::MemoryRef(v) {}
     FieldId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    FieldId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     FieldId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> FieldId(U *v) : api::MemoryRef(v) {}
     template<typename U> FieldId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}

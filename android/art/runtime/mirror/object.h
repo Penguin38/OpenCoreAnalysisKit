@@ -76,6 +76,10 @@ public:
     bool IsClassLoader();
     bool IsDexCache();
     uint64_t SizeOf();
+
+private:
+    // quick memoryref cache
+    api::MemoryRef klass_cache = 0x0;
 };
 
 } // namespace mirror

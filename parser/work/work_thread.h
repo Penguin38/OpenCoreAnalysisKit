@@ -25,6 +25,7 @@
 class WorkThread {
 public:
     static constexpr int MAX_ARGC = 16;
+    static void Stop(int signal) {}
 
     WorkThread(std::string c) {
         cmdline = c;

@@ -299,6 +299,7 @@ std::string Class::PrettyDescriptor() {
 }
 
 const char* Class::GetDescriptor(std::string* storage) {
+    Prepare(false);
     uint64_t dim = 0u;
     Class klass = *this;
     while (klass.Ptr() && klass.IsArrayClass()) {
@@ -330,7 +331,7 @@ String Class::GetName() {
     return name_;
 }
 
-DexFile Class::GetDexFile() {
+DexFile& Class::GetDexFile() {
     return GetDexCache().GetDexFile();
 }
 

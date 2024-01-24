@@ -44,7 +44,7 @@ const char* ArtField::GetTypeDescriptor() {
     if (IsProxyField()) {
         return field_index == 0x0 ? "[Ljava/lang/Class;" : "[[Ljava/lang/Class;";
     }
-    DexFile dex_file = GetDexFile();
+    DexFile& dex_file = GetDexFile();
     dex::FieldId id = dex_file.GetFieldId(field_index);
     return dex_file.GetFieldTypeDescriptor(id);
 }
@@ -68,8 +68,11 @@ mirror::DexCache ArtField::GetDexCache() {
     return GetDeclaringClass().GetDexCache();
 }
 
-DexFile ArtField::GetDexFile() {
-    return GetDexCache().GetDexFile();
+DexFile& ArtField::GetDexFile() {
+    if (!dex_file_cache.Ptr()) {
+        dex_file_cache = GetDexCache().GetDexFile();
+    }
+    return dex_file_cache;
 }
 
 uint32_t ArtField::GetOffset() {
@@ -81,7 +84,7 @@ const char* ArtField::GetName() {
     if (IsProxyField()) {
         return field_index == 0 ? "interfaces" : "throws";
     }
-    DexFile dex_file = GetDexFile();
+    DexFile& dex_file = GetDexFile();
     dex::FieldId id = dex_file.GetFieldId(field_index);
     return dex_file.GetFieldName(id);
 }

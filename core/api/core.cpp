@@ -334,9 +334,10 @@ void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback) {
 
 LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr, bool check) {
     LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
-    if (check && block && block->isValid())
+    if (block && block->isValid())
         return block;
-    throw InvalidAddressException(vaddr);
+    if (check) throw InvalidAddressException(vaddr);
+    return nullptr;
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {

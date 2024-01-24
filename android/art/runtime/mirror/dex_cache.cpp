@@ -48,9 +48,12 @@ void DexCache::Init() {
     };
 }
 
-DexFile DexCache::GetDexFile() {
-    DexFile dex_file_ = dex_file();
-    return dex_file_;
+DexFile& DexCache::GetDexFile() {
+    if (!dex_file_cache.Ptr()) {
+        dex_file_cache = dex_file();
+        dex_file_cache.Prepare(false);
+    }
+    return dex_file_cache;
 }
 
 } // namespace mirror

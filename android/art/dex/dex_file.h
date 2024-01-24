@@ -103,6 +103,12 @@ public:
     dex::FieldId GetFieldId(uint32_t idx);
     const char* GetFieldTypeDescriptor(dex::FieldId& field_id);
     const char* GetFieldName(dex::FieldId& field_id);
+
+private:
+    // quick memoryref cache
+    dex::TypeId type_ids_cache = 0x0;
+    dex::StringId string_ids_cache = 0x0;
+    dex::FieldId field_ids_cache = 0x0;
 };
 
 } // namespace art

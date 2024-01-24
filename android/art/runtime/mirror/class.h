@@ -75,6 +75,7 @@ public:
     Class(const Object& ref) : Object(ref) {}
     Class(const api::MemoryRef& ref) : Object(ref) {}
     Class(uint32_t v, Object* ref) : Object(v, ref) {}
+    Class(uint32_t v, api::MemoryRef& ref) : Object(v, ref) {}
     Class(uint32_t v, api::MemoryRef* ref) : Object(v, ref) {}
 
     inline bool operator==(Object& ref) { return Ptr() == ref.Ptr(); }
@@ -169,7 +170,7 @@ public:
     std::string PrettyDescriptor();
     const char *GetDescriptor(std::string* storage);
     String GetName();
-    DexFile GetDexFile();
+    DexFile& GetDexFile();
     DexCache GetDexCache();
     dex::TypeIndex GetDexTypeIndex();
     uint32_t NumInstanceFields();

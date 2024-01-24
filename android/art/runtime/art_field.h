@@ -64,7 +64,7 @@ public:
     mirror::Class GetDeclaringClass();
     uint32_t GetDexFieldIndex();
     mirror::DexCache GetDexCache();
-    DexFile GetDexFile();
+    DexFile& GetDexFile();
     uint32_t GetOffset();
     const char* GetName();
     uint32_t GetAccessFlags();
@@ -80,6 +80,10 @@ public:
     uint32_t Get32(mirror::Object& obj);
     uint64_t Get64(mirror::Object& obj);
     uint32_t GetObj(mirror::Object& obj);
+
+private:
+    // quick memoryref cache
+    DexFile dex_file_cache = 0x0;
 };
 
 } //namespace art

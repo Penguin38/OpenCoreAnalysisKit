@@ -29,7 +29,8 @@ include_directories(utils)
 add_library(utils STATIC
             utils/base/utils.cpp
             utils/base/memory_map.cpp
-            utils/logger/log.cpp)
+            utils/logger/log.cpp
+            utils/backtrace/callstack.cpp)
 if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
 target_link_libraries(utils stdc++fs)
 endif()

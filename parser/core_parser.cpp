@@ -21,6 +21,7 @@
 #include "command/command.h"
 #include "command/command_manager.h"
 #include <unistd.h>
+#include <signal.h>
 #include <iostream>
 
 class QuitCommand : public Command {
@@ -49,6 +50,12 @@ public:
 };
 
 int main(int argc, const char* argv[]) {
+    struct sigaction stact;
+    memset(&stact, 0, sizeof(stact));
+    stact.sa_handler = WorkThread::Stop;
+    sigaction(SIGINT, &stact, NULL);
+    sigaction(SIGTERM, &stact, NULL);
+
     CommandManager::Init();
     CommandManager::PushInlineCommand(new VersionCommand());
     CommandManager::PushInlineCommand(new QuitCommand());

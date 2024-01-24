@@ -68,7 +68,11 @@ public:
     inline uint32_t location() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(DexCache, location_)); }
     inline uint64_t dex_file() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexCache, dex_file_)); }
 
-    DexFile GetDexFile();
+    DexFile& GetDexFile();
+
+private:
+    // quick memoryref cache
+    DexFile dex_file_cache = 0x0;
 };
 
 } // namespace mirror

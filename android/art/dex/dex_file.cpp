@@ -146,7 +146,11 @@ uint8_t* DexFile::DataBegin() {
 }
 
 dex::TypeId DexFile::GetTypeId(dex::TypeIndex idx) {
-    dex::TypeId type_id(type_ids() + SIZEOF(TypeId) * idx.index_, this);
+    if (!type_ids_cache.Ptr()) {
+        type_ids_cache = type_ids();
+        type_ids_cache.Prepare(false);
+    }
+    dex::TypeId type_id(type_ids() + SIZEOF(TypeId) * idx.index_, type_ids_cache);
     return type_id;
 }
 
@@ -170,7 +174,11 @@ const char* DexFile::StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_
 }
 
 dex::StringId DexFile::GetStringId(dex::StringIndex idx) {
-    dex::StringId string_id(string_ids() + SIZEOF(StringId) * idx.index_, this);
+    if (!string_ids_cache.Ptr()) {
+        string_ids_cache = string_ids();
+        string_ids_cache.Prepare(false);
+    }
+    dex::StringId string_id(string_ids() + SIZEOF(StringId) * idx.index_, string_ids_cache);
     return string_id;
 }
 
@@ -182,7 +190,11 @@ const char* DexFile::GetStringDataAndUtf16Length(dex::StringId& string_id, uint3
 }
 
 dex::FieldId DexFile::GetFieldId(uint32_t idx) {
-    dex::FieldId field_id(field_ids() + SIZEOF(FieldId) * idx, this);
+    if (!field_ids_cache.Ptr()) {
+        field_ids_cache = field_ids();
+        field_ids_cache.Prepare(false);
+    }
+    dex::FieldId field_id(field_ids() + SIZEOF(FieldId) * idx, field_ids_cache);
     return field_id;
 }
 
