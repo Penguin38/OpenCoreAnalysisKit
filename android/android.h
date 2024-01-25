@@ -17,6 +17,7 @@
 #ifndef ANDROID_ANDROID_H_
 #define ANDROID_ANDROID_H_
 
+#include "runtime/runtime.h"
 #include "runtime/art_field.h"
 #include "runtime/mirror/class.h"
 #include <stdint.h>
@@ -94,11 +95,13 @@ public:
     // API
     static void ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     static void ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
+    inline static art::Runtime& GetRuntime() { return INSTANCE->current(); }
 private:
     void init();
     void onSdkChanged(int sdk);
     void preLoad();
     void preLoadLater();
+    inline art::Runtime& current() { return instance_; }
 
     int sdk;
     std::string id;
@@ -116,6 +119,8 @@ private:
     std::string fingerprint;
     std::string time;
     std::string debuggable;
+
+    art::Runtime instance_;
 protected:
     std::vector<std::unique_ptr<SdkListener>> mSdkListeners;
 };

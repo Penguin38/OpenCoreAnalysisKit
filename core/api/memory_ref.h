@@ -39,6 +39,7 @@
 namespace api {
 class MemoryRef {
 public:
+    MemoryRef() {}
     MemoryRef(uint64_t v) : vaddr(v), block(nullptr) {}
     MemoryRef(const MemoryRef& ref) : vaddr(ref.vaddr), block(ref.block) {}
     MemoryRef(uint64_t v, LoadBlock* b) : vaddr(v) { checkCopyBlock(b); }

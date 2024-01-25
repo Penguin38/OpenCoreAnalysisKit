@@ -78,8 +78,8 @@ void CallStack::dump(int fd, int indent, const char* prefix) {
         }
     }
 #else
-    int layers = 0, i = 0;
-    char **symbols = NULL;
+    int layers, i;
+    char **symbols = nullptr;
     void *frames[24];
     memset(frames, 0, sizeof(frames));
     layers = backtrace(frames, 24);

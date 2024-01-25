@@ -27,6 +27,7 @@
 #include "command/cmd_write.h"
 #include "command/cmd_getprop.h"
 #include "command/cmd_print.h"
+#include "command/cmd_hprof.h"
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
 #include "command/cmd_debug.h"
@@ -51,6 +52,7 @@ void CommandManager::Init() {
     // android
     CommandManager::PushInlineCommand(new GetPropCommand());
     CommandManager::PushInlineCommand(new PrintCommand());
+    CommandManager::PushInlineCommand(new HprofCommand());
 
     // other
     CommandManager::PushInlineCommand(new EnvCommand());

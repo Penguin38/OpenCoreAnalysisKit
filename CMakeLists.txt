@@ -58,6 +58,7 @@ add_library(android STATIC
             android/properties/prop_area.cpp
             android/properties/property.cpp
 
+            android/art/runtime/runtime.cpp
             android/art/runtime/art_field.cpp
 
             android/art/runtime/mirror/object.cpp
@@ -65,6 +66,8 @@ add_library(android STATIC
             android/art/runtime/mirror/array.cpp
             android/art/runtime/mirror/string.cpp
             android/art/runtime/mirror/dex_cache.cpp
+
+            android/art/runtime/hprof/hprof.cpp
 
             android/art/dex/primitive.cpp
             android/art/dex/modifiers.cpp
@@ -99,6 +102,7 @@ add_library(parser STATIC
             parser/command/cmd_write.cpp
             parser/command/cmd_getprop.cpp
             parser/command/cmd_print.cpp
+            parser/command/cmd_hprof.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
             parser/command/cmd_debug.cpp)
