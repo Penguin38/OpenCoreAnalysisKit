@@ -95,10 +95,11 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
                 shell->main(argc - position, &argv[position], callback);
                 return 0;
             } else if (writeout) {
-                Utils::FreopenWrite(argv[position]);
+                int fd = Utils::FreopenWrite(argv[position]);
                 int nargc = position - 1;
                 command->main(nargc, argv);
-                Utils::CloseWriteout();
+                Utils::CloseWriteout(fd);
+                return 0;
             }
             return command->main(argc, argv);
         } catch (InvalidAddressException e) {

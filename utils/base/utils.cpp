@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <filesystem>
+#include <fcntl.h>
 #include <iostream>
 
 bool Utils::SearchFile(const std::string& directory, std::string* result, const std::string& name) {
@@ -98,10 +99,16 @@ uint64_t Utils::atol(const char* src) {
     return value;
 }
 
-void Utils::FreopenWrite(const char* path) {
-    freopen(path, "w", stdout);
+int Utils::FreopenWrite(const char* path) {
+    int fd = dup(fileno(stdout));
+    int out = open(path, O_CREAT | O_RDWR | O_TRUNC, 0666);
+    dup2(out, fileno(stdout));
+    close(out);
+    return fd;
 }
 
-void Utils::CloseWriteout() {
-    dup2(fileno(stdin), 1);
+void Utils::CloseWriteout(int fd) {
+    fflush(stdout);
+    dup2(fd, fileno(stdout));
+    close(fd);
 }

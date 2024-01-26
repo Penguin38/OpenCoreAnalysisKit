@@ -25,8 +25,8 @@ public:
     static void ListFiles(const std::string& directory, std::string* result, const std::string& name);
     static std::string ConvertAscii(uint64_t value, int len);
     static uint64_t atol(const char* src);
-    static void FreopenWrite(const char* path);
-    static void CloseWriteout();
+    static int FreopenWrite(const char* path);
+    static void CloseWriteout(int fd);
 };
 
 #endif // UTILS_BASE_UTILS_H_
