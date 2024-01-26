@@ -19,5 +19,13 @@
 
 #define LIKELY(X) __builtin_expect(!!(X), 1)
 #define UNLIKELY(X) __builtin_expect(!!(X), 0)
+#define ALWAYS_INLINE  __attribute__ ((always_inline))
+#define NO_INLINE __attribute__ ((noinline))
+#define FLATTEN  __attribute__ ((flatten))
+#define ALIGNED(x) __attribute__ ((__aligned__(x)))
+#define PACKED(x) __attribute__ ((__aligned__(x), __packed__))
+#define UNREACHABLE  __builtin_unreachable
+#define HIDDEN __attribute__((visibility("hidden")))
+#define EXPORT __attribute__((visibility("default")))
 
 #endif // UTILS_BASE_MACROS_H_

@@ -21,8 +21,15 @@
 
 namespace art {
 
-void AppendPrettyDescriptor(const char* descriptor, std::string* result, const char* def);
+// Used to implement PrettyClass, PrettyField, PrettyMethod, and PrettyTypeOf,
+// one of which is probably more useful to you.
+// Returns a human-readable equivalent of 'descriptor'. So "I" would be "int",
+// "[[I" would be "int[][]", "[Ljava/lang/String;" would be
+// "java.lang.String[]", and so forth.
 void AppendPrettyDescriptor(const char* descriptor, std::string* result);
+void AppendPrettyDescriptor(const char* descriptor, std::string* result, const char* def);
+
+// Turn "java.lang.String" into "Ljava/lang/String;".
 std::string DotToDescriptor(const char* class_name);
 
 } // namespace art

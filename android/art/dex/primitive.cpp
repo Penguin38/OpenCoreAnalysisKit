@@ -19,37 +19,37 @@
 namespace art {
 
 static const char* kTypeNames[] = {
-    "PrimNot",
-    "PrimBoolean",
-    "PrimByte",
-    "PrimChar",
-    "PrimShort",
-    "PrimInt",
-    "PrimLong",
-    "PrimFloat",
-    "PrimDouble",
-    "PrimVoid",
+  "PrimNot",
+  "PrimBoolean",
+  "PrimByte",
+  "PrimChar",
+  "PrimShort",
+  "PrimInt",
+  "PrimLong",
+  "PrimFloat",
+  "PrimDouble",
+  "PrimVoid",
 };
 
 static const char* kBoxedDescriptors[] = {
-    "Ljava/lang/Object;",
-    "Ljava/lang/Boolean;",
-    "Ljava/lang/Byte;",
-    "Ljava/lang/Character;",
-    "Ljava/lang/Short;",
-    "Ljava/lang/Integer;",
-    "Ljava/lang/Long;",
-    "Ljava/lang/Float;",
-    "Ljava/lang/Double;",
-    "Ljava/lang/Void;",
+  "Ljava/lang/Object;",
+  "Ljava/lang/Boolean;",
+  "Ljava/lang/Byte;",
+  "Ljava/lang/Character;",
+  "Ljava/lang/Short;",
+  "Ljava/lang/Integer;",
+  "Ljava/lang/Long;",
+  "Ljava/lang/Float;",
+  "Ljava/lang/Double;",
+  "Ljava/lang/Void;",
 };
 
 const char* Primitive::PrettyDescriptor(Primitive::Type type) {
-    return kTypeNames[type];
+  return kTypeNames[type];
 }
 
 const char* Primitive::BoxedDescriptor(Primitive::Type type) {
-    return kBoxedDescriptors[type];
+  return kBoxedDescriptors[type];
 }
 
 }  // namespace art

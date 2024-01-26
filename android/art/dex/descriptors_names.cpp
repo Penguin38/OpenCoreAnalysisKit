@@ -19,69 +19,89 @@
 
 namespace art {
 
-void AppendPrettyDescriptor(const char* descriptor, std::string* result, const char* def) {
-    const char* c = descriptor;
-    if (*c == '\0') {
-        AppendPrettyDescriptor(def, result);
-    } else {
-        AppendPrettyDescriptor(descriptor, result);
+void AppendPrettyDescriptor(const char* descriptor, std::string* result) {
+  // Count the number of '['s to get the dimensionality.
+  const char* c = descriptor;
+  size_t dim = 0;
+  while (*c == '[') {
+    dim++;
+    c++;
+  }
+
+  // Reference or primitive?
+  bool primitive = false;
+  if (*c == 'L') {
+    // "[[La/b/C;" -> "a.b.C[][]".
+    c++;  // Skip the 'L'.
+  } else {
+    primitive = true;
+    // "[[B" -> "byte[][]".
+    switch (*c) {
+      case 'B':
+        c = "byte";
+        break;
+      case 'C':
+        c = "char";
+        break;
+      case 'D':
+        c = "double";
+        break;
+      case 'F':
+        c = "float";
+        break;
+      case 'I':
+        c = "int";
+        break;
+      case 'J':
+        c = "long";
+        break;
+      case 'S':
+        c = "short";
+        break;
+      case 'Z':
+        c = "boolean";
+        break;
+      case 'V':
+        c = "void";
+        break;  // Used when decoding return types.
+      default: result->append(descriptor); return;
     }
+  }
+
+  // At this point, 'c' is a string of the form "fully/qualified/Type;" or
+  // "primitive". In the former case, rewrite the type with '.' instead of '/':
+  std::string temp(c);
+  if (!primitive) {
+    std::replace(temp.begin(), temp.end(), '/', '.');
+    // ...and remove the semicolon:
+    if (temp.back() == ';') {
+      temp.pop_back();
+    }
+  }
+  result->append(temp);
+
+  // Finally, add 'dim' "[]" pairs:
+  for (size_t i = 0; i < dim; ++i) {
+    result->append("[]");
+  }
 }
 
-void AppendPrettyDescriptor(const char* descriptor, std::string* result) {
-    // Count the number of '['s to get the dimensionality.
-    const char* c = descriptor;
-    size_t dim = 0;
-    while (*c == '[') {
-        dim++;
-        c++;
-    }
-
-    // Reference or primitive?
-    if (*c == 'L') {
-        // "[[La/b/C;" -> "a.b.C[][]".
-        c++;  // Skip the 'L'.
-    } else {
-        // "[[B" -> "byte[][]".
-        // To make life easier, we make primitives look like unqualified
-        // reference types.
-        switch (*c) {
-            case 'B': c = "byte;"; break;
-            case 'C': c = "char;"; break;
-            case 'D': c = "double;"; break;
-            case 'F': c = "float;"; break;
-            case 'I': c = "int;"; break;
-            case 'J': c = "long;"; break;
-            case 'S': c = "short;"; break;
-            case 'Z': c = "boolean;"; break;
-            case 'V': c = "void;"; break;  // Used when decoding return types.
-            default: result->append(descriptor); return;
-        }
-    }
-
-    // At this point, 'c' is a string of the form "fully/qualified/Type;"
-    // or "primitive;". Rewrite the type with '.' instead of '/':
-    const char* p = c;
-    while (*p != ';') {
-        char ch = *p++;
-        if (ch == '/') {
-            ch = '.';
-        }
-        result->push_back(ch);
-    }
-    // ...and replace the semicolon with 'dim' "[]" pairs:
-    for (size_t i = 0; i < dim; ++i) {
-        result->append("[]");
-    }
+void AppendPrettyDescriptor(const char* descriptor, std::string* result, const char* def) {
+  const char* c = descriptor;
+  if (*c == '\0') {
+    result->append(def);
+  } else {
+    AppendPrettyDescriptor(descriptor, result);
+  }
 }
 
 std::string DotToDescriptor(const char* class_name) {
-    std::string descriptor(class_name);
-    std::replace(descriptor.begin(), descriptor.end(), '.', '/');
-    if (descriptor.length() > 0 && descriptor[0] != '[') {
-        descriptor = "L" + descriptor + ";";
-    }
-    return descriptor;
+  std::string descriptor(class_name);
+  std::replace(descriptor.begin(), descriptor.end(), '.', '/');
+  if (descriptor.length() > 0 && descriptor[0] != '[') {
+    descriptor = "L" + descriptor + ";";
+  }
+  return descriptor;
 }
 
 } // namespace art
