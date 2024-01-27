@@ -145,6 +145,11 @@ uint8_t* DexFile::DataBegin() {
     return reinterpret_cast<uint8_t *>(data_begin());
 }
 
+cxx::string DexFile::GetLocation() {
+    cxx::string location_(location(), this);
+    return location_;
+}
+
 dex::TypeId DexFile::GetTypeId(dex::TypeIndex idx) {
     if (!type_ids_cache.Ptr()) {
         type_ids_cache = type_ids();
@@ -154,7 +159,11 @@ dex::TypeId DexFile::GetTypeId(dex::TypeIndex idx) {
     return type_id;
 }
 
-const char * DexFile::GetTypeDescriptor(dex::TypeId& type_id) {
+const char * DexFile::GetTypeDescriptor(dex::TypeId& type_id, const char* def) {
+    if (!type_id.IsValid()) {
+        dumpReason(type_id.Ptr());
+        return def;
+    }
     dex::StringIndex idx(type_id.descriptor_idx());
     return StringDataByIdx(idx);
 }
@@ -198,15 +207,38 @@ dex::FieldId DexFile::GetFieldId(uint32_t idx) {
     return field_id;
 }
 
-const char* DexFile::GetFieldTypeDescriptor(dex::FieldId& field_id) {
+const char* DexFile::GetFieldTypeDescriptor(dex::FieldId& field_id, const char* def) {
+    if (!field_id.IsValid()) {
+        dumpReason(field_id.Ptr());
+        return def;
+    }
     dex::TypeIndex idx(field_id.type_idx());
     dex::TypeId type_id = GetTypeId(idx);
-    return GetTypeDescriptor(type_id);
+    return GetTypeDescriptor(type_id, "B");
 }
 
-const char* DexFile::GetFieldName(dex::FieldId& field_id) {
+const char* DexFile::GetFieldName(dex::FieldId& field_id, const char* def) {
+    if (!field_id.IsValid()) {
+        dumpReason(field_id.Ptr());
+        return def;
+    }
     dex::StringIndex idx(field_id.name_idx());
     return StringDataByIdx(idx);
+}
+
+void DexFile::dumpReason(uint64_t vaddr) {
+    if (Logger::IsDebug()) {
+        File* file = CoreApi::FindFile(vaddr);
+        if (file) {
+            LOGD("[%lx, %lx) %lx %s [EMPTY]\n", file->begin(), file->end(),
+                    file->offset(), file->name().c_str());
+        } else {
+            LoadBlock* block = CoreApi::FindLoadBlock(vaddr, false);
+            if (block) {
+                LOGD("[%lx, %lx) %s [EMPTY]\n", block->vaddr(), block->vaddr() + block->size(), GetLocation().c_str());
+            }
+        }
+    }
 }
 
 } // namespace art

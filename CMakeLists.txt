@@ -49,6 +49,12 @@ add_library(core STATIC
             core/common/load_block.cpp)
 target_link_libraries(core utils)
 
+include_directories(llvm)
+add_library(llvm STATIC
+            llvm/llvm.cpp
+            llvm/cxx/string.cpp)
+target_link_libraries(llvm core)
+
 include_directories(android)
 include_directories(android/art)
 add_library(android STATIC
@@ -77,7 +83,7 @@ add_library(android STATIC
             android/art/dex/dex_file_structs.cpp
 
             android/art/base/length_prefixed_array.cpp)
-target_link_libraries(android core)
+target_link_libraries(android core llvm)
 
 set(LINKER_PTHREAD "")
 if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
@@ -107,7 +113,7 @@ add_library(parser STATIC
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
             parser/command/cmd_debug.cpp)
-target_link_libraries(parser android core utils)
+target_link_libraries(parser android llvm core utils)
 
 add_executable(core-parser
                parser/ui/ui_thread.cpp

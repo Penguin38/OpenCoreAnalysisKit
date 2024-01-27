@@ -109,6 +109,7 @@ public:
     static void Dump();
     static void DumpFile();
     static void ForeachFile(std::function<bool (File *)> callback);
+    static File* FindFile(uint64_t vaddr);
     static void DumpAuxv();
     static void DumpLinkMap();
     static void ExecFile(const char* file);

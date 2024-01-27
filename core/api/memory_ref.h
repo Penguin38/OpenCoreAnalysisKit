@@ -88,6 +88,12 @@ public:
         if (block && block->virtualContains(vaddr + length))
             vaddr = vaddr + length;
     }
+    inline bool IsValid() {
+        Prepare(false);
+        if (block && block->isValid())
+            return true;
+        return false;
+    }
 private:
     uint64_t vaddr;
     LoadBlock* block;

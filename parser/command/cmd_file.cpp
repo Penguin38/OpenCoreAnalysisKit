@@ -25,7 +25,7 @@ int FileCommand::main(int argc, char* const argv[]) {
         if (!argc) {
             CoreApi::DumpFile();
         } else {
-            uint64_t address = Utils::atol(argv[0]);
+            uint64_t address = Utils::atol(argv[0]) & CoreApi::GetVabitsMask();
             auto callback = [address](File* file) -> bool {
                 if (address >= file->begin() && address < file->end()) {
                     LOGI("[%lx, %lx) %lx %s\n", file->begin(), file->end(), file->offset(), file->name().c_str());

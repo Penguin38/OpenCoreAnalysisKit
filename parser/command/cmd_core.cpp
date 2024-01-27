@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "command/cmd_core.h"
 #include "android.h"
+#include "llvm.h"
 #include "api/core.h"
 
 int CoreCommand::main(int argc, char* const argv[]) {
@@ -24,6 +25,7 @@ int CoreCommand::main(int argc, char* const argv[]) {
     if (ret) {
         CoreApi::Dump();
         // symbols init for later
+        LLVM::Init();
         Android::Clean(); // clean prev core env
         Android::Init();
         Android::Dump();

@@ -210,6 +210,20 @@ void CoreApi::ForeachFile(std::function<bool (File *)> callback) {
     INSTANCE->foreachFile(callback);
 }
 
+File* CoreApi::FindFile(uint64_t vaddr) {
+    File *result = nullptr;
+    uint64_t clocvaddr = vaddr & GetVabitsMask();
+    auto callback = [&](File* file) -> bool {
+        if (file->contains(clocvaddr)) {
+            result = file;
+            return true;
+        }
+        return false;
+    };
+    INSTANCE->foreachFile(callback);
+    return result;
+}
+
 void CoreApi::DumpAuxv() {
     auto callback = [](Auxv* auxv) -> bool {
         if (auxv->type() == AT_EXECFN || auxv->type() == AT_PLATFORM) {

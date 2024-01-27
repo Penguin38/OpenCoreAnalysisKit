@@ -20,6 +20,7 @@
 #include "api/memory_ref.h"
 #include "dex/dex_file_types.h"
 #include "dex/dex_file_structs.h"
+#include "cxx/string.h"
 
 struct DexFile_OffsetTable {
     uint32_t begin_;
@@ -89,21 +90,26 @@ public:
     static void Init();
     static void Init34();
     inline uint64_t data_begin() { return VALUEOF(DexFile, data_begin_); }
+    inline uint64_t location() { return Ptr() + OFFSET(DexFile, location_); }
     inline uint64_t type_ids() { return VALUEOF(DexFile, type_ids_); }
     inline uint64_t string_ids() { return VALUEOF(DexFile, string_ids_); }
     inline uint64_t field_ids() { return VALUEOF(DexFile, field_ids_); }
 
     uint8_t* DataBegin();
+    cxx::string GetLocation();
     dex::TypeId GetTypeId(dex::TypeIndex idx);
-    const char* GetTypeDescriptor(dex::TypeId& type_id);
+    inline const char* GetTypeDescriptor(dex::TypeId& type_id) { return GetTypeDescriptor(type_id, "L<invalid-class>;"); }
+    const char* GetTypeDescriptor(dex::TypeId& type_id, const char* def);
     const char* StringDataByIdx(dex::StringIndex idx);
     const char* StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_t* utf16_length);
     dex::StringId GetStringId(dex::StringIndex idx);
     const char* GetStringDataAndUtf16Length(dex::StringId& string_id, uint32_t* utf16_length);
     dex::FieldId GetFieldId(uint32_t idx);
-    const char* GetFieldTypeDescriptor(dex::FieldId& field_id);
-    const char* GetFieldName(dex::FieldId& field_id);
-
+    inline const char* GetFieldTypeDescriptor(dex::FieldId& field_id) { return GetFieldTypeDescriptor(field_id, "B"); }
+    const char* GetFieldTypeDescriptor(dex::FieldId& field_id, const char* def);
+    inline const char* GetFieldName(dex::FieldId& field_id) { return GetFieldName(field_id, "<invalid-field>"); }
+    const char* GetFieldName(dex::FieldId& field_id, const char* def);
+    void dumpReason(uint64_t vaddr);
 private:
     // quick memoryref cache
     dex::TypeId type_ids_cache = 0x0;

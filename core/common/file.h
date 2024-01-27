@@ -28,6 +28,7 @@ public:
     inline uint64_t end() { return mEnd; }
     inline uint64_t offset() { return mOffset; }
     inline std::string& name() { return mName; }
+    inline bool contains(uint64_t vaddr) { return (vaddr >= mBegin && vaddr < mEnd); }
 
     File(uint64_t b, uint64_t e, uint64_t off, const char* name)
             : mBegin(b), mEnd(e), mOffset(off) { mName = name; }
