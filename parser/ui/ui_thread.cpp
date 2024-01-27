@@ -22,27 +22,7 @@
 #include <sys/prctl.h>
 #include <chrono>
 
-void UiThread::showCopyright() {
-    LOGI("Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.\n\n");
-
-    LOGI("Licensed under the Apache License, Version 2.0 (the \"License\");\n");
-    LOGI("you may not use this file ercept in compliance with the License.\n");
-    LOGI("You may obtain a copy of the License at\n\n");
-
-    LOGI("     http://www.apache.org/licenses/LICENSE-2.0\n\n");
-
-    LOGI("Unless required by applicable law or agreed to in writing, software\n");
-    LOGI("distributed under the License is distributed on an \"AS IS\" BASIS,\n");
-    LOGI("WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either erpress or implied.\n");
-    LOGI("See the License for the specific language governing permissions and\n");
-    LOGI("limitations under the License.\n\n");
-    
-    LOGI("For bug reporting instructions, please see:\n");
-    LOGI("     https://github.com/Penguin38/OpenCoreAnalysisKit\n");
-}
-
 void UiThread::prepare() {
-    showCopyright();
     prctl(PR_SET_NAME, "parser:ui");
 }
 

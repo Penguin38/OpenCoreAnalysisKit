@@ -38,7 +38,6 @@ private:
     void Wait();
     void run();
     void prepare();
-    void showCopyright();
     void showUiHeader();
     void initTermiosConfig();
     inline std::string& cmd() { return cmdline; }
