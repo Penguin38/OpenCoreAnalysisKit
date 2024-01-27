@@ -271,7 +271,7 @@ void CoreApi::ExecFile(const char* path) {
 
     uint64_t phdr = FindAuxv(AT_PHDR);
     uint64_t execfn = FindAuxv(AT_EXECFN);
-    if (IsVirtualValid(phdr) && IsVirtualValid(execfn)) {
+    if (IsVirtualValid(execfn)) {
         std::string filepath;
         std::string search = reinterpret_cast<const char*>(GetReal(execfn));
         for (char *dir : dirs) {
@@ -334,10 +334,12 @@ void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback) {
 
 LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr, bool check) {
     LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
-    if (block && block->isValid())
-        return block;
-    if (check) throw InvalidAddressException(vaddr);
-    return nullptr;
+    if (check) {
+        if (block && block->isValid())
+            return block;
+        throw InvalidAddressException(vaddr);
+    }
+    return block;
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {

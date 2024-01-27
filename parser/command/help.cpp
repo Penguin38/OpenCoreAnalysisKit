@@ -29,11 +29,16 @@ void Help::printCommandUsage(const char* cmd) {
 
 void Help::printCommands() {
     int index = 0;
-    auto callback = [&index](Command* command) -> bool {
-        LOGI("%s\n", command->get().c_str());
+    auto callback = [&](Command* command) -> bool {
+        LOGI("%12s  ", command->get().c_str());
+        ++index;
+        if (!(index % ROW_NUM))
+            ENTER();
         return false;
     };
     CommandManager::ForeachCommand(callback);
+    if (index % ROW_NUM)
+        ENTER();
 }
 
 int Help::main(int argc, char* const argv[]) {

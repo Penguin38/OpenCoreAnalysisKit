@@ -20,6 +20,7 @@
 #include "command/cmd_core.h"
 #include "command/cmd_exec.h"
 #include "command/cmd_sysroot.h"
+#include "command/cmd_mmap.h"
 #include "command/cmd_auxv.h"
 #include "command/cmd_file.h"
 #include "command/cmd_linkmap.h"
@@ -43,6 +44,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new CoreCommand());
     CommandManager::PushInlineCommand(new ExecCommand());
     CommandManager::PushInlineCommand(new SysRootCommand());
+    CommandManager::PushInlineCommand(new MmapCommand());
     CommandManager::PushInlineCommand(new AuxvCommand());
     CommandManager::PushInlineCommand(new FileCommand());
     CommandManager::PushInlineCommand(new LinkMapCommand());

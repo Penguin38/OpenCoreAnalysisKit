@@ -23,6 +23,8 @@
 #include <string.h>
 #include <sys/types.h>
 
+#define ENTER() LOGI("\n");
+
 #define LOGD(...) \
 do { \
     if (!Logger::GetLevel()) \
@@ -60,6 +62,7 @@ public:
     constexpr static uint32_t LEVEL_WARN =    2;
     constexpr static uint32_t LEVEL_ERROR =   3;
     constexpr static uint32_t LEVEL_FATAL =   4;
+    static bool IsDebug() { return !Logger::GetLevel(); }
     static uint32_t GetLevel() { return INSTANCE->getLevel(); }
     static void SetLevel(int lv) { INSTANCE->setLevel(lv); }
     Logger(int lv) { mLevel = lv; }

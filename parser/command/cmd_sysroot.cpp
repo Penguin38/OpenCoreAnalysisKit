@@ -17,14 +17,54 @@
 #include "logger/log.h"
 #include "command/cmd_sysroot.h"
 #include "api/core.h"
+#include "android.h"
+#include <unistd.h>
+#include <getopt.h>
 
 int SysRootCommand::main(int argc, char* const argv[]) {
-    if (CoreApi::IsReady() && argc > 0) {
-        CoreApi::SysRoot(argv[0]);
+    if (!CoreApi::IsReady() || !argc)
+        return 0;
+
+    int opt;
+    int root = MAP_ROOT | DEX_ROOT;
+    int option_index = 0;
+    static struct option long_options[] = {
+        {"map",  no_argument,       0,  0 },
+        {"dex",  no_argument,       0,  1 },
+        {0,      0,                 0,  0 }
+    };
+
+    while ((opt = getopt_long(argc, argv, "01",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 0:
+                root &= ~DEX_ROOT;
+                root |= MAP_ROOT;
+                break;
+            case 1:
+                root &= ~MAP_ROOT;
+                root |= DEX_ROOT;
+                break;
+        }
     }
+
+    // reset
+    optind = 0;
+
+    if (root & MAP_ROOT)
+        CoreApi::SysRoot(argv[0]);
+
+    if (root & DEX_ROOT) {
+        if (Android::IsSdkReady()) {
+            Android::SysRoot(argv[0]);
+        } else {
+            LOGW("WARN: Android sdk no ready, You can enter command:\n         env config --sdk <version>\n");
+        }
+    }
+
     return 0;
 }
 
 void SysRootCommand::usage() {
-    LOGI("Usage: sysroot /system:/apex:/vendor\n");
+    LOGI("Usage: sysroot /system:/apex:/vendor --[map|dex]\n");
 }

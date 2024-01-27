@@ -41,6 +41,8 @@ public:
 
     void setMmapFile(const char* file, uint64_t offset);
     void setOverlay(uint64_t addr, uint64_t value);
+    void removeMmap();
+    void removeOverlay();
     bool isMmapBlock() { return mMmap != nullptr; }
     bool isOverlayBlock() { return mOverlay != nullptr; }
     inline std::string& name() { return mMmap->getName(); }

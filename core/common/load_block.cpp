@@ -55,6 +55,7 @@ void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, size(), offset));
     if (map) {
         mMmap = std::move(map);
+        LOGI("Mmap segment [%lx, %lx) %s [%lx]\n", vaddr(), vaddr() + size(), file, offset);
     }
 }
 
@@ -76,4 +77,18 @@ void LoadBlock::setOverlay(uint64_t addr, uint64_t value) {
     uint64_t clocaddr = addr & mVabitsMask;
     LOGI("Overlay(%lx) Old(%016lx) New(%016lx)\n", addr, *reinterpret_cast<uint64_t *>(mOverlay->data() + (clocaddr - vaddr())), value);
     *reinterpret_cast<uint64_t *>(mOverlay->data() + (clocaddr - vaddr())) = value;
+}
+
+void LoadBlock::removeMmap() {
+    if (mMmap) {
+        LOGI("Remove mmap [%lx, %lx) %s\n", vaddr(), vaddr() + size(), name().c_str());
+        mMmap.reset();
+    }
+}
+
+void LoadBlock::removeOverlay() {
+    if (mOverlay) {
+        LOGI("Remove overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
+        mOverlay.reset();
+    }
 }

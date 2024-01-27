@@ -95,6 +95,7 @@ add_library(parser STATIC
             parser/command/cmd_core.cpp
             parser/command/cmd_exec.cpp
             parser/command/cmd_sysroot.cpp
+            parser/command/cmd_mmap.cpp
             parser/command/cmd_auxv.cpp
             parser/command/cmd_file.cpp
             parser/command/cmd_linkmap.cpp

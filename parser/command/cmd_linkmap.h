@@ -21,7 +21,7 @@
 
 class LinkMapCommand : public Command {
 public:
-    LinkMapCommand() : Command("linkmap") {}
+    LinkMapCommand() : Command("map") {}
     ~LinkMapCommand() {}
     int main(int argc, char* const argv[]);
     void usage() {}

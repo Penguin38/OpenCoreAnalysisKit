@@ -96,6 +96,7 @@ public:
     static void ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     static void ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     inline static art::Runtime& GetRuntime() { return INSTANCE->current(); }
+    static void SysRoot(const char* path);
 private:
     void init();
     void onSdkChanged(int sdk);

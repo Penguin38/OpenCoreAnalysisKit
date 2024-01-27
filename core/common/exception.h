@@ -17,6 +17,8 @@
 #ifndef CORE_COMMON_EXCEPTION_H_
 #define CORE_COMMON_EXCEPTION_H_
 
+#include "logger/log.h"
+#include "backtrace/callstack.h"
 #include <stdint.h>
 #include <sys/types.h>
 #include <sstream>
@@ -29,6 +31,12 @@ private:
     std::string error;
 public:
     InvalidAddressException(uint64_t p) : addr(p) {
+        if (Logger::IsDebug()) {
+            CallStack stack;
+            stack.update(2);
+            stack.dump(1);
+        }
+
         std::ostringstream ss;
         ss << "Invalid address 0x" << std::hex << addr;
         error.append(ss.str());

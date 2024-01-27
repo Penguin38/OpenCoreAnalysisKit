@@ -61,10 +61,11 @@ public:
 
     inline uint64_t Ptr() { return vaddr; }
     inline uint64_t Real() {
-        if (!vaddr)
+        Prepare(true);
+
+        if (!block->isValid())
             throw InvalidAddressException(vaddr);
 
-        Prepare(true);
         return block->begin() + ((vaddr & block->VabitsMask()) - block->vaddr());
     }
     inline uint64_t PointMask() { return block->PointMask(); }
@@ -83,9 +84,6 @@ public:
         }
     }
     inline void MovePtr(int64_t length) {
-        if (!vaddr)
-            throw InvalidAddressException(vaddr);
-
         Prepare(true);
         if (block && block->virtualContains(vaddr + length))
             vaddr = vaddr + length;

@@ -21,6 +21,8 @@
 
 class Help : public Command {
 public:
+    static constexpr int ROW_NUM = 5;
+
     Help() : Command("help") {}
     ~Help() {}
     int main(int argc, char* const argv[]);

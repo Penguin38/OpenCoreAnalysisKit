@@ -49,7 +49,7 @@ bool Utils::SearchFile(const std::string& directory, std::string* result, const 
 void Utils::ListFiles(const std::string& directory, std::string* result, const std::string& name) {
     DIR* dirp = opendir(directory.c_str());
     if (dirp == nullptr) {
-        LOGI("Cannot opendir %s\n", directory.c_str());
+        LOGD("Cannot opendir %s\n", directory.c_str());
         return;
     }
 
@@ -61,10 +61,15 @@ void Utils::ListFiles(const std::string& directory, std::string* result, const s
             continue;
         }
 
+        std::string file_path = directory;
+        std::size_t last = file_path.find("/", file_path.length() - 1, 1);
+        if (last == std::string::npos)
+            file_path.append("/");
+        file_path.append(filename);
+
         if (dp->d_type == DT_DIR) {
-            ListFiles(directory + "/" + filename, result, name);
+            ListFiles(file_path, result, name);
         } else {
-            std::string file_path = directory + "/" + filename;
             std::size_t index = file_path.find(name);
             if (index != std::string::npos) {
                 result->append(file_path);

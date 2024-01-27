@@ -63,5 +63,5 @@ int DebugCommand::main(int argc, char* const argv[]) {
 }
 
 void DebugCommand::usage() {
-    LOGI("Usage: debug level --[info|debug|warn|error|fatal]\n");
+    LOGI("Usage: debug level --[debug|info|warn|error|fatal]\n");
 }

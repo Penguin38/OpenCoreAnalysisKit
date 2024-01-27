@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_CMD_SYSROOT_H_
-#define PARSER_COMMAND_CMD_SYSROOT_H_
+#ifndef PARSER_COMMAND_CMD_MMAP_H_
+#define PARSER_COMMAND_CMD_MMAP_H_
 
 #include "command/command.h"
 
-class SysRootCommand : public Command {
+class MmapCommand : public Command {
 public:
-    static constexpr int MAP_ROOT = 1 << 0;
-    static constexpr int DEX_ROOT = 1 << 1;
+    static constexpr int REMOVE_MMAP = 1 << 0;
+    static constexpr int REMOVE_OVERLAY = 1 << 1;
 
-    SysRootCommand() : Command("sysroot") {}
-    ~SysRootCommand() {}
+    MmapCommand() : Command("mmap") {}
+    ~MmapCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
 };
 
-#endif // PARSER_COMMAND_CMD_SYSROOT_H_
+#endif // PARSER_COMMAND_CMD_MMAP_H_

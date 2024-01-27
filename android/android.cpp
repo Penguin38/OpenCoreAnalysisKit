@@ -210,6 +210,10 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
     } while(true);
 }
 
+void Android::SysRoot(const char* path) {
+
+}
+
 void Android::Dump() {
     LOGI("Android env:\n");
     LOGI("  * ID: %s\n", Id());

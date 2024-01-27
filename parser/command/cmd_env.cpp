@@ -67,4 +67,6 @@ int EnvCommand::dumpEnv() {
 
 void EnvCommand::usage() {
     LOGI("Usage: env [config] --[opt] [value]\n");
+    LOGI("       option:\n");
+    LOGI("          --sdk <VERSION>\n");
 }

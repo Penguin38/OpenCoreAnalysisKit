@@ -192,7 +192,6 @@ bool Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
                     && !(loadidx && !phdr[index].p_offset)) {
                 uint64_t page_offset = RoundDown(phdr[index].p_offset, 0x1000);
                 block->setMmapFile(file, page_offset);
-                LOGI("Load [%d] segment [%lx, %lx) %s [%lx]\n", index, current, current + block->size(), file, page_offset);
             }
             ++loadidx;
         }
