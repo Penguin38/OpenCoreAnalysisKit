@@ -25,6 +25,8 @@ public:
     ~EnvCommand() {}
     int main(int argc, char* const argv[]);
     int dumpEnv();
+    int onConfigChanged(int argc, char* const argv[]);
+    int onLoggerChanged(int argc, char* const argv[]);
     void usage();
 };
 

@@ -31,7 +31,6 @@
 #include "command/cmd_hprof.h"
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
-#include "command/cmd_debug.h"
 #include "common/exception.h"
 #include "base/utils.h"
 #include <string.h>
@@ -59,7 +58,6 @@ void CommandManager::Init() {
     // other
     CommandManager::PushInlineCommand(new EnvCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
-    CommandManager::PushInlineCommand(new DebugCommand());
     CommandManager::PushInlineCommand(new Help());
 }
 

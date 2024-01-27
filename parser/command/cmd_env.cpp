@@ -25,10 +25,20 @@ int EnvCommand::main(int argc, char* const argv[]) {
     if (!argc)
         return dumpEnv();
 
-    if (strcmp(argv[0], "config")) {
+    if (!strcmp(argv[0], "config")) {
+        return onConfigChanged(argc, argv);
+    } else if (!strcmp(argv[0], "logger")) {
+        return onLoggerChanged(argc, argv);
+    } else {
         LOGI("unknown command (%s)\n", argv[0]);
-        return 0;
     }
+
+    return 0;
+}
+
+int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady())
+        return 0;
 
     int opt;
     int option_index = 0;
@@ -53,6 +63,40 @@ int EnvCommand::main(int argc, char* const argv[]) {
     return 0;
 }
 
+int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
+    int opt;
+    int option_index = 0;
+    static struct option long_options[] = {
+        {"debug",   no_argument,       0, Logger::LEVEL_DEBUG},
+        {"info",    no_argument,       0, Logger::LEVEL_INFO},
+        {"warn",    no_argument,       0, Logger::LEVEL_WARN},
+        {"error",   no_argument,       0, Logger::LEVEL_ERROR},
+        {"fatal",   no_argument,       0, Logger::LEVEL_FATAL},
+        {0,         0,                 0,  0 }
+    };
+
+    while ((opt = getopt_long(argc, argv, "01234",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                LOGI("Switch debug level %s\n", long_options[option_index].name);
+                Logger::SetLevel(opt);
+                break;
+            default:
+                LOGI("Unkown debug level.\n");
+                break;
+        }
+    }
+
+    // reset
+    optind = 0;
+    return 0;
+}
+
 int EnvCommand::dumpEnv() {
     if (CoreApi::IsReady()) {
         CoreApi::Dump();
@@ -66,7 +110,10 @@ int EnvCommand::dumpEnv() {
 }
 
 void EnvCommand::usage() {
-    LOGI("Usage: env [config] --[opt] [value]\n");
-    LOGI("       option:\n");
-    LOGI("          --sdk <VERSION>\n");
+    LOGI("Usage: env [command] ...\n");
+    LOGI("       command:\n");
+    LOGI("         config [opt] [value]\n");
+    LOGI("           option:\n");
+    LOGI("             --sdk <VERSION>\n");
+    LOGI("         logger --[debug|info|warn|error|fatal]\n");
 }
