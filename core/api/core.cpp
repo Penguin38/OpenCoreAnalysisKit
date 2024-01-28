@@ -199,7 +199,7 @@ void CoreApi::Dump() {
 
 void CoreApi::DumpFile() {
     auto callback = [](File* file) -> bool {
-        LOGI("[%lx, %lx) %lx %s\n", file->begin(), file->end(),
+        LOGI("[%lx, %lx) %08lx %s\n", file->begin(), file->end(),
                                     file->offset(), file->name().c_str());
         return false;
     };
