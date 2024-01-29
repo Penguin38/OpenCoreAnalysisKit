@@ -313,7 +313,7 @@ const char* Class::GetDescriptor(std::string* storage) {
         if (klass.IsPrimitive()) {
             descriptor = Primitive::Descriptor(klass.GetPrimitiveType());
         } else {
-            DexFile dex_file = klass.GetDexFile();
+            DexFile& dex_file = klass.GetDexFile();
             dex::TypeId type_id = dex_file.GetTypeId(klass.GetDexTypeIndex());
             descriptor = dex_file.GetTypeDescriptor(type_id);
         }
@@ -335,9 +335,13 @@ DexFile& Class::GetDexFile() {
     return GetDexCache().GetDexFile();
 }
 
-DexCache Class::GetDexCache() {
-    DexCache dex_cache_(dex_cache(), this);
-    return dex_cache_;
+DexCache& Class::GetDexCache() {
+    if (!dex_cache_cache.Ptr()) {
+        dex_cache_cache = dex_cache();
+        dex_cache_cache.copyRef(this);
+        dex_cache_cache.Prepare(false);
+    }
+    return dex_cache_cache;
 }
 
 dex::TypeIndex Class::GetDexTypeIndex() {

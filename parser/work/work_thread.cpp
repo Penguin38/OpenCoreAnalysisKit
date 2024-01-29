@@ -17,6 +17,8 @@
 #include "work/work_thread.h"
 #include "command/command_manager.h"
 #include <string.h>
+#include <unistd.h>
+#include <getopt.h>
 #include <sys/prctl.h>
 
 void WorkThread::prepare() {
@@ -41,7 +43,10 @@ void WorkThread::prepare() {
 
 void WorkThread::run() {
     prepare();
+    int optind_backup = optind;
+    optind = 0; // reset
     CommandManager::Execute(cmd, argc, argv);
+    optind = optind_backup;
 }
 
 void WorkThread::runMain(WorkThread* thread) {

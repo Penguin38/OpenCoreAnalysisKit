@@ -159,7 +159,7 @@ dex::TypeId DexFile::GetTypeId(dex::TypeIndex idx) {
     return type_id;
 }
 
-const char * DexFile::GetTypeDescriptor(dex::TypeId& type_id, const char* def) {
+const char* DexFile::GetTypeDescriptor(dex::TypeId& type_id, const char* def) {
     if (!type_id.IsValid()) {
         dumpReason(type_id.Ptr());
         return def;
@@ -168,7 +168,7 @@ const char * DexFile::GetTypeDescriptor(dex::TypeId& type_id, const char* def) {
     return StringDataByIdx(idx);
 }
 
-const char * DexFile::StringDataByIdx(dex::StringIndex idx) {
+const char* DexFile::StringDataByIdx(dex::StringIndex idx) {
     uint32_t unicode_length;
     return StringDataAndUtf16LengthByIdx(idx, &unicode_length);
 }
@@ -230,7 +230,7 @@ void DexFile::dumpReason(uint64_t vaddr) {
     if (Logger::IsDebug()) {
         File* file = CoreApi::FindFile(vaddr);
         if (file) {
-            LOGD("[%lx, %lx) %lx %s [EMPTY]\n", file->begin(), file->end(),
+            LOGD("[%lx, %lx) %08lx %s [EMPTY]\n", file->begin(), file->end(),
                     file->offset(), file->name().c_str());
         } else {
             LoadBlock* block = CoreApi::FindLoadBlock(vaddr, false);

@@ -83,11 +83,11 @@ int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
             case 2:
             case 3:
             case 4:
-                LOGI("Switch debug level %s\n", long_options[option_index].name);
+                LOGI("Switch logger level %s\n", long_options[option_index].name);
                 Logger::SetLevel(opt);
                 break;
             default:
-                LOGI("Unkown debug level.\n");
+                LOGI("Unkown logger level.\n");
                 break;
         }
     }

@@ -78,7 +78,6 @@ int command_preload(int argc, char* const argv[]) {
         {0,       0,                       0,  0 },
     };
 
-    int optind_backup = optind;
     while ((opt = getopt_long(argc, argv, "c:1:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
@@ -86,21 +85,15 @@ int command_preload(int argc, char* const argv[]) {
                 std::string cmdline;
                 cmdline.append("core ");
                 cmdline.append(optarg);
-                optind_backup = optind;
-                optind = 0;
                 WorkThread work(cmdline);
                 work.Join();
-                optind = optind_backup;
             } break;
             case 1: {
                 std::string cmdline;
                 cmdline.append("env config --sdk ");
                 cmdline.append(optarg);
-                optind_backup = optind;
-                optind = 0;
                 WorkThread work(cmdline);
                 work.Join();
-                optind = optind_backup;
             } break;
         }
     }

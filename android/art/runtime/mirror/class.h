@@ -171,12 +171,16 @@ public:
     const char *GetDescriptor(std::string* storage);
     String GetName();
     DexFile& GetDexFile();
-    DexCache GetDexCache();
+    DexCache& GetDexCache();
     dex::TypeIndex GetDexTypeIndex();
     uint32_t NumInstanceFields();
     uint64_t GetIFields();
     uint32_t NumStaticFields();
     uint64_t GetSFields();
+
+private:
+    // quick memoryref cache
+    DexCache dex_cache_cache = 0x0;
 };
 
 } // namespace mirror
