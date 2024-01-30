@@ -168,6 +168,36 @@ bool lp32::Core::dlopen32(CoreApi* api, uint32_t begin, const char* file) {
 }
 
 uint32_t lp32::Core::dlsym32(const char* path, const char* symbol) {
-    LOGI("%s %s\n", path, symbol);
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(path));
+    if (map) {
+        // already check valid on dlopen
+        Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
+        Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
+
+        int symtabndx = -1;
+        int strtabndx = -1;
+
+        int sh_num = ehdr->e_shnum;
+        Elf32_Shdr* shdr = reinterpret_cast<Elf32_Shdr*>(map->data() + ehdr->e_shoff);
+        const char* shstr = reinterpret_cast<const char*>(map->data() + shdr[ehdr->e_shstrndx].sh_offset);
+        for (int i = 0; i < sh_num; ++i) {
+            if (!strcmp(shstr + shdr[i].sh_name, ".symtab"))
+                symtabndx = i;
+
+            if (!strcmp(shstr + shdr[i].sh_name, ".strtab"))
+                strtabndx = i;
+        }
+
+        if (symtabndx < 0 || strtabndx < 0)
+            return 0x0;
+
+        int count = shdr[symtabndx].sh_size / shdr[symtabndx].sh_entsize;
+        Elf32_Sym* symtab = reinterpret_cast<Elf32_Sym*>(map->data() + shdr[symtabndx].sh_offset);
+        const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[strtabndx].sh_offset);
+        for (int i = 0; i < count; ++i) {
+            if (!strcmp(strtab + symtab[i].st_name, symbol))
+                return symtab[i].st_value;
+        }
+    }
     return 0x0;
 }
