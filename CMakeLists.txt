@@ -67,6 +67,7 @@ add_library(android STATIC
 
             android/art/runtime/runtime.cpp
             android/art/runtime/art_field.cpp
+            android/art/runtime/image.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp

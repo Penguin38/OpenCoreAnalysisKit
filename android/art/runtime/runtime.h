@@ -37,6 +37,7 @@ class Runtime : public api::MemoryRef {
 public:
     Runtime() {}
     Runtime(uint64_t v) : api::MemoryRef(v) {}
+    Runtime(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     Runtime(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     Runtime(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Runtime(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
@@ -47,6 +48,9 @@ public:
     inline bool operator!=(Runtime& ref) { return Ptr() != ref.Ptr(); }
 
     static Runtime& Current();
+
+private:
+    static Runtime AnalysisInstance();
 };
 
 } // namespace art

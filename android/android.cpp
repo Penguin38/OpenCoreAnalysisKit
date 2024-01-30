@@ -21,6 +21,7 @@
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
 #include "runtime/mirror/dex_cache.h"
+#include "runtime/image.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "base/length_prefixed_array.h"
@@ -147,11 +148,15 @@ void Android::preLoad() {
     art::LengthPrefixedArray::Init();
 
     // preLoadLater listener
+    RegisterSdkListener(S, art::ImageHeader::Init31);
+
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::DexFile::Init34);
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::ImageHeader::Init34);
 }
 
 void Android::preLoadLater() {
     art::DexFile::Init();
+    art::ImageHeader::Init();
 
     LOGI("Switch android(%d) env.\n", sdk);
     for (const auto& listener : mSdkListeners) {

@@ -31,7 +31,7 @@ void Core::unload() {
 
 uint64_t Core::dlsym(LinkMap* handle, const char* symbol) {
     LoadBlock* block = handle->block();
-    uint64_t value = -1;
+    uint64_t value = 0;
     if (block) {
         if (!block->isMmapBlock()) {
             value = DynamicSymbol(handle, symbol);
@@ -39,7 +39,7 @@ uint64_t Core::dlsym(LinkMap* handle, const char* symbol) {
             value = dlsym32(block->name().c_str(), symbol);
         }
     }
-    if (value != -1) return handle->begin() + value;
+    if (value) return handle->begin() + value;
     return 0x0;
 }
 
