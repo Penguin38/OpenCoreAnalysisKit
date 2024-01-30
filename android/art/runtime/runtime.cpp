@@ -20,7 +20,16 @@
 namespace art {
 
 Runtime& Runtime::Current() {
-    return Android::GetRuntime();
+    Runtime& runtime = Android::GetRuntime();
+    if (!runtime.Ptr()) {
+        api::MemoryRef value = Android::SearchSymbol(Android::ART_RUNTIME_INSTANCE);
+        if (CoreApi::GetPointSize() == 64) {
+            runtime = *reinterpret_cast<uint64_t *>(value.Real());
+        } else {
+            runtime = *reinterpret_cast<uint32_t *>(value.Real());
+        }
+    }
+    return runtime;
 }
 
 } // namespace art

@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "lp64/core.h"
+#include "api/memory_ref.h"
 #include "common/elf.h"
 #include "common/bit.h"
 #include "common/load_block.h"
@@ -23,9 +24,7 @@
 #include <string.h>
 #include <linux/elf.h>
 
-namespace lp64 {
-
-bool Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback) {
+bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback) {
     Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(api->begin());
     Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(api->begin() + ehdr->e_phoff);
 
@@ -99,50 +98,18 @@ bool Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callba
     return true;
 }
 
-uint64_t Core::loadDebug64(CoreApi* api) {
-    uint64_t phdr = api->findAuxv(AT_PHDR);
-    uint64_t phent = api->findAuxv(AT_PHENT);
-    uint64_t phnum = api->findAuxv(AT_PHNUM);
-    uint64_t execfn = api->findAuxv(AT_EXECFN);
-
-    if (!CoreApi::IsVirtualValid(phdr)) {
-        std::string name;
-        if (CoreApi::IsVirtualValid(execfn)) {
-            name.append(reinterpret_cast<const char*>(CoreApi::GetReal(execfn)));
-        }
-        LOGW("WARN: Not found execfn [%s].\n", name.c_str());
-        return 0x0;
-    }
-
-    int index = 0;
-    Elf64_Phdr *dyphdr = nullptr;
-    Elf64_Phdr *cphdr = reinterpret_cast<Elf64_Phdr *>(CoreApi::GetReal(phdr));
-    while (index < phnum) {
-        if (cphdr[index].p_type == PT_DYNAMIC) {
-            dyphdr = &cphdr[index];
-            break;
-        }
-        index++;
-    }
-
-    if (dyphdr) {
-        return FindDynamic(phdr - cphdr->p_vaddr, reinterpret_cast<uint64_t>(dyphdr), DT_DEBUG);
-    }
-    return 0x0;
-}
-
-void Core::loadLinkMap64(CoreApi* api) {
-    uint64_t debug = CoreApi::GetDebug();
-    if (!debug) {
+void lp64::Core::loadLinkMap64(CoreApi* api) {
+    api::MemoryRef& debug = GetDebug();
+    if (!debug.Ptr()) {
         LOGW("WARN: Not found debug.\n");
         return;
     }
 
     try {
-        Debug* dbg = reinterpret_cast<Debug *>(CoreApi::GetReal(debug));
+        lp64::Debug* dbg = reinterpret_cast<lp64::Debug*>(debug.Real());
         uint64_t map = dbg->map;
         while (map) {
-            LinkMap* link = reinterpret_cast<LinkMap*>(CoreApi::GetReal(map));
+            lp64::LinkMap* link = reinterpret_cast<lp64::LinkMap*>(CoreApi::GetReal(map));
             api->addLinkMap(link->addr, link->name);
             map = link->next;
         }
@@ -151,7 +118,7 @@ void Core::loadLinkMap64(CoreApi* api) {
     }
 }
 
-bool Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
+bool lp64::Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file));
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
@@ -200,18 +167,7 @@ bool Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
     return false;
 }
 
-uint64_t Core::FindDynamic(uint64_t load, uint64_t phdr, uint64_t type) {
-    Elf64_Phdr *dyphdr = reinterpret_cast<Elf64_Phdr *>(phdr);
-    Dynamic *dynamic = reinterpret_cast<Dynamic *>(CoreApi::GetReal(load + dyphdr->p_vaddr));
-    int numdynamic = dyphdr->p_filesz / sizeof(Dynamic);
-    int index = 0;
-    while (index < numdynamic) {
-        if (dynamic[index].type == type) {
-            return dynamic[index].value;
-        }
-        index++;
-    }
+uint64_t lp64::Core::dlsym64(const char* path, const char* symbol) {
+    LOGI("%s %s\n", path, symbol);
     return 0x0;
 }
-
-} // namespace lp64

@@ -38,6 +38,7 @@ endif()
 include_directories(core)
 add_library(core STATIC
             core/api/core.cpp
+            core/api/elf.cpp
             core/lp64/core.cpp
             core/lp32/core.cpp
             core/arm64/core.cpp

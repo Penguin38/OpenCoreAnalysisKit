@@ -53,6 +53,10 @@ public:
     static Android::BasicType SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out);
     static Android::BasicType SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out, const char* def);
 
+    inline static const char *LIBART64 = "/apex/com.android.art/lib64/libart.so";
+    inline static const char *LIBART32 = "/apex/com.android.art/lib/libart.so";
+    inline static const char* ART_RUNTIME_INSTANCE = "_ZN3art7Runtime9instance_E";
+
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
     static bool IsSdkReady() { return IsReady() && Sdk() >= R; }
@@ -97,6 +101,7 @@ public:
     static void ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     inline static art::Runtime& GetRuntime() { return INSTANCE->current(); }
     static void SysRoot(const char* path);
+    inline static uint64_t SearchSymbol(const char* symbol) { return CoreApi::SearchSymbol(INSTANCE->realLibart.c_str(), symbol); }
 private:
     void init();
     void onSdkChanged(int sdk);
@@ -122,6 +127,7 @@ private:
     std::string debuggable;
 
     art::Runtime instance_;
+    std::string realLibart;
 protected:
     std::vector<std::unique_ptr<SdkListener>> mSdkListeners;
 };

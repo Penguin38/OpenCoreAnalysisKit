@@ -80,7 +80,7 @@ int main(int argc, const char* argv[]) {
         std::cout << std::hex << info->reg.pc << std::endl;
     }
 
-    std::cout << std::hex << CoreApi::GetDebug() << std::endl;
+    // std::cout << std::hex << CoreApi::GetDebug() << std::endl;
 #ifdef __ANDROID__
     CoreApi::ExecFile("/system");
     CoreApi::SysRoot("/system:/vendor");

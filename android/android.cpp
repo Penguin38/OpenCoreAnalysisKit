@@ -105,6 +105,7 @@ void Android::Clean() {
 
 void Android::init() {
     preLoad();
+    realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64 : LIBART32;
     sdk = android::Property::GetInt32("ro.build.version.sdk");
     id = android::Property::Get("ro.build.id", INVALID_VALUE);
     name = android::Property::Get("ro.product.name", INVALID_VALUE);

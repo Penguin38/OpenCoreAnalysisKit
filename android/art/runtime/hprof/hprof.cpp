@@ -15,12 +15,15 @@
  */
 
 #include "runtime/hprof/hprof.h"
+#include "runtime/runtime.h"
 
 namespace art {
 namespace hprof {
 
 void Hprof::DumpHprof(const char* output, bool visible) {
     LOGI("hprof: heap dump %s starting...\n", output);
+    Runtime& runtime = Runtime::Current();
+    LOGI("runtime 0x%lx\n", runtime.Ptr());
 }
 
 } // namespace hprof

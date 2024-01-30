@@ -18,6 +18,7 @@
 #define CORE_LP64_CORE_H_
 
 #include "api/core.h"
+#include "api/elf.h"
 #include <functional>
 
 namespace lp64 {
@@ -56,13 +57,12 @@ public:
     uint64_t value;
 };
 
-class Core {
+class Core : public api::Elf {
 public:
     bool load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
-    uint64_t loadDebug64(CoreApi* api);
     void loadLinkMap64(CoreApi* api);
     bool dlopen64(CoreApi* api, uint64_t begin, const char* file);
-    static uint64_t FindDynamic(uint64_t load, uint64_t phdr, uint64_t type);
+    uint64_t dlsym64(const char* path, const char* symbol);
 };
 
 } // namespace lp64

@@ -104,7 +104,6 @@ public:
     static bool IsVirtualValid(uint64_t vaddr);
     static uint64_t FindAuxv(uint64_t type);
     static ThreadApi* FindThread(int tid);
-    static uint64_t GetDebug();
     // Command
     static void Dump();
     static void DumpFile();
@@ -124,10 +123,10 @@ public:
         return FindLoadBlock(vaddr, true);
     }
     static LoadBlock* FindLoadBlock(uint64_t vaddr, bool check);
+    static uint64_t SearchSymbol(const char* path, const char* symbol);
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
-        mDebug = 0x0;
         mCore = std::move(map);
     }
     virtual ~CoreApi();
@@ -144,7 +143,6 @@ public:
     void removeAllNoteBlock();
     uint64_t findAuxv(uint64_t type);
     ThreadApi* findThread(int tid);
-    void setDebug(uint64_t debug) { mDebug = debug; }
     void addLinkMap(uint64_t begin, uint64_t name);
     void removeAllLinkMap();
     void foreachFile(std::function<bool (File *)> callback);
@@ -159,16 +157,14 @@ private:
     virtual int getMachine() = 0;
     virtual int getPointSize() = 0;
     virtual uint64_t getVabitsMask() = 0;
-    virtual void loadDebug() = 0;
     virtual void loadLinkMap() = 0;
     virtual void sysroot(uint64_t begin, const char* file) = 0;
+    virtual uint64_t dlsym(LinkMap* handle, const char* symbol) = 0;
 
     std::unique_ptr<MemoryMap> mCore;
     std::vector<std::shared_ptr<LoadBlock>> mLoad;
     std::vector<std::unique_ptr<NoteBlock>> mNote;
     std::vector<std::unique_ptr<LinkMap>> mLinkMap;
-protected:
-    uint64_t mDebug;
 };
 
 #endif // CORE_API_CORE_H_

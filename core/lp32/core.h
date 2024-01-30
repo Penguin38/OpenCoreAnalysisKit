@@ -18,6 +18,7 @@
 #define CORE_LP32_CORE_H_
 
 #include "api/core.h"
+#include "api/elf.h"
 #include <functional>
 
 namespace lp32 {
@@ -56,13 +57,12 @@ public:
     uint32_t value;
 };
 
-class Core {
+class Core : public api::Elf {
 public:
     bool load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
-    uint64_t loadDebug32(CoreApi* api);
     void loadLinkMap32(CoreApi* api);
     bool dlopen32(CoreApi* api, uint32_t begin, const char* file);
-    static uint32_t FindDynamic(uint64_t load, uint64_t phdr, uint32_t type);
+    uint32_t dlsym32(const char* path, const char* symbol);
 };
 
 } // namespace lp32

@@ -183,12 +183,6 @@ void CoreApi::removeAllLinkMap() {
     mLinkMap.clear();
 }
 
-uint64_t CoreApi::GetDebug() {
-    if (!INSTANCE->mDebug)
-        INSTANCE->loadDebug();
-    return INSTANCE->mDebug;
-}
-
 void CoreApi::Dump() {
     LOGI("Core env: %s\n", GetName());
     LOGI("  * Machine: %s\n", GetMachineName());
@@ -354,6 +348,31 @@ LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr, bool check) {
         throw InvalidAddressException(vaddr);
     }
     return block;
+}
+
+uint64_t CoreApi::SearchSymbol(const char* path, const char* symbol) {
+    LinkMap* result = nullptr;
+    auto callback = [&](LinkMap* map) -> bool {
+        LoadBlock* block = map->block();
+        if (block) {
+            if (map->name() == path)
+                result = map;
+
+            if (block->isMmapBlock()) {
+                std::size_t index = block->name().find(path);
+                if (index != std::string::npos)
+                    result = map;
+            }
+
+            if (result) return true;
+        }
+        return false;
+    };
+    INSTANCE->foreachLinkMap(callback);
+
+    if (result)
+        return INSTANCE->dlsym(result, symbol);
+    return 0x0;
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {
