@@ -16,7 +16,9 @@
 
 #include "llvm.h"
 #include "cxx/string.h"
+#include "cxx/vector.h"
 
 void LLVM::Init() {
     cxx::string::Init();
+    cxx::vector::Init();
 }

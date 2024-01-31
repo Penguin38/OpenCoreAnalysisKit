@@ -39,7 +39,7 @@
 namespace api {
 class MemoryRef {
 public:
-    MemoryRef() {}
+    MemoryRef() : vaddr(0x0), block(nullptr) {}
     MemoryRef(uint64_t v) : vaddr(v), block(nullptr) {}
     MemoryRef(const MemoryRef& ref) : vaddr(ref.vaddr), block(ref.block) {}
     MemoryRef(uint64_t v, LoadBlock* b) : vaddr(v) { checkCopyBlock(b); }
@@ -93,6 +93,9 @@ public:
         if (block && block->isValid())
             return true;
         return false;
+    }
+    inline uint64_t valueOf() {
+        return *reinterpret_cast<uint64_t *>(Real()) & PointMask();
     }
 private:
     uint64_t vaddr;

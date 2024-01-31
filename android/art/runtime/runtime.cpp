@@ -20,7 +20,52 @@
 #include "common/exception.h"
 #include <string.h>
 
+struct Runtime_OffsetTable __Runtime_offset__;
+struct Runtime_SizeTable __Runtime_size__;
+
 namespace art {
+
+void Runtime::Init() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 392,
+        };
+    } else {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 236,
+        };
+    }
+}
+
+void Runtime::Init31() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 416,
+        };
+    } else {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 248,
+        };
+    }
+}
+
+void Runtime::Init33() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 512,
+        };
+    } else {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 296,
+        };
+    }
+}
 
 Runtime& Runtime::Current() {
     Runtime& runtime = Android::GetRuntime();
@@ -91,6 +136,15 @@ Runtime Runtime::AnalysisInstance() {
     };
     CoreApi::ForeachLoadBlock(match);
     return runtime;
+}
+
+gc::Heap& Runtime::GetHeap() {
+    if (!heap_cache.Ptr()) {
+        heap_cache = heap();
+        heap_cache.copyRef(this);
+        heap_cache.Prepare(false);
+    }
+    return heap_cache;
 }
 
 } // namespace art

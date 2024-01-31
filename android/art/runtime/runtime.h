@@ -19,9 +19,11 @@
 
 #include "logger/log.h"
 #include "api/memory_ref.h"
+#include "runtime/gc/heap.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
+    uint32_t heap_;
 };
 
 struct Runtime_SizeTable {
@@ -35,7 +37,7 @@ namespace art {
 
 class Runtime : public api::MemoryRef {
 public:
-    Runtime() {}
+    Runtime() : api::MemoryRef() {}
     Runtime(uint64_t v) : api::MemoryRef(v) {}
     Runtime(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     Runtime(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
@@ -47,10 +49,17 @@ public:
     inline bool operator==(Runtime& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Runtime& ref) { return Ptr() != ref.Ptr(); }
 
-    static Runtime& Current();
+    static void Init();
+    static void Init31();
+    static void Init33();
+    inline uint64_t heap() { return VALUEOF(Runtime, heap_); }
 
+    static Runtime& Current();
+    gc::Heap& GetHeap();
 private:
     static Runtime AnalysisInstance();
+    // quick memoryref cache
+    gc::Heap heap_cache = 0x0;
 };
 
 } // namespace art

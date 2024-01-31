@@ -21,7 +21,10 @@
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
 #include "runtime/mirror/dex_cache.h"
+#include "runtime/runtime.h"
 #include "runtime/image.h"
+#include "runtime/gc/heap.h"
+#include "runtime/gc/space/space.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "base/length_prefixed_array.h"
@@ -130,6 +133,7 @@ void Android::preLoad() {
     android::Property::Init();
 
     art::ArtField::Init();
+    art::LengthPrefixedArray::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -145,10 +149,14 @@ void Android::preLoad() {
     art::dex::TypeList::Init();
     art::dex::TypeItem::Init();
 
-    art::LengthPrefixedArray::Init();
+    art::gc::Heap::Init();
+    art::gc::space::Space::Init();
 
     // preLoadLater listener
+    RegisterSdkListener(S, art::Runtime::Init31);
     RegisterSdkListener(S, art::ImageHeader::Init31);
+
+    RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
 
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::DexFile::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::ImageHeader::Init34);
@@ -156,6 +164,7 @@ void Android::preLoad() {
 
 void Android::preLoadLater() {
     art::DexFile::Init();
+    art::Runtime::Init();
     art::ImageHeader::Init();
 
     LOGI("Switch android(%d) env.\n", sdk);

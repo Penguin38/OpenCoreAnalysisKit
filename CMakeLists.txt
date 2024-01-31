@@ -53,7 +53,8 @@ target_link_libraries(core utils)
 include_directories(llvm)
 add_library(llvm STATIC
             llvm/llvm.cpp
-            llvm/cxx/string.cpp)
+            llvm/cxx/string.cpp
+            llvm/cxx/vector.cpp)
 target_link_libraries(llvm core)
 
 include_directories(android)
@@ -76,6 +77,9 @@ add_library(android STATIC
             android/art/runtime/mirror/dex_cache.cpp
 
             android/art/runtime/hprof/hprof.cpp
+
+            android/art/runtime/gc/heap.cpp
+            android/art/runtime/gc/space/space.cpp
 
             android/art/dex/primitive.cpp
             android/art/dex/modifiers.cpp
