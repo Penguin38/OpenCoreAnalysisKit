@@ -20,6 +20,9 @@
 #include "logger/log.h"
 #include "api/memory_ref.h"
 #include "cxx/vector.h"
+#include "runtime/gc/space/space.h"
+#include <vector>
+#include <memory>
 
 struct Heap_OffsetTable {
     uint32_t continuous_spaces_;
@@ -54,12 +57,20 @@ public:
     inline uint64_t continuous_spaces() { return Ptr() + OFFSET(Heap, continuous_spaces_); }
     inline uint64_t discontinuous_spaces() { return Ptr() + OFFSET(Heap, discontinuous_spaces_); }
 
-    cxx::vector& GetContinuousSpaces();
-    cxx::vector& GetDiscontinuousSpaces();
+    std::vector<std::unique_ptr<space::ContinuousSpace>>& GetContinuousSpaces();
+    std::vector<std::unique_ptr<space::DiscontinuousSpace>>& GetDiscontinuousSpaces();
+    void CleanCache() {
+        continuous_spaces_second_cache.clear();
+        discontinuous_spaces_second_cache.clear();
+    }
 private:
     // quick memoryref cache
     cxx::vector continuous_spaces_cache;
     cxx::vector discontinuous_spaces_cache;
+
+    // second cache
+    std::vector<std::unique_ptr<space::ContinuousSpace>> continuous_spaces_second_cache;
+    std::vector<std::unique_ptr<space::DiscontinuousSpace>> discontinuous_spaces_second_cache;
 };
 
 } // namespace gc

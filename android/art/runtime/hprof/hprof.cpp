@@ -29,19 +29,13 @@ void Hprof::DumpHprof(const char* output, bool visible) {
     gc::Heap& heap = runtime.GetHeap();
     LOGI("runtime 0x%lx\n", runtime.Ptr());
     LOGI("heap 0x%lx\n", heap.Ptr());
-    LOGI("continuous_spaces_ %lx\n", heap.GetContinuousSpaces().__begin());
-    LOGI("discontinuous_spaces_ %lx\n", heap.GetDiscontinuousSpaces().__begin());
 
-    for (const auto& value : heap.GetContinuousSpaces()) {
-        api::MemoryRef ref = value;
-        gc::space::Space space = ref.valueOf();
-        LOGI("%s\n", space.GetName());
+    for (const auto& space : heap.GetContinuousSpaces()) {
+        LOGI("%s  %d\n", space->GetName(), space->GetType());
     }
 
-    for (const auto& value : heap.GetDiscontinuousSpaces()) {
-        api::MemoryRef ref = value;
-        gc::space::Space space = ref.valueOf();
-        LOGI("%s\n", space.GetName());
+    for (const auto& space : heap.GetDiscontinuousSpaces()) {
+        LOGI("%s  %d\n", space->GetName(), space->GetType());
     }
 }
 

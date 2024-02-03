@@ -56,6 +56,9 @@ public:
 
     static Runtime& Current();
     gc::Heap& GetHeap();
+    void CleanCache() {
+        if (heap_cache.Ptr()) heap_cache.CleanCache();
+    }
 private:
     static Runtime AnalysisInstance();
     // quick memoryref cache

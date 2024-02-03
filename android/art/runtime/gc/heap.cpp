@@ -36,22 +36,34 @@ void Heap::Init() {
     }
 }
 
-cxx::vector& Heap::GetContinuousSpaces() {
+std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces() {
     if (!continuous_spaces_cache.Ptr()) {
         continuous_spaces_cache = continuous_spaces();
         continuous_spaces_cache.copyRef(this);
         continuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize() / 8);
+
+        for (const auto& value : continuous_spaces_cache) {
+            api::MemoryRef ref = value;
+            std::unique_ptr<space::ContinuousSpace> space = std::make_unique<space::ContinuousSpace>(ref.valueOf());
+            continuous_spaces_second_cache.push_back(std::move(space));
+        }
     }
-    return continuous_spaces_cache;
+    return continuous_spaces_second_cache;
 }
 
-cxx::vector& Heap::GetDiscontinuousSpaces() {
+std::vector<std::unique_ptr<space::DiscontinuousSpace>>& Heap::GetDiscontinuousSpaces() {
     if (!discontinuous_spaces_cache.Ptr()) {
         discontinuous_spaces_cache = discontinuous_spaces();
         discontinuous_spaces_cache.copyRef(this);
         discontinuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize() / 8);
+
+        for (const auto& value : discontinuous_spaces_cache) {
+            api::MemoryRef ref = value;
+            std::unique_ptr<space::DiscontinuousSpace> space = std::make_unique<space::DiscontinuousSpace>(ref.valueOf());
+            discontinuous_spaces_second_cache.push_back(std::move(space));
+        }
     }
-    return discontinuous_spaces_cache;
+    return discontinuous_spaces_second_cache;
 }
 
 } // namespace gc

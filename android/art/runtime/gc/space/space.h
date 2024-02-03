@@ -21,6 +21,8 @@
 #include "api/memory_ref.h"
 
 struct Space_OffsetTable {
+    uint32_t vtbl;
+    uint32_t vtbl_GetType;
     uint32_t name_;
 };
 
@@ -34,6 +36,16 @@ extern struct Space_SizeTable __Space_size__;
 namespace art {
 namespace gc {
 namespace space {
+
+enum SpaceType {
+    kSpaceTypeInvalidSpace = -1,
+    kSpaceTypeImageSpace,
+    kSpaceTypeMallocSpace,
+    kSpaceTypeZygoteSpace,
+    kSpaceTypeBumpPointerSpace,
+    kSpaceTypeLargeObjectSpace,
+    kSpaceTypeRegionSpace,
+};
 
 class Space : public api::MemoryRef {
 public:
@@ -50,9 +62,41 @@ public:
     inline bool operator!=(Space& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    inline uint64_t vtbl() { return VALUEOF(Space, vtbl); }
     inline uint64_t name() { return Ptr() + OFFSET(Space, name_); }
 
     const char* GetName();
+    SpaceType GetType();
+
+private:
+    SpaceType type_cache = kSpaceTypeInvalidSpace;
+    // quick memoryref cache
+    api::MemoryRef vtbl_cache;
+
+};
+
+class ContinuousSpace : public Space {
+public:
+    ContinuousSpace() : Space() {}
+    ContinuousSpace(uint64_t v) : Space(v) {}
+    ContinuousSpace(uint64_t v, LoadBlock* b) : Space(v, b) {}
+    ContinuousSpace(const Space& ref) : Space(ref) {}
+    ContinuousSpace(uint64_t v, Space& ref) : Space(v, ref) {}
+    ContinuousSpace(uint64_t v, Space* ref) : Space(v, ref) {}
+    template<typename U> ContinuousSpace(U *v) : Space(v) {}
+    template<typename U> ContinuousSpace(U *v, Space* ref) : Space(v, ref) {}
+};
+
+class DiscontinuousSpace : public Space {
+public:
+    DiscontinuousSpace() : Space() {}
+    DiscontinuousSpace(uint64_t v) : Space(v) {}
+    DiscontinuousSpace(uint64_t v, LoadBlock* b) : Space(v, b) {}
+    DiscontinuousSpace(const Space& ref) : Space(ref) {}
+    DiscontinuousSpace(uint64_t v, Space& ref) : Space(v, ref) {}
+    DiscontinuousSpace(uint64_t v, Space* ref) : Space(v, ref) {}
+    template<typename U> DiscontinuousSpace(U *v) : Space(v) {}
+    template<typename U> DiscontinuousSpace(U *v, Space* ref) : Space(v, ref) {}
 };
 
 } // namespace space

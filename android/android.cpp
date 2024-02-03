@@ -102,6 +102,8 @@ void Android::Init() {
 
 void Android::Clean() {
     if (INSTANCE) {
+        if (INSTANCE->instance_.Ptr())
+            INSTANCE->instance_.CleanCache();
         delete INSTANCE;
         INSTANCE = nullptr;
     }
