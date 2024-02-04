@@ -51,7 +51,7 @@ const char* ArtField::GetTypeDescriptor() {
 
 std::string ArtField::PrettyTypeDescriptor() {
     std::string tmp;
-    AppendPrettyDescriptor(GetTypeDescriptor(), &tmp, "byte");
+    AppendPrettyDescriptor(GetTypeDescriptor(), &tmp, "B");
     return tmp;
 }
 

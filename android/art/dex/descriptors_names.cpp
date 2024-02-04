@@ -89,7 +89,7 @@ void AppendPrettyDescriptor(const char* descriptor, std::string* result) {
 void AppendPrettyDescriptor(const char* descriptor, std::string* result, const char* def) {
   const char* c = descriptor;
   if (*c == '\0') {
-    result->append(def);
+    AppendPrettyDescriptor(def, result);
   } else {
     AppendPrettyDescriptor(descriptor, result);
   }
