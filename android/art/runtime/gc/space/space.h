@@ -33,6 +33,19 @@ struct Space_SizeTable {
 extern struct Space_OffsetTable __Space_offset__;
 extern struct Space_SizeTable __Space_size__;
 
+struct ContinuousSpace_OffsetTable {
+    uint32_t begin_;
+    uint32_t end_;
+    uint32_t limit_;
+};
+
+struct ContinuousSpace_SizeTable {
+    uint32_t THIS;
+};
+
+extern struct ContinuousSpace_OffsetTable __ContinuousSpace_offset__;
+extern struct ContinuousSpace_SizeTable __ContinuousSpace_size__;
+
 namespace art {
 namespace gc {
 namespace space {
@@ -67,6 +80,12 @@ public:
 
     const char* GetName();
     SpaceType GetType();
+    inline bool IsImageSpace() { return GetType() == kSpaceTypeImageSpace; }
+    inline bool IsMallocSpace() { return GetType() == kSpaceTypeMallocSpace; }
+    inline bool IsZygoteSpace() { return GetType() == kSpaceTypeZygoteSpace; }
+    inline bool IsBumpPointerSpace() { return GetType() == kSpaceTypeBumpPointerSpace; }
+    inline bool IsLargeObjectSpace() { return GetType() == kSpaceTypeLargeObjectSpace; }
+    inline bool IsRegionSpace() { return GetType() == kSpaceTypeRegionSpace; }
 
 private:
     SpaceType type_cache = kSpaceTypeInvalidSpace;
@@ -85,6 +104,15 @@ public:
     ContinuousSpace(uint64_t v, Space* ref) : Space(v, ref) {}
     template<typename U> ContinuousSpace(U *v) : Space(v) {}
     template<typename U> ContinuousSpace(U *v, Space* ref) : Space(v, ref) {}
+
+    static void Init();
+    inline uint64_t begin() { return VALUEOF(ContinuousSpace, begin_); }
+    inline uint64_t end() { return VALUEOF(ContinuousSpace, end_); }
+    inline uint64_t limit() { return VALUEOF(ContinuousSpace, limit_); }
+
+    inline uint64_t Begin() { return begin(); }
+    inline uint64_t End() { return end(); }
+    inline uint64_t Limit() { return limit(); }
 };
 
 class DiscontinuousSpace : public Space {
@@ -97,6 +125,32 @@ public:
     DiscontinuousSpace(uint64_t v, Space* ref) : Space(v, ref) {}
     template<typename U> DiscontinuousSpace(U *v) : Space(v) {}
     template<typename U> DiscontinuousSpace(U *v, Space* ref) : Space(v, ref) {}
+};
+
+class MemMapSpace : public ContinuousSpace {
+public:
+    MemMapSpace() : ContinuousSpace() {}
+    MemMapSpace(uint64_t v) : ContinuousSpace(v) {}
+    MemMapSpace(uint64_t v, LoadBlock* b) : ContinuousSpace(v, b) {}
+    MemMapSpace(const ContinuousSpace& ref) : ContinuousSpace(ref) {}
+    MemMapSpace(uint64_t v, ContinuousSpace& ref) : ContinuousSpace(v, ref) {}
+    MemMapSpace(uint64_t v, ContinuousSpace* ref) : ContinuousSpace(v, ref) {}
+    template<typename U> MemMapSpace(U *v) : ContinuousSpace(v) {}
+    template<typename U> MemMapSpace(U *v, ContinuousSpace* ref) : ContinuousSpace(v, ref) {}
+};
+
+class AllocSpace {};
+
+class ContinuousMemMapAllocSpace : public MemMapSpace, AllocSpace {
+public:
+    ContinuousMemMapAllocSpace() : MemMapSpace() {}
+    ContinuousMemMapAllocSpace(uint64_t v) : MemMapSpace(v) {}
+    ContinuousMemMapAllocSpace(uint64_t v, LoadBlock* b) : MemMapSpace(v, b) {}
+    ContinuousMemMapAllocSpace(const MemMapSpace& ref) : MemMapSpace(ref) {}
+    ContinuousMemMapAllocSpace(uint64_t v, MemMapSpace& ref) : MemMapSpace(v, ref) {}
+    ContinuousMemMapAllocSpace(uint64_t v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
+    template<typename U> ContinuousMemMapAllocSpace(U *v) : MemMapSpace(v) {}
+    template<typename U> ContinuousMemMapAllocSpace(U *v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
 };
 
 } // namespace space

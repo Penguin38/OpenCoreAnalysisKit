@@ -68,10 +68,11 @@ public:
 
         return block->begin() + ((vaddr & block->VabitsMask()) - block->vaddr());
     }
+    inline LoadBlock* Block() { return block; }
     inline uint64_t PointMask() { return block->PointMask(); }
     inline bool IsReady() { return block != nullptr; }
     inline void Prepare(bool check) {
-        if (!block) {
+        if (vaddr && !block) {
 #if 0 // cloctime debug
             static int count = 0;
             count++;

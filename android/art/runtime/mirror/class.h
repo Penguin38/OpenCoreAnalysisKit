@@ -177,6 +177,7 @@ public:
     uint64_t GetIFields();
     uint32_t NumStaticFields();
     uint64_t GetSFields();
+    Class GetClassLoader();
 
 private:
     // quick memoryref cache

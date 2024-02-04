@@ -368,5 +368,10 @@ uint64_t Class::GetSFields() {
     return arr.Ptr() ? arr.data() : 0u;
 }
 
+Class Class::GetClassLoader() {
+    Class class_loader_(class_loader(), this);
+    return class_loader_;
+}
+
 } // namespcae mirror
 } // namespace art

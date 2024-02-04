@@ -25,6 +25,7 @@
 #include "runtime/image.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
+#include "runtime/gc/space/region_space.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "base/length_prefixed_array.h"
@@ -153,10 +154,13 @@ void Android::preLoad() {
 
     art::gc::Heap::Init();
     art::gc::space::Space::Init();
+    art::gc::space::ContinuousSpace::Init();
+    art::gc::space::RegionSpace::Region::Init();
 
     // preLoadLater listener
     RegisterSdkListener(S, art::Runtime::Init31);
     RegisterSdkListener(S, art::ImageHeader::Init31);
+    RegisterSdkListener(S, art::gc::space::RegionSpace::Init31);
 
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
 
@@ -168,6 +172,7 @@ void Android::preLoadLater() {
     art::DexFile::Init();
     art::Runtime::Init();
     art::ImageHeader::Init();
+    art::gc::space::RegionSpace::Init();
 
     LOGI("Switch android(%d) env.\n", sdk);
     for (const auto& listener : mSdkListeners) {
@@ -225,6 +230,27 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
             break;
         }
     } while(true);
+}
+
+void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn) {
+    art::Runtime& runtime = art::Runtime::Current();
+    art::gc::Heap& heap = runtime.GetHeap();
+    for (const auto& space : heap.GetContinuousSpaces()) {
+        LOGD("Walk [%s] ...\n", space->GetName());
+        if (space->IsRegionSpace()) {
+            art::gc::space::RegionSpace region_space(space->Ptr(), space->Block());
+            region_space.Walk(fn);
+        } else if (space->IsImageSpace()) {
+        } else if (space->IsZygoteSpace()) {
+        } else if (space->IsMallocSpace()) {
+        }
+    }
+
+    for (const auto& space : heap.GetDiscontinuousSpaces()) {
+        LOGD("Walk [%s] ...\n", space->GetName());
+        if (space->IsLargeObjectSpace()) {
+        }
+    }
 }
 
 void Android::SysRoot(const char* path) {

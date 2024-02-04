@@ -51,7 +51,7 @@ int HprofCommand::main(int argc, char* const argv[]) {
     // reset
     optind = 0;
 
-    art::hprof::Hprof::DumpHprof(argv[0], visible);
+    art::hprof::DumpHeap(argv[0], visible);
     return 0;
 }
 

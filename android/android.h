@@ -25,6 +25,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <map>
 #include <memory>
 
 #define INVALID_VALUE "<unknown>"
@@ -102,6 +103,7 @@ public:
     inline static art::Runtime& GetRuntime() { return INSTANCE->current(); }
     static void SysRoot(const char* path);
     inline static uint64_t SearchSymbol(const char* symbol) { return CoreApi::SearchSymbol(INSTANCE->realLibart.c_str(), symbol); }
+    static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn);
 private:
     void init();
     void onSdkChanged(int sdk);

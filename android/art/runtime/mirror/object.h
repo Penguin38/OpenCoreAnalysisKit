@@ -76,7 +76,8 @@ public:
     bool IsClassLoader();
     bool IsDexCache();
     uint64_t SizeOf();
-
+    bool IsValid();
+    inline Class* AsClass() { return reinterpret_cast<Class*>(this); }
 private:
     // quick memoryref cache
     api::MemoryRef klass_cache = 0x0;

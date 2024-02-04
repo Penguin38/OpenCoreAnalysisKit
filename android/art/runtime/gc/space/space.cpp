@@ -22,6 +22,8 @@
 
 struct Space_OffsetTable __Space_offset__;
 struct Space_SizeTable __Space_size__;
+struct ContinuousSpace_OffsetTable __ContinuousSpace_offset__;
+struct ContinuousSpace_SizeTable __ContinuousSpace_size__;
 
 namespace art {
 namespace gc {
@@ -39,6 +41,22 @@ void Space::Init() {
             .vtbl = 0,
             .vtbl_GetType = 8,
             .name_ = 4,
+        };
+    }
+}
+
+void ContinuousSpace::Init() {
+    if (CoreApi::GetPointSize() == 64) {
+        __ContinuousSpace_offset__ = {
+            .begin_ = 40,
+            .end_ = 48,
+            .limit_ = 56,
+        };
+    } else {
+        __ContinuousSpace_offset__ = {
+            .begin_ = 20,
+            .end_ = 24,
+            .limit_ = 28,
         };
     }
 }

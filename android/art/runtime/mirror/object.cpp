@@ -18,6 +18,7 @@
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
+#include "common/exception.h"
 
 struct Object_OffsetTable __Object_offset__;
 struct Object_SizeTable __Object_size__;
@@ -148,6 +149,20 @@ uint64_t Object::SizeOf() {
         return GetClass().GetObjectSize();
     }
     return 0x0;
+}
+
+bool Object::IsValid() {
+    Class klass_ = GetClass();
+    if (klass_.Ptr() == 0x0
+            || klass_.Ptr() == 0xBADDB01D)
+        return false;
+    try {
+        if (klass_.IsClass())
+            return true;
+    } catch (InvalidAddressException e) {
+        // do nothing
+    }
+    return false;
 }
 
 } // namespcae mirror
