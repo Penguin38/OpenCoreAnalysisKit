@@ -21,6 +21,7 @@
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/array.h"
+#include "runtime/runtime_globals.h"
 #include "android.h"
 #include "cxx/vector.h"
 #include <stdio.h>
@@ -745,7 +746,7 @@ public:
             __ AddStringId(LookupStringId(field.GetName()));
             const char* sig = field.GetTypeDescriptor();
             Android::BasicType type = Android::SignatureToBasicTypeAndSize(sig, nullptr, "B");
-            output_->AddU1(type);
+            __ AddU1(type);
             return false;
         };
         Android::ForeachInstanceField(klass, instance_field_writer_inner);
@@ -761,11 +762,135 @@ public:
     }
 
     void DumpHeapArray(mirror::Array& array, mirror::Class& klass) {
+        HLOGV("%s 0x%lx\n", __func__, array.Ptr());
+        HLOGV("%s\n", klass.PrettyDescriptor().c_str());
 
+        uint32_t length = array.GetLength();
+        if (array.IsObjectArray()) {
+            // obj is an object array.
+            __ AddU1(HPROF_OBJECT_ARRAY_DUMP);
+
+            __ AddObjectId(array);
+            __ AddStackTraceSerialNumber(kHprofNullStackTrace);
+            __ AddU4(length);
+            __ AddClassId(LookupClassId(klass));
+
+            // Dump the elements, which are always objects or null.
+            __ AddIdList(array);
+        } else {
+            uint64_t size;
+            mirror::Class component = klass.GetComponentType();
+            Android::BasicType type = Android::SignatureToBasicTypeAndSize(Primitive::Descriptor(component.GetPrimitiveType()), &size, "B");
+
+            // obj is a primitive array.
+            __ AddU1(HPROF_PRIMITIVE_ARRAY_DUMP);
+
+            __ AddObjectId(array);
+            __ AddStackTraceSerialNumber(kHprofNullStackTrace);
+            __ AddU4(length);
+            __ AddU1(type);
+
+            // Dump the raw, packed element values.
+            if (size == 1) {
+                api::MemoryRef ref(array.GetRawData(sizeof(uint8_t), 0), array);
+                __ AddU1List(reinterpret_cast<uint8_t*>(ref.Real()), length);
+            } else if (size == 2) {
+                api::MemoryRef ref(array.GetRawData(sizeof(uint16_t), 0), array);
+                __ AddU2List(reinterpret_cast<uint16_t*>(ref.Real()), length);
+            } else if (size == 4) {
+                api::MemoryRef ref(array.GetRawData(sizeof(uint32_t), 0), array);
+                __ AddU4List(reinterpret_cast<uint32_t*>(ref.Real()), length);
+            } else if (size == 8) {
+                api::MemoryRef ref(array.GetRawData(sizeof(uint64_t), 0), array);
+                __ AddU8List(reinterpret_cast<uint64_t*>(ref.Real()), length);
+            }
+        }
     }
 
     void DumpHeapInstanceObject(mirror::Object& object, mirror::Class& klass) {
+        HLOGV("%s 0x%lx\n", __func__, object.Ptr());
+        HLOGV("%s\n", klass.PrettyDescriptor().c_str());
 
+        __ AddU1(HPROF_INSTANCE_DUMP);
+        __ AddObjectId(object);
+        __ AddStackTraceSerialNumber(kHprofNullStackTrace);
+        __ AddClassId(LookupClassId(klass));
+
+        uint64_t size_patch_offset = output_->Length();
+        __ AddU4(0x77777777);
+
+        mirror::Object string_value = 0x0;
+        mirror::Class super = klass;
+
+        auto instance_field_writer = [&](ArtField& field) -> bool {
+            uint64_t size;
+            const char* sig = field.GetTypeDescriptor();
+            Android::BasicType type = Android::SignatureToBasicTypeAndSize(sig, &size, "B");
+            __ AddU1(type);
+            switch (type) {
+                case Android::basic_byte:
+                    __ AddU1(field.GetByte(object));
+                    break;
+                case Android::basic_boolean:
+                    __ AddU1(field.GetBoolean(object));
+                    break;
+                case Android::basic_char:
+                    __ AddU2(field.GetChar(object));
+                    break;
+                case Android::basic_short:
+                    __ AddU2(field.GetShort(object));
+                    break;
+                case Android::basic_int:
+                    if (field.offset() == OFFSET(String, count_) && klass.IsStringClass()) {
+                        mirror::String str = object;
+                        __ AddU4(str.GetLength());
+                        break;
+                    }
+                [[fallthrough]];
+                case Android::basic_float:
+                case Android::basic_object:
+                    __ AddU4(field.Get32(object));
+                    break;
+                case Android::basic_double:
+                case Android::basic_long:
+                    __ AddU8(field.Get64(object));
+                    break;
+            }
+            return false;
+        };
+
+        do {
+            Android::ForeachInstanceField(super, instance_field_writer);
+
+            if (super.IsStringClass()) {
+                art::mirror::String str = object;
+                if (str.GetLength() != 0) {
+                    string_value = str.Ptr() + kObjectAlignment;
+                } else {
+                    string_value = str.Ptr() + SIZEOF(String);
+                }
+                __ AddObjectId(string_value);
+            }
+
+            super = super.GetSuperClass();
+        } while (super.Ptr());
+
+        __ UpdateU4(size_patch_offset, output_->Length() - (size_patch_offset + 4));
+
+        if (string_value.Ptr()) {
+            art::mirror::String str = object;
+            __ AddU1(HPROF_PRIMITIVE_ARRAY_DUMP);
+            __ AddObjectId(string_value);
+            __ AddStackTraceSerialNumber(kHprofNullStackTrace);
+            __ AddU4(str.GetLength());
+            if (str.IsCompressed()) {
+                __ AddU1(Android::basic_byte);
+                __ AddU1List(str.GetValueCompressed(), str.GetLength());
+            } else {
+                __ AddU1(Android::basic_char);
+                __ AddU2List(str.GetValue(), str.GetLength());
+            }
+        }
     }
 
 private:
