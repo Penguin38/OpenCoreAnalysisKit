@@ -63,6 +63,8 @@ public:
         continuous_spaces_second_cache.clear();
         discontinuous_spaces_second_cache.clear();
     }
+
+    space::ContinuousSpace* FindContinuousSpaceFromObject(mirror::Object& object);
 private:
     // quick memoryref cache
     cxx::vector continuous_spaces_cache;

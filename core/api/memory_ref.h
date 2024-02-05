@@ -63,7 +63,7 @@ public:
     inline uint64_t Real() {
         Prepare(true);
 
-        if (!block->isValid())
+        if (!block || !block->isValid())
             throw InvalidAddressException(vaddr);
 
         return block->begin() + ((vaddr & block->VabitsMask()) - block->vaddr());
@@ -95,8 +95,9 @@ public:
             return true;
         return false;
     }
-    inline uint64_t valueOf() {
-        return *reinterpret_cast<uint64_t *>(Real()) & PointMask();
+    inline uint64_t valueOf() { return valueOf(0); }
+    inline uint64_t valueOf(uint64_t offset) {
+        return *reinterpret_cast<uint64_t *>(Real() + offset) & PointMask();
     }
 private:
     uint64_t vaddr;

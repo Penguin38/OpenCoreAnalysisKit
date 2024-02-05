@@ -19,6 +19,7 @@
 
 #include "logger/log.h"
 #include "api/memory_ref.h"
+#include "runtime/mirror/object.h"
 
 struct Space_OffsetTable {
     uint32_t vtbl;
@@ -91,7 +92,6 @@ private:
     SpaceType type_cache = kSpaceTypeInvalidSpace;
     // quick memoryref cache
     api::MemoryRef vtbl_cache;
-
 };
 
 class ContinuousSpace : public Space {
@@ -113,6 +113,7 @@ public:
     inline uint64_t Begin() { return begin(); }
     inline uint64_t End() { return end(); }
     inline uint64_t Limit() { return limit(); }
+    uint64_t GetNextObject(mirror::Object& object);
 };
 
 class DiscontinuousSpace : public Space {

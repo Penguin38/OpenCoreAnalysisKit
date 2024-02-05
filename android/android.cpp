@@ -26,6 +26,9 @@
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
+#include "runtime/gc/space/image_space.h"
+#include "runtime/gc/space/zygote_space.h"
+#include "runtime/gc/accounting/space_bitmap.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "base/length_prefixed_array.h"
@@ -156,6 +159,7 @@ void Android::preLoad() {
     art::gc::space::Space::Init();
     art::gc::space::ContinuousSpace::Init();
     art::gc::space::RegionSpace::Region::Init();
+    art::gc::accounting::ContinuousSpaceBitmap::Init();
 
     // preLoadLater listener
     RegisterSdkListener(S, art::Runtime::Init31);
@@ -241,7 +245,11 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
             art::gc::space::RegionSpace region_space(space->Ptr(), space->Block());
             region_space.Walk(fn);
         } else if (space->IsImageSpace()) {
+            art::gc::space::ImageSpace image_space(space->Ptr(), space->Block());
+            image_space.Walk(fn);
         } else if (space->IsZygoteSpace()) {
+            art::gc::space::ZygoteSpace zygote_space(space->Ptr(), space->Block());
+            zygote_space.Walk(fn);
         } else if (space->IsMallocSpace()) {
         }
     }

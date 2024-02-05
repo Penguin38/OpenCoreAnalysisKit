@@ -18,7 +18,6 @@
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/object.h"
 #include "runtime/runtime_globals.h"
-#include "common/bit.h"
 
 struct RegionSpace_OffsetTable __RegionSpace_offset__;
 struct RegionSpace_SizeTable __RegionSpace_size__;
@@ -34,11 +33,13 @@ void RegionSpace::Init() {
         __RegionSpace_offset__ = {
             .num_regions_ = 576,
             .regions_ = 608,
+            .mark_bitmap_ = 736,
         };
     } else {
         __RegionSpace_offset__ = {
             .num_regions_ = 320,
             .regions_ = 336,
+            .mark_bitmap_ = 404,
         };
     }
 }
@@ -48,11 +49,13 @@ void RegionSpace::Init31() {
         __RegionSpace_offset__ = {
             .num_regions_ = 576,
             .regions_ = 616,
+            .mark_bitmap_ = 744,
         };
     } else {
         __RegionSpace_offset__ = {
             .num_regions_ = 320,
             .regions_ = 348,
+            .mark_bitmap_ = 484,
         };
     }
 }
@@ -133,17 +136,17 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
     uint64_t top = region.Top();
     mirror::Object object_cache = pos;
     object_cache.Prepare(false);
+    uint64_t bit_mask = CoreApi::GetPointMask();
 
     const bool need_bitmap =
-        region.LiveBytes() != static_cast<size_t>(-1) &&
-        region.LiveBytes() != static_cast<size_t>(top - pos);
+        region.LiveBytes() != (static_cast<uint64_t>(-1) & bit_mask) &&
+        region.LiveBytes() != static_cast<uint64_t>(top - pos);
 
     if (need_bitmap) {
-        LOGI("need_bitmap\n");
+        GetLiveBitmap().VisitMarkedRange(pos, top, visitor);
     } else {
         while (pos < top) {
             mirror::Object object(pos, object_cache);
-            // mirror::Class klass(object.klass(), object_cache);
             if (object.IsValid()) {
                 visitor(object);
                 pos = GetNextObject(object);
@@ -154,9 +157,12 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
     }
 }
 
-uint64_t RegionSpace::GetNextObject(mirror::Object& object) {
-    const uint64_t position = object.Ptr() + object.SizeOf();
-    return RoundUp(position, kObjectAlignment);
+accounting::ContinuousSpaceBitmap& RegionSpace::GetLiveBitmap() {
+    if (!mark_bitmap_cache.Ptr()) {
+        mark_bitmap_cache = mark_bitmap();
+        mark_bitmap_cache.copyRef(this);
+    }
+    return mark_bitmap_cache;
 }
 
 } // namespace space

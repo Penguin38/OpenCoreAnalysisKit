@@ -15,10 +15,12 @@
  */
 
 #include "runtime/gc/space/space.h"
+#include "runtime/runtime_globals.h"
 #include "arm64/inst/constant.h"
 #include "arm/inst/constant.h"
 #include "common/elf.h"
 #include "cxx/string.h"
+#include "common/bit.h"
 
 struct Space_OffsetTable __Space_offset__;
 struct Space_SizeTable __Space_size__;
@@ -171,6 +173,11 @@ SpaceType Space::GetType() {
             break;
     }
     return type_cache;
+}
+
+uint64_t ContinuousSpace::GetNextObject(mirror::Object& object) {
+    const uint64_t position = object.Ptr() + object.SizeOf();
+    return RoundUp(position, kObjectAlignment);
 }
 
 } // namespace space

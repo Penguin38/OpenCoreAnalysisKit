@@ -19,11 +19,13 @@
 
 #include "runtime/gc/space/space.h"
 #include "runtime/mirror/object.h"
+#include "runtime/gc/accounting/space_bitmap.h"
 #include <functional>
 
 struct RegionSpace_OffsetTable {
     uint32_t num_regions_;
     uint32_t regions_;
+    uint32_t mark_bitmap_;
 };
 
 struct RegionSpace_SizeTable {
@@ -74,6 +76,7 @@ public:
     static void Init31();
     inline uint64_t num_regions() { return VALUEOF(RegionSpace, num_regions_); }
     inline uint64_t regions() { return VALUEOF(RegionSpace, regions_); }
+    inline uint64_t mark_bitmap() { return Ptr() + OFFSET(RegionSpace, mark_bitmap_); }
 
     void Walk(std::function<bool (mirror::Object& object)> fn);
     void WalkInternal(std::function<bool (mirror::Object& object)> fn, bool only);
@@ -123,7 +126,11 @@ public:
     };
 
     void WalkNonLargeRegion(std::function<bool (mirror::Object& object)> fn, RegionSpace::Region& region);
-    uint64_t GetNextObject(mirror::Object& object);
+    accounting::ContinuousSpaceBitmap& GetLiveBitmap();
+
+private:
+    // quick memoryref cache
+    accounting::ContinuousSpaceBitmap mark_bitmap_cache;
 };
 
 } // namespace space

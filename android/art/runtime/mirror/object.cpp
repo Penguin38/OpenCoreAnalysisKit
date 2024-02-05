@@ -153,9 +153,9 @@ uint64_t Object::SizeOf() {
 
 bool Object::IsValid() {
     Class klass_ = GetClass();
-    if (klass_.Ptr() == 0x0
-            || klass_.Ptr() == 0xBADDB01D)
+    if (klass_.Ptr() == 0x0 || klass_.Ptr() == 0xBADDB01D)
         return false;
+
     try {
         if (klass_.IsClass())
             return true;

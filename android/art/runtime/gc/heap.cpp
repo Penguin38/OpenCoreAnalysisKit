@@ -66,5 +66,13 @@ std::vector<std::unique_ptr<space::DiscontinuousSpace>>& Heap::GetDiscontinuousS
     return discontinuous_spaces_second_cache;
 }
 
+space::ContinuousSpace* Heap::FindContinuousSpaceFromObject(mirror::Object& object) {
+    for (const auto& space : GetContinuousSpaces()) {
+        if (object.Ptr() >= space->Begin() && object.Ptr() < space->Limit())
+            return space.get();
+    }
+    return nullptr;
+}
+
 } // namespace gc
 } // namespace art
