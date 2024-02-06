@@ -257,8 +257,8 @@ uint32_t Class::GetClassFlags() {
 }
 
 Class Class::GetSuperClass() {
-   Class super_class_(super_class(), this);
-   return super_class_;
+    Class super_class_(super_class(), this);
+    return super_class_;
 }
 
 uint64_t Class::GetComponentSizeShift() {
@@ -299,22 +299,25 @@ std::string Class::PrettyDescriptor() {
 }
 
 const char* Class::GetDescriptor(std::string* storage) {
-    Prepare(false);
     uint64_t dim = 0u;
-    Class klass = *this;
-    while (klass.Ptr() && klass.IsArrayClass()) {
+    Class* klass = this;
+    Class tmp = 0x0;
+
+    while (klass->Ptr() && klass->IsArrayClass()) {
         ++dim;
-        klass = klass.GetComponentType();
+        tmp = klass->GetComponentType();
+        klass = &tmp;
     }
-    if (klass.IsProxyClass()) {
-        *storage = DotToDescriptor(klass.GetName().ToModifiedUtf8().c_str());
+
+    if (klass->IsProxyClass()) {
+        *storage = DotToDescriptor(klass->GetName().ToModifiedUtf8().c_str());
     } else {
         const char* descriptor;
-        if (klass.IsPrimitive()) {
-            descriptor = Primitive::Descriptor(klass.GetPrimitiveType());
+        if (klass->IsPrimitive()) {
+            descriptor = Primitive::Descriptor(klass->GetPrimitiveType());
         } else {
-            DexFile& dex_file = klass.GetDexFile();
-            dex::TypeId type_id = dex_file.GetTypeId(klass.GetDexTypeIndex());
+            DexFile& dex_file = klass->GetDexFile();
+            dex::TypeId type_id = dex_file.GetTypeId(klass->GetDexTypeIndex());
             descriptor = dex_file.GetTypeDescriptor(type_id);
         }
         if (dim == 0x0) {

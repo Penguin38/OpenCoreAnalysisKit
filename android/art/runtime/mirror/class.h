@@ -82,6 +82,8 @@ public:
     inline bool operator!=(Object& ref) { return Ptr() != ref.Ptr(); }
     inline bool operator==(uint32_t v) { return Ptr() == v; }
     inline bool operator!=(uint32_t v) { return Ptr() != v; }
+    inline bool operator<(const Class& ref) const { return Ptr() < ref.Ptr(); }
+    inline bool operator>(const Class& ref) const { return Ptr() > ref.Ptr(); }
 
     static void Init();
     inline uint32_t class_loader() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, class_loader_)); }

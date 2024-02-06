@@ -60,6 +60,7 @@ public:
     bool operator!=(uint64_t v) { return vaddr != v; }
 
     inline uint64_t Ptr() { return vaddr; }
+    inline uint64_t Ptr() const { return vaddr; }
     inline uint64_t Real() {
         Prepare(true);
 

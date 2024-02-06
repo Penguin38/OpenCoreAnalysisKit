@@ -483,13 +483,13 @@ private:
 
     HprofClassObjectId LookupClassId(mirror::Class& c) {
         if (c.Ptr()) {
-            auto it = classes_.find(c.Ptr());
+            auto it = classes_.find(c);
             if (it == classes_.end()) {
                 // first time to see this class
                 HprofClassSerialNumber sn = next_class_serial_number_++;
-                classes_.insert(std::pair<uint32_t, HprofClassSerialNumber>(c.Ptr(), sn));
                 // Make sure that we've assigned a string ID for this class' name
                 LookupClassNameId(c);
+                classes_.insert(std::pair<mirror::Class, HprofClassSerialNumber>(c, sn));
             }
         }
         return c.Ptr();
@@ -524,7 +524,7 @@ private:
     std::map<std::string, HprofStringId> strings_;
 
     HprofClassSerialNumber next_class_serial_number_ = 1;
-    std::map<uint32_t, HprofClassSerialNumber> classes_;
+    std::map<mirror::Class, HprofClassSerialNumber> classes_;
 };
 
 bool Hprof::AddRuntimeInternalObjectsField(mirror::Class& klass) {
@@ -716,9 +716,7 @@ void Hprof::DumpHeapClass(mirror::Class& klass) {
 
     auto static_field_writer = [&](ArtField& field, auto name_fn) -> bool {
         __ AddStringId(LookupStringId(name_fn(field)));
-
-        uint64_t size = 0;
-        Android::BasicType type = Android::SignatureToBasicTypeAndSize(field.GetTypeDescriptor(), &size, "B");
+        Android::BasicType type = Android::SignatureToBasicTypeAndSize(field.GetTypeDescriptor(), nullptr, "B");
         __ AddU1(type);
         switch (type) {
             case Android::basic_byte:
@@ -859,8 +857,7 @@ void Hprof::DumpHeapInstanceObject(mirror::Object& object, mirror::Class& klass)
     mirror::Class super = klass;
     do {
         auto instance_field_writer = [&](ArtField& field) -> bool {
-            uint64_t size;
-            Android::BasicType type = Android::SignatureToBasicTypeAndSize(field.GetTypeDescriptor(), &size, "B");
+            Android::BasicType type = Android::SignatureToBasicTypeAndSize(field.GetTypeDescriptor(), nullptr, "B");
             switch (type) {
                 case Android::basic_byte:
                     __ AddU1(field.GetByte(object));
