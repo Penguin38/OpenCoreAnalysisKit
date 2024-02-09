@@ -29,6 +29,7 @@
 #include "command/cmd_getprop.h"
 #include "command/cmd_print.h"
 #include "command/cmd_hprof.h"
+#include "command/cmd_search.h"
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
 #include "common/exception.h"
@@ -54,6 +55,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new GetPropCommand());
     CommandManager::PushInlineCommand(new PrintCommand());
     CommandManager::PushInlineCommand(new HprofCommand());
+    CommandManager::PushInlineCommand(new SearchCommand());
 
     // other
     CommandManager::PushInlineCommand(new EnvCommand());
