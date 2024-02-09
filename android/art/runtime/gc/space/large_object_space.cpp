@@ -15,12 +15,15 @@
  */
 
 #include "runtime/gc/space/large_object_space.h"
+#include "runtime/runtime_globals.h"
 #include <string.h>
 
 struct LargeObjectSpace_OffsetTable __LargeObjectSpace_offset__;
 struct LargeObjectSpace_SizeTable __LargeObjectSpace_size__;
 struct LargeObjectMapSpace_OffsetTable __LargeObjectMapSpace_offset__;
 struct LargeObjectMapSpace_SizeTable __LargeObjectMapSpace_size__;
+struct AllocationInfo_OffsetTable __AllocationInfo_offset__;
+struct AllocationInfo_SizeTable __AllocationInfo_size__;
 struct FreeListSpace_OffsetTable __FreeListSpace_offset__;
 struct FreeListSpace_SizeTable __FreeListSpace_size__;
 
@@ -80,6 +83,17 @@ void LargeObjectMapSpace::Init() {
     }
 }
 
+void AllocationInfo::Init() {
+    __AllocationInfo_offset__ = {
+        .prev_free_ = 0,
+        .alloc_size_ = 4,
+    };
+
+    __AllocationInfo_size__ = {
+        .THIS = 8,
+    };
+}
+
 void FreeListSpace::Init() {
     if (CoreApi::GetPointSize() == 64) {
         __FreeListSpace_offset__ = {
@@ -120,7 +134,46 @@ void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visi
 
 }
 
+uint64_t FreeListSpace::GetSlotIndexForAddress(uint64_t address) {
+    return (address - begin()) / kLargeObjectAlignment;
+}
+
+uint64_t FreeListSpace::GetAllocationInfoForAddress(uint64_t address) {
+    return GetAlloctionInfoCache().Ptr() + (GetSlotIndexForAddress(address) * SIZEOF(AllocationInfo));
+}
+
+uint64_t FreeListSpace::GetAddressForAllocationInfo(AllocationInfo& info) {
+    return GetAllocationAddressForSlot((info.Ptr() - GetAlloctionInfoCache().Ptr()) / SIZEOF(AllocationInfo));
+}
+
+uint64_t FreeListSpace::GetAllocationAddressForSlot(uint64_t slot) {
+    return begin() + (slot * kLargeObjectAlignment);
+}
+
 void FreeListSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+    uint64_t free_end_start = end() - free_end();
+    api::MemoryRef block_cache = begin();
+    block_cache.Prepare(false);
+
+    AllocationInfo cur_info = GetAlloctionInfoCache();
+    AllocationInfo end_info = GetAllocationInfoForAddress(free_end_start);
+
+    while (cur_info.Ptr() < end_info.Ptr()) {
+        if (!cur_info.IsFree()) {
+            uint64_t byte_start = GetAddressForAllocationInfo(cur_info);
+            mirror::Object object(byte_start, block_cache);
+            if (object.IsValid()) visitor(object);
+        }
+        cur_info.MoveNexInfo();
+    }
+}
+
+api::MemoryRef& FreeListSpace::GetAlloctionInfoCache() {
+    if (!allocation_info_cache.Ptr()) {
+        allocation_info_cache = allocation_info();
+        allocation_info_cache.Prepare(false);
+    }
+    return allocation_info_cache;
 }
 
 } // namespace space

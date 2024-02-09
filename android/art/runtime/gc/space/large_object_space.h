@@ -47,6 +47,18 @@ struct LargeObjectMapSpace_SizeTable {
 extern struct LargeObjectMapSpace_OffsetTable __LargeObjectMapSpace_offset__;
 extern struct LargeObjectMapSpace_SizeTable __LargeObjectMapSpace_size__;
 
+struct AllocationInfo_OffsetTable {
+    uint32_t prev_free_;
+    uint32_t alloc_size_;
+};
+
+struct AllocationInfo_SizeTable {
+    uint32_t THIS;
+};
+
+extern struct AllocationInfo_OffsetTable __AllocationInfo_offset__;
+extern struct AllocationInfo_SizeTable __AllocationInfo_size__;
+
 struct FreeListSpace_OffsetTable {
     uint32_t mem_map_;
     uint32_t allocation_info_map_;
@@ -105,6 +117,28 @@ public:
     void Walk(std::function<bool (mirror::Object& object)> fn);
 };
 
+class AllocationInfo : public api::MemoryRef {
+public:
+    AllocationInfo(uint64_t v) : api::MemoryRef(v) {}
+    AllocationInfo(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    AllocationInfo(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+    AllocationInfo(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
+    template<typename U> AllocationInfo(U *v) : api::MemoryRef(v) {}
+    template<typename U> AllocationInfo(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+
+    static void Init();
+    inline uint32_t prev_free() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(AllocationInfo, prev_free_)); }
+    inline uint32_t alloc_size() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(AllocationInfo, alloc_size_)); }
+
+    inline bool IsFree() { return (alloc_size() & kFlagFree) != 0; }
+    inline uint32_t AlignSize() { return alloc_size() & kFlagsMask; }
+    inline void MoveNexInfo() { MovePtr(AlignSize() * SIZEOF(AllocationInfo)); }
+private:
+    static constexpr uint32_t kFlagFree = 0x80000000;
+    static constexpr uint32_t kFlagZygote = 0x40000000;
+    static constexpr uint32_t kFlagsMask = ~(kFlagFree | kFlagZygote);
+};
+
 class FreeListSpace : public LargeObjectSpace {
 public:
     FreeListSpace() : LargeObjectSpace() {}
@@ -117,7 +151,18 @@ public:
     template<typename U> FreeListSpace(U *v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
     static void Init();
+    inline uint64_t free_end() { return VALUEOF(FreeListSpace, free_end_); }
+    inline uint64_t allocation_info() { return VALUEOF(FreeListSpace, allocation_info_); }
+
+    api::MemoryRef& GetAlloctionInfoCache();
     void Walk(std::function<bool (mirror::Object& object)> fn);
+    uint64_t GetAllocationInfoForAddress(uint64_t address);
+    uint64_t GetSlotIndexForAddress(uint64_t address);
+    uint64_t GetAddressForAllocationInfo(AllocationInfo& info);
+    uint64_t GetAllocationAddressForSlot(uint64_t slot);
+private:
+    // quick memoryref cache
+    api::MemoryRef allocation_info_cache;
 };
 
 } // namespace space

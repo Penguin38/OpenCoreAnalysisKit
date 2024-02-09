@@ -162,6 +162,7 @@ void Android::preLoad() {
     art::gc::space::RegionSpace::Region::Init();
     art::gc::space::LargeObjectSpace::Init();
     art::gc::space::LargeObjectMapSpace::Init();
+    art::gc::space::AllocationInfo::Init();
     art::gc::space::FreeListSpace::Init();
     art::gc::accounting::ContinuousSpaceBitmap::Init();
 
