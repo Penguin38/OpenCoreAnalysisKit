@@ -18,6 +18,7 @@
 #include "android.h"
 #include "common/bit.h"
 #include "command/cmd_print.h"
+#include "command/command_manager.h"
 #include "base/utils.h"
 #include "api/core.h"
 #include "runtime/runtime_globals.h"
@@ -34,9 +35,9 @@ int PrintCommand::main(int argc, char* const argv[]) {
             || !argc)
         return 0;
 
-    bool binary = false;
-    bool reference = false;
-    int deep = 0;
+    binary = false;
+    reference = false;
+    deep = 1;
 
     int opt;
     int option_index = 0;
@@ -46,7 +47,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
         {0,           0,                 0,   0 }
     };
     
-    while ((opt = getopt_long(argc, argv, "br::",
+    while ((opt = getopt_long(argc, argv, "br:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'b':
@@ -54,7 +55,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
                 break;
             case 'r':
                 reference = true;
-                if (optind < argc) deep = atoi(optarg);
+                deep = atoi(optarg);
                 break;
         }
     }
@@ -87,6 +88,63 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
             DumpInstance(object);
         }
     }
+
+    if (binary) {
+        LOGI("Binary:\n");
+        int argc = 3;
+        std::stringstream begin;
+        std::stringstream end;
+        begin << std::hex << object.Ptr();
+        end << std::hex << (object.Ptr() + real_size);
+        std::string bs = begin.str();
+        std::string es = end.str();
+        char* argv[3] = {
+                const_cast<char*>(bs.c_str()),
+                const_cast<char*>("-e"),
+                const_cast<char*>(es.c_str())};
+        CommandManager::Execute("rd", argc, argv);
+    }
+
+    if (reference) {
+        LOGI("Reference:\n");
+        int cur_deep = 0;
+        auto callback = [&](art::mirror::Object& reference) -> bool {
+            return PrintReference(object, reference, cur_deep);
+        };
+        Android::ForeachObjects(callback);
+    }
+}
+
+bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep) {
+    if (cur_deep >= deep)
+        return true;
+
+    uint64_t real_size = RoundUp(reference.SizeOf(), art::kObjectAlignment);
+    uint64_t count = real_size / sizeof(uint32_t);
+    std::string prefix;
+    for (int cur = -1; cur < cur_deep; ++cur) {
+        prefix.append("  ");
+    }
+
+    for (int pos = 0; pos < count; ++pos) {
+        if (object.Ptr() == reference.valueOf(pos * sizeof(uint32_t))) {
+            art::mirror::Class ref_thiz = 0x0;
+            if (reference.IsClass()) {
+                ref_thiz = reference;
+            } else {
+                ref_thiz = reference.GetClass();
+            }
+            LOGI("%s--> 0x%lx %s\n", prefix.c_str(), reference.Ptr(), ref_thiz.PrettyDescriptor().c_str());
+            if (cur_deep + 1 < deep) {
+                auto callback = [&](art::mirror::Object& second) -> bool {
+                    return PrintReference(reference, second, cur_deep + 1);
+                };
+                Android::ForeachObjects(callback);
+            }
+            break;
+        }
+    }
+    return false;;
 }
 
 void PrintCommand::DumpClass(art::mirror::Class& clazz) {

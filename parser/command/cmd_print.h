@@ -31,14 +31,20 @@ public:
     ~PrintCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
-    static void DumpObject(art::mirror::Object& object);
-    static void DumpClass(art::mirror::Class& clazz);
-    static void DumpArray(art::mirror::Array& array);
-    static void DumpInstance(art::mirror::Object& object);
-    static void PrintField(const char* format, art::mirror::Class& clazz,
-                           art::mirror::Object& object, art::ArtField& field);
-    static std::string FormatSize(uint64_t size);
-    static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref);
+    void DumpObject(art::mirror::Object& object);
+    void DumpClass(art::mirror::Class& clazz);
+    void DumpArray(art::mirror::Array& array);
+    void DumpInstance(art::mirror::Object& object);
+    void PrintField(const char* format, art::mirror::Class& clazz,
+                    art::mirror::Object& object, art::ArtField& field);
+    std::string FormatSize(uint64_t size);
+    void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref);
+    bool PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep);
+
+private:
+    bool binary;
+    bool reference;
+    int deep;
 };
 
 #endif // PARSER_COMMAND_CMD_PRINT_H_
