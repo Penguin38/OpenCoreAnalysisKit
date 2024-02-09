@@ -30,11 +30,6 @@ void ImageSpace::Init() {
 }
 
 void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
-    if (!IsVaildSpace()) {
-        LOGE("ERROR: %s invalid space.\n", GetName());
-        return;
-    }
-
     uint64_t pos = Begin() + SIZEOF(ImageHeader);
     uint64_t top = End();
     mirror::Object object_cache = pos;

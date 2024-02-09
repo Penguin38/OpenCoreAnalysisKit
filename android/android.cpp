@@ -244,14 +244,22 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
 void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn) {
     art::Runtime& runtime = art::Runtime::Current();
     art::gc::Heap& heap = runtime.GetHeap();
-    for (const auto& space : heap.GetContinuousSpaces()) {
+
+    auto walkfn = [&fn](art::gc::space::Space* space) {
         LOGD("Walk [%s] ...\n", space->GetName());
-        space->Walk(fn);
+        if (space->IsVaildSpace()) {
+            space->Walk(fn);
+        } else {
+            LOGE("ERROR: %s invalid space.\n", space->GetName());
+        }
+    };
+
+    for (const auto& space : heap.GetContinuousSpaces()) {
+        walkfn(space.get());
     }
 
     for (const auto& space : heap.GetDiscontinuousSpaces()) {
-        LOGD("Walk [%s] ...\n", space->GetName());
-        space->Walk(fn);
+        walkfn(space.get());
     }
 }
 
