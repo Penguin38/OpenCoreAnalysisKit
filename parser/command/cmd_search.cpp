@@ -15,11 +15,14 @@
  */
 
 #include "logger/log.h"
+#include "command/command_manager.h"
 #include "command/cmd_search.h"
 #include "api/core.h"
 #include "android.h"
+#include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <sstream>
 #include <regex>
 
 int SearchCommand::main(int argc, char* const argv[]) {
@@ -34,21 +37,26 @@ int SearchCommand::main(int argc, char* const argv[]) {
         {"object",   no_argument,       0,  'o'},
         {"class",    no_argument,       0,  'c'},
         {"regex",    no_argument,       0,  'r'},
+        {"show",     no_argument,       0,  's'},
     };
 
-    int search_flag;
-    bool need_regex = false;
-    while ((opt = getopt_long(argc, argv, "ocr",
+    flag = 0;
+    regex = false;
+    show = false;
+    while ((opt = getopt_long(argc, argv, "ocrs",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
-                search_flag |= SEARCH_OBJECT;
+                flag |= SEARCH_OBJECT;
                 break;
             case 'c':
-                search_flag |= SEARCH_CLASS;
+                flag |= SEARCH_CLASS;
                 break;
             case 'r':
-                need_regex = true;
+                regex = true;
+                break;
+            case 's':
+                show = true;
                 break;
         }
     }
@@ -57,15 +65,15 @@ int SearchCommand::main(int argc, char* const argv[]) {
     optind = 0;
     total_objects = 0;
     const char* classname = argv[0];
-    if (!search_flag) search_flag = SEARCH_OBJECT | SEARCH_CLASS;
+    if (!flag) flag = SEARCH_OBJECT | SEARCH_CLASS;
     auto callback = [&](art::mirror::Object& object) -> bool {
-        return SearchObjects(classname, object, search_flag, need_regex);
+        return SearchObjects(classname, object);
     };
     Android::ForeachObjects(callback);
     return 0;
 }
 
-bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& object, int flag, bool regex) {
+bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& object) {
     int mask = object.IsClass() ? SEARCH_CLASS : SEARCH_OBJECT;
     if (!(flag & mask))
         return false;
@@ -79,15 +87,16 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
     }
     descriptor = thiz.PrettyDescriptor();
 
-    if (regex) {
-        if (std::regex_search(descriptor, std::regex(classsname))) {
-            total_objects++;
-            LOGI("[%ld] 0x%lx %s\n", total_objects, object.Ptr(), descriptor.c_str());
-        }
-    } else {
-        if (descriptor == classsname) {
-            total_objects++;
-            LOGI("[%ld] 0x%lx %s\n", total_objects, object.Ptr(), descriptor.c_str());
+    if (regex && std::regex_search(descriptor, std::regex(classsname)) || descriptor == classsname) {
+        total_objects++;
+        LOGI("[%ld] 0x%lx %s\n", total_objects, object.Ptr(), descriptor.c_str());
+        if (show) {
+            int argc = 1;
+            std::stringstream ss;
+            ss << std::hex << object.Ptr();
+            std::string address = ss.str();
+            char* argv[1] = { const_cast<char*>(address.c_str()) };
+            CommandManager::Execute("p", argc, argv);
         }
     }
 
@@ -95,6 +104,6 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
 }
 
 void SearchCommand::usage() {
-    LOGI("Usage: search [CLASSNAME] [-r|--regex] [-o|--object] [-c|--class]\n");
+    LOGI("Usage: search [CLASSNAME] [-r|--regex] [-o|--object] [-c|--class] [-s|--show]\n");
 }
 

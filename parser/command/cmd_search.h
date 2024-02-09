@@ -29,9 +29,12 @@ public:
     ~SearchCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
-    bool SearchObjects(const char* classsname, art::mirror::Object& object, int flag, bool regex);
+    bool SearchObjects(const char* classsname, art::mirror::Object& object);
 private:
     uint64_t total_objects;
+    int flag;
+    bool regex;
+    bool show;
 };
 
 #endif // PARSER_COMMAND_CMD_SEARCH_H_
