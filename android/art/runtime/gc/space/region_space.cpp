@@ -103,7 +103,11 @@ void RegionSpace::Region::Init() {
 }
 
 void RegionSpace::Walk(std::function<bool (mirror::Object& object)> fn) {
-    WalkInternal(fn, false);
+    if (IsVaildSpace()) {
+        WalkInternal(fn, false);
+    } else {
+        LOGE("ERROR: %s invalid space.\n", GetName());
+    }
 }
 
 void RegionSpace::WalkInternal(std::function<bool (mirror::Object& object)> visitor, bool only) {

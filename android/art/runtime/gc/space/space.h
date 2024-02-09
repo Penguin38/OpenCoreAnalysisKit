@@ -89,6 +89,7 @@ public:
 
     virtual SpaceType GetType();
     virtual void Walk(std::function<bool (mirror::Object& object)> fn) {}
+    virtual bool IsVaildSpace() { return false; }
 private:
     SpaceType type_cache = kSpaceTypeInvalidSpace;
     // quick memoryref cache
@@ -115,6 +116,7 @@ public:
     inline uint64_t End() { return end(); }
     inline uint64_t Limit() { return limit(); }
     uint64_t GetNextObject(mirror::Object& object);
+    bool IsVaildSpace();
 };
 
 class DiscontinuousSpace : public Space {

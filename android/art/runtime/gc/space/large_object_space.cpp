@@ -130,8 +130,15 @@ bool LargeObjectSpace::IsMemMapSpace() {
     return !strcmp(GetName(), MEMMAP_SPACE);
 }
 
-void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+bool LargeObjectSpace::IsVaildSpace() {
+    return begin() && CoreApi::IsVirtualValid(begin());
+}
 
+void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+    if (!IsVaildSpace()) {
+        LOGE("ERROR: %s invalid space.\n", GetName());
+        return;
+    }
 }
 
 uint64_t FreeListSpace::GetSlotIndexForAddress(uint64_t address) {
@@ -151,6 +158,11 @@ uint64_t FreeListSpace::GetAllocationAddressForSlot(uint64_t slot) {
 }
 
 void FreeListSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+    if (!IsVaildSpace()) {
+        LOGE("ERROR: %s invalid space.\n", GetName());
+        return;
+    }
+
     uint64_t free_end_start = end() - free_end();
     api::MemoryRef block_cache = begin();
     block_cache.Prepare(false);

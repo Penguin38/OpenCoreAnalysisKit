@@ -180,6 +180,10 @@ uint64_t ContinuousSpace::GetNextObject(mirror::Object& object) {
     return RoundUp(position, kObjectAlignment);
 }
 
+bool ContinuousSpace::IsVaildSpace() {
+    return Begin() && CoreApi::IsVirtualValid(Begin());
+}
+
 } // namespace space
 } // namespace gc
 } // namespace art

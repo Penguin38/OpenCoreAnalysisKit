@@ -100,6 +100,7 @@ public:
     bool IsFreeListSpace();
     bool IsMemMapSpace();
     SpaceType GetType() { return kSpaceTypeLargeObjectSpace; }
+    bool IsVaildSpace();
 };
 
 class LargeObjectMapSpace : public LargeObjectSpace {
