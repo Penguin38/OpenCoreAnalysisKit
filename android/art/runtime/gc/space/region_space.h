@@ -78,6 +78,7 @@ public:
     inline uint64_t regions() { return VALUEOF(RegionSpace, regions_); }
     inline uint64_t mark_bitmap() { return Ptr() + OFFSET(RegionSpace, mark_bitmap_); }
 
+    SpaceType GetType() { return kSpaceTypeRegionSpace; }
     void Walk(std::function<bool (mirror::Object& object)> fn);
     void WalkInternal(std::function<bool (mirror::Object& object)> fn, bool only);
 

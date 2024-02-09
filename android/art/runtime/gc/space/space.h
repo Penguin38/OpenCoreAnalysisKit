@@ -80,7 +80,6 @@ public:
     inline uint64_t name() { return Ptr() + OFFSET(Space, name_); }
 
     const char* GetName();
-    SpaceType GetType();
     inline bool IsImageSpace() { return GetType() == kSpaceTypeImageSpace; }
     inline bool IsMallocSpace() { return GetType() == kSpaceTypeMallocSpace; }
     inline bool IsZygoteSpace() { return GetType() == kSpaceTypeZygoteSpace; }
@@ -88,6 +87,8 @@ public:
     inline bool IsLargeObjectSpace() { return GetType() == kSpaceTypeLargeObjectSpace; }
     inline bool IsRegionSpace() { return GetType() == kSpaceTypeRegionSpace; }
 
+    virtual SpaceType GetType();
+    virtual void Walk(std::function<bool (mirror::Object& object)> fn) {}
 private:
     SpaceType type_cache = kSpaceTypeInvalidSpace;
     // quick memoryref cache

@@ -83,6 +83,7 @@ add_library(android STATIC
             android/art/runtime/gc/space/region_space.cpp
             android/art/runtime/gc/space/image_space.cpp
             android/art/runtime/gc/space/zygote_space.cpp
+            android/art/runtime/gc/space/large_object_space.cpp
             android/art/runtime/gc/accounting/space_bitmap.cpp
 
             android/art/dex/primitive.cpp

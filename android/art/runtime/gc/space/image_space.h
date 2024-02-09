@@ -47,6 +47,7 @@ public:
 
     static void Init();
 
+    SpaceType GetType() { return kSpaceTypeImageSpace; }
     void Walk(std::function<bool (mirror::Object& object)> fn);
 };
 

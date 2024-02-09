@@ -15,6 +15,10 @@
  */
 
 #include "runtime/gc/heap.h"
+#include "runtime/gc/space/region_space.h"
+#include "runtime/gc/space/image_space.h"
+#include "runtime/gc/space/zygote_space.h"
+#include "runtime/gc/space/large_object_space.h"
 
 struct Heap_OffsetTable __Heap_offset__;
 struct Heap_SizeTable __Heap_size__;
@@ -45,7 +49,18 @@ std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces(
         for (const auto& value : continuous_spaces_cache) {
             api::MemoryRef ref = value;
             std::unique_ptr<space::ContinuousSpace> space = std::make_unique<space::ContinuousSpace>(ref.valueOf());
-            continuous_spaces_second_cache.push_back(std::move(space));
+            if (space->IsRegionSpace()) {
+                std::unique_ptr<space::RegionSpace> region_space = std::make_unique<space::RegionSpace>(space->Ptr(), space->Block());
+                continuous_spaces_second_cache.push_back(std::move(region_space));
+            } else if (space->IsImageSpace()) {
+                std::unique_ptr<space::ImageSpace> image_space = std::make_unique<space::ImageSpace>(space->Ptr(), space->Block());
+                continuous_spaces_second_cache.push_back(std::move(image_space));
+            } else if (space->IsZygoteSpace()) {
+                std::unique_ptr<space::ZygoteSpace> zygote_space = std::make_unique<space::ZygoteSpace>(space->Ptr(), space->Block());
+                continuous_spaces_second_cache.push_back(std::move(zygote_space));
+            } else {
+                continuous_spaces_second_cache.push_back(std::move(space));
+            }
         }
     }
     return continuous_spaces_second_cache;
@@ -60,7 +75,20 @@ std::vector<std::unique_ptr<space::DiscontinuousSpace>>& Heap::GetDiscontinuousS
         for (const auto& value : discontinuous_spaces_cache) {
             api::MemoryRef ref = value;
             std::unique_ptr<space::DiscontinuousSpace> space = std::make_unique<space::DiscontinuousSpace>(ref.valueOf());
-            discontinuous_spaces_second_cache.push_back(std::move(space));
+            if (space->IsLargeObjectSpace()) {
+                std::unique_ptr<space::LargeObjectSpace> large_space = std::make_unique<space::LargeObjectSpace>(space->Ptr(), space->Block());
+                if (large_space->IsFreeListSpace()) {
+                    std::unique_ptr<space::FreeListSpace> freelist_space = std::make_unique<space::FreeListSpace>(large_space->Ptr(), large_space->Block());
+                    discontinuous_spaces_second_cache.push_back(std::move(freelist_space));
+                } else if (large_space->IsMemMapSpace()) {
+                    std::unique_ptr<space::LargeObjectMapSpace> memmap_space = std::make_unique<space::LargeObjectMapSpace>(large_space->Ptr(), large_space->Block());
+                    discontinuous_spaces_second_cache.push_back(std::move(memmap_space));
+                } else {
+                    discontinuous_spaces_second_cache.push_back(std::move(large_space));
+                }
+            } else {
+                discontinuous_spaces_second_cache.push_back(std::move(space));
+            }
         }
     }
     return discontinuous_spaces_second_cache;
