@@ -22,6 +22,7 @@
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/dex_cache.h"
+#include "runtime/mirror/iftable.h"
 #include "runtime/class_status.h"
 #include "dex/primitive.h"
 #include "dex/dex_file.h"
@@ -180,10 +181,12 @@ public:
     uint32_t NumStaticFields();
     uint64_t GetSFields();
     Class GetClassLoader();
+    IfTable& GetIfTable();
 
 private:
     // quick memoryref cache
     DexCache dex_cache_cache = 0x0;
+    IfTable iftable_cache = 0x0;
 };
 
 } // namespace mirror

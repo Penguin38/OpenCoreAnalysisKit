@@ -376,5 +376,14 @@ Class Class::GetClassLoader() {
     return class_loader_;
 }
 
+IfTable& Class::GetIfTable() {
+    if (!iftable_cache.Ptr()) {
+        iftable_cache = iftable();
+        iftable_cache.copyRef(this);
+        iftable_cache.Prepare(false);
+    }
+    return iftable_cache;
+}
+
 } // namespcae mirror
 } // namespace art

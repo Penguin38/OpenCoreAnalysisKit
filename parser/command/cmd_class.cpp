@@ -16,10 +16,11 @@
 
 #include "logger/log.h"
 #include "command/cmd_class.h"
+#include "command/cmd_print.h"
 #include "dex/modifiers.h"
 #include "android.h"
+#include "runtime/mirror/iftable.h"
 #include "api/core.h"
-#include "command/cmd_print.h"
 #include <stdio.h>
 
 int ClassCommand::main(int argc, char* const argv[]) {
@@ -51,19 +52,36 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
 }
 
 void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
-    LOGI("Class Name: %s\n", clazz.PrettyDescriptor().c_str());
+    art::mirror::Class super = clazz.GetSuperClass();
+    art::mirror::IfTable& iftable = clazz.GetIfTable();
+    int32_t ifcount = iftable.Count();
+    LOGI("[0x%lx]\n%sclass %s extends %s %s\n", clazz.Ptr(),
+            art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
+            clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str(),
+            ifcount > 0 ? "" : "{");
+    if (ifcount > 0) {
+        std::string ifdesc;
+        for (int i = 0; i < ifcount; ++i) {
+            art::mirror::Class interface = iftable.GetInterface(i);
+            ifdesc.append(interface.PrettyDescriptor());
+            if (i < ifcount - 1) ifdesc.append(", ");
+        }
+        LOGI("    implements %s {\n", ifdesc.c_str());
+    }
     std::string format = PrintCommand::FormatSize(clazz.SizeOf());
     std::string format_nonenter = format;
     format.append("\n");
 
     art::mirror::Class current = clazz;
+    if (clazz.NumStaticFields()) LOGI("  Class static fields:\n");
     auto print_static_field = [&](art::ArtField& field) -> bool {
         PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field);
         return false;
     };
     Android::ForeachStaticField(current, print_static_field);
 
-    art::mirror::Class super = clazz;
+    super = clazz;
+    LOGI("  Object instance fields:\n");
     do {
         if (clazz != super) {
             LOGI("  extends %s\n", super.PrettyDescriptor().c_str());
@@ -78,6 +96,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 
         super = super.GetSuperClass();
     } while (super.Ptr());
+    LOGI("}\n");
 }
 
 void ClassCommand::usage() {
