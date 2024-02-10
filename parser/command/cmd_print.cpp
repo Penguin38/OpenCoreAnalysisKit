@@ -229,7 +229,8 @@ void PrintCommand::DumpInstance(art::mirror::Object& object) {
         if (super.IsStringClass()) {
             art::mirror::String str = object;
             if (str.GetLength() != 0) {
-                LOGI("[%s]\n", str.ToModifiedUtf8().c_str());
+                LOGI(format.c_str(), SIZEOF(String), "virutal ", "char[]", "values");
+                LOGI(" = %s\n", str.ToModifiedUtf8().c_str());
             }
         }
 
