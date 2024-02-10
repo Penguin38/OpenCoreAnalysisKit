@@ -122,6 +122,7 @@ add_library(parser STATIC
             parser/command/cmd_print.cpp
             parser/command/cmd_hprof.cpp
             parser/command/cmd_search.cpp
+            parser/command/cmd_class.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp)
 target_link_libraries(parser android llvm core utils)

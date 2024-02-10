@@ -35,11 +35,11 @@ public:
     void DumpClass(art::mirror::Class& clazz);
     void DumpArray(art::mirror::Array& array);
     void DumpInstance(art::mirror::Object& object);
-    void PrintField(const char* format, art::mirror::Class& clazz,
-                    art::mirror::Object& object, art::ArtField& field);
-    std::string FormatSize(uint64_t size);
-    void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref);
     bool PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep);
+    static void PrintField(const char* format, art::mirror::Class& clazz,
+                    art::mirror::Object& object, art::ArtField& field);
+    static std::string FormatSize(uint64_t size);
+    static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref);
 
 private:
     bool binary;
