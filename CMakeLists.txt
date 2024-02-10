@@ -105,8 +105,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl ${LINKER_PT
 include_directories(parser)
 
 add_library(parser STATIC
-            parser/command/command_manager.cpp
-            parser/command/help.cpp
+            parser/command/command.cpp
             parser/command/command_manager.cpp
             parser/command/help.cpp
             parser/command/cmd_core.cpp

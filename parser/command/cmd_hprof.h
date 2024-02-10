@@ -21,7 +21,7 @@
 
 class HprofCommand : public Command {
 public:
-    HprofCommand() : Command("hprof") {}
+    HprofCommand() : Command("hprof", true) {}
     ~HprofCommand() {}
     int main(int argc, char* const argv[]);
     void usage();

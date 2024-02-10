@@ -24,7 +24,7 @@
 
 class ClassCommand : public Command {
 public:
-    ClassCommand() : Command("class") {}
+    ClassCommand() : Command("class", true) {}
     ~ClassCommand() {}
     int main(int argc, char* const argv[]);
     void usage();

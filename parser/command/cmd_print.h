@@ -27,7 +27,7 @@
 
 class PrintCommand : public Command {
 public:
-    PrintCommand() : Command("print", "p") {}
+    PrintCommand() : Command("print", "p", true) {}
     ~PrintCommand() {}
     int main(int argc, char* const argv[]);
     void usage();

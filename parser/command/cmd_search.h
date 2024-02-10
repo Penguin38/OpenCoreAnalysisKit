@@ -25,7 +25,7 @@ public:
     static constexpr int SEARCH_OBJECT = 1 << 0;
     static constexpr int SEARCH_CLASS = 1 << 1;
 
-    SearchCommand() : Command("search") {}
+    SearchCommand() : Command("search", true) {}
     ~SearchCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
