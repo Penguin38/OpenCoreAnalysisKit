@@ -346,8 +346,8 @@ private:
 
 class Hprof {
 public:
-    Hprof(const char* output, bool visible) : filename_(output)
-            ,visible_(visible), first_(true) {}
+    Hprof(const char* output, bool visible, bool quick) : filename_(output)
+            ,visible_(visible), quick_(quick), first_(true) {}
 
     void Dump() {
         LOGI("hprof: heap dump %s starting...\n", filename_);
@@ -364,8 +364,10 @@ public:
 
         first_ = false;
         bool okay = DumpToFile(max_length);
-        if (okay)
-            LOGI("hprof: heap dump completed. objects (%lu)\n", total_objects_);
+        if (okay) {
+            LOGI("hprof: heap dump completed, scan objects (%lu).\n", total_objects_);
+            LOGI("hprof: saved [%s].\n", filename_);
+        }
     }
 
 private:
@@ -512,6 +514,7 @@ private:
 
     const char* filename_;
     bool visible_;
+    bool quick_;
     bool first_;
 
     EndianOutput* output_ = nullptr;
@@ -543,6 +546,9 @@ bool Hprof::DumpHeapObject(mirror::Object& object) {
     if (object.IsClass()) {
         mirror::Class thiz = object;
         if (thiz.IsRetired())
+            return false;
+    } else {
+        if (quick_ && first_)
             return false;
     }
 
@@ -934,8 +940,8 @@ void Hprof::DumpFakeObjectArray(mirror::Object& object) {
     __ AddClassId(0);
 }
 
-void DumpHeap(const char* output, bool visible) {
-    Hprof hprof(output, visible);
+void DumpHeap(const char* output, bool visible, bool quick) {
+    Hprof hprof(output, visible, quick);
     hprof.Dump();
 }
 

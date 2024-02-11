@@ -33,17 +33,22 @@ int HprofCommand::main(int argc, char* const argv[]) {
 
     int opt;
     bool visible = false;
+    bool quick = false;
     int option_index = 0;
     static struct option long_options[] = {
         {"visible",  no_argument,      0, 'v'},
-        {0,         0,                 0,  0 }
+        {"quick",    no_argument,      0, 'q'},
+        {0,          0,                0,  0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "v",
+    while ((opt = getopt_long(argc, argv, "vq",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'v':
                 visible = true;
+                break;
+            case 'q':
+                quick = true;
                 break;
         }
     }
@@ -51,7 +56,7 @@ int HprofCommand::main(int argc, char* const argv[]) {
     // reset
     optind = 0;
 
-    art::hprof::DumpHeap(argv[0], visible);
+    art::hprof::DumpHeap(argv[0], visible, quick);
     return 0;
 }
 
@@ -59,4 +64,5 @@ void HprofCommand::usage() {
     LOGI("Usage: hprof <FILE> [option]\n");
     LOGI("       option:\n");
     LOGI("              --visible|-v\n");
+    LOGI("              --quick|-q\n");
 }

@@ -22,7 +22,7 @@
 namespace art {
 namespace hprof {
 
-void DumpHeap(const char* output, bool visible);
+void DumpHeap(const char* output, bool visible, bool quick);
 
 } // namespace hprof
 } // namespace art
