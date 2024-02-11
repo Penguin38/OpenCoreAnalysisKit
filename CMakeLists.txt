@@ -60,6 +60,7 @@ target_link_libraries(llvm core)
 
 include_directories(android)
 include_directories(android/art)
+include_directories(android/jdk)
 add_library(android STATIC
             android/android.cpp
 
@@ -67,6 +68,7 @@ add_library(android STATIC
             android/properties/prop_area.cpp
             android/properties/property.cpp
 
+            # art
             android/art/runtime/runtime.cpp
             android/art/runtime/art_field.cpp
             android/art/runtime/image.cpp
@@ -94,7 +96,12 @@ add_library(android STATIC
             android/art/dex/dex_file.cpp
             android/art/dex/dex_file_structs.cpp
 
-            android/art/base/length_prefixed_array.cpp)
+            android/art/base/length_prefixed_array.cpp
+
+            # jdk
+            android/jdk/java/lang/Object.cpp
+            android/jdk/sun/misc/Cleaner.cpp
+            android/jdk/libcore/util/NativeAllocationRegistry.cpp)
 target_link_libraries(android core llvm)
 
 set(LINKER_PTHREAD "")
@@ -123,6 +130,7 @@ add_library(parser STATIC
             parser/command/cmd_hprof.cpp
             parser/command/cmd_search.cpp
             parser/command/cmd_class.cpp
+            parser/command/cmd_top.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp)
 target_link_libraries(parser android llvm core utils)

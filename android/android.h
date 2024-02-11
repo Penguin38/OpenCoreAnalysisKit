@@ -105,6 +105,16 @@ public:
     static void SysRoot(const char* path);
     inline static uint64_t SearchSymbol(const char* symbol) { return CoreApi::SearchSymbol(INSTANCE->realLibart.c_str(), symbol); }
     static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn);
+
+    static constexpr int EACH_APP_OBJECTS = 1 << 0;
+    static constexpr int EACH_ZYGOTE_OBJECTS = 1 << 1;
+    static constexpr int EACH_IMAGE_OBJECTS = 1 << 2;
+    /*
+     * app
+     * zygote
+     * image
+     */
+    static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag);
 private:
     void init();
     void onSdkChanged(int sdk);

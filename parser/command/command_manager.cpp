@@ -31,6 +31,7 @@
 #include "command/cmd_hprof.h"
 #include "command/cmd_search.h"
 #include "command/cmd_class.h"
+#include "command/cmd_top.h"
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
 #include "common/exception.h"
@@ -58,6 +59,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new HprofCommand());
     CommandManager::PushInlineCommand(new SearchCommand());
     CommandManager::PushInlineCommand(new ClassCommand());
+    CommandManager::PushInlineCommand(new TopCommand());
 
     // other
     CommandManager::PushInlineCommand(new EnvCommand());

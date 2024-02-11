@@ -244,6 +244,10 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
 }
 
 void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn) {
+    ForeachObjects(fn, EACH_IMAGE_OBJECTS | EACH_ZYGOTE_OBJECTS | EACH_APP_OBJECTS);
+}
+
+void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag) {
     art::Runtime& runtime = art::Runtime::Current();
     art::gc::Heap& heap = runtime.GetHeap();
 
@@ -257,11 +261,19 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
     };
 
     for (const auto& space : heap.GetContinuousSpaces()) {
-        walkfn(space.get());
+        if (space->IsImageSpace()) {
+            if (flag & EACH_IMAGE_OBJECTS) walkfn(space.get());
+        } else if (space->IsZygoteSpace()) {
+            if (flag & EACH_ZYGOTE_OBJECTS) walkfn(space.get());
+        } else if (space->IsRegionSpace()) {
+            if (flag & EACH_APP_OBJECTS) walkfn(space.get());
+        } else {
+            walkfn(space.get());
+        }
     }
 
     for (const auto& space : heap.GetDiscontinuousSpaces()) {
-        walkfn(space.get());
+        if (flag & EACH_APP_OBJECTS) walkfn(space.get());
     }
 }
 
