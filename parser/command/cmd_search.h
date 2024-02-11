@@ -36,6 +36,7 @@ private:
     uint64_t total_objects;
     int flag;
     bool regex;
+    bool instof;
     bool show;
 };
 

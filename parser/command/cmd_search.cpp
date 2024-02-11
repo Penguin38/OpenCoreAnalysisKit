@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "command/command_manager.h"
 #include "command/cmd_search.h"
+#include "java/lang/Object.h"
 #include "api/core.h"
 #include "android.h"
 #include <string.h>
@@ -38,12 +39,13 @@ int SearchCommand::main(int argc, char* const argv[]) {
         {"class",    no_argument,       0,  'c'},
         {"regex",    no_argument,       0,  'r'},
         {"show",     no_argument,       0,  's'},
+        {"instanceof",  no_argument,    0,  'i'},
     };
 
     flag = 0;
     regex = false;
     show = false;
-    while ((opt = getopt_long(argc, argv, "ocrs",
+    while ((opt = getopt_long(argc, argv, "ocrsi",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
@@ -54,9 +56,14 @@ int SearchCommand::main(int argc, char* const argv[]) {
                 break;
             case 'r':
                 regex = true;
+                instof = false;
                 break;
             case 's':
                 show = true;
+                break;
+            case 'i':
+                regex = false;
+                instof = true;
                 break;
         }
     }
@@ -87,7 +94,10 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
     }
     descriptor = thiz.PrettyDescriptor();
 
-    if (regex && std::regex_search(descriptor, std::regex(classsname)) || descriptor == classsname) {
+    java::lang::Object java = object;
+    if (regex && std::regex_search(descriptor, std::regex(classsname))
+            || descriptor == classsname
+            || (instof && java.instanceof(classsname))) {
         total_objects++;
         LOGI("[%ld] 0x%lx %s\n", total_objects, object.Ptr(), descriptor.c_str());
         if (show) {
@@ -104,6 +114,6 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
 }
 
 void SearchCommand::usage() {
-    LOGI("Usage: search [CLASSNAME] [-r|--regex] [-o|--object] [-c|--class] [-s|--show]\n");
+    LOGI("Usage: search [CLASSNAME] [-r|--regex] [-i|--instanceof] [-o|--object] [-c|--class] [-s|--show]\n");
 }
 
