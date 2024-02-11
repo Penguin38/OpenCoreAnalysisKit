@@ -31,6 +31,7 @@ public:
     inline std::string& shortcut() { return shortcut_cmd; }
     inline bool NeedChildMain() { return need_child; }
     virtual ~Command() {}
+    virtual void prepare() {}
     virtual int main(int argc, char* const argv[]) = 0;
     virtual void usage() = 0;
     static void Exit(int) { _exit(0); }

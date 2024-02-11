@@ -19,6 +19,7 @@
 
 #include "command/command.h"
 #include "runtime/mirror/object.h"
+#include "android.h"
 
 class SearchCommand : public Command {
 public:
@@ -28,6 +29,7 @@ public:
     SearchCommand() : Command("search", true) {}
     ~SearchCommand() {}
     int main(int argc, char* const argv[]);
+    void prepare() { Android::Prepare(); }
     void usage();
     bool SearchObjects(const char* classsname, art::mirror::Object& object);
 private:

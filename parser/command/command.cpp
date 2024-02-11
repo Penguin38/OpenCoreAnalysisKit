@@ -23,6 +23,7 @@
 
 int Command::execute(int argc, char* const argv[]) {
     if (NeedChildMain()) {
+        prepare();
         pid_t pid = fork();
         int status;
         if (pid == 0) {

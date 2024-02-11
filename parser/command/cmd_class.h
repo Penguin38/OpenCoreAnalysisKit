@@ -20,6 +20,7 @@
 #include "command/command.h"
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/class.h"
+#include "android.h"
 #include <string>
 
 class ClassCommand : public Command {
@@ -27,6 +28,7 @@ public:
     ClassCommand() : Command("class", true) {}
     ~ClassCommand() {}
     int main(int argc, char* const argv[]);
+    void prepare() { Android::Prepare(); }
     void usage();
     bool PrintClass(art::mirror::Object& object, const char* classname);
     void PrintPrettyClassContent(art::mirror::Class& clazz);

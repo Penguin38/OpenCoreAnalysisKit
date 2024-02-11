@@ -98,6 +98,7 @@ public:
     static void RegisterSdkListener(int minisdk, std::function<void ()> fn);
 
     // API
+    static void Prepare();
     static void ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     static void ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     inline static art::Runtime& GetRuntime() { return INSTANCE->current(); }

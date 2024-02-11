@@ -269,6 +269,20 @@ void Android::SysRoot(const char* path) {
 
 }
 
+void Android::Prepare() {
+    try {
+        if (!CoreApi::IsReady() || !IsSdkReady())
+            return;
+
+        if (!INSTANCE->instance_.Ptr()) {
+            art::Runtime& runtime = art::Runtime::Current();
+            art::gc::Heap& heap = runtime.GetHeap();
+            heap.GetContinuousSpaces();
+            heap.GetDiscontinuousSpaces();
+        }
+    } catch (InvalidAddressException e) {}
+}
+
 void Android::Dump() {
     LOGI("Android env:\n");
     LOGI("  * ID: %s\n", Id());
