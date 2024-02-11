@@ -22,6 +22,10 @@ struct LargeObjectSpace_OffsetTable __LargeObjectSpace_offset__;
 struct LargeObjectSpace_SizeTable __LargeObjectSpace_size__;
 struct LargeObjectMapSpace_OffsetTable __LargeObjectMapSpace_offset__;
 struct LargeObjectMapSpace_SizeTable __LargeObjectMapSpace_size__;
+struct LargeObject_OffsetTable __LargeObject_offset__;
+struct LargeObject_SizeTable __LargeObject_size__;
+struct LargeObjectsPair_OffsetTable __LargeObjectsPair_offset__;
+struct LargeObjectsPair_SizeTable __LargeObjectsPair_size__;
 struct AllocationInfo_OffsetTable __AllocationInfo_offset__;
 struct AllocationInfo_SizeTable __AllocationInfo_size__;
 struct FreeListSpace_OffsetTable __FreeListSpace_offset__;
@@ -83,6 +87,34 @@ void LargeObjectMapSpace::Init() {
     }
 }
 
+void LargeObjectMapSpace::LargeObject::Init() {
+    if (CoreApi::GetPointSize() == 64) {
+        __LargeObject_offset__ = {
+            .mem_map = 0,
+            .is_zygote = 72,
+        };
+    } else {
+        __LargeObject_offset__ = {
+            .mem_map = 0,
+            .is_zygote = 40,
+        };
+    }
+}
+
+void LargeObjectMapSpace::LargeObjectsPair::Init() {
+    if (CoreApi::GetPointSize() == 64) {
+        __LargeObjectsPair_offset__ = {
+            .first = 0,
+            .second = 8,
+        };
+    } else {
+        __LargeObjectsPair_offset__ = {
+            .first = 0,
+            .second = 4,
+        };
+    }
+}
+
 void AllocationInfo::Init() {
     __AllocationInfo_offset__ = {
         .prev_free_ = 0,
@@ -135,6 +167,21 @@ bool LargeObjectSpace::IsVaildSpace() {
 }
 
 void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+    cxx::map& large_objects_ = GetLargeObjectsCache();
+    for (const auto& value : large_objects_) {
+        LargeObjectMapSpace::LargeObjectsPair pair = value;
+        mirror::Object object = pair.first();
+        if (object.IsValid()) visitor(object);
+    }
+}
+
+cxx::map& LargeObjectMapSpace::GetLargeObjectsCache() {
+    if (!large_objects_cache.Ptr()) {
+        large_objects_cache = large_objects();
+        large_objects_cache.copyRef(this);
+        large_objects_cache.Prepare(false);
+    }
+    return large_objects_cache;
 }
 
 uint64_t FreeListSpace::GetSlotIndexForAddress(uint64_t address) {

@@ -54,7 +54,8 @@ include_directories(llvm)
 add_library(llvm STATIC
             llvm/llvm.cpp
             llvm/cxx/string.cpp
-            llvm/cxx/vector.cpp)
+            llvm/cxx/vector.cpp
+            llvm/cxx/map.cpp)
 target_link_libraries(llvm core)
 
 include_directories(android)

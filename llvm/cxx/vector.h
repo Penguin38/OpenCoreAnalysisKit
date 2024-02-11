@@ -55,8 +55,6 @@ public:
     inline void SetEntrySize(uint64_t s) { entry_size = s; }
 
     class iterator {
-        uint64_t current;
-        uint64_t entry_size;
     public:
         iterator(uint64_t index, uint64_t size)
             : current(index), entry_size(size) {}
@@ -64,6 +62,9 @@ public:
         bool operator==(iterator other) const;
         bool operator!=(iterator other) const;
         uint64_t operator*();
+    private:
+        uint64_t current;
+        uint64_t entry_size;
     };
 
     iterator begin();

@@ -18,6 +18,7 @@
 #define ANDROID_ART_RUNTIME_GC_SPACE_LARGE_OBJECT_SPACE_H_
 
 #include "runtime/gc/space/space.h"
+#include "cxx/map.h"
 
 struct LargeObjectSpace_OffsetTable {
     uint32_t lock_;
@@ -46,6 +47,30 @@ struct LargeObjectMapSpace_SizeTable {
 
 extern struct LargeObjectMapSpace_OffsetTable __LargeObjectMapSpace_offset__;
 extern struct LargeObjectMapSpace_SizeTable __LargeObjectMapSpace_size__;
+
+struct LargeObject_OffsetTable {
+    uint32_t mem_map;
+    uint32_t is_zygote;
+};
+
+struct LargeObject_SizeTable {
+    uint32_t THIS;
+};
+
+extern struct LargeObject_OffsetTable __LargeObject_offset__;
+extern struct LargeObject_SizeTable __LargeObject_size__;
+
+struct LargeObjectsPair_OffsetTable {
+    uint32_t first;
+    uint32_t second;
+};
+
+struct LargeObjectsPair_SizeTable {
+    uint32_t THIS;
+};
+
+extern struct LargeObjectsPair_OffsetTable __LargeObjectsPair_offset__;
+extern struct LargeObjectsPair_SizeTable __LargeObjectsPair_size__;
 
 struct AllocationInfo_OffsetTable {
     uint32_t prev_free_;
@@ -115,7 +140,40 @@ public:
     template<typename U> LargeObjectMapSpace(U *v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
     static void Init();
+    inline uint64_t large_objects() { return Ptr() + OFFSET(LargeObjectMapSpace, large_objects_); }
+
+    cxx::map& GetLargeObjectsCache();
     void Walk(std::function<bool (mirror::Object& object)> fn);
+
+    class LargeObject : public api::MemoryRef {
+    public:
+        LargeObject(uint64_t v) : api::MemoryRef(v) {}
+        LargeObject(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+        LargeObject(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+        LargeObject(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
+        template<typename U> LargeObject(U *v) : api::MemoryRef(v) {}
+        template<typename U> LargeObject(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+
+        static void Init();
+    };
+
+    class LargeObjectsPair : public api::MemoryRef {
+    public:
+        LargeObjectsPair(uint64_t v) : api::MemoryRef(v) {}
+        LargeObjectsPair(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+        LargeObjectsPair(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+        LargeObjectsPair(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
+        template<typename U> LargeObjectsPair(U *v) : api::MemoryRef(v) {}
+        template<typename U> LargeObjectsPair(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+
+        static void Init();
+        inline uint64_t first() { return VALUEOF(LargeObjectsPair, first); }
+        inline uint64_t second() { return Ptr() + OFFSET(LargeObjectsPair, second); }
+    };
+
+private:
+    // quick memoryref cache
+    cxx::map large_objects_cache;
 };
 
 class AllocationInfo : public api::MemoryRef {
