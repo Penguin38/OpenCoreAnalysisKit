@@ -152,6 +152,23 @@ int TopCommand::main(int argc, char* const argv[]) {
         pair.native_size += registry.getSize();
     }
 
+    uint64_t total_count = 0;
+    uint64_t total_shallow = 0;
+    uint64_t total_native = 0;
+
+    for (const auto& value : classes) {
+        const art::mirror::Class& thiz = value.first;
+        const TopCommand::Pair& pair = value.second;
+
+        total_count += pair.alloc_count;
+        total_shallow += pair.shallow_size;
+        total_native += pair.native_size;
+    }
+
+    LOGI("TOTAL            %8ld      %11ld       %11ld\n",
+         total_count, total_shallow, total_native);
+    LOGI("------------------------------------------------------------\n");
+
     for (int i = 0; i < num; ++i) {
         for (const auto& value : classes) {
             const art::mirror::Class& thiz = value.first;
