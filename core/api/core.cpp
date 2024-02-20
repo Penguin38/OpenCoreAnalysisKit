@@ -375,6 +375,10 @@ uint64_t CoreApi::SearchSymbol(const char* path, const char* symbol) {
     return 0x0;
 }
 
+void CoreApi::ForeachThread(std::function<bool (ThreadApi *)> callback) {
+    INSTANCE->foreachThread(callback);
+}
+
 uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {
     for (const auto& block : mLoad) {
         if (block->virtualContains(vaddr) && block->isValid()) {
@@ -432,6 +436,15 @@ ThreadApi* CoreApi::findThread(int tid) {
         }
     }
     return nullptr;
+}
+
+void CoreApi::foreachThread(std::function<bool (ThreadApi *)> callback) {
+    for (const auto& block : mNote) {
+        for (const auto& thread : block->getThread()) {
+            if (callback(thread.get()))
+                return;
+        }
+    }
 }
 
 void CoreApi::foreachFile(std::function<bool (File *)> callback) {

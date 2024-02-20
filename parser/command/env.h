@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_ENV_H_
-#define PARSER_ENV_H_
+#ifndef PARSER_COMMAND_ENV_H_
+#define PARSER_COMMAND_ENV_H_
 
 class Env {
 public:
+    void init();
     void reset();
+    bool setCurrentPid(int p);
+    inline int current() { return pid; }
+
+    static void Init();
+    static void Dump();
+    static void Clean();
+    static bool SetCurrentPid(int p) { return INSTANCE->setCurrentPid(p); }
+    static int CurrentPid() { return INSTANCE->current(); }
 private:
+    static Env* INSTANCE;
+    int pid;
 };
 
-#endif  // PARSER_ENV_H_
+#endif  // PARSER_COMMAND_ENV_H_

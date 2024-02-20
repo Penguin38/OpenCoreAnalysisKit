@@ -124,6 +124,7 @@ public:
     }
     static LoadBlock* FindLoadBlock(uint64_t vaddr, bool check);
     static uint64_t SearchSymbol(const char* path, const char* symbol);
+    static void ForeachThread(std::function<bool (ThreadApi *)> callback);
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
@@ -145,6 +146,7 @@ public:
     ThreadApi* findThread(int tid);
     void addLinkMap(uint64_t begin, uint64_t name);
     void removeAllLinkMap();
+    void foreachThread(std::function<bool (ThreadApi *)> callback);
     void foreachFile(std::function<bool (File *)> callback);
     void foreachAuxv(std::function<bool (Auxv *)> callback);
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
