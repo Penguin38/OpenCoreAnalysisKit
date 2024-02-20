@@ -26,6 +26,8 @@
 #include "command/cmd_linkmap.h"
 #include "command/cmd_read.h"
 #include "command/cmd_write.h"
+#include "command/cmd_register.h"
+#include "command/cmd_thread.h"
 #include "command/cmd_getprop.h"
 #include "command/cmd_print.h"
 #include "command/cmd_hprof.h"
@@ -52,6 +54,8 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new LinkMapCommand());
     CommandManager::PushInlineCommand(new ReadCommand());
     CommandManager::PushInlineCommand(new WriteCommand());
+    CommandManager::PushInlineCommand(new RegisterCommand());
+    CommandManager::PushInlineCommand(new ThreadCommand());
 
     // android
     CommandManager::PushInlineCommand(new GetPropCommand());

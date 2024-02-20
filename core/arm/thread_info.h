@@ -17,6 +17,7 @@
 #ifndef CORE_ARM_THREAD_INFO_H_
 #define CORE_ARM_THREAD_INFO_H_
 
+#include "logger/log.h"
 #include "api/thread.h"
 
 namespace arm {
@@ -40,12 +41,20 @@ public:
     uint32_t  lr;
     uint32_t  pc;
     uint32_t  cpsr;
+
+    void Dump(const char* prefix) {
+        LOGI("%sr0  0x%08x  r1  0x%08x  r2  0x%08x  r3  0x%08x  \n", prefix, r0, r1, r2, r3);
+        LOGI("%sr4  0x%08x  r5  0x%08x  r6  0x%08x  r7  0x%08x  \n", prefix, r4, r5, r6, r7);
+        LOGI("%sr8  0x%08x  r9  0x%08x  r10 0x%08x  r11 0x%08x  \n", prefix, r8, r9, r10, r11);
+        LOGI("%sr12 0x%08x  sp  0x%08x  lr  0x%08x  pc  0x%08x  cpsr 0x%08x  \n", prefix, r12, sp, lr, pc, cpsr);
+    }
 };
 
 class ThreadInfo : public ThreadApi {
 public:
     ThreadInfo(int tid) : ThreadApi(tid) {}
     ~ThreadInfo() {}
+    void RegisterDump(const char* prefix) { return reg.Dump(prefix); }
 
     Register  reg;
 };

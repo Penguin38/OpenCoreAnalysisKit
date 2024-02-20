@@ -17,6 +17,7 @@
 #ifndef CORE_ARM64_THREAD_INFO_H_
 #define CORE_ARM64_THREAD_INFO_H_
 
+#include "logger/log.h"
 #include "api/thread.h"
 
 namespace arm64 {
@@ -57,12 +58,25 @@ public:
     uint64_t  sp;
     uint64_t  pc;
     uint64_t  pstate;
+
+    void Dump(const char* prefix) {
+        LOGI("%sx0  0x%016lx  x1  0x%016lx  x2  0x%016lx  x3  0x%016lx  \n", prefix, x0, x1, x2, x3);
+        LOGI("%sx4  0x%016lx  x5  0x%016lx  x6  0x%016lx  x7  0x%016lx  \n", prefix, x4, x5, x6, x7);
+        LOGI("%sx8  0x%016lx  x9  0x%016lx  x10 0x%016lx  x11 0x%016lx  \n", prefix, x8, x9, x10, x11);
+        LOGI("%sx12 0x%016lx  x13 0x%016lx  x14 0x%016lx  x15 0x%016lx  \n", prefix, x12, x13, x14, x15);
+        LOGI("%sx16 0x%016lx  x17 0x%016lx  x18 0x%016lx  x19 0x%016lx  \n", prefix, x16, x17, x18, x19);
+        LOGI("%sx20 0x%016lx  x21 0x%016lx  x22 0x%016lx  x23 0x%016lx  \n", prefix, x20, x21, x22, x23);
+        LOGI("%sx24 0x%016lx  x25 0x%016lx  x26 0x%016lx  x27 0x%016lx  \n", prefix, x24, x25, x26, x27);
+        LOGI("%sx28 0x%016lx  fp  0x%016lx  \n", prefix, x28, fp);
+        LOGI("%slr  0x%016lx  sp  0x%016lx  pc  0x%016lx  pst 0x%016lx  \n", prefix, lr, sp, pc, pstate);
+    }
 };
 
 class ThreadInfo : public ThreadApi {
 public:
     ThreadInfo(int tid) : ThreadApi(tid) {}
     ~ThreadInfo() {}
+    void RegisterDump(const char* prefix) { return reg.Dump(prefix); }
 
     Register  reg;
 };
