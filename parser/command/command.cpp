@@ -22,8 +22,7 @@
 #include <string.h>
 
 int Command::execute(int argc, char* const argv[]) {
-    if (NeedChildMain()) {
-        prepare();
+    if (prepare(argc, argv)) {
         pid_t pid = fork();
         int status;
         if (pid == 0) {
@@ -36,6 +35,9 @@ int Command::execute(int argc, char* const argv[]) {
             exit(0);
         } else if (pid > 0) {
             waitpid(pid, &status, WUNTRACED);
+            if (WIFEXITED(status) && WEXITSTATUS(status) != ERREXIT) {
+                exitMain(argc, argv);
+            }
         }
         return 0;
     }

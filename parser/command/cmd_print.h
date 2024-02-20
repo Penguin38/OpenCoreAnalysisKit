@@ -27,9 +27,10 @@
 
 class PrintCommand : public Command {
 public:
-    PrintCommand() : Command("print", "p", true) {}
+    PrintCommand() : Command("print", "p") {}
     ~PrintCommand() {}
     int main(int argc, char* const argv[]);
+    bool prepare(int argc, char* const argv[]);
     void usage();
     void DumpObject(art::mirror::Object& object);
     void DumpClass(art::mirror::Class& clazz);

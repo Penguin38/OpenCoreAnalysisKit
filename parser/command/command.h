@@ -23,23 +23,22 @@
 
 class Command {
 public:
+    static constexpr int ERREXIT = 10;
+
     Command(const char* c) { command = c; }
     Command(const char* c, const char* s) { command = c; shortcut_cmd = s; }
-    Command(const char* c, bool child) { command = c; need_child = child; }
-    Command(const char* c, const char* s, bool child) { command = c; shortcut_cmd = s; need_child = child; }
     inline std::string& get() { return command; }
     inline std::string& shortcut() { return shortcut_cmd; }
-    inline bool NeedChildMain() { return need_child; }
     virtual ~Command() {}
-    virtual void prepare() {}
+    virtual bool prepare(int argc, char* const argv[]) { return false; }
     virtual int main(int argc, char* const argv[]) = 0;
+    virtual int exitMain(int argc, char* const argv[]) { return 0; }
     virtual void usage() = 0;
-    static void Exit(int) { _exit(0); }
+    static void Exit(int) { _exit(ERREXIT); }
     int execute(int argc, char* const argv[]);
 private:
     std::string command;
     std::string shortcut_cmd;
-    bool need_child;
 };
 
 #endif // PARSER_COMMAND_COMMAND_H_

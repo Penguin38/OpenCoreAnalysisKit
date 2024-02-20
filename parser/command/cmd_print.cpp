@@ -29,6 +29,36 @@
 #include <getopt.h>
 #include <iomanip>
 
+bool PrintCommand::prepare(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady()
+            || !Android::IsSdkReady()
+            || !argc)
+        return false;
+
+    reference = false;
+
+    int opt;
+    int option_index = 0;
+    static struct option long_options[] = {
+        {"--ref",     required_argument, 0,  'r'},
+    };
+
+    while ((opt = getopt_long(argc, argv, "r:",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'r':
+                reference = true;
+                break;
+        }
+    }
+
+    // reset
+    optind = 0;
+
+    if (reference) Android::Prepare();
+    return reference;
+}
+
 int PrintCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()

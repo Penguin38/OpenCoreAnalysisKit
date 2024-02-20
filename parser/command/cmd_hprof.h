@@ -22,10 +22,13 @@
 
 class HprofCommand : public Command {
 public:
-    HprofCommand() : Command("hprof", true) {}
+    HprofCommand() : Command("hprof") {}
     ~HprofCommand() {}
     int main(int argc, char* const argv[]);
-    void prepare() { Android::Prepare(); }
+    bool prepare(int argc, char* const argv[]) {
+        Android::Prepare();
+        return true;
+    }
     void usage();
 };
 

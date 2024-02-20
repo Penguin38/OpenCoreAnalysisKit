@@ -25,15 +25,17 @@
 
 class ClassCommand : public Command {
 public:
-    ClassCommand() : Command("class", true) {}
+    ClassCommand() : Command("class") {}
     ~ClassCommand() {}
     int main(int argc, char* const argv[]);
-    void prepare() { Android::Prepare(); }
+    bool prepare(int argc, char* const argv[]) {
+        Android::Prepare();
+        return true;
+    }
     void usage();
     bool PrintClass(art::mirror::Object& object, const char* classname);
     void PrintPrettyClassContent(art::mirror::Class& clazz);
     void PrintField(const char* format, art::mirror::Class& clazz, art::ArtField& field);
-    std::string FormatSize(uint64_t size);
 private:
     uint64_t total_classes;
     bool dump_all;

@@ -27,10 +27,13 @@ public:
     static constexpr int ORDERBY_SHALLOW = 1 << 1;
     static constexpr int ORDERBY_NATIVE = 1 << 2;
 
-    TopCommand() : Command("top", true) {}
+    TopCommand() : Command("top") {}
     ~TopCommand() {}
     int main(int argc, char* const argv[]);
-    void prepare() { Android::Prepare(); }
+    bool prepare(int argc, char* const argv[]) {
+        Android::Prepare();
+        return true;
+    }
     void usage();
 
     class Pair {

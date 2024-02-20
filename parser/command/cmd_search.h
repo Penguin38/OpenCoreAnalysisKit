@@ -26,10 +26,13 @@ public:
     static constexpr int SEARCH_OBJECT = 1 << 0;
     static constexpr int SEARCH_CLASS = 1 << 1;
 
-    SearchCommand() : Command("search", true) {}
+    SearchCommand() : Command("search") {}
     ~SearchCommand() {}
     int main(int argc, char* const argv[]);
-    void prepare() { Android::Prepare(); }
+    bool prepare(int argc, char* const argv[]) {
+        Android::Prepare();
+        return true;
+    }
     void usage();
     bool SearchObjects(const char* classsname, art::mirror::Object& object);
 private:
