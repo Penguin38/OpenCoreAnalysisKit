@@ -55,6 +55,7 @@ public:
     ThreadInfo(int tid) : ThreadApi(tid) {}
     ~ThreadInfo() {}
     void RegisterDump(const char* prefix) { return reg.Dump(prefix); }
+    Register& GetRegs() { return reg; }
 
     Register  reg;
 };
