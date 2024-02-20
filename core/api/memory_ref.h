@@ -100,6 +100,22 @@ public:
     inline uint64_t valueOf(uint64_t offset) {
         return *reinterpret_cast<uint64_t *>(Real() + offset) & PointMask();
     }
+    inline uint64_t value64Of() { return value64Of(0); }
+    inline uint64_t value64Of(uint64_t offset) {
+        return *reinterpret_cast<uint64_t *>(Real() + offset);
+    }
+    inline uint32_t value32Of() { return value32Of(0); }
+    inline uint32_t value32Of(uint64_t offset) {
+        return *reinterpret_cast<uint32_t *>(Real() + offset);
+    }
+    inline uint32_t value16Of() { return value16Of(0); }
+    inline uint32_t value16Of(uint64_t offset) {
+        return *reinterpret_cast<uint16_t *>(Real() + offset);
+    }
+    inline uint32_t value8Of() { return value8Of(0); }
+    inline uint32_t value8Of(uint64_t offset) {
+        return *reinterpret_cast<uint8_t *>(Real() + offset);
+    }
 private:
     uint64_t vaddr;
     LoadBlock* block;

@@ -127,7 +127,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
     }
 
     for (int pos = 0; pos < count; ++pos) {
-        if (object.Ptr() == reference.valueOf(pos * sizeof(uint32_t))) {
+        if (object.Ptr() == reference.value32Of(pos * sizeof(uint32_t))) {
             art::mirror::Class ref_thiz = 0x0;
             if (reference.IsClass()) {
                 ref_thiz = reference;
