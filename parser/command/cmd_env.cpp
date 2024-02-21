@@ -22,18 +22,29 @@
 #include <unistd.h>
 #include <getopt.h>
 
+typedef int (*EnvCall)(int argc, char* const argv[]);
+struct EnvOption {
+    const char* cmd;
+    EnvCall call;
+};
+
+EnvOption env_option[] = {
+    { "config", EnvCommand::onConfigChanged },
+    { "logger", EnvCommand::onLoggerChanged },
+};
+
 int EnvCommand::main(int argc, char* const argv[]) {
     if (!argc)
         return dumpEnv();
 
-    if (!strcmp(argv[0], "config")) {
-        return onConfigChanged(argc, argv);
-    } else if (!strcmp(argv[0], "logger")) {
-        return onLoggerChanged(argc, argv);
-    } else {
-        LOGI("unknown command (%s)\n", argv[0]);
+    int count = sizeof(env_option)/sizeof(env_option[0]);
+    for (int index = 0; index < count; ++index) {
+        if (!strcmp(argv[0], env_option[index].cmd)) {
+            return env_option[index].call(argc, argv);
+        }
     }
 
+    LOGI("unknown command (%s)\n", argv[0]);
     return 0;
 }
 

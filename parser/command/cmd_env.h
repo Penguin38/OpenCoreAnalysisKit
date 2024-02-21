@@ -25,9 +25,9 @@ public:
     ~EnvCommand() {}
     int main(int argc, char* const argv[]);
     int dumpEnv();
-    int onConfigChanged(int argc, char* const argv[]);
-    int onLoggerChanged(int argc, char* const argv[]);
     void usage();
+    static int onConfigChanged(int argc, char* const argv[]);
+    static int onLoggerChanged(int argc, char* const argv[]);
 };
 
 #endif // PARSER_COMMAND_CMD_ENV_H_
