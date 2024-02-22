@@ -22,9 +22,12 @@
 #include "arm64/thread_info.h"
 #include "arm/thread_info.h"
 #include "api/core.h"
+#include "android.h"
+#include "runtime/thread_list.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <string>
+#include <vector>
 
 int ThreadCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
@@ -48,12 +51,14 @@ int ThreadCommand::main(int argc, char* const argv[]) {
     int option_index = 0;
     bool native = false;
     bool java = false;
+    bool dump_all = false;
     static struct option long_options[] = {
         {"native",    no_argument,       0,  'n'},
         {"java",      no_argument,       0,  'j'},
+        {"all",       no_argument,       0,  'a'},
     };
 
-    while ((opt = getopt_long(nargc, (char* const*)nargv, "nj",
+    while ((opt = getopt_long(nargc, (char* const*)nargv, "nja",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'n':
@@ -63,6 +68,11 @@ int ThreadCommand::main(int argc, char* const argv[]) {
             case 'j':
                 native = false;
                 java = true;
+                break;
+            case 'a':
+                native = false;
+                java = true;
+                dump_all = true;
                 break;
         }
     }
@@ -79,7 +89,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
             int index = 1;
             int machine = CoreApi::GetMachine();
             uint64_t frame_pc = 0x0;
-            LOGI(" Id   Target Id         Frame\n");
+            LOGI(" Id     Target Id         Frame\n");
             auto callback = [&](ThreadApi *api) -> bool {
                 switch(machine) {
                     case EM_AARCH64: {
@@ -98,20 +108,46 @@ int ThreadCommand::main(int argc, char* const argv[]) {
                         break;
                 }
 
-                LOGI("%s%-3d  Thread %-10d 0x%lx\n",
+                File* file = CoreApi::FindFile(frame_pc);
+                LOGI("%s%-4d   Thread %-10d 0x%lx  %s\n",
                         api->pid() == Env::CurrentPid() ? "*" : " ",
-                        index, api->pid(), frame_pc);
+                        index, api->pid(), frame_pc, file? file->name().c_str() : "");
                 ++index;
                 return false;
             };
             CoreApi::ForeachThread(callback);
         } else {
+            if (!Android::IsSdkReady())
+                return 0;
 
+            std::vector<int> threads;
+            auto callback = [&](ThreadApi *api) -> bool {
+                threads.push_back(api->pid());
+                return false;
+            };
+            CoreApi::ForeachThread(callback);
+
+            LOGI(" Id   Tid    Status                          Name\n");
+            art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
+            for (const auto& thread : thread_list.GetList()) {
+                int tid = thread->GetTid();
+                auto it = std::find(threads.begin(), threads.end(), tid);
+                LOGI("%s%-4d %-6d %-31s \"%s\" %s\n", tid == Env::CurrentPid() ? "*" : " ",
+                        thread->GetThreadId(), tid, thread->GetStateDescriptor(), thread->GetName(),
+                        it != threads.end() ? "" : "(NOT EXIST THREAD)");
+                if (it != threads.end()) threads.erase(it);
+            }
+
+            if (dump_all) {
+                for (int pid : threads) {
+                    LOGI("%s---  %-6d NotAttachJVM\n", pid == Env::CurrentPid() ? "*" : " ", pid);
+                }
+            }
         }
     }
     return 0;
 }
 
 void ThreadCommand::usage() {
-    LOGI("Usage: thread [tid] [--native|-n] [--java|-j]");
+    LOGI("Usage: thread [tid] [--native|-n] [--java|-j] [--all|-a]");
 }

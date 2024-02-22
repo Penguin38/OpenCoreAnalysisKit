@@ -18,10 +18,12 @@
 #include "cxx/string.h"
 #include "cxx/vector.h"
 #include "cxx/map.h"
+#include "cxx/list.h"
 
 void LLVM::Init() {
     cxx::string::Init();
     cxx::vector::Init();
     cxx::map::Init();
     cxx::map::pair::Init();
+    cxx::list::Init();
 }

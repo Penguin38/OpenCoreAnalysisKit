@@ -58,6 +58,8 @@ public:
 
     bool operator==(uint64_t v) { return vaddr == v; }
     bool operator!=(uint64_t v) { return vaddr != v; }
+    bool operator==(MemoryRef& ref) const { return Ptr() == ref.Ptr(); }
+    bool operator!=(MemoryRef& ref) const { return Ptr() != ref.Ptr(); }
 
     inline uint64_t Ptr() { return vaddr; }
     inline uint64_t Ptr() const { return vaddr; }

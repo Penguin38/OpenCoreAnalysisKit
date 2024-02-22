@@ -55,7 +55,8 @@ add_library(llvm STATIC
             llvm/llvm.cpp
             llvm/cxx/string.cpp
             llvm/cxx/vector.cpp
-            llvm/cxx/map.cpp)
+            llvm/cxx/map.cpp
+            llvm/cxx/list.cpp)
 target_link_libraries(llvm core)
 
 include_directories(android)
@@ -72,6 +73,8 @@ add_library(android STATIC
             android/art/runtime/runtime.cpp
             android/art/runtime/art_field.cpp
             android/art/runtime/image.cpp
+            android/art/runtime/thread_list.cpp
+            android/art/runtime/thread.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp

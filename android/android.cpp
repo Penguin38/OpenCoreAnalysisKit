@@ -141,6 +141,7 @@ void Android::preLoad() {
 
     art::ArtField::Init();
     art::LengthPrefixedArray::Init();
+    art::ThreadList::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -169,20 +170,32 @@ void Android::preLoad() {
     art::gc::accounting::ContinuousSpaceBitmap::Init();
 
     // preLoadLater listener
+    // 31
     RegisterSdkListener(S, art::Runtime::Init31);
     RegisterSdkListener(S, art::ImageHeader::Init31);
+    RegisterSdkListener(S, art::Thread::Init31);
+    RegisterSdkListener(S, art::Thread::tls_32bit_sized_values::Init31);
     RegisterSdkListener(S, art::gc::space::RegionSpace::Init31);
 
+    // 33
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
+    RegisterSdkListener(TIRAMISU, art::Thread::Init33);
 
+    // 34
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Runtime::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::DexFile::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::ImageHeader::Init34);
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::Init34);
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::tls_ptr_sized_values::Init34);
 }
 
 void Android::preLoadLater() {
     art::DexFile::Init();
     art::Runtime::Init();
     art::ImageHeader::Init();
+    art::Thread::Init();
+    art::Thread::tls_32bit_sized_values::Init();
+    art::Thread::tls_ptr_sized_values::Init();
     art::gc::space::RegionSpace::Init();
 
     LOGI("Switch android(%d) env.\n", sdk);

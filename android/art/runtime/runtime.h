@@ -20,10 +20,12 @@
 #include "logger/log.h"
 #include "api/memory_ref.h"
 #include "runtime/gc/heap.h"
+#include "runtime/thread_list.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
     uint32_t heap_;
+    uint32_t thread_list_;
 };
 
 struct Runtime_SizeTable {
@@ -52,17 +54,23 @@ public:
     static void Init();
     static void Init31();
     static void Init33();
+    static void Init34();
     inline uint64_t heap() { return VALUEOF(Runtime, heap_); }
+    inline uint64_t thread_list() { return VALUEOF(Runtime, thread_list_); }
 
     static Runtime& Current();
     gc::Heap& GetHeap();
+    ThreadList& GetThreadList();
+
     void CleanCache() {
         if (heap_cache.Ptr()) heap_cache.CleanCache();
+        if (thread_list_cache.Ptr()) thread_list_cache.CleanCache();
     }
 private:
     static Runtime AnalysisInstance();
     // quick memoryref cache
     gc::Heap heap_cache = 0x0;
+    ThreadList thread_list_cache = 0x0;
 };
 
 } // namespace art

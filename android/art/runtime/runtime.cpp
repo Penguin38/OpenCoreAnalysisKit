@@ -30,11 +30,13 @@ void Runtime::Init() {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 392,
+            .thread_list_ = 456,
         };
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 236,
+            .thread_list_ = 268,
         };
     }
 }
@@ -44,11 +46,13 @@ void Runtime::Init31() {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 416,
+            .thread_list_ = 480,
         };
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 248,
+            .thread_list_ = 280,
         };
     }
 }
@@ -58,11 +62,29 @@ void Runtime::Init33() {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 512,
+            .thread_list_ = 576,
         };
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 296,
+            .thread_list_ = 328,
+        };
+    }
+}
+
+void Runtime::Init34() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 512,
+            .thread_list_ = 584,
+        };
+    } else {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .heap_ = 296,
+            .thread_list_ = 332,
         };
     }
 }
@@ -145,6 +167,15 @@ gc::Heap& Runtime::GetHeap() {
         heap_cache.Prepare(false);
     }
     return heap_cache;
+}
+
+ThreadList& Runtime::GetThreadList() {
+    if (!thread_list_cache.Ptr()) {
+        thread_list_cache = thread_list();
+        thread_list_cache.copyRef(this);
+        thread_list_cache.Prepare(false);
+    }
+    return thread_list_cache;
 }
 
 } // namespace art
