@@ -57,6 +57,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new RegisterCommand());
     CommandManager::PushInlineCommand(new ThreadCommand());
 
+#if defined(__AOSP_PARSER__)
     // android
     CommandManager::PushInlineCommand(new GetPropCommand());
     CommandManager::PushInlineCommand(new PrintCommand());
@@ -64,6 +65,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new SearchCommand());
     CommandManager::PushInlineCommand(new ClassCommand());
     CommandManager::PushInlineCommand(new TopCommand());
+#endif
 
     // other
     CommandManager::PushInlineCommand(new EnvCommand());

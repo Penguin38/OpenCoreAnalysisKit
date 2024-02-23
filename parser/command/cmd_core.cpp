@@ -32,9 +32,12 @@ int CoreCommand::main(int argc, char* const argv[]) {
 
         // symbols init for later
         LLVM::Init();
+
+#if defined(__AOSP_PARSER__)
         Android::Clean(); // clean prev core env
         Android::Init();
         Android::Dump();
+#endif
     }
     return ret;
 }

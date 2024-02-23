@@ -56,8 +56,10 @@ int ThreadCommand::main(int argc, char* const argv[]) {
     bool dump_all = false;
     static struct option long_options[] = {
         {"native",    no_argument,       0,  'n'},
+#if defined(__AOSP_PARSER__)
         {"java",      no_argument,       0,  'j'},
         {"all",       no_argument,       0,  'a'},
+#endif
     };
 
     while ((opt = getopt_long(nargc, (char* const*)nargv, "nja",
@@ -123,6 +125,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
             };
             CoreApi::ForeachThread(callback);
         } else {
+#if defined(__AOSP_PARSER__)
             if (!Android::IsSdkReady())
                 return 0;
 
@@ -149,11 +152,18 @@ int ThreadCommand::main(int argc, char* const argv[]) {
                     LOGI("%s---  %-6d NotAttachJVM\n", pid == Env::CurrentPid() ? "*" : " ", pid);
                 }
             }
+#endif
         }
     }
     return 0;
 }
 
 void ThreadCommand::usage() {
-    LOGI("Usage: thread [tid] [--native|-n] [--java|-j] [--all|-a]");
+    LOGI("Usage: thread [tid] [options]\n");
+    LOGI("Options:\n");
+    LOGI("  --native|-n: show local threads.\n");
+#if defined(__AOSP_PARSER__)
+    LOGI("  --java|-j: show java threads.\n");
+    LOGI("  --all|-a: show all thread.\n");
+#endif
 }

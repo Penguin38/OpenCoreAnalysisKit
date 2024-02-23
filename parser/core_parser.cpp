@@ -64,7 +64,7 @@ public:
     ~VersionCommand() {}
     void usage() {}
     int main(int /*argc*/, char* const * /*argv[]*/) {
-        LOGI("1,0\n");
+        LOGI("(%s) core-parser 1.0\n", __TARGET_PARSER__);
         return 0;
     }
 };

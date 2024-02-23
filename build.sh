@@ -13,18 +13,10 @@
 # limitations under the License.
 
 export ANDROID_NDK=$1
-export BUILD_TYPE="Release"
-#export BUILD_TYPE="Debug"
+#export BUILD_TYPE="Release"
+export BUILD_TYPE="Debug"
 export BUILD_PRODUCT="aosp"
 export INSTALL_OUTPUT=$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
-
-if [ -z $ANDROID_NDK ];then
-    echo "ANDROID_NDK is not set"
-    echo "Example:"
-    echo "    export ANDROID_NDK=NDK_DIR"
-    echo "    ./build.sh \$ANDROID_NDK"
-    exit
-fi
 
 cmake -DCMAKE_C_COMPILER="/usr/bin/clang-12" \
       -DCMAKE_CXX_COMPILER="/usr/bin/clang++-12" \
@@ -36,6 +28,14 @@ cmake -DCMAKE_C_COMPILER="/usr/bin/clang-12" \
 
 make -C $INSTALL_OUTPUT/linux/bin -j8
 
+if [ $BUILD_PRODUCT == "aosp" ];then
+if [ -z $ANDROID_NDK ];then
+    echo "ANDROID_NDK is not set"
+    echo "Example:"
+    echo "    export ANDROID_NDK=NDK_DIR"
+    echo "    ./build.sh \$ANDROID_NDK"
+    exit
+fi
 cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -DANDROID_ABI="arm64-v8a" \
       -DANDROID_NDK=$ANDROID_NDK \
@@ -47,3 +47,4 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -B $INSTALL_OUTPUT/android/bin
 
 make -C $INSTALL_OUTPUT/android/bin -j8
+fi

@@ -16,7 +16,8 @@ cmake_minimum_required(VERSION 3.21.1)
 project(OpenCoreAnalysisKit)
 
 string(TOUPPER "${CMAKE_BUILD_PRODUCT}" TARGET_BUILD_PRODUCT)
-add_definitions(-D__${TARGET_BUILD_PRODUCT}__)
+add_definitions(-D__${TARGET_BUILD_PRODUCT}_PARSER__)
+add_definitions(-D__TARGET_PARSER__="${CMAKE_BUILD_PRODUCT}")
 
 string(TOUPPER "${CMAKE_BUILD_TARGET}" TARGET_BUILD_PLATFORM)
 add_definitions(-D__${TARGET_BUILD_PLATFORM}__)
