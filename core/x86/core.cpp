@@ -15,12 +15,22 @@
  */
 
 #include "x86/core.h"
+#include "x86/thread_info.h"
+#include "common/prstatus.h"
+#include <string.h>
 #include <linux/elf.h>
 
 namespace x86 {
 
 bool Core::load() {
     auto callback = [](uint64_t type, uint64_t pos) -> void * {
+        switch(type) {
+            case NT_PRSTATUS:
+                Elf32_prstatus* prs = reinterpret_cast<Elf32_prstatus *>(pos);
+                ThreadInfo* thread = new ThreadInfo(prs->pr_pid);
+                memcpy(&thread->reg, &prs->pr_reg, sizeof(Register));
+                return thread;
+        }
         return nullptr;
     };
     return load32(this, callback);

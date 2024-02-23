@@ -162,8 +162,9 @@ bool LargeObjectSpace::IsMemMapSpace() {
     return !strcmp(GetName(), MEMMAP_SPACE);
 }
 
-bool LargeObjectSpace::IsVaildSpace() {
-    return begin() && CoreApi::IsVirtualValid(begin());
+bool LargeObjectMapSpace::IsVaildSpace() {
+    cxx::map& large_objects_ = GetLargeObjectsCache();
+    return large_objects_.Ptr() &&  CoreApi::IsVirtualValid(large_objects_.Ptr());
 }
 
 void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
@@ -224,6 +225,10 @@ api::MemoryRef& FreeListSpace::GetAlloctionInfoCache() {
         allocation_info_cache.Prepare(false);
     }
     return allocation_info_cache;
+}
+
+bool FreeListSpace::IsVaildSpace() {
+    return begin() && CoreApi::IsVirtualValid(begin());
 }
 
 } // namespace space

@@ -125,7 +125,6 @@ public:
     bool IsFreeListSpace();
     bool IsMemMapSpace();
     SpaceType GetType() { return kSpaceTypeLargeObjectSpace; }
-    bool IsVaildSpace();
 };
 
 class LargeObjectMapSpace : public LargeObjectSpace {
@@ -144,6 +143,7 @@ public:
 
     cxx::map& GetLargeObjectsCache();
     void Walk(std::function<bool (mirror::Object& object)> fn);
+    bool IsVaildSpace();
 
     class LargeObject : public api::MemoryRef {
     public:
@@ -219,6 +219,7 @@ public:
     uint64_t GetSlotIndexForAddress(uint64_t address);
     uint64_t GetAddressForAllocationInfo(AllocationInfo& info);
     uint64_t GetAllocationAddressForSlot(uint64_t slot);
+    bool IsVaildSpace();
 private:
     // quick memoryref cache
     api::MemoryRef allocation_info_cache;

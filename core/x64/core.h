@@ -31,10 +31,10 @@ public:
 private:
     bool load();
     void unload();
-    const char* getMachineName() { return "x64"; }
+    const char* getMachineName() { return "x86_64"; }
     int getMachine() { return EM_X86_64; }
     int getPointSize() { return 64; }
-    uint64_t getVabitsMask() { return 0x7FFFFFFFFFULL; }
+    uint64_t getVabitsMask() { return 0xFFFFFFFFFFFFFFFFULL; }
     void loadLinkMap() { loadLinkMap64(this); }
     void sysroot(uint64_t begin, const char* file) { dlopen64(this, begin, file); }
     uint64_t dlsym(LinkMap* handle, const char* symbol);

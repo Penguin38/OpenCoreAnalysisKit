@@ -20,6 +20,8 @@
 #include "common/elf.h"
 #include "arm64/thread_info.h"
 #include "arm/thread_info.h"
+#include "x64/thread_info.h"
+#include "x86/thread_info.h"
 #include "api/core.h"
 #include <stdlib.h>
 
@@ -49,10 +51,14 @@ int RegisterCommand::main(int argc, char* const argv[]) {
         } break;
         case EM_RISCV:
             break;
-        case EM_X86_64:
-            break;
-        case EM_386:
-            break;
+        case EM_X86_64: {
+            x64::ThreadInfo* info = reinterpret_cast<x64::ThreadInfo*>(thread);
+            info->RegisterDump("    ");
+        } break;
+        case EM_386: {
+            x86::ThreadInfo* info = reinterpret_cast<x86::ThreadInfo*>(thread);
+            info->RegisterDump("    ");
+        } break;
     }
     return 0;
 }

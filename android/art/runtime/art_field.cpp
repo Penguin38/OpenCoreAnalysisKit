@@ -94,7 +94,7 @@ uint32_t ArtField::GetAccessFlags() {
 }
 
 int8_t ArtField::GetByte(mirror::Object& obj) {
-    return *reinterpret_cast<int8_t *>(obj.Real() + offset());
+    return *reinterpret_cast<uint8_t *>(obj.Real() + offset());
 }
 
 uint8_t ArtField::GetBoolean(mirror::Object& obj) {
@@ -106,23 +106,23 @@ uint16_t ArtField::GetChar(mirror::Object& obj) {
 }
 
 int16_t ArtField::GetShort(mirror::Object& obj) {
-    return *reinterpret_cast<int16_t *>(obj.Real() + offset());
+    return *reinterpret_cast<uint16_t *>(obj.Real() + offset());
 }
 
 int32_t ArtField::GetInt(mirror::Object& obj) {
-    return *reinterpret_cast<int32_t *>(obj.Real() + offset());
+    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
 }
 
 int64_t ArtField::GetLong(mirror::Object& obj) {
-    return *reinterpret_cast<int64_t *>(obj.Real() + offset());
+    return *reinterpret_cast<uint64_t *>(obj.Real() + offset());
 }
 
 float ArtField::GetFloat(mirror::Object& obj) {
-    return *reinterpret_cast<float *>(obj.Real() + offset());
+    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
 }
 
 double ArtField::GetDouble(mirror::Object& obj) {
-    return *reinterpret_cast<double *>(obj.Real() + offset());
+    return *reinterpret_cast<uint64_t *>(obj.Real() + offset());
 }
 
 uint32_t ArtField::Get32(mirror::Object& obj) {

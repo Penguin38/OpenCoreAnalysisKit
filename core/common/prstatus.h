@@ -27,7 +27,7 @@ struct pt_regs {
     uint64_t  sp;
     uint64_t  pc;
     uint64_t  pstate;
-} __attribute__((aligned(1)));
+};
 
 typedef struct elf64_prstatus {
     uint32_t             pr_si_signo;
@@ -58,7 +58,7 @@ struct pt_regs {
     uint32_t  lr;
     uint32_t  pc;
     uint32_t  cpsr;
-} __attribute__((aligned(1)));
+};
 
 typedef struct elf32_prstatus {
     uint32_t             pr_si_signo;
@@ -82,5 +82,98 @@ typedef struct elf32_prstatus {
 } __attribute__((packed, aligned(1))) Elf32_prstatus;
 
 } // namespace arm
+
+namespace x64 {
+
+struct pt_regs {
+    uint64_t r15;
+    uint64_t r14;
+    uint64_t r13;
+    uint64_t r12;
+    uint64_t rbp;
+    uint64_t rbx;
+    uint64_t r11;
+    uint64_t r10;
+    uint64_t r9;
+    uint64_t r8;
+    uint64_t rax;
+    uint64_t rcx;
+    uint64_t rdx;
+    uint64_t rsi;
+    uint64_t rdi;
+    uint64_t orig_rax;
+    uint64_t rip;
+    uint32_t cs;
+    uint32_t __cs;
+    uint64_t flags;
+    uint64_t rsp;
+    uint32_t ss;
+    uint32_t __ss;
+    uint64_t fs_base;
+    uint64_t gs_base;
+    uint32_t ds;
+    uint32_t __ds;
+    uint32_t es;
+    uint32_t __es;
+    uint32_t fs;
+    uint32_t __fs;
+    uint32_t gs;
+    uint32_t __gs;
+};
+
+typedef struct elf64_prstatus {
+    uint32_t             pr_si_signo;
+    uint32_t             pr_si_code;
+    uint32_t             pr_si_errno;
+    uint16_t             pr_cursig;
+    uint64_t             pr_sigpend;
+    uint64_t             pr_sighold;
+    uint32_t             pr_pid;
+    uint32_t             pr_ppid;
+    uint32_t             pr_pgrp;
+    uint32_t             pd_sid;
+    uint64_t             pr_utime[2];
+    uint64_t             pr_stime[2];
+    uint64_t             pr_cutime[2];
+    uint64_t             pr_cstime[2];
+    struct pt_regs       pr_reg;
+    uint32_t             pr_fpvalid;
+} Elf64_prstatus;
+
+} // namespace x64
+
+namespace x86 {
+
+struct pt_regs {
+    uint32_t ebx, ecx, edx, esi, edi, ebp, eax;
+    uint16_t ds, __ds, es, __es;
+    uint16_t fs, __fs, gs, __gs;
+    uint32_t orig_eax, eip;
+    uint16_t cs, __cs;
+    uint32_t eflags, esp;
+    uint16_t ss, __ss;
+};
+
+typedef struct elf32_prstatus {
+    uint32_t             pr_si_signo;
+    uint32_t             pr_si_code;
+    uint32_t             pr_si_errno;
+    uint16_t             pr_cursig;
+    uint16_t             __padding1;
+    uint32_t             pr_sigpend;
+    uint32_t             pr_sighold;
+    uint32_t             pr_pid;
+    uint32_t             pr_ppid;
+    uint32_t             pr_pgrp;
+    uint32_t             pd_sid;
+    uint64_t             pr_utime;
+    uint64_t             pr_stime;
+    uint64_t             pr_cutime;
+    uint64_t             pr_cstime;
+    struct pt_regs       pr_reg;
+    uint32_t             pr_fpvalid;
+} Elf32_prstatus;
+
+} // namespace x86
 
 #endif  // CORE_COMMON_PRSTATUS_H_

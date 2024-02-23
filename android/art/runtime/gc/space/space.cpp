@@ -167,10 +167,45 @@ SpaceType Space::GetType() {
         } break;
         case EM_RISCV:
             break;
-        case EM_X86_64:
-            break;
-        case EM_386:
-            break;
+        case EM_X86_64: {
+            /*
+             * mov $type,%rax  // xor %rax,%rax
+             * retq
+             */
+            uint64_t inst = *reinterpret_cast<uint64_t *>(getTypeCache.Real());
+            // xor
+            if ((inst & 0xFFFF) == 0xc031) {
+                type_cache = kSpaceTypeImageSpace;
+            } else {
+                inst = inst & 0xFFFFFFFFFFULL;
+                uint8_t type = (inst >> 8) & 0xFF;
+                if ((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace)
+                    break;
+
+                type_cache = static_cast<SpaceType>(type);
+            }
+        } break;
+        case EM_386: {
+            /*
+             * <0>  push %ebp
+             * <1>  mov %esp,%ebp
+             * <3>  and $0xfffffffc,%esp
+             * <6>  mov $type,%eax  // xor %eax,%eax
+             * ...
+             */
+            uint64_t inst = *reinterpret_cast<uint64_t *>(getTypeCache.Real() + 0x6);
+            // xor
+            if ((inst & 0xFFFF) == 0xc031) {
+                type_cache = kSpaceTypeImageSpace;
+            } else {
+                inst = inst & 0xFFFFFFFFFFULL;
+                uint8_t type = (inst >> 8) & 0xFF;
+                if ((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace)
+                    break;
+
+                type_cache = static_cast<SpaceType>(type);
+            }
+        } break;
     }
     return type_cache;
 }

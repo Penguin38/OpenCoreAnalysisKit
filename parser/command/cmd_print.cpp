@@ -333,7 +333,7 @@ std::string PrintCommand::FormatSize(uint64_t size) {
 void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref) {
     switch (static_cast<uint32_t>(type)) {
         case Android::basic_byte:
-            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<int8_t *>(ref.Real()));
+            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint8_t *>(ref.Real()));
             break;
         case Android::basic_boolean:
             LOGI("    [%d] %s\n", i, *reinterpret_cast<uint8_t *>(ref.Real()) ? "true" : "false");
@@ -342,10 +342,10 @@ void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::M
             LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint16_t *>(ref.Real()));
             break;
         case Android::basic_short:
-            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<int16_t *>(ref.Real()));
+            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint16_t *>(ref.Real()));
             break;
         case Android::basic_int:
-            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<int32_t *>(ref.Real()));
+            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint32_t *>(ref.Real()));
             break;
         case Android::basic_float:
             LOGI("    [%d] %f\n", i, (double)*reinterpret_cast<uint32_t *>(ref.Real()));
