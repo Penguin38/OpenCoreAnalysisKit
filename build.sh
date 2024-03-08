@@ -16,7 +16,7 @@ export ANDROID_NDK=$1
 #export BUILD_TYPE="Release"
 export BUILD_TYPE="Debug"
 export BUILD_PRODUCT="aosp"
-export INSTALL_OUTPUT=$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
+export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
 
 cmake -DCMAKE_C_COMPILER="/usr/bin/clang-12" \
       -DCMAKE_CXX_COMPILER="/usr/bin/clang++-12" \
@@ -47,4 +47,16 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -B $INSTALL_OUTPUT/android/bin
 
 make -C $INSTALL_OUTPUT/android/bin -j8
+
+cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+      -DANDROID_ABI="x86_64" \
+      -DANDROID_NDK=$ANDROID_NDK \
+      -DANDROID_PLATFORM=android-30 \
+      -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_BUILD_TARGET=android \
+      CMakeLists.txt \
+      -B $INSTALL_OUTPUT/emulator/bin
+
+make -C $INSTALL_OUTPUT/emulator/bin -j8
 fi
