@@ -32,18 +32,21 @@
 bool PrintCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
-            || !argc)
+            || !(argc > 1))
         return false;
 
     reference = false;
 
     int opt;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
+        {"--binary",  no_argument,       0,  'b'},
         {"--ref",     required_argument, 0,  'r'},
+        {0,           0,                 0,   0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "r:",
+    while ((opt = getopt_long(argc, argv, "br:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'r':
@@ -52,9 +55,6 @@ bool PrintCommand::prepare(int argc, char* const argv[]) {
         }
     }
 
-    // reset
-    optind = 0;
-
     if (reference) Android::Prepare();
     return reference;
 }
@@ -62,7 +62,7 @@ bool PrintCommand::prepare(int argc, char* const argv[]) {
 int PrintCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
-            || !argc)
+            || !(argc > 1))
         return 0;
 
     binary = false;
@@ -71,6 +71,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
 
     int opt;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"--binary",  no_argument,       0,  'b'},
         {"--ref",     required_argument, 0,  'r'},
@@ -90,10 +91,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    // reset
-    optind = 0;
-
-    art::mirror::Object ref = Utils::atol(argv[0]);
+    art::mirror::Object ref = Utils::atol(argv[optind]);
     DumpObject(ref);
     return 0;
 }
@@ -121,18 +119,19 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
 
     if (binary) {
         LOGI("Binary:\n");
-        int argc = 3;
+        int argc = 4;
         std::stringstream begin;
         std::stringstream end;
         begin << std::hex << object.Ptr();
         end << std::hex << (object.Ptr() + real_size);
         std::string bs = begin.str();
         std::string es = end.str();
-        char* argv[3] = {
+        char* argv[4] = {
+                const_cast<char*>("rd"),
                 const_cast<char*>(bs.c_str()),
                 const_cast<char*>("-e"),
                 const_cast<char*>(es.c_str())};
-        CommandManager::Execute("rd", argc, argv);
+        CommandManager::Execute(argv[0], argc, argv);
     }
 
     if (reference) {

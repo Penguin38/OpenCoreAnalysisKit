@@ -19,8 +19,8 @@
 #include "api/core.h"
 
 int ExecCommand::main(int argc, char* const argv[]) {
-    if (CoreApi::IsReady() && argc > 0) {
-        CoreApi::ExecFile(argv[0]);
+    if (CoreApi::IsReady() && argc > 1) {
+        CoreApi::ExecFile(argv[1]);
     }
     return 0;
 }

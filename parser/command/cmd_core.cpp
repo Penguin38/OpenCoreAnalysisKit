@@ -22,7 +22,7 @@
 #include "api/core.h"
 
 int CoreCommand::main(int argc, char* const argv[]) {
-    bool ret = CoreApi::Load(argv[0]);
+    bool ret = CoreApi::Load(argv[1]);
     if (ret) {
         CoreApi::Dump();
 

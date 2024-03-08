@@ -23,15 +23,16 @@
 #include <getopt.h>
 
 int MmapCommand::main(int argc, char* const argv[]) {
-    if (!CoreApi::IsReady() || argc < 2)
+    if (!CoreApi::IsReady() || argc < 3)
         return 0;
 
     int opt;
-    uint64_t begin = Utils::atol(argv[0]) & CoreApi::GetVabitsMask();
+    uint64_t begin = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
     char* file;
     uint64_t offset = 0x0;
     int remove = 0;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"file",    required_argument,  0,  'f'},
         {"offset",  required_argument,  0,  'o'},
@@ -57,9 +58,6 @@ int MmapCommand::main(int argc, char* const argv[]) {
                 break;
         }
     }
-
-    // reset
-    optind = 0;
 
     LoadBlock* block = CoreApi::FindLoadBlock(begin, false);
     if (!block)

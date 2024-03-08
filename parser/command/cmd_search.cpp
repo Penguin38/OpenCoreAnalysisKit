@@ -29,11 +29,12 @@
 int SearchCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
-            || !argc)
+            || !(argc > 1))
         return 0;
 
     int opt;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"object",   no_argument,       0,  'o'},
         {"class",    no_argument,       0,  'c'},
@@ -68,10 +69,8 @@ int SearchCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    // reset
-    optind = 0;
     total_objects = 0;
-    const char* classname = argv[0];
+    const char* classname = argv[optind];
     if (!flag) flag = SEARCH_OBJECT | SEARCH_CLASS;
     auto callback = [&](art::mirror::Object& object) -> bool {
         return SearchObjects(classname, object);
@@ -101,12 +100,14 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
         total_objects++;
         LOGI("[%ld] 0x%lx %s\n", total_objects, object.Ptr(), descriptor.c_str());
         if (show) {
-            int argc = 1;
+            int argc = 2;
             std::stringstream ss;
             ss << std::hex << object.Ptr();
             std::string address = ss.str();
-            char* argv[1] = { const_cast<char*>(address.c_str()) };
-            CommandManager::Execute("p", argc, argv);
+            char* argv[2] = {
+                const_cast<char*>("p"),
+                const_cast<char*>(address.c_str())};
+            CommandManager::Execute(argv[0], argc, argv);
         }
     }
 

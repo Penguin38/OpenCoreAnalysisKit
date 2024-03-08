@@ -26,7 +26,7 @@ int HprofCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
-    if (!argc) {
+    if (!(argc > 1)) {
         LOGE("ERROR: Please enter <FILE>\n");
         return 0;
     }
@@ -35,6 +35,7 @@ int HprofCommand::main(int argc, char* const argv[]) {
     bool visible = false;
     bool quick = false;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"visible",  no_argument,      0, 'v'},
         {"quick",    no_argument,      0, 'q'},
@@ -53,10 +54,7 @@ int HprofCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    // reset
-    optind = 0;
-
-    art::hprof::DumpHeap(argv[0], visible, quick);
+    art::hprof::DumpHeap(argv[optind], visible, quick);
     return 0;
 }
 

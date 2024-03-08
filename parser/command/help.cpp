@@ -42,10 +42,10 @@ void Help::printCommands() {
 }
 
 int Help::main(int argc, char* const argv[]) {
-    if (!argc) {
+    if (!(argc > 1)) {
         printCommands();
     } else {
-        printCommandUsage(argv[0]);
+        printCommandUsage(argv[1]);
     }
     return 0;
 }

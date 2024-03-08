@@ -23,16 +23,17 @@
 #include <iomanip>
 
 int ReadCommand::main(int argc, char* const argv[]) {
-    if (!CoreApi::IsReady() || !argc)
+    if (!CoreApi::IsReady() || !(argc > 1))
         return 0;
 
     int opt;
-    uint64_t begin = Utils::atol(argv[0]) & CoreApi::GetVabitsMask();
+    uint64_t begin = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
     uint64_t end = 0;
     char* filepath = nullptr;
     int read_opt = OPT_READ_ALL;
 
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"origin",  no_argument,       0,  0 },
         {"mmap",    no_argument,       0,  1 },
@@ -62,9 +63,6 @@ int ReadCommand::main(int argc, char* const argv[]) {
                 break;
         }
     }
-
-    // reset
-    optind = 0;
 
     LoadBlock* block = CoreApi::FindLoadBlock(begin);
     if (block && end > (block->vaddr() + block->size()))

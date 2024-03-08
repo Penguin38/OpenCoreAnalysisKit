@@ -34,17 +34,17 @@ EnvOption env_option[] = {
 };
 
 int EnvCommand::main(int argc, char* const argv[]) {
-    if (!argc)
+    if (!(argc > 1))
         return dumpEnv();
 
     int count = sizeof(env_option)/sizeof(env_option[0]);
     for (int index = 0; index < count; ++index) {
-        if (!strcmp(argv[0], env_option[index].cmd)) {
+        if (!strcmp(argv[1], env_option[index].cmd)) {
             return env_option[index].call(argc, argv);
         }
     }
 
-    LOGI("unknown command (%s)\n", argv[0]);
+    LOGI("unknown command (%s)\n", argv[1]);
     return 0;
 }
 
@@ -56,6 +56,7 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
     int option_index = 0;
     int current_sdk = Android::UPSIDE_DOWN_CAKE;
     int current_pid = Env::CurrentPid();
+    optind = 0; // reset
     static struct option long_options[] = {
         {"pid",     required_argument, 0, 'p'},
         {"sdk",     required_argument, 0,  0 },
@@ -77,8 +78,6 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
         }
     }
 
-    // reset
-    optind = 0;
     return 0;
 }
 

@@ -31,7 +31,7 @@ int RegisterCommand::main(int argc, char* const argv[]) {
 
     ThreadApi* thread = nullptr;
     int pid = Env::CurrentPid();
-    if (argc) pid = atoi(argv[0]);
+    if (argc > 1) pid = atoi(argv[1]);
     thread = CoreApi::FindThread(pid);
 
     if (!thread) {

@@ -104,7 +104,7 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
                 auto callback = [&command, nargc, &argv]() {
                     command->execute(nargc, argv);
                 };
-                shell->main(argc - position, &argv[position], callback);
+                shell->main(argc - nargc, &argv[nargc], callback);
                 return 0;
             } else if (writeout) {
                 int fd = Utils::FreopenWrite(argv[position]);

@@ -20,11 +20,11 @@
 #include "api/core.h"
 
 int WriteCommand::main(int argc, char* const argv[]) {
-    if (!CoreApi::IsReady() || (argc < 2)) 
+    if (!CoreApi::IsReady() || (argc < 3))
         return 0;
 
-    uint64_t address = Utils::atol(argv[0]) & CoreApi::GetVabitsMask();
-    uint64_t value = Utils::atol(argv[1]);
+    uint64_t address = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
+    uint64_t value = Utils::atol(argv[2]);
     CoreApi::Write(address, value);
     return 0;
 }

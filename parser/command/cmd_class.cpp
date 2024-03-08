@@ -27,10 +27,10 @@ int ClassCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
-    dump_all = !argc ? true : false;
+    dump_all = !(argc > 1)? true : false;
     total_classes = 0;
     auto callback = [&](art::mirror::Object& object) -> bool {
-        return PrintClass(object, argv[0]);
+        return PrintClass(object, argv[1]);
     };
     Android::ForeachObjects(callback);
     return 0;

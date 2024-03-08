@@ -28,14 +28,14 @@ int ShellCommand::main(int argc, char* const argv[]) {
 }
 
 int ShellCommand::main(int argc, char* const argv[], std::function<void ()> callback) {
-    if (!argc) 
+    if (!(argc > 1))
         return 0;
 
 	int fd[2];
 	pipe(fd);
 
     int status;
-    char *cmd = argv[0];
+    char *cmd = argv[1];
 
     pid_t pid = fork();
     if (pid == 0) {
@@ -44,7 +44,7 @@ int ShellCommand::main(int argc, char* const argv[], std::function<void ()> call
             dup2(fd[0], 0);
             close(fd[0]);
         }
-        if (execvp(cmd, argv) == -1)
+        if (execvp(cmd, &argv[1]) == -1)
             LOGI("Unknown command %s .  Try \"help\".\n", cmd);
         exit(0);
     } else if (pid > 0) {

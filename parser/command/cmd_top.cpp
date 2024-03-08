@@ -33,15 +33,16 @@
 int TopCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
-            || !argc)
+            || !(argc > 1))
         return 0;
 
-    num = atoi(argv[0]);
+    num = atoi(argv[1]);
     order = ORDERBY_ALLOC;
     show = false;
 
     int opt;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"alloc",      no_argument,       0,  'a'},
         {"shallow",    no_argument,       0,  's'},
@@ -78,9 +79,6 @@ int TopCommand::main(int argc, char* const argv[]) {
                 break;
         }
     }
-
-    // reset
-    optind = 0;
 
     if (!flag) {
         flag |= Android::EACH_APP_OBJECTS;

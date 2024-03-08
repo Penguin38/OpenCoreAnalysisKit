@@ -34,10 +34,10 @@ int GetPropCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
         return 0;
 
-    if (!argc) {
+    if (!(argc > 1)) {
         printProperties();
     } else {
-        LOGI("%s\n", android::Property::Get(argv[0]));
+        LOGI("%s\n", android::Property::Get(argv[1]));
     }
     return 0;
 }

@@ -35,25 +35,17 @@ int ThreadCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
         return 0;
 
-    if (!argc) {
+    if (!(argc > 1)) {
         LOGI("Current thread is %d\n", Env::CurrentPid());
         return 0;
     }
-
-    int nargc = argc + 1;
-    const char* nargv[16];
-    for (int i = 0; i < 15; ++i) {
-        nargv[i + 1] = argv[i];
-    }
-
-    std::string current = std::to_string(Env::CurrentPid());
-    nargv[0] = current.c_str();
 
     int opt;
     int option_index = 0;
     bool native = false;
     bool java = false;
     bool dump_all = false;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"native",    no_argument,       0,  'n'},
 #if defined(__AOSP_PARSER__)
@@ -62,7 +54,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
 #endif
     };
 
-    while ((opt = getopt_long(nargc, (char* const*)nargv, "nja",
+    while ((opt = getopt_long(argc, (char* const*)argv, "nja",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'n':
@@ -81,11 +73,8 @@ int ThreadCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    // reset
-    optind = 0;
-
     if (!(native ^ java)) {
-        int current_pid = atoi(argv[0]);
+        int current_pid = atoi(argv[optind]);
         Env::SetCurrentPid(current_pid);
         LOGI("Current thread is %d\n", Env::CurrentPid());
     } else {
@@ -155,6 +144,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
 #endif
         }
     }
+
     return 0;
 }
 

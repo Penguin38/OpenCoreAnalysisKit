@@ -22,12 +22,13 @@
 #include <getopt.h>
 
 int SysRootCommand::main(int argc, char* const argv[]) {
-    if (!CoreApi::IsReady() || !argc)
+    if (!CoreApi::IsReady() || !(argc > 1))
         return 0;
 
     int opt;
     int root = MAP_ROOT | DEX_ROOT;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"map",  no_argument,       0,  0 },
         {"dex",  no_argument,       0,  1 },
@@ -48,15 +49,12 @@ int SysRootCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    // reset
-    optind = 0;
-
     if (root & MAP_ROOT)
-        CoreApi::SysRoot(argv[0]);
+        CoreApi::SysRoot(argv[optind]);
 
     if (root & DEX_ROOT) {
         if (Android::IsSdkReady()) {
-            Android::SysRoot(argv[0]);
+            Android::SysRoot(argv[optind]);
         } else {
             LOGW("WARN: Android sdk no ready, You can enter command:\n         env config --sdk <version>\n");
         }

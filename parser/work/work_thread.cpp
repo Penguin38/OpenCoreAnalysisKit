@@ -26,10 +26,8 @@ void WorkThread::prepare() {
     std::unique_ptr<char> line(strdup(cmdline.c_str()));
     char* token = strtok(line.get(), SPLIT_TOKEN);
     while (token != nullptr) {
-        if (!cmd) {
+        if (!argc) {
             cmd = token;
-            token = strtok(nullptr, SPLIT_TOKEN);
-            continue;
         }
 
         argv[argc] = token;
