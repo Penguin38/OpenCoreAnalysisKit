@@ -37,6 +37,7 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                                              phdr[num].p_filesz,
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
+            block->setTruncated(api->size() < (phdr[num].p_offset + phdr[num].p_filesz));
             if (!(block->flags() & Block::FLAG_R))
                 continue;
 
@@ -52,6 +53,7 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                                              phdr[num].p_filesz,
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
+            block->setTruncated(api->size() < (phdr[num].p_offset + phdr[num].p_filesz));
             if (!block->isValidBlock())
                 continue;
 

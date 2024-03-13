@@ -32,7 +32,7 @@ public:
     inline uint64_t size() { return mMemSize; }
     inline uint64_t realSize() { return mFileSize; }
     inline uint64_t align() { return mAlign; }
-    inline bool isValidBlock() { return mFileSize > 0; }
+    inline bool isValidBlock() { return !mTruncated && (mFileSize > 0); }
     inline uint64_t oraddr() { return mOriAddr; }
 
     Block(uint32_t f, uint64_t off, uint64_t va, uint64_t pa,
@@ -42,6 +42,7 @@ public:
 
     ~Block() {}
     void setOriAddr(uint64_t addr) { if (isValidBlock()) mOriAddr = addr; }
+    void setTruncated(bool truncated) { mTruncated = truncated; }
 private:
     //  program member
     uint32_t mFlags;
@@ -54,6 +55,7 @@ private:
 
     // Real memory addr
     uint64_t mOriAddr;
+    bool mTruncated;
 };
 
 #endif  // CORE_COMMON_BLOCK_H_
