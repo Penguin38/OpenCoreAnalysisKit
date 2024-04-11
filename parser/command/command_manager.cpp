@@ -36,6 +36,7 @@
 #include "command/cmd_top.h"
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
+#include "command/remote/cmd_remote.h"
 #include "common/exception.h"
 #include "base/utils.h"
 #include <string.h>
@@ -71,6 +72,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new EnvCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
     CommandManager::PushInlineCommand(new Help());
+    CommandManager::PushInlineCommand(new RemoteCommand());
 }
 
 int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
