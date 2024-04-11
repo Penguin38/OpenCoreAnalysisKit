@@ -150,6 +150,7 @@ Runtime Runtime::AnalysisInstance() {
                         sizeof(callee_methods))) {
                 runtime = current - block->begin() + block->vaddr();
                 runtime.checkCopyBlock(block);
+                LOGI(">>> '%s' = 0x%lx\n", Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
                 return true;
             }
             current += point_size;

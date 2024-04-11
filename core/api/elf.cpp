@@ -251,7 +251,7 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
         }
         symbols.MovePtr(syment);
     }
-    return -1;
+    return 0;
 }
 
 } // namespace api
