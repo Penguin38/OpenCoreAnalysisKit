@@ -40,7 +40,7 @@ int EnvCommand::main(int argc, char* const argv[]) {
     int count = sizeof(env_option)/sizeof(env_option[0]);
     for (int index = 0; index < count; ++index) {
         if (!strcmp(argv[1], env_option[index].cmd)) {
-            return env_option[index].call(argc, argv);
+            return env_option[index].call(argc - 1, &argv[1]);
         }
     }
 

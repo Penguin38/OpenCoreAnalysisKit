@@ -138,16 +138,18 @@ int TopCommand::main(int argc, char* const argv[]) {
         if (it == classes.end())
             continue;
 
-        libcore::util::NativeAllocationRegistry::CleanerThunk thunk = cleaner.getThunk();
-        if (thunk.isNull())
-            continue;
+        try {
+            libcore::util::NativeAllocationRegistry::CleanerThunk thunk = cleaner.getThunk();
+            if (thunk.isNull())
+                continue;
 
-        libcore::util::NativeAllocationRegistry registry = thunk.getRegistry();
-        if (registry.isNull())
-            continue;
+            libcore::util::NativeAllocationRegistry registry = thunk.getRegistry();
+            if (registry.isNull())
+                continue;
 
-        TopCommand::Pair& pair = it->second;
-        pair.native_size += registry.getSize();
+            TopCommand::Pair& pair = it->second;
+            pair.native_size += registry.getSize();
+        } catch (InvalidAddressException e) {}
     }
 
     uint64_t total_count = 0;
