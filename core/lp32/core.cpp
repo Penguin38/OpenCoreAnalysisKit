@@ -103,7 +103,7 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
 void lp32::Core::loadLinkMap32(CoreApi* api) {
     api::MemoryRef& debug = GetDebug();
     if (!debug.Ptr()) {
-        LOGW("WARN: Not found debug.\n");
+        LOGW("WARN: Not found debug. You can try command exec.\n");
         return;
     }
 
