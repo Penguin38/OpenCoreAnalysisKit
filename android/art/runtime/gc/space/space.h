@@ -63,6 +63,12 @@ enum SpaceType {
 
 class Space : public api::MemoryRef {
 public:
+    inline static const char* REGION_SPACE = "main space (region space)";
+    inline static const char* ZYGOTE_SPACE = "Zygote space";
+    inline static const char* NON_MOVING_SPACE = "non moving space";
+    inline static const char* FREELIST_SPACE = "free list large object space";
+    inline static const char* MEMMAP_SPACE = "mem map large object space";
+
     Space() : api::MemoryRef() {}
     Space(uint64_t v) : api::MemoryRef(v) {}
     Space(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}

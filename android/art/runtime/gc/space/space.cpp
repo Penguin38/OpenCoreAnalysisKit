@@ -207,6 +207,28 @@ SpaceType Space::GetType() {
             }
         } break;
     }
+
+    if (type_cache != kSpaceTypeInvalidSpace)
+        return type_cache;
+
+    // second check space name
+    const char* space_name = GetName();
+    if (!space_name) return type_cache;
+
+    if (!strcmp(space_name, REGION_SPACE)) {
+        type_cache = kSpaceTypeRegionSpace;
+    } else if (!strcmp(space_name, ZYGOTE_SPACE)) {
+        type_cache = kSpaceTypeZygoteSpace;
+    } else if (!strcmp(space_name, NON_MOVING_SPACE)) {
+        type_cache = kSpaceTypeMallocSpace;
+    } else if (!strcmp(space_name, FREELIST_SPACE)
+            || !strcmp(space_name, MEMMAP_SPACE)) {
+        type_cache = kSpaceTypeLargeObjectSpace;
+    } else {
+        int len = strlen(space_name);
+        if (len > 4 && !strncmp(space_name + len - 4, ".art", 4))
+            type_cache = kSpaceTypeImageSpace;
+    }
     return type_cache;
 }
 

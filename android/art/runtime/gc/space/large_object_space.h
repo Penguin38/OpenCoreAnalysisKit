@@ -105,9 +105,6 @@ namespace space {
 
 class LargeObjectSpace : public DiscontinuousSpace, AllocSpace {
 public:
-    inline static const char* FREELIST_SPACE = "free list large object space";
-    inline static const char* MEMMAP_SPACE = "mem map large object space";
-
     LargeObjectSpace() : DiscontinuousSpace() {}
     LargeObjectSpace(uint64_t v) : DiscontinuousSpace(v) {}
     LargeObjectSpace(uint64_t v, LoadBlock* b) : DiscontinuousSpace(v, b) {}

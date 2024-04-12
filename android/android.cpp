@@ -281,7 +281,11 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
         } else if (space->IsRegionSpace()) {
             if (flag & EACH_APP_OBJECTS) walkfn(space.get());
         } else {
-            walkfn(space.get());
+            if (space->GetType() != art::gc::space::kSpaceTypeInvalidSpace) {
+                walkfn(space.get());
+            } else {
+                LOGE("ERROR: please run sysroot libart.so, %s invalid space.\n", space->GetName());
+            }
         }
     }
 
