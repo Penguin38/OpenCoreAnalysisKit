@@ -56,7 +56,7 @@ bool PrintCommand::prepare(int argc, char* const argv[]) {
     }
 
     if (reference) Android::Prepare();
-    return reference;
+    return true;
 }
 
 int PrintCommand::main(int argc, char* const argv[]) {

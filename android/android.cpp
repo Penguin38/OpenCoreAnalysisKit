@@ -91,11 +91,20 @@ Android::BasicType Android::SignatureToBasicTypeAndSize(const char* sig, uint64_
 
 Android::BasicType Android::SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out, const char* def) {
     char c = sig[0];
-    if (c == '\0') {
-        return SignatureToBasicTypeAndSize(def, size_out);
-    } else {
-        return SignatureToBasicTypeAndSize(sig, size_out);
+    switch (c) {
+        case '[':
+        case 'L':
+        case 'Z':
+        case 'C':
+        case 'F':
+        case 'D':
+        case 'B':
+        case 'S':
+        case 'I':
+        case 'J':
+            return SignatureToBasicTypeAndSize(sig, size_out);
     }
+    return SignatureToBasicTypeAndSize(def, size_out);
 }
 
 void Android::Init() {

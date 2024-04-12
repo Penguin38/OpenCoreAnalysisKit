@@ -18,7 +18,9 @@
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
+#include "runtime/runtime_globals.h"
 #include "common/exception.h"
+#include "base/macros.h"
 
 struct Object_OffsetTable __Object_offset__;
 struct Object_SizeTable __Object_size__;
@@ -157,7 +159,8 @@ bool Object::IsValid() {
         return false;
 
     try {
-        if (klass_.IsClass())
+        if (LIKELY(klass_.IsClass())
+                && LIKELY(!(SizeOf() < kObjectAlignment)))
             return true;
     } catch (InvalidAddressException e) {
         // do nothing
