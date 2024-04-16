@@ -118,6 +118,8 @@ public:
     inline uint64_t begin() { return VALUEOF(LargeObjectSpace, begin_); }
     inline uint64_t end() { return VALUEOF(LargeObjectSpace, end_); }
 
+    inline uint64_t Begin() { return begin(); }
+    inline uint64_t End() { return end(); }
     inline bool Contains(mirror::Object& object) { return begin() <= object.Ptr() && object.Ptr() < end(); }
     bool IsFreeListSpace();
     bool IsMemMapSpace();

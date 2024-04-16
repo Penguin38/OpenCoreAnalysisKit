@@ -138,6 +138,7 @@ add_library(parser STATIC
             parser/command/cmd_search.cpp
             parser/command/cmd_class.cpp
             parser/command/cmd_top.cpp
+            parser/command/cmd_space.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
             parser/command/remote/cmd_remote.cpp)
