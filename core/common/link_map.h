@@ -24,17 +24,19 @@
 
 class LinkMap {
 public:
+    inline uint64_t map() { return mMap; }
     inline uint64_t begin() { return mBegin; }
     inline std::string& name() { return mName; }
     inline LoadBlock* block() { return mBlock; }
 
-    LinkMap(uint64_t b, const char* name, LoadBlock* block)
-            : mBegin(b) {
+    LinkMap(uint64_t m, uint64_t b, const char* name, LoadBlock* block)
+            : mMap(m), mBegin(b) {
         if (name) mName = name;
         mBlock = block;
     }
     ~LinkMap() {}
 private:
+    uint64_t mMap;
     //  file member
     uint64_t mBegin;
     std::string mName;

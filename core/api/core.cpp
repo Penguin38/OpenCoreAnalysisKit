@@ -167,14 +167,14 @@ ThreadApi* CoreApi::FindThread(int tid) {
     return INSTANCE->findThread(tid);
 }
 
-void CoreApi::addLinkMap(uint64_t begin, uint64_t name) {
+void CoreApi::addLinkMap(uint64_t map, uint64_t begin, uint64_t name) {
     std::unique_ptr<LinkMap> linkmap;
     if (IsVirtualValid(name)) {
-        linkmap = std::make_unique<LinkMap>(begin,
+        linkmap = std::make_unique<LinkMap>(map, begin,
                             reinterpret_cast<const char*>(v2r(name, OPT_READ_ALL)),
                             findLoadBlock(begin));
     } else {
-        linkmap = std::make_unique<LinkMap>(begin, nullptr, findLoadBlock(begin));
+        linkmap = std::make_unique<LinkMap>(map, begin, nullptr, findLoadBlock(begin));
     }
     mLinkMap.push_back(std::move(linkmap));
 }
@@ -257,14 +257,15 @@ void CoreApi::DumpLinkMap() {
                 valid.append("[EMPTY]");
             }
 
-            LOGI("[%lx, %lx) %s %s\n", block->vaddr(), block->vaddr() + block->size(),
+            LOGI("0x%lx  [%lx, %lx)  %s %s\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
                                        name.c_str(), valid.c_str());
         } else {
-            LOGI("[%lx, %lx) %s [unknown]\n", block->vaddr(), block->vaddr() + block->size(),
+            LOGI("0x%lx  [%lx, %lx)  %s [unknown]\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
                                        block->name().c_str());
         }
         return false;
     };
+    LOGI("LINKMAP       REGION                    NAME\n");
     INSTANCE->foreachLinkMap(callback);
 }
 

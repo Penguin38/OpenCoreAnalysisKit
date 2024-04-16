@@ -112,7 +112,7 @@ void lp32::Core::loadLinkMap32(CoreApi* api) {
         uint32_t map = dbg->map;
         while (map) {
             lp32::LinkMap* link = reinterpret_cast<lp32::LinkMap*>(CoreApi::GetReal(map));
-            api->addLinkMap(link->addr, link->name);
+            api->addLinkMap(map, link->addr, link->name);
             map = link->next;
         }
     } catch (InvalidAddressException e) {

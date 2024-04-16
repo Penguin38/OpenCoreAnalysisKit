@@ -144,7 +144,7 @@ public:
     void removeAllNoteBlock();
     uint64_t findAuxv(uint64_t type);
     ThreadApi* findThread(int tid);
-    void addLinkMap(uint64_t begin, uint64_t name);
+    void addLinkMap(uint64_t map, uint64_t begin, uint64_t name);
     void removeAllLinkMap();
     void foreachThread(std::function<bool (ThreadApi *)> callback);
     void foreachFile(std::function<bool (File *)> callback);

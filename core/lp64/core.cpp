@@ -112,7 +112,7 @@ void lp64::Core::loadLinkMap64(CoreApi* api) {
         uint64_t map = dbg->map;
         while (map) {
             lp64::LinkMap* link = reinterpret_cast<lp64::LinkMap*>(CoreApi::GetReal(map));
-            api->addLinkMap(link->addr, link->name);
+            api->addLinkMap(map, link->addr, link->name);
             map = link->next;
         }
     } catch (InvalidAddressException e) {
