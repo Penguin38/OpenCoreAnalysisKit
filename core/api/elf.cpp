@@ -237,6 +237,9 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
     uint64_t syment = FindDynamicEntry(ehdr, dyphdr, DT_SYMENT);
     uint64_t versym = FindDynamicEntry(ehdr, dyphdr, DT_VERSYM);
 
+    // check page fault
+    if (!syment) return 0;
+
     // maybe error match
     uint64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
     int64_t count = symsz / syment;
