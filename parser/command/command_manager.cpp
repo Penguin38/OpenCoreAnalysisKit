@@ -35,6 +35,7 @@
 #include "command/cmd_class.h"
 #include "command/cmd_top.h"
 #include "command/cmd_space.h"
+#include "command/cmd_dex.h"
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
 #include "command/remote/cmd_remote.h"
@@ -68,6 +69,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new ClassCommand());
     CommandManager::PushInlineCommand(new TopCommand());
     CommandManager::PushInlineCommand(new SpaceCommand());
+    CommandManager::PushInlineCommand(new DexCommand());
 #endif
 
     // other
