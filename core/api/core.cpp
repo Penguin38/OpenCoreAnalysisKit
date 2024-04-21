@@ -24,6 +24,7 @@
 #include "common/elf.h"
 #include "common/exception.h"
 #include "base/utils.h"
+#include "base/macros.h"
 #include <linux/elf.h>
 #include <cstring>
 #include <iomanip>
@@ -337,8 +338,8 @@ bool CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt) {
     return true;
 }
 
-void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback) {
-    INSTANCE->foreachLoadBlock(callback);
+void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check) {
+    INSTANCE->foreachLoadBlock(callback, check);
 }
 
 LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr, bool check) {
@@ -477,11 +478,12 @@ void CoreApi::foreachLinkMap(std::function<bool (LinkMap *)> callback) {
     }
 }
 
-void CoreApi::foreachLoadBlock(std::function<bool (LoadBlock *)> callback) {
+void CoreApi::foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check) {
     for (const auto& block : mLoad) {
-        if (block->isValid()) {
-            if (callback(block.get()))
-                break;
-        }
+        if (LIKELY(check) && !block->isValid())
+            continue;
+
+        if (callback(block.get()))
+            break;
     }
 }

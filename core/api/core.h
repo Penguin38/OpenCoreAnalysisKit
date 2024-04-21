@@ -118,7 +118,10 @@ public:
         return Read(vaddr, size, buf, OPT_READ_ALL);
     }
     static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt);
-    static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback);
+    static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback) {
+        return ForeachLoadBlock(callback, true);
+    }
+    static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
     static LoadBlock* FindLoadBlock(uint64_t vaddr) {
         return FindLoadBlock(vaddr, true);
     }
@@ -150,7 +153,7 @@ public:
     void foreachFile(std::function<bool (File *)> callback);
     void foreachAuxv(std::function<bool (Auxv *)> callback);
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
-    void foreachLoadBlock(std::function<bool (LoadBlock *)> callback);
+    void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;

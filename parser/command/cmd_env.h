@@ -28,6 +28,8 @@ public:
     void usage();
     static int onConfigChanged(int argc, char* const argv[]);
     static int onLoggerChanged(int argc, char* const argv[]);
+    static int showArtEnv(int argc, char* const argv[]);
+    static int showLoadEnv(int argc, char* const argv[]);
 };
 
 #endif // PARSER_COMMAND_CMD_ENV_H_

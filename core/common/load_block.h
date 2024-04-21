@@ -50,6 +50,7 @@ public:
     void setPointMask(uint64_t mask) { mPointMask = mask; }
     inline uint64_t VabitsMask() { return mVabitsMask; }
     inline uint64_t PointMask() { return mPointMask; }
+    inline uint64_t GetMmapOffset() { return mMmap->offset(); }
 
     ~LoadBlock() {
         mOverlay.reset();

@@ -27,9 +27,10 @@ public:
     static MemoryMap* MmapFile(const char* file, uint64_t size, uint64_t off);
     static MemoryMap* MmapMem(uint64_t addr, uint64_t size);
     static MemoryMap* MmapZeroMem(uint64_t size);
-    uint64_t data() { return reinterpret_cast<uint64_t>(mBegin); }
-    uint64_t size() { return mSize; }
-    std::string& getName() { return mName; }
+    inline uint64_t data() { return reinterpret_cast<uint64_t>(mBegin); }
+    inline uint64_t size() { return mSize; }
+    inline uint64_t offset() { return mOffset; }
+    inline std::string& getName() { return mName; }
     ~MemoryMap();
 private:
     static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);

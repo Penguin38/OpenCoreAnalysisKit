@@ -19,6 +19,7 @@
 #include "command/cmd_env.h"
 #include "command/env.h"
 #include "api/core.h"
+#include "base/utils.h"
 #include <unistd.h>
 #include <getopt.h>
 
@@ -31,6 +32,8 @@ struct EnvOption {
 EnvOption env_option[] = {
     { "config", EnvCommand::onConfigChanged },
     { "logger", EnvCommand::onLoggerChanged },
+    { "art", EnvCommand::showArtEnv },
+    { "load", EnvCommand::showLoadEnv },
 };
 
 int EnvCommand::main(int argc, char* const argv[]) {
@@ -84,6 +87,7 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
 int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
     int opt;
     int option_index = 0;
+    optind = 0; // reset
     static struct option long_options[] = {
         {"debug",   no_argument,       0, Logger::LEVEL_DEBUG},
         {"info",    no_argument,       0, Logger::LEVEL_INFO},
@@ -92,6 +96,11 @@ int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
         {"fatal",   no_argument,       0, Logger::LEVEL_FATAL},
         {0,         0,                 0,  0 }
     };
+
+    if (argc < 2) {
+        LOGI("Current logger level %s\n", long_options[Logger::GetLevel()].name);
+        return 0;
+    }
 
     while ((opt = getopt_long(argc, argv, "01234",
                 long_options, &option_index)) != -1) {
@@ -109,9 +118,50 @@ int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
                 break;
         }
     }
+    return 0;
+}
 
-    // reset
-    optind = 0;
+int EnvCommand::showArtEnv(int argc, char* const argv[]) {
+    if (!Android::IsReady())
+        return 0;
+
+    art::Runtime& runtime = Android::GetRuntime();
+    LOGI("  * art::Runtime 0x%lx\n", runtime.Ptr());
+    return 0;
+}
+
+int EnvCommand::showLoadEnv(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady())
+        return 0;
+
+    int index = 0;
+    auto callback = [&index](LoadBlock *block) -> bool {
+        std::string name;
+        if (block->isMmapBlock()) {
+            name = block->name();
+        } else {
+            name.append("[]");
+        }
+        std::string valid;
+        if (block->isValid()) {
+            valid.append("[*]");
+            if (block->isOverlayBlock()) {
+                valid.append("(OVERLAY)");
+            } else if (block->isMmapBlock()) {
+                valid.append("(MMAP ");
+                valid.append(Utils::ToHex(block->GetMmapOffset()));
+                valid.append(")");
+            }
+        } else {
+            valid.append("[EMPTY]");
+        }
+        LOGI("  %-5d [%lx, %lx)  %010lx  %s %s\n", index++,
+                block->vaddr(), block->vaddr() + block->size(),
+                block->realSize(), name.c_str(), valid.c_str());
+        return false;
+    };
+    LOGI("INDEX   REGION                FILESZ      PATH\n");
+    CoreApi::ForeachLoadBlock(callback, false);
     return 0;
 }
 
@@ -136,4 +186,6 @@ void EnvCommand::usage() {
     LOGI("             --sdk <VERSION>\n");
     LOGI("             --pid|-p <PID>\n");
     LOGI("         logger --[debug|info|warn|error|fatal]\n");
+    LOGI("         art\n");
+    LOGI("         load\n");
 }

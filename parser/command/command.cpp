@@ -15,6 +15,7 @@
  */
 
 #include "command/command.h"
+#include "common/exception.h"
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -31,7 +32,11 @@ int Command::execute(int argc, char* const argv[]) {
             stact.sa_handler = Command::Exit;
             sigaction(SIGINT, &stact, NULL);
             sigaction(SIGTERM, &stact, NULL);
-            main(argc, argv);
+            try {
+                main(argc, argv);
+            } catch (InvalidAddressException e) {
+                LOGI("%s\n", e.what());
+            }
             exit(0);
         } else if (pid > 0) {
             waitpid(pid, &status, WUNTRACED);

@@ -26,6 +26,7 @@
 #include <filesystem>
 #include <fcntl.h>
 #include <iostream>
+#include <sstream>
 
 bool Utils::SearchFile(const std::string& directory, std::string* result, const std::string& name) {
     struct stat d_stat;
@@ -116,4 +117,12 @@ void Utils::CloseWriteout(int fd) {
     fflush(stdout);
     dup2(fd, fileno(stdout));
     close(fd);
+}
+
+std::string Utils::ToHex(uint64_t value) {
+    std::string sb;
+    std::ostringstream ss;
+    ss << "0x" << std::hex << value;
+    sb.append(ss.str());
+    return sb;
 }

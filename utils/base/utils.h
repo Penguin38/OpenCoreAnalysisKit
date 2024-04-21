@@ -27,6 +27,7 @@ public:
     static uint64_t atol(const char* src);
     static int FreopenWrite(const char* path);
     static void CloseWriteout(int fd);
+    static std::string ToHex(uint64_t value);
 };
 
 #endif // UTILS_BASE_UTILS_H_
