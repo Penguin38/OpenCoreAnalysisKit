@@ -31,12 +31,16 @@ void Runtime::Init() {
             .callee_save_methods_ = 0,
             .heap_ = 392,
             .thread_list_ = 456,
+            .class_linker_ = 472,
+            .java_vm_ = 496,
         };
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 236,
             .thread_list_ = 268,
+            .class_linker_ = 276,
+            .java_vm_ = 288,
         };
     }
 }
@@ -47,12 +51,16 @@ void Runtime::Init31() {
             .callee_save_methods_ = 0,
             .heap_ = 416,
             .thread_list_ = 480,
+            .class_linker_ = 496,
+            .java_vm_ = 520,
         };
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 248,
             .thread_list_ = 280,
+            .class_linker_ = 288,
+            .java_vm_ = 300,
         };
     }
 }
@@ -63,12 +71,16 @@ void Runtime::Init33() {
             .callee_save_methods_ = 0,
             .heap_ = 512,
             .thread_list_ = 576,
+            .class_linker_ = 592,
+            .java_vm_ = 624,
         };
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 296,
             .thread_list_ = 328,
+            .class_linker_ = 336,
+            .java_vm_ = 352,
         };
     }
 }
@@ -79,12 +91,16 @@ void Runtime::Init34() {
             .callee_save_methods_ = 0,
             .heap_ = 512,
             .thread_list_ = 584,
+            .class_linker_ = 600,
+            .java_vm_ = 632,
         };
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .heap_ = 296,
             .thread_list_ = 332,
+            .class_linker_ = 340,
+            .java_vm_ = 356,
         };
     }
 }
@@ -177,6 +193,24 @@ ThreadList& Runtime::GetThreadList() {
         thread_list_cache.Prepare(false);
     }
     return thread_list_cache;
+}
+
+ClassLinker& Runtime::GetClassLinker() {
+    if (!class_linker_cache.Ptr()) {
+        class_linker_cache = class_linker();
+        class_linker_cache.copyRef(this);
+        class_linker_cache.Prepare(false);
+    }
+    return class_linker_cache;
+}
+
+JavaVMExt& Runtime::GetJavaVM() {
+    if (!java_vm_cache.Ptr()) {
+        java_vm_cache = java_vm();
+        java_vm_cache.copyRef(this);
+        java_vm_cache.Prepare(false);
+    }
+    return java_vm_cache;
 }
 
 } // namespace art

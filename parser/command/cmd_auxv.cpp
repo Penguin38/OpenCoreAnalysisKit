@@ -14,12 +14,29 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "command/cmd_auxv.h"
 #include "api/core.h"
 
 int AuxvCommand::main(int argc, char* const argv[]) {
-    if (CoreApi::IsReady()) 
-        CoreApi::DumpAuxv();
+    if (!CoreApi::IsReady())
+        return 0;
+
+    auto callback = [](Auxv* auxv) -> bool {
+        if (auxv->type() == AT_EXECFN || auxv->type() == AT_PLATFORM) {
+            std::string name;
+            if (CoreApi::IsVirtualValid(auxv->value())) {
+                name = reinterpret_cast<const char*>(CoreApi::GetReal(auxv->value()));
+            }
+            LOGI("%6lx  %16s  0x%lx %s\n", auxv->type(), auxv->to_string().c_str(),
+                                           auxv->value(), name.c_str());
+        } else {
+            LOGI("%6lx  %16s  0x%lx\n", auxv->type(), auxv->to_string().c_str(), auxv->value());
+        }
+        return false;
+    };
+    CoreApi::ForeachAuxv(callback);
+
     return 0;
 }
 

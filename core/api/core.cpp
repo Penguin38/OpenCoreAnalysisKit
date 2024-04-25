@@ -192,15 +192,6 @@ void CoreApi::Dump() {
     LOGI("  * VabitsMask: 0x%lx\n", GetVabitsMask());
 }
 
-void CoreApi::DumpFile() {
-    auto callback = [](File* file) -> bool {
-        LOGI("[%lx, %lx)  %08lx  %s\n", file->begin(), file->end(),
-                                    file->offset(), file->name().c_str());
-        return false;
-    };
-    INSTANCE->foreachFile(callback);
-}
-
 void CoreApi::ForeachFile(std::function<bool (File *)> callback) {
     INSTANCE->foreachFile(callback);
 }
@@ -219,54 +210,11 @@ File* CoreApi::FindFile(uint64_t vaddr) {
     return result;
 }
 
-void CoreApi::DumpAuxv() {
-    auto callback = [](Auxv* auxv) -> bool {
-        if (auxv->type() == AT_EXECFN || auxv->type() == AT_PLATFORM) {
-            std::string name;
-            if (IsVirtualValid(auxv->value())) {
-                name = reinterpret_cast<const char*>(GetReal(auxv->value()));
-            }
-            LOGI("%6lx  %16s  0x%lx %s\n", auxv->type(), auxv->to_string().c_str(),
-                                            auxv->value(), name.c_str());
-        } else {
-            LOGI("%6lx  %16s  0x%lx\n", auxv->type(), auxv->to_string().c_str(), auxv->value());
-        }
-        return false;
-    };
+void CoreApi::ForeachAuxv(std::function<bool (Auxv *)> callback) {
     INSTANCE->foreachAuxv(callback);
 }
 
-void CoreApi::DumpLinkMap() {
-    auto callback = [](LinkMap* map) -> bool {
-        LoadBlock* block = map->block();
-        if (block) {
-            std::string name;
-            if (block->isMmapBlock()) {
-                name = block->name();
-            } else {
-                name = map->name();
-            }
-            std::string valid;
-            if (block->isValid()) {
-                valid.append("[*]");
-                if (block->isOverlayBlock()) {
-                    valid.append("(OVERLAY)");
-                } else if (block->isMmapBlock()) {
-                    valid.append("(MMAP)");
-                }
-            } else {
-                valid.append("[EMPTY]");
-            }
-
-            LOGI("0x%lx  [%lx, %lx)  %s %s\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
-                                       name.c_str(), valid.c_str());
-        } else {
-            LOGI("0x%lx  [%lx, %lx)  %s [unknown]\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
-                                       block->name().c_str());
-        }
-        return false;
-    };
-    LOGI("LINKMAP       REGION                    NAME\n");
+void CoreApi::ForeachLinkMap(std::function<bool (LinkMap *)> callback) {
     INSTANCE->foreachLinkMap(callback);
 }
 

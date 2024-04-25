@@ -21,11 +21,15 @@
 #include "api/memory_ref.h"
 #include "runtime/gc/heap.h"
 #include "runtime/thread_list.h"
+#include "runtime/class_linker.h"
+#include "runtime/jni/java_vm_ext.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
     uint32_t heap_;
     uint32_t thread_list_;
+    uint32_t class_linker_;
+    uint32_t java_vm_;
 };
 
 struct Runtime_SizeTable {
@@ -57,10 +61,14 @@ public:
     static void Init34();
     inline uint64_t heap() { return VALUEOF(Runtime, heap_); }
     inline uint64_t thread_list() { return VALUEOF(Runtime, thread_list_); }
+    inline uint64_t class_linker() { return VALUEOF(Runtime, class_linker_); }
+    inline uint64_t java_vm() { return VALUEOF(Runtime, java_vm_); }
 
     static Runtime& Current();
     gc::Heap& GetHeap();
     ThreadList& GetThreadList();
+    ClassLinker& GetClassLinker();
+    JavaVMExt& GetJavaVM();
 
     void CleanCache() {
         if (heap_cache.Ptr()) heap_cache.CleanCache();
@@ -71,6 +79,8 @@ private:
     // quick memoryref cache
     gc::Heap heap_cache = 0x0;
     ThreadList thread_list_cache = 0x0;
+    ClassLinker class_linker_cache = 0x0;
+    JavaVMExt java_vm_cache = 0x0;
 };
 
 } // namespace art

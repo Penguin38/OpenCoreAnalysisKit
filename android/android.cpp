@@ -23,6 +23,7 @@
 #include "runtime/mirror/dex_cache.h"
 #include "runtime/runtime.h"
 #include "runtime/image.h"
+#include "runtime/class_linker.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -30,6 +31,7 @@
 #include "runtime/gc/space/zygote_space.h"
 #include "runtime/gc/space/large_object_space.h"
 #include "runtime/gc/accounting/space_bitmap.h"
+#include "runtime/jni/java_vm_ext.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "base/length_prefixed_array.h"
@@ -151,6 +153,7 @@ void Android::preLoad() {
     art::ArtField::Init();
     art::LengthPrefixedArray::Init();
     art::ThreadList::Init();
+    art::ClassLinker::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -185,10 +188,12 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::Thread::Init31);
     RegisterSdkListener(S, art::Thread::tls_32bit_sized_values::Init31);
     RegisterSdkListener(S, art::gc::space::RegionSpace::Init31);
+    RegisterSdkListener(S, art::JavaVMExt::Init31);
 
     // 33
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
     RegisterSdkListener(TIRAMISU, art::Thread::Init33);
+    RegisterSdkListener(TIRAMISU, art::JavaVMExt::Init33);
 
     // 34
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Runtime::Init34);
@@ -196,6 +201,7 @@ void Android::preLoad() {
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::ImageHeader::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::tls_ptr_sized_values::Init34);
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::JavaVMExt::Init34);
 }
 
 void Android::preLoadLater() {
@@ -206,6 +212,7 @@ void Android::preLoadLater() {
     art::Thread::tls_32bit_sized_values::Init();
     art::Thread::tls_ptr_sized_values::Init();
     art::gc::space::RegionSpace::Init();
+    art::JavaVMExt::Init();
 
     LOGI("Switch android(%d) env.\n", sdk);
     for (const auto& listener : mSdkListeners) {

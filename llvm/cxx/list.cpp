@@ -61,8 +61,7 @@ bool list::iterator::operator!=(iterator other) const {
 }
 
 uint64_t list::iterator::operator*() {
-    list cl = current;
-    return cl.__value();
+    return current.Ptr() + OFFSET(cxx_list, __value_);
 }
 
 } // namespace cxx

@@ -25,6 +25,8 @@ public:
     ~DexCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
+    void DexCachesDump();
+    void DexCachesDump_v33();
 };
 
 #endif // PARSER_COMMAND_CMD_DEX_H_

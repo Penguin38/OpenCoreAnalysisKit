@@ -19,6 +19,7 @@
 #include "cxx/vector.h"
 #include "cxx/map.h"
 #include "cxx/list.h"
+#include "cxx/unordered_map.h"
 
 void LLVM::Init() {
     cxx::string::Init();
@@ -26,4 +27,5 @@ void LLVM::Init() {
     cxx::map::Init();
     cxx::map::pair::Init();
     cxx::list::Init();
+    cxx::unordered_map::Init();
 }

@@ -85,8 +85,8 @@ int main(int argc, const char* argv[]) {
     CoreApi::ExecFile("/system");
     CoreApi::SysRoot("/system:/vendor");
 #endif
-    CoreApi::DumpFile();
-    CoreApi::DumpLinkMap();
+    // CoreApi::DumpFile();
+    // CoreApi::DumpLinkMap();
     CoreApi::UnLoad();
     return 0;
 }

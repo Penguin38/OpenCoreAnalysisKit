@@ -33,7 +33,8 @@ std::list<std::unique_ptr<Thread>>& ThreadList::GetList() {
         list_cache.copyRef(this);
 
         for (const auto& value : list_cache) {
-            std::unique_ptr<Thread> thread = std::make_unique<Thread>(value);
+            api::MemoryRef ref = value;
+            std::unique_ptr<Thread> thread = std::make_unique<Thread>(ref.valueOf());
             list_second_cache.push_back(std::move(thread));
         }
     }

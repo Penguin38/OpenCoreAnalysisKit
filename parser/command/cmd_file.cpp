@@ -21,21 +21,27 @@
 #include <stdio.h>
 
 int FileCommand::main(int argc, char* const argv[]) {
-    if (CoreApi::IsReady())  {
+    if (!CoreApi::IsReady())
+        return 0;
+
+    uint64_t address = 0x0;
+    if (argc > 1) address = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
+    auto callback = [argc, address](File* file) -> bool {
         if (!(argc > 1)) {
-            CoreApi::DumpFile();
+            LOGI("[%lx, %lx)  %08lx  %s\n", file->begin(), file->end(),
+                                            file->offset(), file->name().c_str());
         } else {
-            uint64_t address = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
-            auto callback = [address](File* file) -> bool {
-                if (address >= file->begin() && address < file->end()) {
-                    LOGI("[%lx, %lx) %lx %s\n", file->begin(), file->end(), file->offset(), file->name().c_str());
-                    return true;
-                }
-                return false;
-            };
-            CoreApi::ForeachFile(callback);
+            if (address >= file->begin() && address < file->end()) {
+                LOGI("[%lx, %lx)  %08lx  %s\n", file->begin(), file->end(),
+                                            file->offset(), file->name().c_str());
+                return true;
+            }
         }
-    }
+        return false;
+    };
+
+    CoreApi::ForeachFile(callback);
+
     return 0;
 }
 

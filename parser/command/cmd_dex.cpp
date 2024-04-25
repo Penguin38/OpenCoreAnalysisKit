@@ -18,13 +18,39 @@
 #include "command/cmd_dex.h"
 #include "api/core.h"
 #include "android.h"
+#include "runtime/runtime.h"
+#include "runtime/class_linker.h"
 #include <string>
 
 int DexCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
+    if (Android::Sdk() < Android::TIRAMISU) {
+        DexCachesDump();
+    } else {
+        DexCachesDump_v33();
+    }
+
     return 0;
+}
+
+void DexCommand::DexCachesDump() {
+    art::Runtime& runtime = art::Runtime::Current();
+    art::ClassLinker& linker = runtime.GetClassLinker();
+    LOGD("%d\n", linker.GetDexCacheCount());
+    for (const auto& value : linker.GetDexCachesData()) {
+        LOGD("%lx\n", value);
+    }
+}
+
+void DexCommand::DexCachesDump_v33() {
+    art::Runtime& runtime = art::Runtime::Current();
+    art::ClassLinker& linker = runtime.GetClassLinker();
+    LOGD("%d\n", linker.GetDexCacheCount());
+    for (const auto& value : linker.GetDexCachesData_v33()) {
+        LOGD("%lx\n", value);
+    }
 }
 
 void DexCommand::usage() {

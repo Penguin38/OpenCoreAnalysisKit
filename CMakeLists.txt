@@ -57,7 +57,8 @@ add_library(llvm STATIC
             llvm/cxx/string.cpp
             llvm/cxx/vector.cpp
             llvm/cxx/map.cpp
-            llvm/cxx/list.cpp)
+            llvm/cxx/list.cpp
+            llvm/cxx/unordered_map.cpp)
 target_link_libraries(llvm core)
 
 include_directories(android)
@@ -76,6 +77,7 @@ add_library(android STATIC
             android/art/runtime/image.cpp
             android/art/runtime/thread_list.cpp
             android/art/runtime/thread.cpp
+            android/art/runtime/class_linker.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp
@@ -92,6 +94,8 @@ add_library(android STATIC
             android/art/runtime/gc/space/zygote_space.cpp
             android/art/runtime/gc/space/large_object_space.cpp
             android/art/runtime/gc/accounting/space_bitmap.cpp
+
+            android/art/runtime/jni/java_vm_ext.cpp
 
             android/art/dex/primitive.cpp
             android/art/dex/modifiers.cpp

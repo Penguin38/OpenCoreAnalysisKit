@@ -106,11 +106,10 @@ public:
     static ThreadApi* FindThread(int tid);
     // Command
     static void Dump();
-    static void DumpFile();
     static void ForeachFile(std::function<bool (File *)> callback);
+    static void ForeachAuxv(std::function<bool (Auxv *)> callback);
+    static void ForeachLinkMap(std::function<bool (LinkMap *)> callback);
     static File* FindFile(uint64_t vaddr);
-    static void DumpAuxv();
-    static void DumpLinkMap();
     static void ExecFile(const char* file);
     static void SysRoot(const char* dir);
     static void Write(uint64_t vaddr, uint64_t value);
