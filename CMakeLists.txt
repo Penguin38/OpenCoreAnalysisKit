@@ -89,6 +89,7 @@ add_library(android STATIC
 
             android/art/runtime/gc/heap.cpp
             android/art/runtime/gc/space/space.cpp
+            android/art/runtime/gc/space/fake_space.cpp
             android/art/runtime/gc/space/region_space.cpp
             android/art/runtime/gc/space/image_space.cpp
             android/art/runtime/gc/space/zygote_space.cpp

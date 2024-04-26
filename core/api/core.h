@@ -127,6 +127,7 @@ public:
     static LoadBlock* FindLoadBlock(uint64_t vaddr, bool check);
     static uint64_t SearchSymbol(const char* path, const char* symbol);
     static void ForeachThread(std::function<bool (ThreadApi *)> callback);
+    static bool NewLoadBlock(uint64_t begin, uint64_t size);
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {

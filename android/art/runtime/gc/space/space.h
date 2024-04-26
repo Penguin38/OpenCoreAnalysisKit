@@ -52,6 +52,7 @@ namespace gc {
 namespace space {
 
 enum SpaceType {
+    kSpaceTypeFakeSpace = -2,
     kSpaceTypeInvalidSpace = -1,
     kSpaceTypeImageSpace,
     kSpaceTypeMallocSpace,
@@ -63,6 +64,7 @@ enum SpaceType {
 
 class Space : public api::MemoryRef {
 public:
+    inline static const char* FAKE_SPACE = "Fake space";
     inline static const char* REGION_SPACE = "main space (region space)";
     inline static const char* ZYGOTE_SPACE = "Zygote space";
     inline static const char* NON_MOVING_SPACE = "non moving space";
@@ -86,6 +88,7 @@ public:
     inline uint64_t name() { return Ptr() + OFFSET(Space, name_); }
 
     const char* GetName();
+    inline bool IsFakeSpace() { return GetType() == kSpaceTypeFakeSpace; }
     inline bool IsImageSpace() { return GetType() == kSpaceTypeImageSpace; }
     inline bool IsMallocSpace() { return GetType() == kSpaceTypeMallocSpace; }
     inline bool IsZygoteSpace() { return GetType() == kSpaceTypeZygoteSpace; }

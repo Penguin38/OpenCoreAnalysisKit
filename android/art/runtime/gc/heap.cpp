@@ -19,6 +19,7 @@
 #include "runtime/gc/space/image_space.h"
 #include "runtime/gc/space/zygote_space.h"
 #include "runtime/gc/space/large_object_space.h"
+#include "runtime/gc/space/fake_space.h"
 
 struct Heap_OffsetTable __Heap_offset__;
 struct Heap_SizeTable __Heap_size__;
@@ -62,6 +63,14 @@ std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces(
                 continuous_spaces_second_cache.push_back(std::move(space));
             }
         }
+
+#if 0
+        // fake Object.newInstance feature.
+        if (space::FakeSpace::Create()) {
+            std::unique_ptr<space::FakeSpace> fake_space = std::make_unique<space::FakeSpace>(space::FakeSpace::FAKE_SPACE_PTR);
+            continuous_spaces_second_cache.push_back(std::move(fake_space));
+        }
+#endif
     }
     return continuous_spaces_second_cache;
 }

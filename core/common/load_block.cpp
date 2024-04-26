@@ -88,7 +88,11 @@ void LoadBlock::removeMmap() {
 
 void LoadBlock::removeOverlay() {
     if (mOverlay) {
-        LOGI("Remove overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
-        mOverlay.reset();
+        if (!isFake()) {
+            LOGI("Remove overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
+            mOverlay.reset();
+        } else {
+            LOGE("ERROR: Can't remove fake load\n");
+        }
     }
 }

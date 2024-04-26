@@ -51,6 +51,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         {"app",        no_argument,       0,   0 },
         {"zygote",     no_argument,       0,   1 },
         {"image",      no_argument,       0,   2 },
+        {"fake",       no_argument,       0,   3 },
     };
 
     while ((opt = getopt_long(argc, argv, "asnd",
@@ -77,6 +78,9 @@ int TopCommand::main(int argc, char* const argv[]) {
             case 2:
                 flag |= Android::EACH_IMAGE_OBJECTS;
                 break;
+            case 3:
+                flag |= Android::EACH_FAKE_OBJECTS;
+                break;
         }
     }
 
@@ -84,6 +88,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         flag |= Android::EACH_APP_OBJECTS;
         flag |= Android::EACH_ZYGOTE_OBJECTS;
         flag |= Android::EACH_IMAGE_OBJECTS;
+        flag |= Android::EACH_FAKE_OBJECTS;
     }
     std::map<art::mirror::Class, TopCommand::Pair> classes;
     art::mirror::Class cleaner = 0;
@@ -212,6 +217,6 @@ int TopCommand::main(int argc, char* const argv[]) {
 }
 
 void TopCommand::usage() {
-    LOGI("Usage: top <NUM> [--alloc|-a] [--shallow|-s] [--native|-n] [--display|-d] [--app|--zygote|--image]\n");
+    LOGI("Usage: top <NUM> [--alloc|-a] [--shallow|-s] [--native|-n] [--display|-d] [--app|--zygote|--image|--fake]\n");
 }
 

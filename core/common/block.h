@@ -34,15 +34,18 @@ public:
     inline uint64_t align() { return mAlign; }
     inline bool isValidBlock() { return !mTruncated && (mFileSize > 0); }
     inline uint64_t oraddr() { return mOriAddr; }
+    inline bool isFake() { return mFake; }
 
     Block(uint32_t f, uint64_t off, uint64_t va, uint64_t pa,
             uint64_t filesz, uint64_t memsz, uint64_t align)
             : mFlags(f), mOffset(off), mVaddr(va), mPaddr(pa),
-              mFileSize(filesz), mMemSize(memsz), mAlign(align) {}
+              mFileSize(filesz), mMemSize(memsz), mAlign(align),
+              mFake(false) {}
 
     ~Block() {}
     void setOriAddr(uint64_t addr) { if (isValidBlock()) mOriAddr = addr; }
     void setTruncated(bool truncated) { mTruncated = truncated; }
+    void setFake(bool fake) { mFake = fake; }
 private:
     //  program member
     uint32_t mFlags;
@@ -56,6 +59,7 @@ private:
     // Real memory addr
     uint64_t mOriAddr;
     bool mTruncated;
+    bool mFake;
 };
 
 #endif  // CORE_COMMON_BLOCK_H_

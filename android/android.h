@@ -109,6 +109,7 @@ public:
     static constexpr int EACH_APP_OBJECTS = 1 << 0;
     static constexpr int EACH_ZYGOTE_OBJECTS = 1 << 1;
     static constexpr int EACH_IMAGE_OBJECTS = 1 << 2;
+    static constexpr int EACH_FAKE_OBJECTS = 1 << 3;
     /*
      * app
      * zygote

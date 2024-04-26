@@ -131,6 +131,28 @@ std::string& CoreApi::getName() {
     return mCore->getName();
 }
 
+bool CoreApi::NewLoadBlock(uint64_t begin, uint64_t size) {
+    std::shared_ptr<LoadBlock> block(new LoadBlock(Block::FLAG_R | Block::FLAG_W,  // flag
+                                                   0x0,      // offset
+                                                   begin,    // vaddr
+                                                   0x0,      // paddr
+                                                   0x0,      // filesz
+                                                   size,     // memsz
+                                                   0x1000)); // align
+    block->setTruncated(false);
+    block->setFake(true);
+    block->setVabitsMask(CoreApi::GetVabitsMask());
+    block->setPointMask(CoreApi::GetPointMask());
+
+    if (INSTANCE->findLoadBlock(begin)
+            || INSTANCE->findLoadBlock(begin + size - 0x1))
+        return false;
+
+    block->setOverlay(begin, 0x0);
+    INSTANCE->addLoadBlock(block);
+    return true;
+}
+
 void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
     mLoad.push_back(std::move(block));
 }

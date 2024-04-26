@@ -273,7 +273,7 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
 }
 
 void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn) {
-    ForeachObjects(fn, EACH_IMAGE_OBJECTS | EACH_ZYGOTE_OBJECTS | EACH_APP_OBJECTS);
+    ForeachObjects(fn, EACH_IMAGE_OBJECTS | EACH_ZYGOTE_OBJECTS | EACH_APP_OBJECTS | EACH_FAKE_OBJECTS);
 }
 
 void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag) {
@@ -296,6 +296,8 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
             if (flag & EACH_ZYGOTE_OBJECTS) walkfn(space.get());
         } else if (space->IsRegionSpace()) {
             if (flag & EACH_APP_OBJECTS) walkfn(space.get());
+        } else if (space->IsFakeSpace()) {
+            if (flag & EACH_FAKE_OBJECTS) walkfn(space.get());
         } else {
             if (space->GetType() != art::gc::space::kSpaceTypeInvalidSpace) {
                 walkfn(space.get());
