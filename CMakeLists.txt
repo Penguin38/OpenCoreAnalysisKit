@@ -125,6 +125,7 @@ add_library(parser STATIC
             parser/command/command.cpp
             parser/command/command_manager.cpp
             parser/command/help.cpp
+            parser/command/cmd_time.cpp
             parser/command/cmd_core.cpp
             parser/command/cmd_exec.cpp
             parser/command/cmd_sysroot.cpp

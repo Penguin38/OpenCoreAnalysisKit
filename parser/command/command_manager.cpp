@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "command/command_manager.h"
 #include "command/help.h"
+#include "command/cmd_time.h"
 #include "command/cmd_core.h"
 #include "command/cmd_exec.h"
 #include "command/cmd_sysroot.h"
@@ -77,6 +78,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new ShellCommand());
     CommandManager::PushInlineCommand(new Help());
     CommandManager::PushInlineCommand(new RemoteCommand());
+    CommandManager::PushInlineCommand(new TimeCommand());
 }
 
 int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
