@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "cxx/string.h"
 
 struct cxx_string_OffsetTable __cxx_string_offset__;

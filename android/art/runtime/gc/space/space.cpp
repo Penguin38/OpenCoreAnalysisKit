@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/runtime_globals.h"
 #include "arm64/inst/constant.h"

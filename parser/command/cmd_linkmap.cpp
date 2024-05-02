@@ -46,8 +46,7 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
             LOGI("0x%lx  [%lx, %lx)  %s %s\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
                                        name.c_str(), valid.c_str());
         } else {
-            LOGI("0x%lx  [%lx, %lx)  %s [unknown]\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
-                                       block->name().c_str());
+            LOGI("0x%lx  [%lx, %lx)  %s [unknown]\n", map->map(), map->begin(), map->begin(), map->name());
         }
         return false;
     };

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "runtime/jni/java_vm_ext.h"
 
 struct JavaVMExt_OffsetTable __JavaVMExt_offset__;

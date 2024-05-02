@@ -1,7 +1,9 @@
 # Getting Started
 
-Install cmake 3.21.1+ on ubuntu 22.04, download cmake 3.21.1+, See https://cmake.org/download/
-
+Install cmake 3.21.1+ on ubuntu 22.04, download cmake 3.21.1+, please see:
+```
+https://cmake.org/download/
+```
 ```
 sudo apt-get install cmake
 ```
@@ -10,8 +12,10 @@ Install clang-12
 ```
 sudo apt-get install clang-12
 ```
-Dowload NDK r22+, See https://github.com/android/ndk/wiki/Unsupported-Downloads
-
+Dowload NDK r22+, please see:
+```
+https://github.com/android/ndk/wiki/Unsupported-Downloads
+```
 ```
 export ANDROID_NDK=<path-to>
 ./build.sh $ANDROID_NDK
@@ -79,7 +83,6 @@ core-parser> help
       thread       getprop         print         hprof        search
        class           top         space           dex           env
        shell          help        remote       version          quit
-
 ```
 
 ```

@@ -17,40 +17,6 @@
 #include "logger/log.h"
 #include "common/load_block.h"
 
-uint64_t LoadBlock::begin(int opt) {
-    if (mOverlay && (opt & OPT_READ_OVERLAY))
-        return mOverlay->data();
-    if (mMmap && (opt & OPT_READ_MMAP))
-        return mMmap->data();
-    if (oraddr() && (opt & OPT_READ_OR))
-        return oraddr();
-    return 0x0;
-}
-
-bool LoadBlock::isValid() {
-    if ((flags() & FLAG_R) && (isValidBlock() || mMmap || mOverlay))
-        return true;
-    return false;
-}
-
-bool LoadBlock::virtualContains(uint64_t addr) {
-    uint64_t clocaddr = addr & mVabitsMask;
-    if (clocaddr >= vaddr() && clocaddr < (vaddr() + size()))
-        return true;
-    return false;
-}
-
-bool LoadBlock::realContains(uint64_t raddr) {
-    if (mOverlay) {
-        return (raddr >= mOverlay->data() && raddr < (mOverlay->data() + size()));
-    } else if (mMmap) {
-        return (raddr >= mMmap->data() && raddr < (mMmap->data() + size()));
-    } else if (oraddr()) {
-        return (raddr >= oraddr() && raddr < (oraddr() + size()));
-    }
-    return false;
-}
-
 void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, size(), offset));
     if (map) {

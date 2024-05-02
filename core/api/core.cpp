@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "api/elf.h"
 #include "arm64/core.h"
 #include "arm/core.h"
 #include "riscv64/core.h"
@@ -31,6 +32,11 @@
 #include <iostream>
 
 CoreApi* CoreApi::INSTANCE = nullptr;
+
+void CoreApi::Init() {
+    api::Elf::Init();
+    LinkMap::Init();
+}
 
 bool CoreApi::IsReady() {
     return INSTANCE != nullptr;
@@ -159,15 +165,6 @@ void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
     mLoad.push_back(std::move(block));
 }
 
-LoadBlock* CoreApi::findLoadBlock(uint64_t vaddr) {
-    for (const auto& block : mLoad) {
-        if (block->virtualContains(vaddr)) {
-            return block.get();
-        }
-    }
-    return nullptr;
-}
-
 void CoreApi::removeAllLoadBlock() {
     mLoad.clear();
 }
@@ -193,14 +190,7 @@ ThreadApi* CoreApi::FindThread(int tid) {
 }
 
 void CoreApi::addLinkMap(uint64_t map, uint64_t begin, uint64_t name) {
-    std::unique_ptr<LinkMap> linkmap;
-    if (IsVirtualValid(name)) {
-        linkmap = std::make_unique<LinkMap>(map, begin,
-                            reinterpret_cast<const char*>(v2r(name, OPT_READ_ALL)),
-                            findLoadBlock(begin));
-    } else {
-        linkmap = std::make_unique<LinkMap>(map, begin, nullptr, findLoadBlock(begin));
-    }
+    std::unique_ptr<LinkMap> linkmap = std::make_unique<LinkMap>(map, begin, name);
     mLinkMap.push_back(std::move(linkmap));
 }
 
@@ -314,22 +304,12 @@ void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool 
     INSTANCE->foreachLoadBlock(callback, check);
 }
 
-LoadBlock* CoreApi::FindLoadBlock(uint64_t vaddr, bool check) {
-    LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
-    if (check) {
-        if (block && block->isValid())
-            return block;
-        throw InvalidAddressException(vaddr);
-    }
-    return block;
-}
-
 uint64_t CoreApi::SearchSymbol(const char* path, const char* symbol) {
     LinkMap* result = nullptr;
     auto callback = [&](LinkMap* map) -> bool {
         LoadBlock* block = map->block();
         if (block) {
-            if (map->name() == path)
+            if (!strcmp(map->name(), path))
                 result = map;
 
             if (block->isMmapBlock()) {

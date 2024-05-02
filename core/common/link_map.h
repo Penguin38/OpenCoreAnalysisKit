@@ -17,30 +17,47 @@
 #ifndef CORE_COMMON_LINKMAP_H_
 #define CORE_COMMON_LINKMAP_H_
 
-#include <stdint.h>
-#include <sys/types.h>
+#include "api/memory_ref.h"
 #include <string>
-#include <iostream>
 
-class LinkMap {
+struct LinkMap_OffsetTable {
+    uint32_t l_addr;
+    uint32_t l_name;
+    uint32_t l_ld;
+    uint32_t l_next;
+    uint32_t l_prev;
+};
+
+struct LinkMap_SizeTable {
+    uint32_t THIS;
+};
+
+extern struct LinkMap_OffsetTable __LinkMap_offset__;
+extern struct LinkMap_SizeTable __LinkMap_size__;
+
+class LinkMap : public api::MemoryRef {
 public:
-    inline uint64_t map() { return mMap; }
-    inline uint64_t begin() { return mBegin; }
-    inline std::string& name() { return mName; }
-    inline LoadBlock* block() { return mBlock; }
+    inline uint64_t map() { return Ptr(); }
+    uint64_t begin();
+    const char* name();
+    LoadBlock* block();
 
-    LinkMap(uint64_t m, uint64_t b, const char* name, LoadBlock* block)
-            : mMap(m), mBegin(b) {
-        if (name) mName = name;
-        mBlock = block;
+    LinkMap(uint64_t m, uint64_t b, uint64_t n)
+            : api::MemoryRef(m), addr_cache(b), name_cache(n) {
+        addr_cache.Prepare(false);
+        name_cache.Prepare(false);
     }
+
+    static void Init();
+    inline uint64_t l_addr() { return VALUEOF(LinkMap, l_addr); }
+    inline uint64_t l_name() { return VALUEOF(LinkMap, l_name); }
     ~LinkMap() {}
+
+    api::MemoryRef& GetAddrCache();
+    api::MemoryRef& GetNameCache();
 private:
-    uint64_t mMap;
-    //  file member
-    uint64_t mBegin;
-    std::string mName;
-    LoadBlock* mBlock;
+    api::MemoryRef addr_cache;
+    api::MemoryRef name_cache;
 };
 
 #endif  // CORE_COMMON_LINKMAP_H_

@@ -19,6 +19,7 @@
 
 #include "common/block.h"
 #include "base/memory_map.h"
+#include "base/macros.h"
 #include <string>
 #include <memory>
 
@@ -29,11 +30,40 @@ public:
     static constexpr int OPT_READ_OVERLAY = (1 << 2);
     static constexpr int OPT_READ_ALL = OPT_READ_OR | OPT_READ_MMAP | OPT_READ_OVERLAY;
 
-    uint64_t begin() { return begin(OPT_READ_ALL); }
-    uint64_t begin(int opt);
-    bool isValid();
-    bool virtualContains(uint64_t vaddr);
-    bool realContains(uint64_t raddr);
+    inline uint64_t begin() { return begin(OPT_READ_ALL); }
+    inline uint64_t begin(int opt) {
+        if (UNLIKELY(mOverlay && (opt & OPT_READ_OVERLAY)))
+            return mOverlay->data();
+        if (UNLIKELY(mMmap && (opt & OPT_READ_MMAP)))
+            return mMmap->data();
+        if (LIKELY(oraddr() && (opt & OPT_READ_OR)))
+            return oraddr();
+        return 0x0;
+    }
+    inline bool isValid() {
+        if (!(flags() & FLAG_R))
+            return false;
+        if ((isValidBlock() || mMmap || mOverlay))
+            return true;
+        return false;
+    }
+    inline bool virtualContains(uint64_t addr) {
+        uint64_t clocaddr = addr & mVabitsMask;
+        if ((clocaddr < vaddr())
+                || (clocaddr >= (vaddr() + size())))
+            return false;
+        return true;
+    }
+    inline bool realContains(uint64_t raddr) {
+        if (mOverlay) {
+            return (raddr >= mOverlay->data() && raddr < (mOverlay->data() + size()));
+        } else if (mMmap) {
+            return (raddr >= mMmap->data() && raddr < (mMmap->data() + size()));
+        } else if (oraddr()) {
+            return (raddr >= oraddr() && raddr < (oraddr() + size()));
+        }
+        return false;
+    }
 
     LoadBlock(uint32_t f, uint64_t off, uint64_t va, uint64_t pa,
             uint64_t filesz, uint64_t memsz, uint64_t align)

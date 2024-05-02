@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "cxx/list.h"
 
 struct cxx_list_OffsetTable __cxx_list_offset__;

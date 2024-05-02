@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/region_space.h"
 #include "runtime/gc/space/image_space.h"

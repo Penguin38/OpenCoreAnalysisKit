@@ -18,12 +18,11 @@
 #define CORE_API_MEMORY_REF_H_
 
 #include "logger/log.h"
-#include "api/core.h"
+#include "api/bridge.h"
+#include "common/load_block.h"
 #include "common/exception.h"
-#include "backtrace/callstack.h"
 #include <stdint.h>
 #include <sys/types.h>
-#include <iostream>
 
 /*
  *  api::MemoryRef ref = vaddr;
@@ -75,17 +74,8 @@ public:
     inline uint64_t PointMask() { return block->PointMask(); }
     inline bool IsReady() { return block != nullptr; }
     inline void Prepare(bool check) {
-        if (vaddr && !block) {
-#if 0 // cloctime debug
-            static int count = 0;
-            count++;
-            LOGI("Prepare %d\n", count);
-            CallStack stack;
-            stack.update(2);
-            stack.dump(1);
-#endif
-            block = CoreApi::FindLoadBlock(vaddr, check);
-        }
+        if (block || !vaddr) return;
+        block = Bridge::FindLoadBlock(vaddr, check);
     }
     inline void MovePtr(int64_t length) {
         Prepare(true);

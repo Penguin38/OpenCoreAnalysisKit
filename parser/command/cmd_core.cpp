@@ -24,6 +24,7 @@
 int CoreCommand::main(int argc, char* const argv[]) {
     bool ret = CoreApi::Load(argv[1]);
     if (ret) {
+        CoreApi::Init();
         CoreApi::Dump();
 
         Env::Clean();

@@ -23,6 +23,7 @@
 #include "common/note_block.h"
 #include "common/link_map.h"
 #include "common/file.h"
+#include "common/exception.h"
 #include <stdint.h>
 #include <sys/types.h>
 #include <functional>
@@ -105,6 +106,7 @@ public:
     static uint64_t FindAuxv(uint64_t type);
     static ThreadApi* FindThread(int tid);
     // Command
+    static void Init();
     static void Dump();
     static void ForeachFile(std::function<bool (File *)> callback);
     static void ForeachAuxv(std::function<bool (Auxv *)> callback);
@@ -124,10 +126,18 @@ public:
         return ForeachLoadBlock(callback, true);
     }
     static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
-    static LoadBlock* FindLoadBlock(uint64_t vaddr) {
+    static inline LoadBlock* FindLoadBlock(uint64_t vaddr) {
         return FindLoadBlock(vaddr, true);
     }
-    static LoadBlock* FindLoadBlock(uint64_t vaddr, bool check);
+    static inline LoadBlock* FindLoadBlock(uint64_t vaddr, bool check) {
+        LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
+        if (check) {
+            if (block && block->isValid())
+                return block;
+            throw InvalidAddressException(vaddr);
+        }
+        return block;
+    }
     static uint64_t SearchSymbol(const char* path, const char* symbol);
     static void ForeachThread(std::function<bool (ThreadApi *)> callback);
     static bool NewLoadBlock(uint64_t begin, uint64_t size);
@@ -141,7 +151,14 @@ public:
     uint64_t size();
     std::string& getName();
     void addLoadBlock(std::shared_ptr<LoadBlock>& block);
-    LoadBlock* findLoadBlock(uint64_t vaddr);
+    inline LoadBlock* findLoadBlock(uint64_t vaddr) {
+        for (const auto& block : mLoad) {
+            if (block->virtualContains(vaddr)) {
+                return block.get();
+            }
+        }
+        return nullptr;
+    }
     void removeAllLoadBlock();
     inline uint64_t v2r(uint64_t vaddr, int opt);
     inline uint64_t r2v(uint64_t raddr);

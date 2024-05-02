@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "logger/log.h"
 #include "dex/dex_file.h"
 #include "base/leb128.h"

@@ -17,6 +17,7 @@
 #ifndef ANDROID_ANDROID_H_
 #define ANDROID_ANDROID_H_
 
+#include "api/core.h"
 #include "runtime/runtime.h"
 #include "runtime/art_field.h"
 #include "runtime/mirror/class.h"

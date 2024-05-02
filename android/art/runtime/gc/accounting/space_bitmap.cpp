@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/runtime_globals.h"
 

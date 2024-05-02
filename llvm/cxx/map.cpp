@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "cxx/map.h"
 
 struct cxx_map_OffsetTable __cxx_map_offset__;

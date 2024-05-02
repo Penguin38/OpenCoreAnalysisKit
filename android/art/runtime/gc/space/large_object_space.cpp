@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "runtime/gc/space/large_object_space.h"
 #include "runtime/runtime_globals.h"
 #include <string.h>

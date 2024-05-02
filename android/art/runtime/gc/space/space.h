@@ -20,6 +20,7 @@
 #include "logger/log.h"
 #include "api/memory_ref.h"
 #include "runtime/mirror/object.h"
+#include <functional>
 
 struct Space_OffsetTable {
     uint32_t vtbl;

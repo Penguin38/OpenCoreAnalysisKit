@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "runtime/gc/space/region_space.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/object.h"

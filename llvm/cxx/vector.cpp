@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "cxx/vector.h"
 
 struct cxx_vector_OffsetTable __cxx_vector_offset__;

@@ -40,6 +40,7 @@ include_directories(core)
 add_library(core STATIC
             core/api/core.cpp
             core/api/elf.cpp
+            core/api/bridge.cpp
             core/lp64/core.cpp
             core/lp32/core.cpp
             core/arm64/core.cpp
@@ -48,7 +49,8 @@ add_library(core STATIC
             core/x64/core.cpp
             core/x86/core.cpp
             core/common/note_block.cpp
-            core/common/load_block.cpp)
+            core/common/load_block.cpp
+            core/common/link_map.cpp)
 target_link_libraries(core utils)
 
 include_directories(llvm)

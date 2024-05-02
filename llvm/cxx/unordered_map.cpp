@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "api/core.h"
 #include "cxx/unordered_map.h"
 
 struct cxx_unordered_map_OffsetTable __cxx_unordered_map_offset__;
