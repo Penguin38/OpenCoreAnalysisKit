@@ -112,7 +112,10 @@ public:
     static File* FindFile(uint64_t vaddr);
     static void ExecFile(const char* file);
     static void SysRoot(const char* dir);
-    static void Write(uint64_t vaddr, uint64_t value);
+    static void Write(uint64_t vaddr, uint64_t value) {
+        Write(vaddr, &value, 8);
+    }
+    static void Write(uint64_t vaddr, uint64_t *buf, uint64_t size);
     static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf) {
         return Read(vaddr, size, buf, OPT_READ_ALL);
     }

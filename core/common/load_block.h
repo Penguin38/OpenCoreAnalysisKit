@@ -40,7 +40,8 @@ public:
             : Block(f, off, va, pa, filesz, memsz, align) {}
 
     void setMmapFile(const char* file, uint64_t offset);
-    void setOverlay(uint64_t addr, uint64_t value);
+    void setOverlay(uint64_t addr, uint64_t *buf, uint64_t size);
+    bool newOverlay();
     void removeMmap();
     void removeOverlay();
     bool isMmapBlock() { return mMmap != nullptr; }

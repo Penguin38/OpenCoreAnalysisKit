@@ -17,6 +17,7 @@
 #include "runtime/gc/space/fake_space.h"
 #include "runtime/runtime_globals.h"
 #include "api/core.h"
+#include "cxx/string.h"
 
 namespace art {
 namespace gc {
@@ -27,8 +28,10 @@ bool FakeSpace::Create() {
         return false;
 
     // cxx::string Fake space
-    CoreApi::Write(FAKE_SPACE_PTR + OFFSET(Space, name_), 0x707320656B614614ULL);
-    CoreApi::Write(FAKE_SPACE_PTR + OFFSET(Space, name_) + 8, 0x656361ULL);
+    uint64_t name_buf[3] = {0x707320656B614614ULL,
+                            0x0000000000656361ULL,
+                            0x0000000000000000ULL};
+    CoreApi::Write(FAKE_SPACE_PTR + OFFSET(Space, name_), name_buf, SIZEOF(cxx_string));
 
     CoreApi::Write(FAKE_SPACE_PTR + OFFSET(ContinuousSpace, begin_), FAKE_SPACE_BEGIN);
     CoreApi::Write(FAKE_SPACE_PTR + OFFSET(ContinuousSpace, end_), FAKE_SPACE_END);

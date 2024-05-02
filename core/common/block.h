@@ -40,7 +40,7 @@ public:
             uint64_t filesz, uint64_t memsz, uint64_t align)
             : mFlags(f), mOffset(off), mVaddr(va), mPaddr(pa),
               mFileSize(filesz), mMemSize(memsz), mAlign(align),
-              mFake(false) {}
+              mOriAddr(0x0), mTruncated(false), mFake(false) {}
 
     ~Block() {}
     void setOriAddr(uint64_t addr) { if (isValidBlock()) mOriAddr = addr; }

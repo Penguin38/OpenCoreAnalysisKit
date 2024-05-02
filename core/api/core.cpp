@@ -132,6 +132,10 @@ std::string& CoreApi::getName() {
 }
 
 bool CoreApi::NewLoadBlock(uint64_t begin, uint64_t size) {
+    if (INSTANCE->findLoadBlock(begin)
+            || INSTANCE->findLoadBlock(begin + size - 0x1))
+        return false;
+
     std::shared_ptr<LoadBlock> block(new LoadBlock(Block::FLAG_R | Block::FLAG_W,  // flag
                                                    0x0,      // offset
                                                    begin,    // vaddr
@@ -144,11 +148,9 @@ bool CoreApi::NewLoadBlock(uint64_t begin, uint64_t size) {
     block->setVabitsMask(CoreApi::GetVabitsMask());
     block->setPointMask(CoreApi::GetPointMask());
 
-    if (INSTANCE->findLoadBlock(begin)
-            || INSTANCE->findLoadBlock(begin + size - 0x1))
+    if (!block->newOverlay())
         return false;
 
-    block->setOverlay(begin, 0x0);
     INSTANCE->addLoadBlock(block);
     return true;
 }
@@ -287,9 +289,9 @@ void CoreApi::SysRoot(const char* path) {
     INSTANCE->foreachLinkMap(callback);
 }
 
-void CoreApi::Write(uint64_t vaddr, uint64_t value) {
+void CoreApi::Write(uint64_t vaddr, uint64_t *buf, uint64_t size) {
     LoadBlock* block = FindLoadBlock(vaddr);
-    block->setOverlay(vaddr, value);
+    block->setOverlay(vaddr, buf, size);
 }
 
 bool CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt) {
