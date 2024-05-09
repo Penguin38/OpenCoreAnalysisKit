@@ -80,6 +80,7 @@ add_library(android STATIC
             android/art/runtime/thread_list.cpp
             android/art/runtime/thread.cpp
             android/art/runtime/class_linker.cpp
+            android/art/runtime/indirect_reference_table.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp

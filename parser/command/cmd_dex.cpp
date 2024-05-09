@@ -26,31 +26,16 @@ int DexCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
-    if (Android::Sdk() < Android::TIRAMISU) {
-        DexCachesDump();
-    } else {
-        DexCachesDump_v33();
+    art::Runtime& runtime = art::Runtime::Current();
+    art::ClassLinker& linker = runtime.GetClassLinker();
+    for (const auto& value : linker.GetDexCacheDatas()) {
+        art::mirror::DexCache& dex_cache = value->GetDexCache();
+        if (dex_cache.IsDexCache()) {
+            LOGI("%s\n", dex_cache.GetLocation().ToModifiedUtf8().c_str());
+        }
     }
 
     return 0;
-}
-
-void DexCommand::DexCachesDump() {
-    art::Runtime& runtime = art::Runtime::Current();
-    art::ClassLinker& linker = runtime.GetClassLinker();
-    LOGD("%d\n", linker.GetDexCacheCount());
-    for (const auto& value : linker.GetDexCachesData()) {
-        LOGD("%lx\n", value);
-    }
-}
-
-void DexCommand::DexCachesDump_v33() {
-    art::Runtime& runtime = art::Runtime::Current();
-    art::ClassLinker& linker = runtime.GetClassLinker();
-    LOGD("%d\n", linker.GetDexCacheCount());
-    for (const auto& value : linker.GetDexCachesData_v33()) {
-        LOGD("%lx\n", value);
-    }
 }
 
 void DexCommand::usage() {

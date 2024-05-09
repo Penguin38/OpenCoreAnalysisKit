@@ -15,6 +15,7 @@
  */
 
 #include "runtime/class_linker.h"
+#include "runtime/runtime.h"
 #include "android.h"
 
 struct ClassLinker_OffsetTable __ClassLinker_offset__;
@@ -92,6 +93,32 @@ cxx::unordered_map& ClassLinker::GetDexCachesData_v33() {
         dex_caches_v33_cache.Prepare(false);
     }
     return dex_caches_v33_cache;
+}
+
+std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCacheDatas() {
+    if (!dex_caches_second_cache.empty())
+        return dex_caches_second_cache;
+
+    Runtime& runtime = art::Runtime::Current();
+    JavaVMExt& vm = runtime.GetJavaVM();
+
+    if (Android::Sdk() < Android::TIRAMISU) {
+        for (const auto& value : GetDexCachesData()) {
+            // std::list<DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
+            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(value);
+            data->InitCache(vm.Decode(data->weak_root()), data->dex_file());
+            dex_caches_second_cache.push_back(std::move(data));
+        }
+    } else {
+        for (const auto& value : GetDexCachesData_v33()) {
+            // std::unordered_map<const DexFile*, DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
+            api::MemoryRef ref = value;
+            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(CoreApi::GetPointSize() / 8 + value);
+            data->InitCache(vm.Decode(data->weak_root()), ref.valueOf());
+            dex_caches_second_cache.push_back(std::move(data));
+        }
+    }
+    return dex_caches_second_cache;
 }
 
 } //namespace art

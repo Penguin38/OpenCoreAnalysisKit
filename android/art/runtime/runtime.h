@@ -73,6 +73,7 @@ public:
     void CleanCache() {
         if (heap_cache.Ptr()) heap_cache.CleanCache();
         if (thread_list_cache.Ptr()) thread_list_cache.CleanCache();
+        if (class_linker_cache.Ptr()) class_linker_cache.CleanCache();
     }
 private:
     static Runtime AnalysisInstance();

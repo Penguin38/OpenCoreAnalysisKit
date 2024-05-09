@@ -24,6 +24,7 @@
 #include "runtime/runtime.h"
 #include "runtime/image.h"
 #include "runtime/class_linker.h"
+#include "runtime/indirect_reference_table.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -194,6 +195,8 @@ void Android::preLoad() {
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
     RegisterSdkListener(TIRAMISU, art::Thread::Init33);
     RegisterSdkListener(TIRAMISU, art::JavaVMExt::Init33);
+    RegisterSdkListener(TIRAMISU, art::ClassLinker::DexCacheData::Init33);
+    RegisterSdkListener(TIRAMISU, art::IrtEntry::Init33);
 
     // 34
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Runtime::Init34);
@@ -202,6 +205,7 @@ void Android::preLoad() {
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::tls_ptr_sized_values::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::JavaVMExt::Init34);
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::IndirectReferenceTable::Init34);
 }
 
 void Android::preLoadLater() {
@@ -213,6 +217,9 @@ void Android::preLoadLater() {
     art::Thread::tls_ptr_sized_values::Init();
     art::gc::space::RegionSpace::Init();
     art::JavaVMExt::Init();
+    art::ClassLinker::DexCacheData::Init();
+    art::IrtEntry::Init();
+    art::IndirectReferenceTable::Init();
 
     LOGI("Switch android(%d) env.\n", sdk);
     for (const auto& listener : mSdkListeners) {

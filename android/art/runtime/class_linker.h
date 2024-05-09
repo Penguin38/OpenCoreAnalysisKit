@@ -20,6 +20,9 @@
 #include "api/memory_ref.h"
 #include "cxx/list.h"
 #include "cxx/unordered_map.h"
+#include "runtime/mirror/dex_cache.h"
+#include <vector>
+#include <memory>
 
 struct ClassLinker_OffsetTable {
     uint32_t dex_caches_;
@@ -61,6 +64,7 @@ public:
     inline uint64_t dex_caches() { return Ptr() + OFFSET(ClassLinker, dex_caches_); }
 
     class DexCacheData : public api::MemoryRef {
+	public:
         DexCacheData(uint64_t v) : api::MemoryRef(v) {}
         DexCacheData(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         DexCacheData(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
@@ -70,15 +74,35 @@ public:
 
         static void Init();
         static void Init33();
+        inline uint64_t weak_root() { return VALUEOF(DexCacheData, weak_root); }
+        inline uint64_t dex_file() { return VALUEOF(DexCacheData, dex_file); }
+
+        void InitCache(mirror::Object dex_cache, uint64_t dex_file) {
+            dex_cache_cache = dex_cache;
+            dex_file_cache = dex_file;
+        }
+        mirror::DexCache& GetDexCache() { return dex_cache_cache; }
+        DexFile& GetDexFile() { return dex_file_cache; }
+    private:
+        // quick memoryref cache
+        mirror::DexCache dex_cache_cache = 0x0;
+        DexFile dex_file_cache = 0x0;
     };
 
     uint32_t GetDexCacheCount();
     cxx::list& GetDexCachesData();
     cxx::unordered_map& GetDexCachesData_v33();
+    std::vector<std::unique_ptr<DexCacheData>>& GetDexCacheDatas();
+    void CleanCache() {
+        dex_caches_second_cache.clear();
+    }
 private:
     // quick memoryref cache
     cxx::list dex_caches_cache = 0x0;
     cxx::unordered_map dex_caches_v33_cache = 0x0;
+
+    // second cache
+    std::vector<std::unique_ptr<DexCacheData>> dex_caches_second_cache;
 };
 
 } //namespace art

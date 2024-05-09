@@ -19,6 +19,7 @@
 
 #include "api/memory_ref.h"
 #include "runtime/mirror/object.h"
+#include "runtime/mirror/string.h"
 #include "dex/dex_file.h"
 #include <string>
 
@@ -69,10 +70,12 @@ public:
     inline uint64_t dex_file() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexCache, dex_file_)); }
 
     DexFile& GetDexFile();
+    String& GetLocation();
 
 private:
     // quick memoryref cache
     DexFile dex_file_cache = 0x0;
+    String location_cache = 0x0;
 };
 
 } // namespace mirror

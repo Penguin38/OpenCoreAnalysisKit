@@ -56,5 +56,13 @@ DexFile& DexCache::GetDexFile() {
     return dex_file_cache;
 }
 
+String& DexCache::GetLocation() {
+    if (!location_cache.Ptr()) {
+        location_cache = location();
+        location_cache.Prepare(false);
+    }
+    return location_cache;
+}
+
 } // namespace mirror
 } // namespace art

@@ -18,6 +18,7 @@
 #define ANDROID_ART_RUNTIME_JNI_JAVA_VM_EXT_H_
 
 #include "api/memory_ref.h"
+#include "runtime/indirect_reference_table.h"
 
 struct JavaVMExt_OffsetTable {
     uint32_t globals_;
@@ -46,6 +47,17 @@ public:
     static void Init34();
     inline uint64_t globals() { return Ptr() + OFFSET(JavaVMExt, globals_); }
     inline uint64_t weak_globals() { return Ptr() + OFFSET(JavaVMExt, weak_globals_); }
+
+    IndirectReferenceTable& GetGlobalsTable();
+    IndirectReferenceTable& GetWeakGlobalsTable();
+
+    mirror::Object Decode(uint64_t uref);
+    mirror::Object DecodeGlobal(uint64_t uref);
+    mirror::Object DecodeWeakGlobal(uint64_t uref);
+private:
+    // quick memoryref cache
+    IndirectReferenceTable globals_cache = 0x0;
+    IndirectReferenceTable weak_globals_cache = 0x0;
 };
 
 } //namespace art
