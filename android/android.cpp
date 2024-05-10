@@ -15,6 +15,9 @@
  */
 
 #include "logger/log.h"
+#include "zip/zip_file.h"
+#include "base/utils.h"
+#include "common/bit.h"
 #include "android.h"
 #include "properties/property.h"
 #include "runtime/mirror/object.h"
@@ -327,7 +330,74 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
 }
 
 void Android::SysRoot(const char* path) {
+    std::vector<char *> dirs;
+    std::unique_ptr<char> newpath(strdup(path));
+    char *token = strtok(newpath.get(), ":");
+    while (token != nullptr) {
+        dirs.push_back(token);
+        token = strtok(nullptr, ":");
+    }
 
+    art::Runtime& runtime = art::Runtime::Current();
+    art::ClassLinker& linker = runtime.GetClassLinker();
+
+    for (const auto& value : linker.GetDexCacheDatas()) {
+        art::mirror::DexCache& dex_cache = value->GetDexCache();
+        art::DexFile& dex_file = value->GetDexFile();
+        LoadBlock* block = CoreApi::FindLoadBlock(dex_file.data_begin(), false);
+        if (block) {
+            if (block->flags() & Block::FLAG_W)
+                continue;
+
+            std::string name;
+            art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
+            if (oat_dex_file.Ptr()) {
+                art::OatFile& oat_file = oat_dex_file.GetOatFile();
+                if (oat_file.Ptr() && block->virtualContains(oat_file.vdex_begin())) {
+                    name = oat_file.GetVdexFile().GetName();
+                } else {
+                    name = dex_cache.GetLocation().ToModifiedUtf8();
+                }
+            } else {
+                name = dex_cache.GetLocation().ToModifiedUtf8();
+            }
+
+            std::unique_ptr<char> newname(strdup(name.c_str()));
+            char *ori_dex_file = strtok(newname.get(), "!");
+            char *sub_file = strtok(NULL, "!");
+
+            std::string filepath;
+            for (char *dir : dirs) {
+                if (Utils::SearchFile(dir, &filepath, ori_dex_file))
+                    break;
+            }
+
+            if (!filepath.length())
+                continue;
+
+            ZipFile zip;
+            if (zip.open(filepath.c_str())) {
+                LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
+                continue;
+            }
+
+            ZipEntry* entry;
+            if (!sub_file) {
+                entry = zip.getEntryByName("classes.dex");
+            } else {
+                entry = zip.getEntryByName(sub_file);
+            }
+
+            if (!entry || !entry->IsUncompressed()) {
+                LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
+                continue;
+            }
+
+            block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), 0x1000));
+        } else {
+            LOGE("ERROR: Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
+        }
+    }
 }
 
 void Android::Prepare() {
