@@ -25,6 +25,7 @@
 #include "runtime/image.h"
 #include "runtime/class_linker.h"
 #include "runtime/indirect_reference_table.h"
+#include "runtime/vdex_file.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -33,9 +34,11 @@
 #include "runtime/gc/space/large_object_space.h"
 #include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/jni/java_vm_ext.h"
+#include "runtime/oat/oat_file.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "base/length_prefixed_array.h"
+#include "base/mem_map.h"
 
 Android* Android::INSTANCE = nullptr;
 
@@ -155,6 +158,10 @@ void Android::preLoad() {
     art::LengthPrefixedArray::Init();
     art::ThreadList::Init();
     art::ClassLinker::Init();
+    art::OatFile::Init();
+    art::OatDexFile::Init();
+    art::VdexFile::Init();
+    art::MemMap::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();

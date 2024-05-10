@@ -20,6 +20,7 @@
 #include "api/memory_ref.h"
 #include "dex/dex_file_types.h"
 #include "dex/dex_file_structs.h"
+#include "runtime/oat/oat_file.h"
 #include "cxx/string.h"
 
 struct DexFile_OffsetTable {
@@ -94,6 +95,7 @@ public:
     inline uint64_t type_ids() { return VALUEOF(DexFile, type_ids_); }
     inline uint64_t string_ids() { return VALUEOF(DexFile, string_ids_); }
     inline uint64_t field_ids() { return VALUEOF(DexFile, field_ids_); }
+    inline uint64_t oat_dex_file() { return VALUEOF(DexFile, oat_dex_file_); }
 
     uint8_t* DataBegin();
     cxx::string GetLocation();
@@ -109,12 +111,14 @@ public:
     const char* GetFieldTypeDescriptor(dex::FieldId& field_id, const char* def);
     inline const char* GetFieldName(dex::FieldId& field_id) { return GetFieldName(field_id, "<invalid-field>"); }
     const char* GetFieldName(dex::FieldId& field_id, const char* def);
+    OatDexFile& GetOatDexFile();
     void dumpReason(uint64_t vaddr);
 private:
     // quick memoryref cache
     dex::TypeId type_ids_cache = 0x0;
     dex::StringId string_ids_cache = 0x0;
     dex::FieldId field_ids_cache = 0x0;
+    OatDexFile oat_dex_file_cache = 0x0;
 };
 
 } // namespace art

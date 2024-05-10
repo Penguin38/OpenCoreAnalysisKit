@@ -227,6 +227,14 @@ const char* DexFile::GetFieldName(dex::FieldId& field_id, const char* def) {
     return StringDataByIdx(idx);
 }
 
+OatDexFile& DexFile::GetOatDexFile() {
+    if (!oat_dex_file_cache.Ptr()) {
+        oat_dex_file_cache = oat_dex_file();
+        oat_dex_file_cache.Prepare(false);
+    }
+    return oat_dex_file_cache;
+}
+
 void DexFile::dumpReason(uint64_t vaddr) {
     if (Logger::IsDebug()) {
         File* file = CoreApi::FindFile(vaddr);

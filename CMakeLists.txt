@@ -81,6 +81,7 @@ add_library(android STATIC
             android/art/runtime/thread.cpp
             android/art/runtime/class_linker.cpp
             android/art/runtime/indirect_reference_table.cpp
+            android/art/runtime/vdex_file.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp
@@ -101,6 +102,8 @@ add_library(android STATIC
 
             android/art/runtime/jni/java_vm_ext.cpp
 
+            android/art/runtime/oat/oat_file.cpp
+
             android/art/dex/primitive.cpp
             android/art/dex/modifiers.cpp
             android/art/dex/utf.cpp
@@ -109,6 +112,7 @@ add_library(android STATIC
             android/art/dex/dex_file_structs.cpp
 
             android/art/base/length_prefixed_array.cpp
+            android/art/base/mem_map.cpp
 
             # jdk
             android/jdk/java/lang/Object.cpp

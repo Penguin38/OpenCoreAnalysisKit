@@ -68,7 +68,7 @@ public:
 
     static void Init();
     static void Init33();
-    inline uint64_t serial() { return VALUEOF(IrtEntry, serial_); }
+    inline uint32_t serial() { return value32Of(OFFSET(IrtEntry, serial_)); }
     inline uint64_t references() { return Ptr() + OFFSET(IrtEntry, references_); }
 };
 
