@@ -40,6 +40,7 @@
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
 #include "command/remote/cmd_remote.h"
+#include "command/fake/cmd_fake.h"
 #include "common/exception.h"
 #include "base/utils.h"
 #include <string.h>
@@ -78,6 +79,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new ShellCommand());
     CommandManager::PushInlineCommand(new Help());
     CommandManager::PushInlineCommand(new RemoteCommand());
+    CommandManager::PushInlineCommand(new FakeCommand());
     CommandManager::PushInlineCommand(new TimeCommand());
 }
 
