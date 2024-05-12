@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <iostream>
+#include <string>
 
 class Block {
 public:
@@ -46,6 +47,28 @@ public:
     void setOriAddr(uint64_t addr) { if (isValidBlock()) mOriAddr = addr; }
     void setTruncated(bool truncated) { mTruncated = truncated; }
     void setFake(bool fake) { mFake = fake; }
+
+    inline std::string convertFlags() {
+        std::string sb;
+        if (flags() & FLAG_R) {
+            sb.append("r");
+        } else {
+            sb.append("-");
+        }
+
+        if (flags() & FLAG_W) {
+            sb.append("w");
+        } else {
+            sb.append("-");
+        }
+
+        if (flags() & FLAG_X) {
+            sb.append("x");
+        } else {
+            sb.append("-");
+        }
+        return sb;
+    }
 private:
     //  program member
     uint32_t mFlags;

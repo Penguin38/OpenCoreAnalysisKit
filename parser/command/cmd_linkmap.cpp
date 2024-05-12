@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "base/utils.h"
 #include "command/cmd_linkmap.h"
 #include "api/core.h"
 
@@ -37,20 +38,25 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
                 if (block->isOverlayBlock()) {
                     valid.append("(OVERLAY)");
                 } else if (block->isMmapBlock()) {
-                    valid.append("(MMAP)");
+                    valid.append("(MMAP");
+                    if (block->GetMmapOffset()) {
+                        valid.append(" ");
+                        valid.append(Utils::ToHex(block->GetMmapOffset()));
+                    }
+                    valid.append(")");
                 }
             } else {
                 valid.append("[EMPTY]");
             }
 
-            LOGI("0x%lx  [%lx, %lx)  %s %s\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
-                                       name.c_str(), valid.c_str());
+            LOGI("0x%lx  [%lx, %lx)  %s  %s %s\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
+                                                   block->convertFlags().c_str(), name.c_str(), valid.c_str());
         } else {
             LOGI("0x%lx  [%lx, %lx)  %s [unknown]\n", map->map(), map->begin(), map->begin(), map->name());
         }
         return false;
     };
-    LOGI("LINKMAP       REGION                    NAME\n");
+    LOGI("LINKMAP       REGION                   FLAGS NAME\n");
     CoreApi::ForeachLinkMap(callback);
 
     return 0;

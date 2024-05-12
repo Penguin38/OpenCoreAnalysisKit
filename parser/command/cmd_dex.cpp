@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "base/utils.h"
 #include "command/cmd_dex.h"
 #include "api/core.h"
 #include "android.h"
@@ -28,7 +29,7 @@ int DexCommand::main(int argc, char* const argv[]) {
 
     art::Runtime& runtime = art::Runtime::Current();
     art::ClassLinker& linker = runtime.GetClassLinker();
-    LOGI("DEXCACHE    REGION                    NAME\n");
+    LOGI("DEXCACHE    REGION                   FLAGS NAME\n");
     for (const auto& value : linker.GetDexCacheDatas()) {
         art::mirror::DexCache& dex_cache = value->GetDexCache();
         art::DexFile& dex_file = value->GetDexFile();
@@ -56,14 +57,19 @@ int DexCommand::main(int argc, char* const argv[]) {
                 if (block->isOverlayBlock()) {
                     valid.append("(OVERLAY)");
                 } else if (block->isMmapBlock()) {
-                    valid.append("(MMAP)");
+                    valid.append("(MMAP");
+                    if (block->GetMmapOffset()) {
+                        valid.append(" ");
+                        valid.append(Utils::ToHex(block->GetMmapOffset()));
+                    }
+                    valid.append(")");
                 }
             } else {
                 valid.append("[EMPTY]");
             }
 
-            LOGI("0x%08lx  [%lx, %lx)  %s %s\n", dex_cache.Ptr(), block->vaddr(), block->vaddr() + block->size(),
-                                       name.c_str(), valid.c_str());
+            LOGI("0x%08lx  [%lx, %lx)  %s  %s %s\n", dex_cache.Ptr(), block->vaddr(), block->vaddr() + block->size(),
+                                                     block->convertFlags().c_str(), name.c_str(), valid.c_str());
         } else {
             LOGE("ERROR: Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
         }

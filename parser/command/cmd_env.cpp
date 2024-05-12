@@ -148,19 +148,22 @@ int EnvCommand::showLoadEnv(int argc, char* const argv[]) {
             if (block->isOverlayBlock()) {
                 valid.append("(OVERLAY)");
             } else if (block->isMmapBlock()) {
-                valid.append("(MMAP ");
-                valid.append(Utils::ToHex(block->GetMmapOffset()));
+                valid.append("(MMAP");
+                if (block->GetMmapOffset()) {
+                    valid.append(" ");
+                    valid.append(Utils::ToHex(block->GetMmapOffset()));
+                }
                 valid.append(")");
             }
         } else {
             valid.append("[EMPTY]");
         }
-        LOGI("  %-5d [%lx, %lx)  %010lx  %s %s\n", index++,
-                block->vaddr(), block->vaddr() + block->size(),
+        LOGI("  %-5d [%lx, %lx)  %s  %010lx  %s %s\n", index++,
+                block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
                 block->realSize(), name.c_str(), valid.c_str());
         return false;
     };
-    LOGI("INDEX   REGION                FILESZ      PATH\n");
+    LOGI("INDEX   REGION               FLAGS FILESZ      PATH\n");
     CoreApi::ForeachLoadBlock(callback, false);
     return 0;
 }

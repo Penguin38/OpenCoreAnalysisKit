@@ -346,15 +346,14 @@ void Android::SysRoot(const char* path) {
         art::DexFile& dex_file = value->GetDexFile();
         LoadBlock* block = CoreApi::FindLoadBlock(dex_file.data_begin(), false);
         if (block) {
-            if (block->flags() & Block::FLAG_W)
-                continue;
-
+            bool isVdex = false;
             std::string name;
             art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
             if (oat_dex_file.Ptr()) {
                 art::OatFile& oat_file = oat_dex_file.GetOatFile();
                 if (oat_file.Ptr() && block->virtualContains(oat_file.vdex_begin())) {
                     name = oat_file.GetVdexFile().GetName();
+                    isVdex = true;
                 } else {
                     name = dex_cache.GetLocation().ToModifiedUtf8();
                 }
@@ -375,25 +374,36 @@ void Android::SysRoot(const char* path) {
             if (!filepath.length())
                 continue;
 
-            ZipFile zip;
-            if (zip.open(filepath.c_str())) {
-                LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
-                continue;
-            }
-
-            ZipEntry* entry;
-            if (!sub_file) {
-                entry = zip.getEntryByName("classes.dex");
+            if (isVdex) {
+                std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(filepath.c_str()));
+                if (map) {
+                    if (memcmp((void*)map->data(), "vdex", 4)) {
+                        LOGE("ERROR: Invalid vdex file (%s)\n", filepath.c_str());
+                        continue;
+                    }
+                    block->setMmapFile(filepath.c_str(), 0x0);
+                }
             } else {
-                entry = zip.getEntryByName(sub_file);
-            }
+                ZipFile zip;
+                if (zip.open(filepath.c_str())) {
+                    LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
+                    continue;
+                }
 
-            if (!entry || !entry->IsUncompressed()) {
-                LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
-                continue;
-            }
+                ZipEntry* entry;
+                if (!sub_file) {
+                    entry = zip.getEntryByName("classes.dex");
+                } else {
+                    entry = zip.getEntryByName(sub_file);
+                }
 
-            block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), 0x1000));
+                if (!entry || !entry->IsUncompressed()) {
+                    LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
+                    continue;
+                }
+
+                block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), 0x1000));
+            }
         } else {
             LOGE("ERROR: Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
         }
