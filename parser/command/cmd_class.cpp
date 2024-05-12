@@ -52,13 +52,21 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
 }
 
 void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
+    LOGI("[0x%lx]\n", clazz.Ptr());
     art::mirror::Class super = clazz.GetSuperClass();
     art::mirror::IfTable& iftable = clazz.GetIfTable();
     int32_t ifcount = iftable.Count();
-    LOGI("[0x%lx]\n%sclass %s extends %s %s\n", clazz.Ptr(),
-            art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
-            clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str(),
-            ifcount > 0 ? "" : "{");
+    bool needEnd = false;
+    if (super.Ptr()) {
+        LOGI("%sclass %s extends %s %s\n",
+                art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
+                clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str(),
+                ifcount > 0 ? "" : "{");
+    } else {
+        LOGI("%sclass %s %s\n",
+                art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
+                clazz.PrettyDescriptor().c_str(), ifcount > 0 ? "" : "{");
+    }
     if (ifcount > 0) {
         std::string ifdesc;
         for (int i = 0; i < ifcount; ++i) {
@@ -73,18 +81,25 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     format.append("\n");
 
     art::mirror::Class current = clazz;
-    if (clazz.NumStaticFields()) LOGI("  Class static fields:\n");
+    if (clazz.NumStaticFields()) {
+        LOGI("  // Class static fields:\n");
+        needEnd = true;
+    }
     auto print_static_field = [&](art::ArtField& field) -> bool {
         PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field);
         return false;
     };
     Android::ForeachStaticField(current, print_static_field);
 
+    if (clazz.NumInstanceFields()) {
+        if (needEnd) LOGI("\n");
+        LOGI("  // Object instance fields:\n");
+    }
     super = clazz;
-    LOGI("  Object instance fields:\n");
     do {
         if (clazz != super) {
-            LOGI("  extends %s\n", super.PrettyDescriptor().c_str());
+            if (needEnd) LOGI("\n");
+            LOGI("  // extends %s\n", super.PrettyDescriptor().c_str());
         }
 
         auto callback = [&](art::ArtField& field) -> bool {
