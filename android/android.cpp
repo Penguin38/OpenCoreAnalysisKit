@@ -386,7 +386,7 @@ void Android::SysRoot(const char* path) {
             } else {
                 ZipFile zip;
                 if (zip.open(filepath.c_str())) {
-                    LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
+                    LOGE("ERROR: Zip open fail [%lx] %s\n", block->vaddr(), ori_dex_file);
                     continue;
                 }
 
@@ -398,7 +398,7 @@ void Android::SysRoot(const char* path) {
                 }
 
                 if (!entry || !entry->IsUncompressed()) {
-                    LOGE("ERROR: Load fail [%lx] %s(%s)\n", block->vaddr(), ori_dex_file, sub_file ? sub_file : "");
+                    LOGE("ERROR: Not support compress zip [%lx] %s\n", block->vaddr(), ori_dex_file);
                     continue;
                 }
 
