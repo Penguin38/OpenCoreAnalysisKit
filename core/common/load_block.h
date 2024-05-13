@@ -74,14 +74,16 @@ public:
     bool newOverlay();
     void removeMmap();
     void removeOverlay();
-    bool isMmapBlock() { return mMmap != nullptr; }
-    bool isOverlayBlock() { return mOverlay != nullptr; }
+    inline bool isMmapBlock() { return mMmap != nullptr; }
+    inline bool isOverlayBlock() { return mOverlay != nullptr; }
     inline std::string& name() { return mMmap->getName(); }
-    void setVabitsMask(uint64_t mask) { mVabitsMask = mask; }
-    void setPointMask(uint64_t mask) { mPointMask = mask; }
+    inline void setVabitsMask(uint64_t mask) { mVabitsMask = mask; }
+    inline void setPointMask(uint64_t mask) { mPointMask = mask; }
     inline uint64_t VabitsMask() { return mVabitsMask; }
     inline uint64_t PointMask() { return mPointMask; }
     inline uint64_t GetMmapOffset() { return mMmap->offset(); }
+    inline void setMmapMemoryMap(std::unique_ptr<MemoryMap>& map) { mMmap = std::move(map); }
+    inline void setOverlayMemoryMap(std::unique_ptr<MemoryMap>& map) { mOverlay = std::move(map); }
 
     ~LoadBlock() {
         mOverlay.reset();

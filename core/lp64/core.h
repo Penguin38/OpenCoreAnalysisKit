@@ -61,7 +61,7 @@ class Core : public api::Elf {
 public:
     bool load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
     void loadLinkMap64(CoreApi* api);
-    bool dlopen64(CoreApi* api, uint64_t begin, const char* file);
+    bool dlopen64(CoreApi* api, uint64_t begin, const char* file, const char* subfile);
     uint64_t dlsym64(const char* path, const char* symbol);
 };
 

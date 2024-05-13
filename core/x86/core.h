@@ -36,7 +36,7 @@ private:
     int getPointSize() { return 32; }
     uint64_t getVabitsMask() { return 0xFFFFFFFFULL; }
     void loadLinkMap() { loadLinkMap32(this); }
-    void sysroot(uint64_t begin, const char* file) { dlopen32(this, begin, file); }
+    void sysroot(uint64_t begin, const char* file, const char* subfile) { dlopen32(this, begin, file, subfile); }
     uint64_t dlsym(LinkMap* handle, const char* symbol);
 };
 

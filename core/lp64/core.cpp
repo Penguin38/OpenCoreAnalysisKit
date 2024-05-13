@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "lp64/core.h"
 #include "api/memory_ref.h"
+#include "zip/zip_file.h"
 #include "common/elf.h"
 #include "common/bit.h"
 #include "common/load_block.h"
@@ -120,8 +121,40 @@ void lp64::Core::loadLinkMap64(CoreApi* api) {
     }
 }
 
-bool lp64::Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
+bool lp64::Core::dlopen64(CoreApi* api, uint64_t begin, const char* file, const char* subfile) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file));
+    LoadBlock* begin_block = api->findLoadBlock(begin);
+    if (!begin_block) {
+        LOGE("ERROR: Not found LoadBlock(%lx)\n", begin);
+        return false;
+    }
+
+    if (subfile) {
+        ZipFile zip;
+        if (zip.open(file)) {
+            LOGE("ERROR: Zip open fail [%lx] %s\n", begin_block->vaddr(), file);
+            return false;
+        }
+
+        ZipEntry* entry;
+        if (subfile[0] == '/') {
+            entry = zip.getEntryByName(subfile + 1);
+        } else {
+            entry = zip.getEntryByName(subfile);
+        }
+        if (!entry) {
+            LOGE("ERROR: %s Not found entry %s\n", file, subfile);
+            return false;
+        }
+
+        if (!entry->IsUncompressed()) {
+            LOGE("ERROR: Not support compress zip [%lx] %s!%s\n", begin_block->vaddr(), file, entry->getFileName());
+            return false;
+        }
+
+        std::unique_ptr<MemoryMap> submap(MemoryMap::MmapFile(file, begin_block->size(), entry->getFileOffset()));
+        map = std::move(submap);
+    }
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
         if (memcmp(header->ident, ELFMAG, 4)) {
@@ -142,7 +175,6 @@ bool lp64::Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
         Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
         Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
 
-        LoadBlock* begin_block = api->findLoadBlock(begin);
         int loadidx = 0;
         for (int index = 0; index < ehdr->e_phnum; ++index) {
             if (phdr[index].p_type != PT_LOAD)
@@ -159,7 +191,7 @@ bool lp64::Core::dlopen64(CoreApi* api, uint64_t begin, const char* file) {
 
             if (!(phdr[index].p_flags & PF_W) && !(block->flags() & PF_W)
                     && !(loadidx && !phdr[index].p_offset)) {
-                uint64_t page_offset = RoundDown(phdr[index].p_offset, 0x1000);
+                uint64_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), 0x1000);
                 block->setMmapFile(file, page_offset);
             }
             ++loadidx;

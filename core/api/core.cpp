@@ -251,7 +251,7 @@ void CoreApi::ExecFile(const char* path) {
                 break;
         }
         if (filepath.length() > 0) {
-            INSTANCE->sysroot(phdr, filepath.c_str());
+            INSTANCE->sysroot(phdr, filepath.c_str(), nullptr);
         }
     }
 }
@@ -266,13 +266,17 @@ void CoreApi::SysRoot(const char* path) {
     }
 
     auto callback = [dirs](LinkMap* map) -> bool {
+        std::unique_ptr<char> newname(strdup(map->name()));
+        char *ori_file = strtok(newname.get(), "!");
+        char *sub_file = strtok(NULL, "!");
+
         std::string filepath;
         for (char *dir : dirs) {
-            if (Utils::SearchFile(dir, &filepath, map->name()))
+            if (Utils::SearchFile(dir, &filepath, ori_file))
                 break;
         }
         if (filepath.length() > 0) {
-            INSTANCE->sysroot(map->begin(), filepath.c_str());
+            INSTANCE->sysroot(map->begin(), filepath.c_str(), sub_file);
         }
         return false;
     };

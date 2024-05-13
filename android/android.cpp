@@ -397,8 +397,13 @@ void Android::SysRoot(const char* path) {
                     entry = zip.getEntryByName(sub_file);
                 }
 
-                if (!entry || !entry->IsUncompressed()) {
-                    LOGE("ERROR: Not support compress zip [%lx] %s\n", block->vaddr(), ori_dex_file);
+                if (!entry) {
+                    LOGE("ERROR: %s Not found entry %s\n", filepath.c_str(), sub_file ? sub_file : "classes.dex");
+                    continue;
+                }
+
+                if (!entry->IsUncompressed()) {
+                    LOGE("ERROR: Not support compress zip [%lx] %s!%s\n", block->vaddr(), filepath.c_str(), sub_file ? sub_file : "classes.dex");
                     continue;
                 }
 
