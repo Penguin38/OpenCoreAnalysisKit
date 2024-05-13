@@ -344,21 +344,22 @@ void Android::SysRoot(const char* path) {
     for (const auto& value : linker.GetDexCacheDatas()) {
         art::mirror::DexCache& dex_cache = value->GetDexCache();
         art::DexFile& dex_file = value->GetDexFile();
+        std::string name;
+        if (dex_cache.Ptr()) {
+            name = dex_cache.GetLocation().ToModifiedUtf8();
+        } else if (dex_file.Ptr()) {
+            name = dex_file.GetLocation().c_str();
+        }
         LoadBlock* block = CoreApi::FindLoadBlock(dex_file.data_begin(), false);
         if (block) {
             bool isVdex = false;
-            std::string name;
             art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
             if (oat_dex_file.Ptr()) {
                 art::OatFile& oat_file = oat_dex_file.GetOatFile();
                 if (oat_file.Ptr() && block->virtualContains(oat_file.vdex_begin())) {
                     name = oat_file.GetVdexFile().GetName();
                     isVdex = true;
-                } else {
-                    name = dex_cache.GetLocation().ToModifiedUtf8();
                 }
-            } else {
-                name = dex_cache.GetLocation().ToModifiedUtf8();
             }
 
             std::unique_ptr<char> newname(strdup(name.c_str()));
