@@ -111,11 +111,7 @@ Runtime& Runtime::Current() {
         api::MemoryRef value = 0x0;
         try {
             value = Android::SearchSymbol(Android::ART_RUNTIME_INSTANCE);
-            if (CoreApi::GetPointSize() == 64) {
-                runtime = *reinterpret_cast<uint64_t *>(value.Real());
-            } else {
-                runtime = *reinterpret_cast<uint32_t *>(value.Real());
-            }
+            runtime = value.valueOf();
         } catch(InvalidAddressException e) {
             runtime = AnalysisInstance();
         }
