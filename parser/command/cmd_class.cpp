@@ -94,12 +94,14 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     if (clazz.NumInstanceFields()) {
         if (needEnd) LOGI("\n");
         LOGI("  // Object instance fields:\n");
+        needEnd = true;
     }
     super = clazz;
     do {
         if (clazz != super) {
             if (needEnd) LOGI("\n");
             LOGI("  // extends %s\n", super.PrettyDescriptor().c_str());
+            needEnd = true;
         }
 
         auto callback = [&](art::ArtField& field) -> bool {
@@ -111,6 +113,19 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 
         super = super.GetSuperClass();
     } while (super.Ptr());
+
+    if (clazz.NumMethods()) {
+        if (needEnd) LOGI("\n");
+        LOGI("  // Methods:\n");
+        needEnd = true;
+    }
+    auto print_method = [](art::ArtMethod& method) -> bool {
+        LOGI("    [%lx] %s%s\n", method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
+                                 method.PrettyMethod().c_str());
+        return false;
+    };
+    Android::ForeachArtMethods(current, print_method);
+
     LOGI("}\n");
 }
 

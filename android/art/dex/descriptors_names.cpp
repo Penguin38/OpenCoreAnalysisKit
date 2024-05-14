@@ -99,6 +99,7 @@ void AppendPrettyDescriptor(const char* descriptor, std::string* result, const c
     case 'S':
     case 'I':
     case 'J':
+    case 'V':
       AppendPrettyDescriptor(descriptor, result);
       break;
     default:

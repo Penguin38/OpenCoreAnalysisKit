@@ -111,6 +111,7 @@ Android::BasicType Android::SignatureToBasicTypeAndSize(const char* sig, uint64_
         case 'S':
         case 'I':
         case 'J':
+        case 'V':
             return SignatureToBasicTypeAndSize(sig, size_out);
     }
     return SignatureToBasicTypeAndSize(def, size_out);
@@ -165,6 +166,7 @@ void Android::preLoad() {
     art::OatDexFile::Init();
     art::VdexFile::Init();
     art::MemMap::Init();
+    art::ArtMethod::PtrSizedFields::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -200,6 +202,7 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::Thread::tls_32bit_sized_values::Init31);
     RegisterSdkListener(S, art::gc::space::RegionSpace::Init31);
     RegisterSdkListener(S, art::JavaVMExt::Init31);
+    RegisterSdkListener(S, art::ArtMethod::Init31);
 
     // 33
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
@@ -230,6 +233,7 @@ void Android::preLoadLater() {
     art::ClassLinker::DexCacheData::Init();
     art::IrtEntry::Init();
     art::IndirectReferenceTable::Init();
+    art::ArtMethod::Init();
 
     LOGI("Switch android(%d) env.\n", sdk);
     for (const auto& listener : mSdkListeners) {
@@ -283,6 +287,22 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
         i++;
         if (i < size) {
             field.MovePtr(SIZEOF(ArtField));
+        } else {
+            break;
+        }
+    } while(true);
+}
+
+void Android::ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
+    uint32_t size = clazz.NumMethods();
+    if (!size) return;
+    art::ArtMethod method(clazz.GetMethods(), clazz);
+    int i = 0;
+    do {
+        if (fn(method)) break;
+        i++;
+        if (i < size) {
+            method.MovePtr(SIZEOF(ArtMethod));
         } else {
             break;
         }

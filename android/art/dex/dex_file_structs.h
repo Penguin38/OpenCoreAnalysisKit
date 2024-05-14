@@ -161,6 +161,7 @@ class MethodId : public api::MemoryRef {
 public:
     MethodId(uint64_t v) : api::MemoryRef(v) {}
     MethodId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    MethodId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     MethodId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> MethodId(U *v) : api::MemoryRef(v) {}
     template<typename U> MethodId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
@@ -169,12 +170,16 @@ public:
     inline bool operator!=(MethodId& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    inline uint16_t class_idx() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(MethodId, class_idx_)); }
+    inline uint16_t proto_idx() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(MethodId, proto_idx_)); }
+    inline uint32_t name_idx() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(MethodId, name_idx_)); }
 };
 
 class ProtoId : public api::MemoryRef {
 public:
     ProtoId(uint64_t v) : api::MemoryRef(v) {}
     ProtoId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    ProtoId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ProtoId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> ProtoId(U *v) : api::MemoryRef(v) {}
     template<typename U> ProtoId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
@@ -183,12 +188,17 @@ public:
     inline bool operator!=(ProtoId& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    inline uint32_t shorty_idx() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(ProtoId, shorty_idx_)); }
+    inline uint16_t return_type_idx() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(ProtoId, return_type_idx_)); }
+    inline uint16_t pad() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(ProtoId, pad_)); }
+    inline uint32_t parameters_off() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(ProtoId, parameters_off_)); }
 };
 
 class TypeList : public api::MemoryRef {
 public:
     TypeList(uint64_t v) : api::MemoryRef(v) {}
     TypeList(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    TypeList(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     TypeList(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> TypeList(U *v) : api::MemoryRef(v) {}
     template<typename U> TypeList(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
@@ -197,12 +207,15 @@ public:
     inline bool operator!=(TypeList& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    inline uint32_t size() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(TypeList, size_)); }
+    inline uint64_t list() { return Ptr() + OFFSET(TypeList, list_); }
 };
 
 class TypeItem : public api::MemoryRef {
 public:
     TypeItem(uint64_t v) : api::MemoryRef(v) {}
     TypeItem(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    TypeItem(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     TypeItem(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     template<typename U> TypeItem(U *v) : api::MemoryRef(v) {}
     template<typename U> TypeItem(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
@@ -211,6 +224,7 @@ public:
     inline bool operator!=(TypeItem& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    inline uint16_t type_idx() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(FieldId, type_idx_)); }
 };
 
 } // namespace dex

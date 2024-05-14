@@ -18,6 +18,7 @@
 #include "logger/log.h"
 #include "dex/dex_file.h"
 #include "base/leb128.h"
+#include "dex/descriptors_names.h"
 
 struct DexFile_OffsetTable __DexFile_offset__;
 struct DexFile_SizeTable __DexFile_size__;
@@ -160,6 +161,29 @@ dex::TypeId DexFile::GetTypeId(dex::TypeIndex idx) {
     return type_id;
 }
 
+dex::MethodId DexFile::GetMethodId(uint32_t idx) {
+    if (!method_ids_cache.Ptr()) {
+        method_ids_cache = method_ids();
+        method_ids_cache.Prepare(false);
+    }
+    dex::MethodId method_id(method_ids() + SIZEOF(MethodId) * idx, method_ids_cache);
+    return method_id;
+}
+
+dex::ProtoId DexFile::GetMethodPrototype(dex::MethodId& method_id) {
+    dex::ProtoIndex idx(method_id.proto_idx());
+    return GetProtoId(idx);
+}
+
+dex::ProtoId DexFile::GetProtoId(dex::ProtoIndex idx) {
+    if (!proto_ids_cache.Ptr()) {
+        proto_ids_cache = proto_ids();
+        proto_ids_cache.Prepare(false);
+    }
+    dex::ProtoId proto_id(proto_ids() + SIZEOF(ProtoId) * idx.index_, proto_ids_cache);
+    return proto_id;
+}
+
 const char* DexFile::GetTypeDescriptor(dex::TypeId& type_id, const char* def) {
     if (!type_id.IsValid()) {
         dumpReason(type_id.Ptr());
@@ -227,12 +251,49 @@ const char* DexFile::GetFieldName(dex::FieldId& field_id, const char* def) {
     return StringDataByIdx(idx);
 }
 
+const char* DexFile::GetMethodName(dex::MethodId& method_id) {
+    if (!method_id.IsValid()) {
+        dumpReason(method_id.Ptr());
+        return "<unknown>";
+    }
+    dex::StringIndex idx(method_id.name_idx());
+    return StringDataByIdx(idx);
+}
+
 OatDexFile& DexFile::GetOatDexFile() {
     if (!oat_dex_file_cache.Ptr()) {
         oat_dex_file_cache = oat_dex_file();
         oat_dex_file_cache.Prepare(false);
     }
     return oat_dex_file_cache;
+}
+
+std::string DexFile::PrettyMethodParameters(dex::MethodId& method_id) {
+    if (!method_id.IsValid()) {
+        dumpReason(method_id.Ptr());
+        return "(...)";
+    }
+
+    std::string result;
+    dex::ProtoId proto_id = GetMethodPrototype(method_id);
+    if (proto_id.parameters_off()) {
+        dex::TypeList list = data_begin() + proto_id.parameters_off();
+        api::MemoryRef ref = list.list();
+        result.append("(");
+        for (uint32_t i = 0; i < list.size(); ++i) {
+            if (i > 0) {
+                result.append(", ");
+            }
+            dex::TypeIndex idx(ref.value16Of(i * SIZEOF(TypeItem)));
+            dex::TypeId type_id = GetTypeId(idx);
+            std::string tmp;
+            AppendPrettyDescriptor(GetTypeDescriptor(type_id, "V"), &tmp);
+            result.append(tmp);
+        }
+        result.append(")");
+        return result;
+    }
+    return "()";
 }
 
 void DexFile::dumpReason(uint64_t vaddr) {

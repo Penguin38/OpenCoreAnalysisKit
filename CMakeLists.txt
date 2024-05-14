@@ -84,6 +84,7 @@ add_library(android STATIC
             android/art/runtime/class_linker.cpp
             android/art/runtime/indirect_reference_table.cpp
             android/art/runtime/vdex_file.cpp
+            android/art/runtime/art_method.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp

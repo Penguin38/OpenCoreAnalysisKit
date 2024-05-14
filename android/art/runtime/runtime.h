@@ -22,10 +22,15 @@
 #include "runtime/gc/heap.h"
 #include "runtime/thread_list.h"
 #include "runtime/class_linker.h"
+#include "runtime/art_method.h"
 #include "runtime/jni/java_vm_ext.h"
+#include "runtime/base/callee_save_type.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
+    uint32_t resolution_method_;
+    uint32_t imt_conflict_method_;
+    uint32_t imt_unimplemented_method_;
     uint32_t heap_;
     uint32_t thread_list_;
     uint32_t class_linker_;
@@ -59,6 +64,10 @@ public:
     static void Init31();
     static void Init33();
     static void Init34();
+    inline uint64_t callee_save_methods() { return Ptr() + OFFSET(Runtime, callee_save_methods_); }
+    inline uint64_t resolution_method() { return VALUEOF(Runtime, resolution_method_); }
+    inline uint64_t imt_conflict_method() { return VALUEOF(Runtime, imt_conflict_method_); }
+    inline uint64_t imt_unimplemented_method() { return VALUEOF(Runtime, imt_unimplemented_method_); }
     inline uint64_t heap() { return VALUEOF(Runtime, heap_); }
     inline uint64_t thread_list() { return VALUEOF(Runtime, thread_list_); }
     inline uint64_t class_linker() { return VALUEOF(Runtime, class_linker_); }
@@ -69,6 +78,11 @@ public:
     ThreadList& GetThreadList();
     ClassLinker& GetClassLinker();
     JavaVMExt& GetJavaVM();
+    ArtMethod& GetResolutionMethod();
+    ArtMethod& GetImtConflictMethod();
+    ArtMethod& GetImtUnimplementedMethod();
+    ArtMethod& GetCalleeSaveMethod(CalleeSaveType type);
+    ArtMethod& GetCalleeSaveMethodUnchecked(CalleeSaveType type);
 
     void CleanCache() {
         if (heap_cache.Ptr()) heap_cache.CleanCache();
@@ -78,6 +92,10 @@ public:
 private:
     static Runtime AnalysisInstance();
     // quick memoryref cache
+    ArtMethod callee_save_methods_cache[6] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+    ArtMethod resolution_method_cache = 0x0;
+    ArtMethod imt_conflict_method_cache = 0x0;
+    ArtMethod imt_unimplemented_method_cache = 0x0;
     gc::Heap heap_cache = 0x0;
     ThreadList thread_list_cache = 0x0;
     ClassLinker class_linker_cache = 0x0;

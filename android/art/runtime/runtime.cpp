@@ -29,6 +29,9 @@ void Runtime::Init() {
     if (CoreApi::GetPointSize() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 72,
+            .imt_unimplemented_method_ = 80,
             .heap_ = 392,
             .thread_list_ = 456,
             .class_linker_ = 472,
@@ -37,6 +40,9 @@ void Runtime::Init() {
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
             .heap_ = 236,
             .thread_list_ = 268,
             .class_linker_ = 276,
@@ -49,6 +55,9 @@ void Runtime::Init31() {
     if (CoreApi::GetPointSize() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 72,
+            .imt_unimplemented_method_ = 80,
             .heap_ = 416,
             .thread_list_ = 480,
             .class_linker_ = 496,
@@ -57,6 +66,9 @@ void Runtime::Init31() {
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
             .heap_ = 248,
             .thread_list_ = 280,
             .class_linker_ = 288,
@@ -69,6 +81,9 @@ void Runtime::Init33() {
     if (CoreApi::GetPointSize() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 72,
+            .imt_unimplemented_method_ = 80,
             .heap_ = 512,
             .thread_list_ = 576,
             .class_linker_ = 592,
@@ -77,6 +92,9 @@ void Runtime::Init33() {
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
             .heap_ = 296,
             .thread_list_ = 328,
             .class_linker_ = 336,
@@ -89,6 +107,9 @@ void Runtime::Init34() {
     if (CoreApi::GetPointSize() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 72,
+            .imt_unimplemented_method_ = 80,
             .heap_ = 512,
             .thread_list_ = 584,
             .class_linker_ = 600,
@@ -97,6 +118,9 @@ void Runtime::Init34() {
     } else {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
             .heap_ = 296,
             .thread_list_ = 332,
             .class_linker_ = 340,
@@ -207,6 +231,46 @@ JavaVMExt& Runtime::GetJavaVM() {
         java_vm_cache.Prepare(false);
     }
     return java_vm_cache;
+}
+
+ArtMethod& Runtime::GetResolutionMethod() {
+    if (!resolution_method_cache.Ptr()) {
+        resolution_method_cache = resolution_method();
+        resolution_method_cache.Prepare(false);
+    }
+    return resolution_method_cache;
+}
+
+ArtMethod& Runtime::GetImtConflictMethod() {
+    if (!imt_conflict_method_cache.Ptr()) {
+        imt_conflict_method_cache = imt_conflict_method();
+        imt_conflict_method_cache.Prepare(false);
+    }
+    return imt_conflict_method_cache;
+}
+
+ArtMethod& Runtime::GetImtUnimplementedMethod() {
+    if (!imt_unimplemented_method_cache.Ptr()) {
+        imt_unimplemented_method_cache = imt_unimplemented_method();
+        imt_unimplemented_method_cache.Prepare(false);
+    }
+    return imt_unimplemented_method_cache;
+}
+
+ArtMethod& Runtime::GetCalleeSaveMethod(CalleeSaveType type) {
+    return GetCalleeSaveMethodUnchecked(type);
+}
+
+ArtMethod& Runtime::GetCalleeSaveMethodUnchecked(CalleeSaveType type) {
+    uint32_t index = static_cast<uint32_t>(type);
+    if (!callee_save_methods_cache[index].Ptr()) {
+        api::MemoryRef ref = callee_save_methods();
+        for (uint32_t i = 0; i < static_cast<uint32_t>(CalleeSaveType::kLastCalleeSaveType); ++i) {
+            callee_save_methods_cache[i] = ref.value64Of(i * sizeof(uint64_t));
+            callee_save_methods_cache[i].Prepare(false);
+        }
+    }
+    return callee_save_methods_cache[index];
 }
 
 } // namespace art

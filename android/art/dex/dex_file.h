@@ -96,10 +96,15 @@ public:
     inline uint64_t string_ids() { return VALUEOF(DexFile, string_ids_); }
     inline uint64_t field_ids() { return VALUEOF(DexFile, field_ids_); }
     inline uint64_t oat_dex_file() { return VALUEOF(DexFile, oat_dex_file_); }
+    inline uint64_t method_ids() { return VALUEOF(DexFile, method_ids_); }
+    inline uint64_t proto_ids() { return VALUEOF(DexFile, proto_ids_); }
 
     uint8_t* DataBegin();
     cxx::string GetLocation();
     dex::TypeId GetTypeId(dex::TypeIndex idx);
+    dex::MethodId GetMethodId(uint32_t idx);
+    dex::ProtoId GetMethodPrototype(dex::MethodId& method_id);
+    dex::ProtoId GetProtoId(dex::ProtoIndex idx);
     inline const char* GetTypeDescriptor(dex::TypeId& type_id) { return GetTypeDescriptor(type_id, "L<invalid-class>;"); }
     const char* GetTypeDescriptor(dex::TypeId& type_id, const char* def);
     const char* StringDataByIdx(dex::StringIndex idx);
@@ -111,6 +116,8 @@ public:
     const char* GetFieldTypeDescriptor(dex::FieldId& field_id, const char* def);
     inline const char* GetFieldName(dex::FieldId& field_id) { return GetFieldName(field_id, "<invalid-field>"); }
     const char* GetFieldName(dex::FieldId& field_id, const char* def);
+    const char* GetMethodName(dex::MethodId& method_id);
+    std::string PrettyMethodParameters(dex::MethodId& method_id);
     OatDexFile& GetOatDexFile();
     void dumpReason(uint64_t vaddr);
 private:
@@ -118,6 +125,8 @@ private:
     dex::TypeId type_ids_cache = 0x0;
     dex::StringId string_ids_cache = 0x0;
     dex::FieldId field_ids_cache = 0x0;
+    dex::MethodId method_ids_cache = 0x0;
+    dex::ProtoId proto_ids_cache = 0x0;
     OatDexFile oat_dex_file_cache = 0x0;
 };
 

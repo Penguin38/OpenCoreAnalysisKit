@@ -15,6 +15,8 @@
  */
 
 #include "logger/log.h"
+#include "common/bit.h"
+#include "api/core.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/class_flags.h"
 #include "dex/primitive.h"
@@ -383,6 +385,16 @@ IfTable& Class::GetIfTable() {
         iftable_cache.Prepare(false);
     }
     return iftable_cache;
+}
+
+uint32_t Class::NumMethods() {
+    LengthPrefixedArray arr(methods(), this);
+    return arr.Ptr() ? arr.size() : 0u;
+}
+
+uint64_t Class::GetMethods() {
+    LengthPrefixedArray arr(methods(), this);
+    return arr.Ptr() ? RoundUp(arr.data(), CoreApi::GetPointSize() / 8) : 0u;
 }
 
 } // namespcae mirror

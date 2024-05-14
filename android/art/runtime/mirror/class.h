@@ -182,6 +182,8 @@ public:
     uint64_t GetSFields();
     Class GetClassLoader();
     IfTable& GetIfTable();
+    uint32_t NumMethods();
+    uint64_t GetMethods();
 
 private:
     // quick memoryref cache
