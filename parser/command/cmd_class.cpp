@@ -58,23 +58,21 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     int32_t ifcount = iftable.Count();
     bool needEnd = false;
     if (super.Ptr()) {
-        LOGI("%sclass %s extends %s %s\n",
+        LOGI("%sclass %s extends %s {\n",
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
-                clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str(),
-                ifcount > 0 ? "" : "{");
+                clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str());
     } else {
-        LOGI("%sclass %s %s\n",
+        LOGI("%sclass %s {\n",
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
-                clazz.PrettyDescriptor().c_str(), ifcount > 0 ? "" : "{");
+                clazz.PrettyDescriptor().c_str());
     }
     if (ifcount > 0) {
-        std::string ifdesc;
+        LOGI("  // Implements:\n");
         for (int i = 0; i < ifcount; ++i) {
             art::mirror::Class interface = iftable.GetInterface(i);
-            ifdesc.append(interface.PrettyDescriptor());
-            if (i < ifcount - 1) ifdesc.append(", ");
+            LOGI("    %s\n", interface.PrettyDescriptor().c_str());
         }
-        LOGI("    implements %s {\n", ifdesc.c_str());
+        needEnd = true;
     }
     std::string format = PrintCommand::FormatSize(clazz.SizeOf());
     std::string format_nonenter = format;
@@ -82,6 +80,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 
     art::mirror::Class current = clazz;
     if (clazz.NumStaticFields()) {
+        if (needEnd) LOGI("\n");
         LOGI("  // Class static fields:\n");
         needEnd = true;
     }
@@ -120,7 +119,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
         needEnd = true;
     }
     auto print_method = [](art::ArtMethod& method) -> bool {
-        LOGI("    [%lx] %s%s\n", method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
+        LOGI("    [0x%lx] %s%s\n", method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
                                  method.PrettyMethod().c_str());
         return false;
     };
