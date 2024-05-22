@@ -98,6 +98,7 @@ public:
     inline uint64_t oat_dex_file() { return VALUEOF(DexFile, oat_dex_file_); }
     inline uint64_t method_ids() { return VALUEOF(DexFile, method_ids_); }
     inline uint64_t proto_ids() { return VALUEOF(DexFile, proto_ids_); }
+    inline uint8_t is_compact_dex() { return value8Of(OFFSET(DexFile, is_compact_dex_)); }
 
     uint8_t* DataBegin();
     cxx::string GetLocation();
@@ -119,6 +120,8 @@ public:
     const char* GetMethodName(dex::MethodId& method_id);
     std::string PrettyMethodParameters(dex::MethodId& method_id);
     OatDexFile& GetOatDexFile();
+    inline bool IsCompactDexFile() { return !!is_compact_dex(); }
+    inline bool IsStandardDexFile() { return !is_compact_dex(); }
     void dumpReason(uint64_t vaddr);
 private:
     // quick memoryref cache

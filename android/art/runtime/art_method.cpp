@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "android.h"
 #include "base/macros.h"
 #include "runtime/runtime.h"
 #include "runtime/art_method.h"
 #include "dex/descriptors_names.h"
+#include "dex/standard_dex_file.h"
+#include "dex/compact_dex_file.h"
 
 struct ArtMethod_OffsetTable __ArtMethod_offset__;
 struct ArtMethod_SizeTable __ArtMethod_size__;
@@ -187,6 +190,40 @@ std::string ArtMethod::PrettyMethod() {
         return result;
     }
     return GetRuntimeMethodName();
+}
+
+bool ArtMethod::HasCodeItem() {
+    uint32_t access_flags = GetAccessFlags();
+    bool status_flag = !IsNative(access_flags) &&
+                       !IsAbstract(access_flags) &&
+                       !IsRuntimeMethod() &&
+                       !IsProxyMethod();
+    if (Android::Sdk() > Android::UPSIDE_DOWN_CAKE)
+        status_flag &= !IsDefaultConflicting(access_flags);
+    return status_flag;
+}
+
+dex::CodeItem ArtMethod::GetCodeItem() {
+    dex::CodeItem item = 0x0;
+    if (!HasCodeItem())
+        return item;
+
+    DexFile& dex_file = GetDexFile();
+    if (Android::Sdk() < Android::S) {
+        item = dex_file.DataBegin() + dex_code_item_offset();
+    } else {
+        item = GetPtrSizedFields().data();
+    }
+    item = item.Ptr() & 0xFFFFFFFFFFFFFFFEULL;
+
+    if (dex_file.IsCompactDexFile()) {
+        CompactDexFile::CodeItem* compact = reinterpret_cast<CompactDexFile::CodeItem*>(&item);
+        compact->DecodeFields();
+    } else {
+        StandardDexFile::CodeItem* standard = reinterpret_cast<StandardDexFile::CodeItem*>(&item);
+        standard->DecodeFields();
+    }
+    return item;
 }
 
 } //namespace art

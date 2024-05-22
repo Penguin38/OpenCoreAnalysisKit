@@ -107,6 +107,23 @@ extern struct TypeItem_SizeTable __TypeItem_size__;
 namespace art {
 namespace dex {
 
+class CodeItem : public api::MemoryRef {
+public:
+    CodeItem(uint64_t v) : api::MemoryRef(v) {}
+    CodeItem(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    CodeItem(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
+    CodeItem(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+    template<typename U> CodeItem(U *v) : api::MemoryRef(v) {}
+    template<typename U> CodeItem(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+
+    uint16_t num_regs_;
+    uint16_t out_regs_;
+    uint32_t insns_count_;
+    uint16_t ins_size_;
+    uint16_t tries_size_;
+    uint32_t code_offset_;
+};
+
 class TypeId : public api::MemoryRef {
 public:
     TypeId(uint64_t v) : api::MemoryRef(v) {}

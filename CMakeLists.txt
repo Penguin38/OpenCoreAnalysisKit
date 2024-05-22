@@ -113,9 +113,13 @@ add_library(android STATIC
             android/art/dex/descriptors_names.cpp
             android/art/dex/dex_file.cpp
             android/art/dex/dex_file_structs.cpp
+            android/art/dex/standard_dex_file.cpp
+            android/art/dex/compact_dex_file.cpp
 
             android/art/base/length_prefixed_array.cpp
             android/art/base/mem_map.cpp
+
+            android/art/dexdump/dexdump.cpp
 
             # jdk
             android/jdk/java/lang/Object.cpp

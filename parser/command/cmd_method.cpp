@@ -17,12 +17,13 @@
 #include "logger/log.h"
 #include "base/macros.h"
 #include "command/cmd_method.h"
-#include "runtime/art_method.h"
 #include "base/utils.h"
 #include "dalvik_vm_bytecode.h"
+#include "dexdump/dexdump.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <iomanip>
+#include <stdlib.h>
 
 int MethodCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
@@ -31,25 +32,30 @@ int MethodCommand::main(int argc, char* const argv[]) {
         return 0;
 
     int opt;
-    uint64_t artptr = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
-    int dump_opt = METHOD_DUMP_NAME;
+    method = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
+    dump_opt = METHOD_DUMP_NAME;
+    verbose = false;
+    count = 0;
 
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"--dex-dump",    no_argument,       0,  0 },
-        {"--oat-dump",    no_argument,       0,  1 },
-        {"--dex-inst",    required_argument, 0, 'i'},
-        {"--num",         required_argument, 0, 'n'},
-        {0,               0,                 0,  0 }
+        {"dex-dump",    no_argument,       0,  0 },
+        {"oat-dump",    no_argument,       0,  1 },
+        {"inst",        required_argument, 0, 'i'},
+        {"num",         required_argument, 0, 'n'},
+        {"verbose",     no_argument,       0, 'v'},
+        {0,               0,               0,  0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "i:n:01",
+    while ((opt = getopt_long(argc, argv, "i:n:01v",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'i':
+                instref = Utils::atol(optarg);
                 break;
             case 'n':
+                count = atoi(optarg);
                 break;
             case 0:
                 dump_opt |= METHOD_DUMP_DEXCODE;
@@ -57,26 +63,72 @@ int MethodCommand::main(int argc, char* const argv[]) {
             case 1:
                 dump_opt |= METHOD_DUMP_OATCODE;
                 break;
+            case 'v':
+                verbose = true;
+                break;
         }
     }
 
-    art::ArtMethod method = artptr;
     uint32_t dex_method_idx = method.GetDexMethodIndex();
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
         LOGI("%s%s [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
                        method.PrettyMethod().c_str(), dex_method_idx);
 
-        if (dump_opt & METHOD_DUMP_DEXCODE) {
+        if (dump_opt & METHOD_DUMP_DEXCODE)
+            Dexdump();
 
-        }
+        if (dump_opt & METHOD_DUMP_OATCODE)
+            Oatdump();
 
-        if (dump_opt & METHOD_DUMP_OATCODE) {
-
-        }
     } else {
         LOGI("%s\n", method.PrettyMethod().c_str());
     }
     return 0;
+}
+
+void MethodCommand::Dexdump() {
+    art::dex::CodeItem item = method.GetCodeItem();
+    art::DexFile& dex_file = method.GetDexFile();
+    if (item.Ptr()) {
+        if (verbose) {
+            LOGI("Location      : %s\n", dex_file.GetLocation().c_str());
+            LOGI("CodeItem      : 0x%lx\n", item.Ptr());
+            LOGI("Registers     : %d\n", item.num_regs_);
+            LOGI("Ins           : %d\n", item.ins_size_);
+            LOGI("Outs          : %d\n", item.out_regs_);
+            LOGI("Insns size    : 0x%x\n", item.insns_count_);
+        }
+
+        LOGI("DEX CODE:\n");
+        api::MemoryRef coderef = item.Ptr() + item.code_offset_;
+        api::MemoryRef endref = coderef.Ptr() + (item.insns_count_ << 1);
+
+        if (instref >= coderef && instref < endref) {
+            coderef = instref;
+            endref = instref.Ptr() + art::Dexdump::GetDexInstSize(coderef);
+        }
+
+        if (count > 0) {
+            endref = item.Ptr() + item.code_offset_ + (item.insns_count_ << 1);
+        }
+
+        coderef.copyRef(item);
+
+        int current = 0;
+        while (coderef < endref) {
+            LOGI("  %s\n", art::Dexdump::PrettyDexInst(coderef, dex_file).c_str());
+            current++;
+            if (count && current == count)
+                break;
+            coderef.MovePtr(art::Dexdump::GetDexInstSize(coderef));
+        }
+    } else {
+        LOGI("  NO CODE!\n");
+    }
+}
+
+void MethodCommand::Oatdump() {
+
 }
 
 void MethodCommand::usage() {

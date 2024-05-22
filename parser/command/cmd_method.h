@@ -19,6 +19,7 @@
 
 #include "command/command.h"
 #include "android.h"
+#include "runtime/art_method.h"
 
 class MethodCommand : public Command {
 public:
@@ -33,7 +34,15 @@ public:
         // Android::Prepare();
         return true;
     }
+    void Dexdump();
+    void Oatdump();
     void usage();
+private:
+    art::ArtMethod method = 0x0;
+    int dump_opt = METHOD_DUMP_NAME;
+    int count;
+    api::MemoryRef instref = 0x0;
+    bool verbose;
 };
 
 #endif // PARSER_COMMAND_CMD_METHOD_H_

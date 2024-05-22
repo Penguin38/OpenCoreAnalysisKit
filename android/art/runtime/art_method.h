@@ -52,6 +52,8 @@ namespace art {
 
 class ArtMethod : public api::MemoryRef {
 public:
+    static constexpr uint32_t kRuntimeMethodDexMethodIndex = 0xFFFFFFFF;
+
     ArtMethod(uint64_t v) : api::MemoryRef(v) {}
     ArtMethod(api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ArtMethod(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
@@ -403,6 +405,10 @@ public:
         return (access_flags & mask) == kAccNterpEntryPointFastPathFlag;
     }
 
+    inline bool IsRuntimeMethod() {
+        return dex_method_index() == kRuntimeMethodDexMethodIndex;
+    }
+
     mirror::DexCache& GetDexCache();
     DexFile& GetDexFile();
     dex::TypeIndex GetReturnTypeIndex();
@@ -412,6 +418,8 @@ public:
     const char* GetRuntimeMethodName();
     std::string PrettyParameters();
     std::string PrettyMethod();
+    bool HasCodeItem();
+    dex::CodeItem GetCodeItem();
 private:
     // quick memoryref cache
     mirror::Class declaring_class_cache = 0x0;

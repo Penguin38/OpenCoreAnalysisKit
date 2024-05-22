@@ -52,6 +52,9 @@ std::string PrettyJavaAccessFlags(uint32_t access_flags) {
   if ((access_flags & kAccSynchronized) != 0) {
     result += "synchronized ";
   }
+  if ((access_flags & kAccNative) != 0) {
+    result += "native ";
+  }
   return result;
 }
 

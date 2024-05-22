@@ -40,6 +40,8 @@
 #include "runtime/oat/oat_file.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
+#include "dex/standard_dex_file.h"
+#include "dex/compact_dex_file.h"
 #include "base/length_prefixed_array.h"
 #include "base/mem_map.h"
 
@@ -167,6 +169,8 @@ void Android::preLoad() {
     art::VdexFile::Init();
     art::MemMap::Init();
     art::ArtMethod::PtrSizedFields::Init();
+    art::StandardDexFile::CodeItem::Init();
+    art::CompactDexFile::CodeItem::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
