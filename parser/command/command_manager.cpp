@@ -42,6 +42,8 @@
 #include "command/cmd_shell.h"
 #include "command/remote/cmd_remote.h"
 #include "command/fake/cmd_fake.h"
+#include "command/backtrace/cmd_backtrace.h"
+#include "command/backtrace/cmd_frame.h"
 #include "common/exception.h"
 #include "base/utils.h"
 #include <string.h>
@@ -62,6 +64,8 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new WriteCommand());
     CommandManager::PushInlineCommand(new RegisterCommand());
     CommandManager::PushInlineCommand(new ThreadCommand());
+    CommandManager::PushInlineCommand(new BacktraceCommand());
+    CommandManager::PushInlineCommand(new FrameCommand());
 
 #if defined(__AOSP_PARSER__)
     // android
