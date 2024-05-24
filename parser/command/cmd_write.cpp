@@ -30,5 +30,5 @@ int WriteCommand::main(int argc, char* const argv[]) {
 }
 
 void WriteCommand::usage() {
-    LOGI("Usage: write|wd address value\n");
+    LOGI("Usage: write|wd <Address> <Value>\n");
 }

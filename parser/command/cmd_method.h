@@ -26,6 +26,7 @@ public:
     static constexpr int METHOD_DUMP_NAME = 1 << 0;
     static constexpr int METHOD_DUMP_DEXCODE = 1 << 1;
     static constexpr int METHOD_DUMP_OATCODE = 1 << 2;
+    static constexpr int METHOD_DUMP_BINARY = 1 << 3;
 
     MethodCommand() : Command("method") {}
     ~MethodCommand() {}
@@ -36,6 +37,7 @@ public:
     }
     void Dexdump();
     void Oatdump();
+    void Binarydump();
     void usage();
 private:
     art::ArtMethod method = 0x0;

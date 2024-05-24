@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "base/macros.h"
 #include "command/cmd_method.h"
+#include "command/command_manager.h"
 #include "base/utils.h"
 #include "dalvik_vm_bytecode.h"
 #include "dexdump/dexdump.h"
@@ -45,10 +46,11 @@ int MethodCommand::main(int argc, char* const argv[]) {
         {"inst",        required_argument, 0, 'i'},
         {"num",         required_argument, 0, 'n'},
         {"verbose",     no_argument,       0, 'v'},
+        {"binary",      no_argument,       0, 'b'},
         {0,               0,               0,  0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "i:n:01v",
+    while ((opt = getopt_long(argc, argv, "i:n:01bv",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'i':
@@ -66,6 +68,9 @@ int MethodCommand::main(int argc, char* const argv[]) {
             case 'v':
                 verbose = true;
                 break;
+            case 'b':
+                dump_opt |= METHOD_DUMP_BINARY;
+                break;
         }
     }
 
@@ -79,6 +84,9 @@ int MethodCommand::main(int argc, char* const argv[]) {
 
         if (dump_opt & METHOD_DUMP_OATCODE)
             Oatdump();
+
+        if (dump_opt & METHOD_DUMP_BINARY)
+            Binarydump();
 
     } else {
         LOGI("%s\n", method.PrettyMethod().c_str());
@@ -131,6 +139,29 @@ void MethodCommand::Oatdump() {
 
 }
 
+void MethodCommand::Binarydump() {
+    LOGI("Binary:\n");
+    int argc = 4;
+    std::stringstream begin;
+    std::stringstream end;
+    begin << std::hex << method.Ptr();
+    end << std::hex << (method.Ptr() + SIZEOF(ArtMethod));
+    std::string bs = begin.str();
+    std::string es = end.str();
+    char* argv[4] = {
+        const_cast<char*>("rd"),
+        const_cast<char*>(bs.c_str()),
+        const_cast<char*>("-e"),
+        const_cast<char*>(es.c_str())};
+    CommandManager::Execute(argv[0], argc, argv);
+}
+
 void MethodCommand::usage() {
-    LOGI("Usage: method\n");
+    LOGI("Usage: method <ArtMethod> [option..]\n");
+    LOGI("Option:\n");
+    LOGI("    --dex-dump: show dalvik byte codes\n");
+    LOGI("    --oat-dump: show oat machine codes\n");
+    LOGI("    --binary|-b: show ArtMethod memory\n");
+    LOGI("    --inst|-i: show instpc byte code\n");
+    LOGI("    --num|-n: maxline num\n");
 }

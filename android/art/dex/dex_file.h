@@ -115,10 +115,17 @@ public:
     dex::FieldId GetFieldId(uint32_t idx);
     inline const char* GetFieldTypeDescriptor(dex::FieldId& field_id) { return GetFieldTypeDescriptor(field_id, "B"); }
     const char* GetFieldTypeDescriptor(dex::FieldId& field_id, const char* def);
+    inline const char* GetFieldDeclaringClassDescriptor(dex::FieldId& field_id) { return GetFieldDeclaringClassDescriptor(field_id, "L<invalid-class>;"); }
+    const char* GetFieldDeclaringClassDescriptor(dex::FieldId& field_id, const char* def);
     inline const char* GetFieldName(dex::FieldId& field_id) { return GetFieldName(field_id, "<invalid-field>"); }
     const char* GetFieldName(dex::FieldId& field_id, const char* def);
     const char* GetMethodName(dex::MethodId& method_id);
+    std::string GetMethodParametersDescriptor(dex::ProtoId& proto_id);
     std::string PrettyMethodParameters(dex::MethodId& method_id);
+    inline const char* GetMethodDeclaringClassDescriptor(dex::MethodId& method_id) { return GetMethodDeclaringClassDescriptor(method_id, "L<invalid-class>;"); }
+    const char* GetMethodDeclaringClassDescriptor(dex::MethodId& method_id, const char* def);
+    inline const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id) { return GetMethodReturnTypeDescriptor(method_id, "V"); }
+    const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id, const char* def);
     OatDexFile& GetOatDexFile();
     inline bool IsCompactDexFile() { return !!is_compact_dex(); }
     inline bool IsStandardDexFile() { return !is_compact_dex(); }

@@ -59,6 +59,7 @@ class DexIndex {
   bool operator>=(const DexIndex& other) const {
     return index_ >= other.index_;
   }
+  T Index() const { return index_; }
 };
 
 class ProtoIndex : public DexIndex<uint16_t> {

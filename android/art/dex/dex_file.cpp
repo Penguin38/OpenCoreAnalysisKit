@@ -239,7 +239,17 @@ const char* DexFile::GetFieldTypeDescriptor(dex::FieldId& field_id, const char* 
     }
     dex::TypeIndex idx(field_id.type_idx());
     dex::TypeId type_id = GetTypeId(idx);
-    return GetTypeDescriptor(type_id, "B");
+    return GetTypeDescriptor(type_id, def);
+}
+
+const char* DexFile::GetFieldDeclaringClassDescriptor(dex::FieldId& field_id, const char* def) {
+    if (!field_id.IsValid()) {
+        dumpReason(field_id.Ptr());
+        return def;
+    }
+    dex::TypeIndex class_idx(field_id.class_idx());
+    dex::TypeId class_id = GetTypeId(class_idx);
+    return GetTypeDescriptor(class_id, def);
 }
 
 const char* DexFile::GetFieldName(dex::FieldId& field_id, const char* def) {
@@ -268,6 +278,28 @@ OatDexFile& DexFile::GetOatDexFile() {
     return oat_dex_file_cache;
 }
 
+std::string DexFile::GetMethodParametersDescriptor(dex::ProtoId& proto_id) {
+    if (!proto_id.IsValid()) {
+        dumpReason(proto_id.Ptr());
+        return "(...)";
+    }
+
+    std::string result;
+    if (proto_id.parameters_off()) {
+        dex::TypeList list = data_begin() + proto_id.parameters_off();
+        api::MemoryRef ref = list.list();
+        result.append("(");
+        for (uint32_t i = 0; i < list.size(); ++i) {
+            dex::TypeIndex idx(ref.value16Of(i * SIZEOF(TypeItem)));
+            dex::TypeId type_id = GetTypeId(idx);
+            result.append(GetTypeDescriptor(type_id, "V"));
+        }
+        result.append(")");
+        return result;
+    }
+    return "()";
+}
+
 std::string DexFile::PrettyMethodParameters(dex::MethodId& method_id) {
     if (!method_id.IsValid()) {
         dumpReason(method_id.Ptr());
@@ -294,6 +326,27 @@ std::string DexFile::PrettyMethodParameters(dex::MethodId& method_id) {
         return result;
     }
     return "()";
+}
+
+const char* DexFile::GetMethodDeclaringClassDescriptor(dex::MethodId& method_id, const char* def) {
+    if (!method_id.IsValid()) {
+        dumpReason(method_id.Ptr());
+        return def;
+    }
+    dex::TypeIndex class_idx(method_id.class_idx());
+    dex::TypeId class_id = GetTypeId(class_idx);
+    return GetTypeDescriptor(class_id, def);
+}
+
+const char* DexFile::GetMethodReturnTypeDescriptor(dex::MethodId& method_id, const char* def) {
+    if (!method_id.IsValid()) {
+        dumpReason(method_id.Ptr());
+        return def;
+    }
+    dex::ProtoId proto_id = GetMethodPrototype(method_id);
+    dex::TypeIndex return_type_idx(proto_id.return_type_idx());
+    dex::TypeId return_type_id = GetTypeId(return_type_idx);
+    return GetTypeDescriptor(return_type_id);
 }
 
 void DexFile::dumpReason(uint64_t vaddr) {
