@@ -81,8 +81,9 @@ core-parser> help
         core          exec       sysroot          mmap          auxv
         file           map          read         write      register
       thread       getprop         print         hprof        search
-       class           top         space           dex           env
-       shell          help        remote       version          quit
+       class           top         space           dex        method
+         env         shell          help        remote          fake
+        time       version          quit
 ```
 
 ```
@@ -218,124 +219,155 @@ core-parser> search MainActivity -r
 ```
 core-parser> help class
 Usage: class [CLASSNAME]
-core-parser> class penguin.opencore.tester.MainActivity
-[0x12d3ce78]
-public class penguin.opencore.tester.MainActivity extends androidx.appcompat.app.AppCompatActivity
-    implements android.view.LayoutInflater$Factory, android.view.LayoutInflater$Factory2, android.view.Window$Callback, android.view.KeyEvent$Callback, android.view.View$OnCreateContextMenuListener, android.content.ComponentCallbacks, android.content.ComponentCallbacks2, android.view.Window$OnWindowDismissedCallback, android.view.contentcapture.ContentCaptureManager$ContentCaptureClient, androidx.lifecycle.LifecycleOwner, androidx.core.view.KeyEventDispatcher$Component, androidx.lifecycle.ViewModelStoreOwner, androidx.savedstate.SavedStateRegistryOwner, androidx.activity.OnBackPressedDispatcherOwner, androidx.core.app.ActivityCompat$OnRequestPermissionsResultCallback, androidx.core.app.ActivityCompat$RequestPermissionsRequestCodeValidator, androidx.appcompat.app.AppCompatCallback, androidx.core.app.TaskStackBuilder$SupportParentable, androidx.appcompat.app.ActionBarDrawerToggle$DelegateProvider, android.view.View$OnClickListener, penguin.opencore.sdk.Coredump$Listener {
-  Object instance fields:
-  extends androidx.appcompat.app.AppCompatActivity
-    [0x014c] private androidx.appcompat.app.AppCompatDelegate mDelegate
-    [0x0150] private android.content.res.Resources mResources
-  extends androidx.fragment.app.FragmentActivity
-    [0x0144] boolean mCreated
-    [0x0134] final androidx.lifecycle.LifecycleRegistry mFragmentLifecycleRegistry
-    [0x0138] final androidx.fragment.app.FragmentController mFragments
-    [0x0140] int mNextCandidateRequestIndex
-    [0x013c] androidx.collection.SparseArrayCompat mPendingFragmentActivityResults
-    [0x0145] boolean mRequestedPermissionsFromFragment
-    [0x0146] boolean mResumed
-    [0x0147] boolean mStartedActivityFromFragment
-    [0x0148] boolean mStartedIntentSenderFromFragment
-    [0x0149] boolean mStopped
-  extends androidx.activity.ComponentActivity
-    [0x0130] private int mContentLayoutId
-    [0x0120] private final androidx.lifecycle.LifecycleRegistry mLifecycleRegistry
-    [0x0124] private final androidx.activity.OnBackPressedDispatcher mOnBackPressedDispatcher
-    [0x0128] private final androidx.savedstate.SavedStateRegistryController mSavedStateRegistryController
-    [0x012c] private androidx.lifecycle.ViewModelStore mViewModelStore
-  extends androidx.core.app.ComponentActivity
-    [0x0118] private androidx.collection.SimpleArrayMap mExtraDataMap
-    [0x011c] private androidx.lifecycle.LifecycleRegistry mLifecycleRegistry
-  extends android.app.Activity
-    [0x0028] android.app.ActionBar mActionBar
-    [0x00e8] private int mActionModeTypeStarting
-    [0x002c] android.content.pm.ActivityInfo mActivityInfo
-    [0x0030] private final java.util.ArrayList mActivityLifecycleCallbacks
-    [0x0034] android.app.ActivityTransitionState mActivityTransitionState
-    [0x0038] private android.app.Application mApplication
-    [0x003c] private android.os.IBinder mAssistToken
-    [0x0040] private android.view.autofill.AutofillClientController mAutofillClientController
-    [0x0044] private android.content.ComponentCallbacksController mCallbacksController
-    [0x0100] boolean mCalled
-    [0x0101] private boolean mCanEnterPictureInPicture
-    [0x0102] private boolean mChangeCanvasToTranslucent
-    [0x0103] boolean mChangingConfigurations
-    [0x0048] private android.content.ComponentName mComponent
-    [0x00ec] int mConfigChangeFlags
-    [0x004c] private android.view.contentcapture.ContentCaptureManager mContentCaptureManager
-    [0x0050] android.content.res.Configuration mCurrentConfig
-    [0x0054] android.view.View mDecor
-    [0x0058] private android.window.OnBackInvokedCallback mDefaultBackCallback
-    [0x00f0] private int mDefaultKeyMode
-    [0x005c] private android.text.SpannableStringBuilder mDefaultKeySsb
-    [0x0104] private boolean mDestroyed
-    [0x0105] private boolean mDoReportFullyDrawn
-    [0x0060] private com.android.internal.util.dump.DumpableContainerImpl mDumpableContainer
-    [0x0064] java.lang.String mEmbeddedID
-    [0x0106] private boolean mEnableDefaultActionBarUp
-    [0x0107] boolean mEnterAnimationComplete
-    [0x0068] android.app.SharedElementCallback mEnterTransitionListener
-    [0x006c] android.app.SharedElementCallback mExitTransitionListener
-    [0x0108] boolean mFinished
-    [0x0070] final android.app.FragmentController mFragments
-    [0x0074] final android.os.Handler mHandler
-    [0x0109] private boolean mHasCurrentPermissionsRequest
-    [0x00f4] private int mIdent
-    [0x0078] private final java.lang.Object mInstanceTracker
-    [0x007c] private android.app.Instrumentation mInstrumentation
-    [0x0080] android.content.Intent mIntent
-    [0x010a] private boolean mIsInMultiWindowMode
-    [0x010b] boolean mIsInPictureInPictureMode
-    [0x0084] android.app.Activity$NonConfigurationInstances mLastNonConfigurationInstances
-    [0x010c] boolean mLaunchedFromBubble
-    [0x0088] android.app.ActivityThread mMainThread
-    [0x008c] private final java.util.ArrayList mManagedCursors
-    [0x0090] private android.util.SparseArray mManagedDialogs
-    [0x0094] private android.view.MenuInflater mMenuInflater
-    [0x0098] android.app.Activity mParent
-    [0x009c] android.app.ActivityOptions mPendingOptions
-    [0x00a0] java.lang.String mReferrer
-    [0x010d] private boolean mRestoredFromBundle
-    [0x00f8] int mResultCode
-    [0x00a4] android.content.Intent mResultData
-    [0x010e] boolean mResumed
-    [0x00a8] private android.app.ScreenCaptureCallbackHandler mScreenCaptureCallbackHandler
-    [0x00ac] private android.view.SearchEvent mSearchEvent
-    [0x00b0] private android.app.SearchManager mSearchManager
-    [0x00b4] private android.os.IBinder mShareableActivityToken
-    [0x010f] private boolean mShouldDockBigOverlays
-    [0x00b8] private android.window.SplashScreen mSplashScreen
-    [0x0110] boolean mStartedActivity
-    [0x0111] boolean mStopped
-    [0x00bc] private android.app.ActivityManager$TaskDescription mTaskDescription
-    [0x00c0] private java.lang.CharSequence mTitle
-    [0x00fc] private int mTitleColor
-    [0x0112] private boolean mTitleReady
-    [0x00c4] private android.os.IBinder mToken
-    [0x00c8] private android.app.Activity$TranslucentConversionListener mTranslucentCallback
-    [0x00cc] private java.lang.Thread mUiThread
-    [0x00d0] private android.view.translation.UiTranslationController mUiTranslationController
-    [0x0113] boolean mVisibleFromClient
-    [0x0114] boolean mVisibleFromServer
-    [0x00d4] private com.android.internal.app.IVoiceInteractionManagerService mVoiceInteractionManagerService
-    [0x00d8] android.app.VoiceInteractor mVoiceInteractor
-    [0x00dc] private android.view.Window mWindow
-    [0x0115] boolean mWindowAdded
-    [0x00e0] private final android.view.Window$WindowControllerCallback mWindowControllerCallback
-    [0x00e4] private android.view.WindowManager mWindowManager
-  extends android.view.ContextThemeWrapper
-    [0x0014] private android.view.LayoutInflater mInflater
-    [0x0018] private android.content.res.Configuration mOverrideConfiguration
-    [0x001c] private android.content.res.Resources mResources
-    [0x0020] private android.content.res.Resources$Theme mTheme
-    [0x0024] private int mThemeResource
-  extends android.content.ContextWrapper
-    [0x0008] android.content.Context mBase
-    [0x000c] public java.util.List mCallbacksRegisteredToSuper
-    [0x0010] private final java.lang.Object mLock
-  extends android.content.Context
-  extends java.lang.Object
-    [0x0000] private transient java.lang.Class shadow$_klass_
-    [0x0004] private transient int shadow$_monitor_
+core-parser> class java.lang.Object
+[0x7024aa78]
+public class java.lang.Object {
+  // Object instance fields:
+    [0x00] private transient java.lang.Class shadow$_klass_
+    [0x04] private transient int shadow$_monitor_
+
+  // Methods:
+    [0x70416968] public void java.lang.Object.<init>()
+    [0x70416988] static int java.lang.Object.identityHashCode(java.lang.Object)
+    [0x704169a8] private static native int java.lang.Object.identityHashCodeNative(java.lang.Object)
+    [0x704169c8] private native java.lang.Object java.lang.Object.internalClone()
+    [0x704169e8] protected java.lang.Object java.lang.Object.clone()
+    [0x70416a08] public boolean java.lang.Object.equals(java.lang.Object)
+    [0x70416a28] protected void java.lang.Object.finalize()
+    [0x70416a48] public final java.lang.Class java.lang.Object.getClass()
+    [0x70416a68] public int java.lang.Object.hashCode()
+    [0x70416a88] public final native void java.lang.Object.notify()
+    [0x70416aa8] public final native void java.lang.Object.notifyAll()
+    [0x70416ac8] public java.lang.String java.lang.Object.toString()
+    [0x70416ae8] public final void java.lang.Object.wait()
+    [0x70416b08] public final void java.lang.Object.wait(long)
+    [0x70416b28] public final native void java.lang.Object.wait(long, int)
 }
+```
+
+```
+core-parser> help method
+Usage: method <ArtMethod> [option..]
+Option:
+    --dex-dump: show dalvik byte codes
+    --oat-dump: show oat machine codes
+    --binary|-b: show ArtMethod memory
+    --inst|-i: show instpc byte code
+    --num|-n: maxline num
+core-parser> method 0x70416a48 --dex-dump -b
+public final java.lang.Class java.lang.Object.getClass() [dex_method_idx=3089]
+DEX CODE:
+  0x75d9a86fde44: 1054 0628                | iget-object v0, v1, Ljava/lang/Object;.shadow$_klass_:Ljava/lang/Class; // field@1576
+  0x75d9a86fde48: 0011                     | return-object v0
+Binary:
+70416a48: 503800117024aa78  0000000300000c11  x.$p..8P........
+70416a58: 000075d9a86fde34  000075d9a9591b50  4.o..u..P.Y..u..
+
+```
+
+```
+core-parser> dex
+DEXCACHE    REGION                   FLAGS NAME
+0x12d3f050  [75dc65711000, 75dc65714000)  r--  /data/app/~~oKR0P01OBRNtuKZwiy0k7A==/penguin.opencore.tester-Oa4B9U4RQb20If694Ti0qQ==/base.apk!classes3.dex [*]
+0x12d3c728  [75dc52779000, 75dc527ac000)  r--  /data/app/~~oKR0P01OBRNtuKZwiy0k7A==/penguin.opencore.tester-Oa4B9U4RQb20If694Ti0qQ==/base.apk!classes2.dex [*]
+0x725ee800  [75dc654d0000, 75dc654d2000)  r--  /apex/com.android.sdkext/javalib/framework-sdkextensions.jar [*]
+0x12c217d8  [75d942208000, 75d942400000)  r--  /data/app/~~oKR0P01OBRNtuKZwiy0k7A==/penguin.opencore.tester-Oa4B9U4RQb20If694Ti0qQ==/base.apk [*]
+0x725ee790  [75dc65495000, 75dc65499000)  r--  /apex/com.android.scheduling/javalib/framework-scheduling.jar [*]
+0x725ee720  [75dc64e52000, 75dc64e87000)  r--  /apex/com.android.permission/javalib/framework-permission-s.jar [*]
+0x725ee6b0  [75dc658bb000, 75dc658bc000)  r--  /apex/com.android.permission/javalib/framework-permission.jar [*]
+0x725ee640  [75dc651f0000, 75dc65208000)  r--  /apex/com.android.os.statsd/javalib/framework-statsd.jar [*]
+0x725ee870  [75d9a779d000, 75d9a7931000)  r--  /apex/com.android.tethering/javalib/framework-connectivity.jar [*]
+```
+
+```
+core-parser> map
+LINKMAP       REGION                   FLAGS NAME
+0x75dc659080e0  [60969cb26000, 60969cb28000)  r--  /system/bin/app_process64 [*]
+0x75dc65b9e210  [75dc65a44000, 75dc65a8b000)  r--  /system/bin/linker64 [*]
+0x75dc65908338  [7ffe0b188000, 7ffe0b189000)  r-x  [vdso] [*]
+0x75dc65908590  [75dc4d4f8000, 75dc4d5d5000)  r--  /system/lib64/libandroid_runtime.so [*]
+0x75dc659087e8  [75dc522d6000, 75dc52338000)  r--  /system/lib64/libbinder.so [*]
+```
+
+```
+core-parser> help exec
+Usage: exec /system/bin/app_process64
+core-parser> exec /system/bin/app_process64
+Mmap segment [60969cb26000, 60969cb28000) /system/bin/app_process64 [0]
+Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]
+```
+
+```
+core-parser> help sysroot
+Usage: sysroot /system:/apex:/vendor --[map|dex]
+core-parser> sysroot /system --map
+Mmap segment [60969cb26000, 60969cb28000) /system/bin/app_process64 [0]
+Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]
+Mmap segment [75dc65a44000, 75dc65a8b000) /system/bin/linker64 [0]
+Mmap segment [75dc65a8b000, 75dc65b8e000) /system/bin/linker64 [46000]
+Mmap segment [75dc4d4f8000, 75dc4d5d5000) /system/lib64/libandroid_runtime.so [0]
+...
+core-parser> sysroot /system --dex
+Mmap segment [75dc65357000, 75dc6539f000) /system/framework/ext.jar [0]
+Mmap segment [75d9a7c00000, 75d9a7fb8000) /system/framework/telephony-common.jar [0]
+Mmap segment [75dc658c1000, 75dc658c2000) /system/framework/framework-graphics.jar [0]
+Mmap segment [75d9a8f9a000, 75d9a90e8000) /system/framework/framework.jar [24d8000]
+Mmap segment [75d9a856d000, 75d9a8600000) /system/framework/ims-common.jar [0]
+Mmap segment [75d9a3fa8000, 75d9a4975000) /system/framework/framework.jar [11a8000]
+...
+```
+
+```
+core-parser> help wd
+Usage: write|wd <Address> <Value>
+core-parser> wd 75d9a3fa8000 0x0
+New overlay [75d9a3fa8000, 75d9a4975000)
+```
+
+```
+core-parser> help rd
+Usage: read|rd begin [-e end] [--opt] [-f path]
+         opt: --origin --mmap --overlay
+core-parser> rd 75d9a3fa8000 -e 75d9a3fa8020
+75d9a3fa8000: 0000000000000000  0202020202020202  ................
+75d9a3fa8010: 0202020202020202  0230020202020202  ..............0.
+
+core-parser> rd 75d9a3fa8000 -e 75d9a3fa8020 --origin
+75d9a3fa8000: 0202020202020202  0202020202020202  ................
+75d9a3fa8010: 0202020202020202  0230020202020202  ..............0.
+```
+
+```
+core-parser> auxv
+    21   AT_SYSINFO_EHDR  0x7ffe0b188000
+    33    AT_MINSIGSTKSZ  0x5a0
+    10          AT_HWCAP  0x178afbfd
+     6         AT_PAGESZ  0x1000
+    11         AT_CLKTCK  0x64
+     3           AT_PHDR  0x60969cb26040
+     4          AT_PHENT  0x38
+     5          AT_PHNUM  0xa
+     7           AT_BASE  0x75dc65a44000
+     8          AT_FLAGS  0x0
+     9          AT_ENTRY  0x60969cb28900
+     b            AT_UID  0x0
+     c           AT_EUID  0x0
+     d            AT_GID  0x0
+     e           AT_EGID  0x0
+    17         AT_SECURE  0x1
+    19         AT_RANDOM  0x7ffe0b052999
+    1a         AT_HWCAP2  0x0
+    1f         AT_EXECFN  0x7ffe0b054fde /system/bin/app_process64
+     f       AT_PLATFORM  0x7ffe0b0529a9 x86_64
+     0           AT_NULL  0x0
+```
+
+```
+core-parser> file
+[12c00000, 2ac00000)  00000000  [anon:dalvik-main space (region space)]
+[40006000, 40017000)  00000000  [anon:dalvik-large object space allocation]
+[40018000, 40029000)  00000000  [anon:dalvik-large object space allocation]
+[40033000, 40044000)  00000000  [anon:dalvik-large object space allocation]
+[4004f000, 40093000)  00000000  [anon:dalvik-large object space allocation]
+...
 ```
