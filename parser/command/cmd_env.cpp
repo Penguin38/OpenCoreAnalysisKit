@@ -126,7 +126,14 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
         return 0;
 
     art::Runtime& runtime = Android::GetRuntime();
-    LOGI("  * art::Runtime 0x%lx\n", runtime.Ptr());
+    LOGI("  * art::Runtime: 0x%lx\n", runtime.Ptr());
+    if (!runtime.Ptr())
+        return 0;
+
+    LOGI("  * art::gc::Heap: 0x%lx\n", runtime.GetHeap().Ptr());
+    LOGI("  * art::ThreadList: 0x%lx\n", runtime.GetThreadList().Ptr());
+    LOGI("  * art::ClassLinker: 0x%lx\n", runtime.GetClassLinker().Ptr());
+    LOGI("  * art::JavaVMExt: 0x%lx\n", runtime.GetJavaVM().Ptr());
     return 0;
 }
 
@@ -189,6 +196,6 @@ void EnvCommand::usage() {
     LOGI("             --sdk <VERSION>\n");
     LOGI("             --pid|-p <PID>\n");
     LOGI("         logger --[debug|info|warn|error|fatal]\n");
-    LOGI("         art\n");
-    LOGI("         load\n");
+    LOGI("         art: show art env args\n");
+    LOGI("         load: show code load segments\n");
 }
