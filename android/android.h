@@ -34,7 +34,13 @@
 
 class Android {
 public:
-    static constexpr int R = 30;
+    static constexpr int N = 24;
+    static constexpr int N_MR1 = 25;
+    static constexpr int O = 26;
+    static constexpr int O_MR1 = 27;
+    static constexpr int P = 28;
+    static constexpr int Q = 29;
+    static constexpr int R = 30; // base target
     static constexpr int S = 31;
     static constexpr int S_V2 = 32;
     static constexpr int TIRAMISU = 33;
@@ -58,11 +64,13 @@ public:
 
     inline static const char *LIBART64 = "/apex/com.android.art/lib64/libart.so";
     inline static const char *LIBART32 = "/apex/com.android.art/lib/libart.so";
+    inline static const char *LIBART64_LV29 = "/apex/com.android.runtime/lib64/libart.so";
+    inline static const char *LIBART32_LV29 = "/apex/com.android.runtime/lib/libart.so";
     inline static const char* ART_RUNTIME_INSTANCE = "_ZN3art7Runtime9instance_E";
 
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
-    static bool IsSdkReady() { return IsReady() && Sdk() >= R; }
+    static bool IsSdkReady() { return IsReady() && Sdk() >= Q; }
     static void Init();
     static void Clean();
     static void Dump();

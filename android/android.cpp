@@ -137,7 +137,6 @@ void Android::Clean() {
 
 void Android::init() {
     preLoad();
-    realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64 : LIBART32;
     sdk = android::Property::GetInt32("ro.build.version.sdk");
     id = android::Property::Get("ro.build.id", INVALID_VALUE);
     name = android::Property::Get("ro.product.name", INVALID_VALUE);
@@ -199,6 +198,17 @@ void Android::preLoad() {
     art::gc::accounting::ContinuousSpaceBitmap::Init();
 
     // preLoadLater listener
+    // 29
+    RegisterSdkListener(Q, art::Runtime::Init29);
+    RegisterSdkListener(Q, art::Thread::Init29);
+    RegisterSdkListener(Q, art::Thread::tls_ptr_sized_values::Init29);
+    RegisterSdkListener(Q, art::mirror::DexCache::Init29);
+    RegisterSdkListener(Q, art::gc::space::RegionSpace::Init29);
+    RegisterSdkListener(Q, art::gc::space::LargeObjectSpace::Init29);
+    RegisterSdkListener(Q, art::gc::space::LargeObjectMapSpace::Init29);
+    RegisterSdkListener(Q, art::JavaVMExt::Init29);
+    RegisterSdkListener(Q, art::IndirectReferenceTable::Init29);
+
     // 31
     RegisterSdkListener(S, art::Runtime::Init31);
     RegisterSdkListener(S, art::ImageHeader::Init31);
@@ -226,8 +236,10 @@ void Android::preLoad() {
 }
 
 void Android::preLoadLater() {
+    // 30 default
     art::DexFile::Init();
     art::Runtime::Init();
+    art::mirror::DexCache::Init();
     art::ImageHeader::Init();
     art::Thread::Init();
     art::Thread::tls_32bit_sized_values::Init();
@@ -238,6 +250,12 @@ void Android::preLoadLater() {
     art::IrtEntry::Init();
     art::IndirectReferenceTable::Init();
     art::ArtMethod::Init();
+
+    if (Sdk() > Q) {
+        realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64 : LIBART32;
+    } else {
+        realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV29 : LIBART32_LV29;
+    }
 
     LOGI("Switch android(%d) env.\n", sdk);
     for (const auto& listener : mSdkListeners) {
@@ -251,7 +269,7 @@ void Android::RegisterSdkListener(int minisdk, std::function<void ()> fn) {
 }
 
 void Android::OnSdkChanged(int sdk) {
-    if (sdk < R) {
+    if (sdk < Q) {
         LOGI("Invaild sdk(%d)\n", sdk);
         return;
     }

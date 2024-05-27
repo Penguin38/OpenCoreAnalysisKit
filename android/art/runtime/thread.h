@@ -78,6 +78,7 @@ public:
     Thread(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Thread(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init29();
     static void Init();
     static void Init31();
     static void Init33();
@@ -107,6 +108,7 @@ public:
         tls_ptr_sized_values(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         tls_ptr_sized_values(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+        static void Init29();
         static void Init();
         static void Init34();
         inline uint64_t stack_end() { return VALUEOF(Thread_tls_ptr_sized_values, stack_end); }

@@ -36,6 +36,25 @@ namespace art {
 namespace gc {
 namespace space {
 
+void LargeObjectSpace::Init29() {
+    if (CoreApi::GetPointSize() == 64) {
+        __LargeObjectSpace_offset__ = {
+            .num_bytes_allocated_ = 104,
+            .num_objects_allocated_ = 112,
+            .total_bytes_allocated_ = 120,
+            .total_objects_allocated_ = 128,
+            .begin_ = 136,
+            .end_ = 144,
+        };
+
+        __LargeObjectSpace_size__ = {
+            .THIS = 152,
+        };
+    } else {
+        //TODO
+    }
+}
+
 void LargeObjectSpace::Init() {
     if (CoreApi::GetPointSize() == 64) {
         __LargeObjectSpace_offset__ = {
@@ -65,6 +84,20 @@ void LargeObjectSpace::Init() {
         __LargeObjectSpace_size__ = {
             .THIS = 232,
         };
+    }
+}
+
+void LargeObjectMapSpace::Init29() {
+    if (CoreApi::GetPointSize() == 64) {
+        __LargeObjectMapSpace_offset__ = {
+            .large_objects_ = 152,
+        };
+
+        __LargeObjectMapSpace_size__ = {
+            .THIS = 176,
+        };
+    } else {
+        //TODO
     }
 }
 

@@ -29,6 +29,13 @@ struct Thread_tls_ptr_sized_values_SizeTable __Thread_tls_ptr_sized_values_size_
 
 namespace art {
 
+void Thread::Init29() {
+    __Thread_offset__ = {
+        .tls32_ = 0,
+        .tlsPtr_ = 152,
+    };
+}
+
 void Thread::Init() {
     __Thread_offset__ = {
         .tls32_ = 0,
@@ -73,6 +80,24 @@ void Thread::tls_32bit_sized_values::Init31() {
         .thin_lock_thread_id = 8,
         .tid = 12,
     };
+}
+
+void Thread::tls_ptr_sized_values::Init29() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 16,
+            .managed_stack = 24,
+            .self = 72,
+            .opeer = 80,
+            .stack_begin = 96,
+            .stack_size = 104,
+            .monitor_enter_object = 128,
+            .name = 208,
+            .pthread_self = 216,
+        };
+    } else {
+        //TODO
+    }
 }
 
 void Thread::tls_ptr_sized_values::Init() {

@@ -29,6 +29,18 @@ namespace art {
 namespace gc {
 namespace space {
 
+void RegionSpace::Init29() {
+    if (CoreApi::GetPointSize() == 64) {
+        __RegionSpace_offset__ = {
+            .num_regions_ = 216,
+            .regions_ = 248,
+            .mark_bitmap_ = 344,
+        };
+    } else {
+        //TODO
+    }
+}
+
 void RegionSpace::Init() {
     if (CoreApi::GetPointSize() == 64) {
         __RegionSpace_offset__ = {

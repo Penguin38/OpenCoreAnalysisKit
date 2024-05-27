@@ -22,6 +22,31 @@ struct DexCache_SizeTable __DexCache_size__;
 namespace art {
 namespace mirror {
 
+void DexCache::Init29() {
+    __DexCache_offset__ = {
+        .location_ = 8,
+        .dex_file_ = 16,
+        .preresolved_strings_ = 24,
+        .resolved_call_sites_ = 32,
+        .resolved_fields_ = 40,
+        .resolved_method_types_ = 48,
+        .resolved_methods_ = 56,
+        .resolved_types_ = 64,
+        .strings_ = 72,
+        .num_preresolved_strings_ = 12,
+        .num_resolved_call_sites_ = 80,
+        .num_resolved_fields_ = 84,
+        .num_resolved_method_types_ = 88,
+        .num_resolved_methods_ = 92,
+        .num_resolved_types_ = 96,
+        .num_strings_ = 100,
+    };
+
+    __DexCache_size__ = {
+        .THIS = 104,
+    };
+}
+
 void DexCache::Init() {
     __DexCache_offset__ = {
         .class_loader_ = 8,

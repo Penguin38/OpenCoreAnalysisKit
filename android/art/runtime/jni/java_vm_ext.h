@@ -41,6 +41,7 @@ public:
     JavaVMExt(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     JavaVMExt(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init29();
     static void Init();
     static void Init31();
     static void Init33();

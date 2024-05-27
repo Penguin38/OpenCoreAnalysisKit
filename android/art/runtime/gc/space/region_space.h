@@ -72,6 +72,7 @@ public:
     template<typename U> RegionSpace(U *v) : ContinuousMemMapAllocSpace(v) {}
     template<typename U> RegionSpace(U *v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
+    static void Init29();
     static void Init();
     static void Init31();
     inline uint64_t num_regions() { return VALUEOF(RegionSpace, num_regions_); }

@@ -81,6 +81,7 @@ public:
     template<typename U> IndirectReferenceTable(U *v) : api::MemoryRef(v) {}
     template<typename U> IndirectReferenceTable(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init29();
     static void Init();
     static void Init34();
     inline uint32_t segment_state() { return value32Of(OFFSET(IndirectReferenceTable, segment_state_)); }

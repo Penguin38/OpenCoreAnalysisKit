@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "runtime/indirect_reference_table.h"
 #include "android.h"
 
@@ -41,6 +42,20 @@ void IrtEntry::Init33() {
     __IrtEntry_size__ = {
         .THIS = 8,
     };
+}
+
+void IndirectReferenceTable::Init29() {
+    if (CoreApi::GetPointSize() == 64) {
+        __IndirectReferenceTable_offset__ = {
+            .segment_state_ = 0,
+            .table_ = 80,
+        };
+    } else {
+        __IndirectReferenceTable_offset__ = {
+            .segment_state_ = 0,
+            .table_ = 44,
+        };
+    }
 }
 
 void IndirectReferenceTable::Init() {
