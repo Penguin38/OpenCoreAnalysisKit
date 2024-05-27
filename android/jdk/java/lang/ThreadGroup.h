@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-#ifndef CORE_API_THREAD_H_
-#define CORE_API_THREAD_H_
+#ifndef ANDROID_JDK_JAVA_LANG_THREADGROUP_H_
+#define ANDROID_JDK_JAVA_LANG_THREADGROUP_H_
 
-#include <iostream>
+#include "java/lang/Object.h"
+#include "java/lang/String.h"
 
-class ThreadApi {
+namespace java {
+namespace lang {
+
+class ThreadGroup : public Object {
 public:
-    inline int pid() { return mPid; }
+    ThreadGroup(uint32_t obj) : Object(obj) {}
+    ThreadGroup(Object& obj) : Object(obj) {}
+    ThreadGroup(art::mirror::Object& obj) : Object(obj) {}
 
-    ThreadApi(int tid) : mPid(tid) {}
-    virtual ~ThreadApi() {}
-    virtual void RegisterDump(const char* prefix) = 0;
-    virtual uint64_t GetFramePC() = 0;
+    String& getName();
+    std::string Name();
 private:
-    int mPid;
+    String name = 0x0;
 };
 
-#endif // CORE_API_THREAD_H_
+} // namespace lang
+} // namespace java
+
+#endif // ANDROID_JDK_JAVA_LANG_THREADGROUP_H_

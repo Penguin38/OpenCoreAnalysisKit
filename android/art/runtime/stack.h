@@ -14,31 +14,9 @@
  * limitations under the License.
  */
 
-#include "logger/log.h"
-#include "command/env.h"
-#include "command/cmd_register.h"
-#include "common/elf.h"
-#include "api/core.h"
-#include <stdlib.h>
+#ifndef ANDROID_ART_RUNTIME_STACK_H_
+#define ANDROID_ART_RUNTIME_STACK_H_
 
-int RegisterCommand::main(int argc, char* const argv[]) {
-    if (!CoreApi::IsReady()) 
-        return 0;
 
-    ThreadApi* thread = nullptr;
-    int pid = Env::CurrentPid();
-    if (argc > 1) pid = atoi(argv[1]);
-    thread = CoreApi::FindThread(pid);
 
-    if (!thread) {
-        LOGE("ERROR: Invalid tid %d\n", pid);
-        return 0;
-    }
-
-    thread->RegisterDump("    ");
-    return 0;
-}
-
-void RegisterCommand::usage() {
-    LOGI("Usage: register [tid]");
-}
+#endif  // ANDROID_ART_RUNTIME_STACK_H_

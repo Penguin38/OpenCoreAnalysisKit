@@ -19,10 +19,6 @@
 #include "command/env.h"
 #include "command/cmd_thread.h"
 #include "base/utils.h"
-#include "arm64/thread_info.h"
-#include "arm/thread_info.h"
-#include "x64/thread_info.h"
-#include "x86/thread_info.h"
 #include "api/core.h"
 #include "android.h"
 #include "runtime/thread_list.h"
@@ -81,30 +77,9 @@ int ThreadCommand::main(int argc, char* const argv[]) {
         if (native) {
             int index = 1;
             int machine = CoreApi::GetMachine();
-            uint64_t frame_pc = 0x0;
             LOGI(" Id     Target Id         Frame\n");
             auto callback = [&](ThreadApi *api) -> bool {
-                switch(machine) {
-                    case EM_AARCH64: {
-                        arm64::ThreadInfo* info = reinterpret_cast<arm64::ThreadInfo*>(api);
-                        frame_pc = info->GetRegs().pc;
-                    } break;
-                    case EM_ARM: {
-                        arm::ThreadInfo* info = reinterpret_cast<arm::ThreadInfo*>(api);
-                        frame_pc = info->GetRegs().pc;
-                    } break;
-                    case EM_RISCV:
-                        break;
-                    case EM_X86_64: {
-                        x64::ThreadInfo* info = reinterpret_cast<x64::ThreadInfo*>(api);
-                        frame_pc = info->GetRegs().rip;
-                    } break;
-                    case EM_386: {
-                        x86::ThreadInfo* info = reinterpret_cast<x86::ThreadInfo*>(api);
-                        frame_pc = info->GetRegs().eip;
-                    } break;
-                }
-
+                uint64_t frame_pc = api->GetFramePC();
                 File* file = CoreApi::FindFile(frame_pc);
                 LOGI("%s%-4d   Thread %-10d 0x%lx  %s\n",
                         api->pid() == Env::CurrentPid() ? "*" : " ",

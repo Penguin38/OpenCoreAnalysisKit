@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef CORE_API_THREAD_H_
-#define CORE_API_THREAD_H_
+#include "java/lang/Thread.h"
 
-#include <iostream>
+namespace java {
+namespace lang {
 
-class ThreadApi {
-public:
-    inline int pid() { return mPid; }
+ThreadGroup& Thread::getGroup() {
+    if (group.isNull()) {
+        group = GetObjectField("group");
+    }
+    return group;
+}
 
-    ThreadApi(int tid) : mPid(tid) {}
-    virtual ~ThreadApi() {}
-    virtual void RegisterDump(const char* prefix) = 0;
-    virtual uint64_t GetFramePC() = 0;
-private:
-    int mPid;
-};
-
-#endif // CORE_API_THREAD_H_
+} // namespace lang
+} // namespace java

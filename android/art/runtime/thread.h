@@ -47,7 +47,15 @@ extern struct Thread_tls_32bit_sized_values_OffsetTable __Thread_tls_32bit_sized
 extern struct Thread_tls_32bit_sized_values_SizeTable __Thread_tls_32bit_sized_values_size__;
 
 struct Thread_tls_ptr_sized_values_OffsetTable {
+    uint32_t stack_end;
+    uint32_t managed_stack;
+    uint32_t self;
+    uint32_t opeer;
+    uint32_t stack_begin;
+    uint32_t stack_size;
+    uint32_t monitor_enter_object;
     uint32_t name;
+    uint32_t pthread_self;
 };
 
 struct Thread_tls_ptr_sized_values_SizeTable {
@@ -101,7 +109,15 @@ public:
 
         static void Init();
         static void Init34();
+        inline uint64_t stack_end() { return VALUEOF(Thread_tls_ptr_sized_values, stack_end); }
+        inline uint64_t managed_stack() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, managed_stack); }
+        inline uint64_t self() { return VALUEOF(Thread_tls_ptr_sized_values, self); }
+        inline uint64_t opeer() { return VALUEOF(Thread_tls_ptr_sized_values, opeer); }
+        inline uint64_t stack_begin() { return VALUEOF(Thread_tls_ptr_sized_values, stack_begin); }
+        inline uint64_t stack_size() { return VALUEOF(Thread_tls_ptr_sized_values, stack_size); }
+        inline uint64_t monitor_enter_object() { return VALUEOF(Thread_tls_ptr_sized_values, monitor_enter_object); }
         inline uint64_t name() { return VALUEOF(Thread_tls_ptr_sized_values, name); }
+        inline uint64_t pthread_self() { return VALUEOF(Thread_tls_ptr_sized_values, pthread_self); }
     };
 
     tls_32bit_sized_values& GetTls32();
@@ -113,6 +129,7 @@ public:
     uint32_t GetThreadId();
     uint32_t GetTid();
     const char* GetName();
+    void DumpState();
 private:
     // quick memoryref cache
     tls_32bit_sized_values tls32_cache = 0x0;

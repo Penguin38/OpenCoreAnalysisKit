@@ -39,13 +39,18 @@ public:
         }
         return klass_cache;
     }
+    inline bool IsValid() { return !isNull() && thiz_cache.IsValid(); }
 
+    uint8_t GetBooleanField(const char* field) { return GetBooleanField(field, nullptr); }
+    uint8_t GetBooleanField(const char* field, const char* classname);
     uint32_t GetObjectField(const char* field) { return GetObjectField(field, nullptr); }
     uint32_t GetObjectField(const char* field, const char* classname);
-
+    int32_t GetIntField(const char* field) { return GetIntField(field, nullptr); }
+    int32_t GetIntField(const char* field, const char* classname);
     int64_t GetLongField(const char* field) { return GetLongField(field, nullptr); }
     int64_t GetLongField(const char* field, const char* classname);
 
+    inline art::mirror::Object& thiz() { return thiz_cache; }
 private:
     // quick memoryref cache;
     art::mirror::Object thiz_cache = 0;

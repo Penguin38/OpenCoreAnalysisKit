@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef CORE_API_THREAD_H_
-#define CORE_API_THREAD_H_
+#include "java/lang/String.h"
+#include "runtime/mirror/string.h"
 
-#include <iostream>
+namespace java {
+namespace lang {
 
-class ThreadApi {
-public:
-    inline int pid() { return mPid; }
+std::string String::toString() {
+    art::mirror::String mirror = thiz();
+    if (mirror.Ptr()) {
+        return mirror.ToModifiedUtf8();
+    } else {
+        return "null";
+    }
+}
 
-    ThreadApi(int tid) : mPid(tid) {}
-    virtual ~ThreadApi() {}
-    virtual void RegisterDump(const char* prefix) = 0;
-    virtual uint64_t GetFramePC() = 0;
-private:
-    int mPid;
-};
-
-#endif // CORE_API_THREAD_H_
+} // namespace lang
+} // namespace java

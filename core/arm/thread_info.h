@@ -56,6 +56,7 @@ public:
     ~ThreadInfo() {}
     void RegisterDump(const char* prefix) { return reg.Dump(prefix); }
     Register& GetRegs() { return reg; }
+    uint64_t GetFramePC() { return GetRegs().pc; }
 
     Register  reg;
 };

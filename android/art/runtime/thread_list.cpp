@@ -43,6 +43,8 @@ std::list<std::unique_ptr<Thread>>& ThreadList::GetList() {
 
 bool ThreadList::Contains(int tid) {
     for (const auto& thread : GetList()) {
+        if (thread->GetTid() == tid)
+            return true;
     }
     return false;
 }

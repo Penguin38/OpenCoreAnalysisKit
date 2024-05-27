@@ -44,6 +44,29 @@ bool Object::instanceof(const char* classname) {
     return false;
 }
 
+uint8_t Object::GetBooleanField(const char* field, const char* classname) {
+    uint8_t value = 0x0;
+    art::mirror::Class super = klass();
+    do {
+        if (classname && super.PrettyDescriptor() != classname) {
+            super = super.GetSuperClass();
+            continue;
+        }
+
+        auto callback = [&](art::ArtField& f) -> bool {
+            if (!strcmp(f.GetName(), field)) {
+                value = f.GetBoolean(thiz_cache);
+                return true;
+            }
+            return false;
+        };
+        Android::ForeachInstanceField(super, callback);
+
+        super = super.GetSuperClass();
+    } while (super.Ptr());
+    return value;
+}
+
 uint32_t Object::GetObjectField(const char* field, const char* classname) {
     uint32_t obj = 0x0;
     art::mirror::Class super = klass();
@@ -65,6 +88,29 @@ uint32_t Object::GetObjectField(const char* field, const char* classname) {
         super = super.GetSuperClass();
     } while (super.Ptr());
     return obj;
+}
+
+int32_t Object::GetIntField(const char* field, const char* classname) {
+    int32_t value = 0x0;
+    art::mirror::Class super = klass();
+    do {
+        if (classname && super.PrettyDescriptor() != classname) {
+            super = super.GetSuperClass();
+            continue;
+        }
+
+        auto callback = [&](art::ArtField& f) -> bool {
+            if (!strcmp(f.GetName(), field)) {
+                value = f.GetInt(thiz_cache);
+                return true;
+            }
+            return false;
+        };
+        Android::ForeachInstanceField(super, callback);
+
+        super = super.GetSuperClass();
+    } while (super.Ptr());
+    return value;
 }
 
 int64_t Object::GetLongField(const char* field, const char* classname) {

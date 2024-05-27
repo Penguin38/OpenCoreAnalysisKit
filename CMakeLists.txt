@@ -123,6 +123,9 @@ add_library(android STATIC
 
             # jdk
             android/jdk/java/lang/Object.cpp
+            android/jdk/java/lang/String.cpp
+            android/jdk/java/lang/Thread.cpp
+            android/jdk/java/lang/ThreadGroup.cpp
             android/jdk/sun/misc/Cleaner.cpp
             android/jdk/libcore/util/NativeAllocationRegistry.cpp)
 target_link_libraries(android core llvm)

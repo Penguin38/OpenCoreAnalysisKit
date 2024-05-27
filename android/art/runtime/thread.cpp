@@ -17,6 +17,8 @@
 #include "runtime/thread.h"
 #include "android.h"
 #include "cxx/string.h"
+#include "java/lang/Thread.h"
+#include "java/lang/ThreadGroup.h"
 
 struct Thread_OffsetTable __Thread_offset__;
 struct Thread_SizeTable __Thread_size__;
@@ -76,11 +78,27 @@ void Thread::tls_32bit_sized_values::Init31() {
 void Thread::tls_ptr_sized_values::Init() {
     if (CoreApi::GetPointSize() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 16,
+            .managed_stack = 24,
+            .self = 72,
+            .opeer = 80,
+            .stack_begin = 96,
+            .stack_size = 104,
+            .monitor_enter_object = 128,
             .name = 192,
+            .pthread_self = 200,
         };
     } else {
         __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
             .name = 96,
+            .pthread_self = 100,
         };
     }
 }
@@ -88,11 +106,27 @@ void Thread::tls_ptr_sized_values::Init() {
 void Thread::tls_ptr_sized_values::Init34() {
     if (CoreApi::GetPointSize() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 16,
+            .managed_stack = 24,
+            .self = 72,
+            .opeer = 80,
+            .stack_begin = 96,
+            .stack_size = 104,
+            .monitor_enter_object = 128,
             .name = 184,
+            .pthread_self = 192,
         };
     } else {
         __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
             .name = 92,
+            .pthread_self = 96,
         };
     }
 }
@@ -210,6 +244,23 @@ const char* Thread::GetName() {
     } else {
         return reinterpret_cast<const char*>(ref.Real());
     }
+}
+
+void Thread::DumpState() {
+    LOGI("\"%s\" tid=%d sysTid=%d %s\n", GetName(), GetThreadId(), GetTid(), GetStateDescriptor());
+    java::lang::Thread self = GetTlsPtr().opeer();
+    if (self.IsValid()) {
+        java::lang::ThreadGroup& group = self.getGroup();
+        LOGI("  | group=\"%s\" daemon=%d prio=%d handle=0x%lx\n",
+                group.Ptr() ? group.Name().c_str() : "<unknown>", self.getDaemon(),
+                self.getPriority(), GetTlsPtr().pthread_self());
+    }
+    LOGI("  | sCount=%d flags=%d obj=0x%lx self=0x%lx\n",
+            GetTls32().suspend_count(), GetFlags(), GetTlsPtr().opeer(), Ptr());
+    LOGI("  | stack=0x%lx-0x%lx stackSize=0x%lx\n",
+            GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
+            GetTlsPtr().stack_size());
+    LOGI("  | held mutexes=\n");
 }
 
 } //namespace art
