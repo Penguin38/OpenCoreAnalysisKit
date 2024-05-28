@@ -20,12 +20,13 @@
 #include "logger/log.h"
 #include "api/thread.h"
 #include "command/command.h"
+#include <memory>
+#include <vector>
+
 #if defined(__AOSP_PARSER__)
 #include "android.h"
 #include "runtime/thread.h"
 #endif
-#include <memory>
-#include <vector>
 
 class BacktraceCommand : public Command {
 public:
@@ -33,12 +34,15 @@ public:
     ~BacktraceCommand() {}
     int main(int argc, char* const argv[]);
     bool prepare(int argc, char* const argv[]) {
+#if defined(__AOSP_PARSER__)
         Android::Prepare();
+#endif
         return true;
     }
     void usage();
     void addThread(int pid);
     void addThread(int pid, int type);
+    void addThread(int pid, int type, void* thread);
 
     class ThreadRecord {
     public:
@@ -48,28 +52,30 @@ public:
             type = TYPE_NATIVE;
             api = p;
             if (api) pid = api->pid();
+            thread = nullptr;
         }
         ThreadRecord(int p) {
             type = TYPE_NATIVE;
             pid = p;
             api = nullptr;
+            thread = nullptr;
         }
         ThreadRecord(ThreadApi* p, int t) {
             type = t;
             api = p;
             if (api) pid = api->pid();
+            thread = nullptr;
         }
         ThreadRecord(int p, int t) {
             type = t;
             pid = p;
             api = nullptr;
+            thread = nullptr;
         }
         int type;
         int pid;
         ThreadApi* api;
-#if defined(__AOSP_PARSER__)
-        art::Thread thread = 0x0;
-#endif
+        void* thread;
     };
 
     ThreadRecord* findRecord(int pid);

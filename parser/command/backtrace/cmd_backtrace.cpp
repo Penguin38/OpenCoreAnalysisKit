@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "api/core.h"
 #include "common/elf.h"
 #include "command/env.h"
 #include "command/backtrace/cmd_backtrace.h"
@@ -23,6 +24,7 @@
 
 #if defined(__AOSP_PARSER__)
 #include "runtime/thread_list.h"
+#include "runtime/stack.h"
 #endif
 
 int BacktraceCommand::main(int argc, char* const argv[]) {
@@ -60,7 +62,7 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
             art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
                 int tid = thread->GetTid();
-                addThread(tid, BacktraceCommand::ThreadRecord::TYPE_JVM);
+                addThread(tid, BacktraceCommand::ThreadRecord::TYPE_JVM, thread.get());
             }
         }
 #endif
@@ -72,37 +74,41 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
         } else {
             addThread(pid);
         }
-    }
-
 #if defined(__AOSP_PARSER__)
-    if (Android::IsSdkReady()) {
-        art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
-        for (const auto& thread : thread_list.GetList()) {
-            int tid = thread->GetTid();
-            BacktraceCommand::ThreadRecord* record = findRecord(tid);
-            if (record) {
-                record->type = BacktraceCommand::ThreadRecord::TYPE_JVM;
-                record->thread = thread->Ptr();
+        if (Android::IsSdkReady()) {
+            art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
+            for (const auto& thread : thread_list.GetList()) {
+                int tid = thread->GetTid();
+                BacktraceCommand::ThreadRecord* record = findRecord(tid);
+                if (record) {
+                    record->type = BacktraceCommand::ThreadRecord::TYPE_JVM;
+                    record->thread = thread.get();
+                }
             }
         }
-    }
 #endif
+    }
 
     bool needEnd = false;
     for (const auto& record : threads) {
         if (needEnd) LOGI("\n");
-        if (record->thread.Ptr()) {
 #if defined(__AOSP_PARSER__)
-            record->thread.DumpState();
-#endif
+        if (record->thread) {
+            art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
+            thread->DumpState();
         } else {
             LOGI("Thread(\"%d\")\n", record->pid);
         }
+#else
+        LOGI("Thread(\"%d\")\n", record->pid);
+#endif
         if (record->api) {
             record->api->RegisterDump("  ");
+            //do native stackwalk
         } else {
             LOGI("  (NOT EXIST THREAD)\n");
         }
+
         needEnd = true;
     }
 
@@ -115,16 +121,25 @@ void BacktraceCommand::addThread(int pid) {
 }
 
 void BacktraceCommand::addThread(int pid, int type) {
+    addThread(pid, type, nullptr);
+}
+
+void BacktraceCommand::addThread(int pid, int type, void* at) {
     BacktraceCommand::ThreadRecord* record = findRecord(pid);
     if (!record) {
         ThreadApi* api = CoreApi::FindThread(pid);
         if (api) {
             std::unique_ptr<BacktraceCommand::ThreadRecord> thread = std::make_unique<BacktraceCommand::ThreadRecord>(api, type);
+            thread->thread = at;
             threads.push_back(std::move(thread));
         } else {
             std::unique_ptr<BacktraceCommand::ThreadRecord> thread = std::make_unique<BacktraceCommand::ThreadRecord>(pid, type);
+            thread->thread = at;
             threads.push_back(std::move(thread));
         }
+    } else {
+        record->type = type;
+        record->thread = at;
     }
 }
 
