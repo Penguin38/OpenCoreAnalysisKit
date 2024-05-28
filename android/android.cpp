@@ -255,6 +255,21 @@ void Android::preLoadLater() {
     if (Sdk() > Q) {
         realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64 : LIBART32;
     } else {
+        art::DexFile::Init();
+        art::Runtime::Init();
+        art::mirror::DexCache::Init();
+        art::ImageHeader::Init();
+        art::Thread::Init();
+        art::Thread::tls_32bit_sized_values::Init();
+        art::Thread::tls_ptr_sized_values::Init();
+        art::gc::space::RegionSpace::Init();
+        art::gc::space::LargeObjectSpace::Init();
+        art::gc::space::LargeObjectMapSpace::Init();
+        art::JavaVMExt::Init();
+        art::ClassLinker::DexCacheData::Init();
+        art::IrtEntry::Init();
+        art::IndirectReferenceTable::Init();
+        art::ArtMethod::Init();
         realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV29 : LIBART32_LV29;
     }
 
