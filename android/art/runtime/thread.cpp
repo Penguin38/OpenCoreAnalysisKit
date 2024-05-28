@@ -272,19 +272,20 @@ const char* Thread::GetName() {
 }
 
 void Thread::DumpState() {
-    LOGI("\"%s\" tid=%d sysTid=%d %s\n", GetName(), GetThreadId(), GetTid(), GetStateDescriptor());
+    LOGI("\"%s\" tid=%d %s\n", GetName(), GetThreadId(), GetStateDescriptor());
     java::lang::Thread self = GetTlsPtr().opeer();
     if (self.IsValid()) {
         java::lang::ThreadGroup& group = self.getGroup();
-        LOGI("  | group=\"%s\" daemon=%d prio=%d handle=0x%lx\n",
+        LOGI("  | group=\"%s\" daemon=%d prio=%d target=0x%x\n",
                 group.Ptr() ? group.Name().c_str() : "<unknown>", self.getDaemon(),
-                self.getPriority(), GetTlsPtr().pthread_self());
+                self.getPriority(), self.getTarget().Ptr());
     }
-    LOGI("  | sCount=%d flags=%d obj=0x%lx self=0x%lx\n",
-            GetTls32().suspend_count(), GetFlags(), GetTlsPtr().opeer(), Ptr());
-    LOGI("  | stack=0x%lx-0x%lx stackSize=0x%lx\n",
+    LOGI("  | sysTid=%d sCount=%d flags=%d obj=0x%lx self=0x%lx\n",
+            GetTid(), GetTls32().suspend_count(),
+            GetFlags(), GetTlsPtr().opeer(), Ptr());
+    LOGI("  | stack=0x%lx-0x%lx stackSize=0x%lx handle=0x%lx\n",
             GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
-            GetTlsPtr().stack_size());
+            GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());
     LOGI("  | held mutexes=\n");
 }
 

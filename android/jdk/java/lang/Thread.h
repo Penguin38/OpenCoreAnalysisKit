@@ -31,6 +31,7 @@ public:
 
     inline bool getDaemon() { return GetBooleanField("daemon"); }
     inline int getPriority() { return GetIntField("priority"); }
+    inline Object getTarget() { return GetObjectField("target"); }
     ThreadGroup& getGroup();
 private:
     ThreadGroup group = 0x0;

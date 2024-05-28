@@ -37,20 +37,42 @@ public:
         return true;
     }
     void usage();
+    void addThread(int pid);
+    void addThread(int pid, int type);
 
     class ThreadRecord {
     public:
         static constexpr int TYPE_NATIVE = 1 << 0;
         static constexpr int TYPE_JVM = 1 << 1;
-        ThreadRecord(ThreadApi* p) { type = TYPE_NATIVE; api = p; }
-        ThreadRecord(int t, ThreadApi* p) { type = t; api = p; }
-
+        ThreadRecord(ThreadApi* p) {
+            type = TYPE_NATIVE;
+            api = p;
+            if (api) pid = api->pid();
+        }
+        ThreadRecord(int p) {
+            type = TYPE_NATIVE;
+            pid = p;
+            api = nullptr;
+        }
+        ThreadRecord(ThreadApi* p, int t) {
+            type = t;
+            api = p;
+            if (api) pid = api->pid();
+        }
+        ThreadRecord(int p, int t) {
+            type = t;
+            pid = p;
+            api = nullptr;
+        }
         int type;
+        int pid;
         ThreadApi* api;
 #if defined(__AOSP_PARSER__)
         art::Thread thread = 0x0;
 #endif
     };
+
+    ThreadRecord* findRecord(int pid);
 private:
     bool dump_all = false;
     std::vector<std::unique_ptr<ThreadRecord>> threads;

@@ -33,10 +33,10 @@ public:
     uint16_t ss, __ss;
 
     void Dump(const char* prefix) {
-        LOGI("%seax  0x%08x  ebx  0x%08x  ecx  0x%08x  edx  0x%08x  \n", prefix, eax, ebx, ecx, edx);
-        LOGI("%sedi  0x%08x  esi  0x%08x  \n", prefix, edi, esi);
-        LOGI("%sebp  0x%08x  esp  0x%08x  eip 0x%08x  eflags 0x%08x  \n", prefix, ebp, esp, eip, eflags);
-        LOGI("%sds 0x%04x  es  0x%04x  fs  0x%04x  gs  0x%04x  cs 0x%04x  ss 0x%04x\n", prefix, ds, es, fs, gs, cs, ss);
+        LOGI("%seax 0x%08x  ebx 0x%08x  ecx 0x%08x  edx 0x%08x  \n", prefix, eax, ebx, ecx, edx);
+        LOGI("%sedi 0x%08x  esi 0x%08x  \n", prefix, edi, esi);
+        LOGI("%sebp 0x%08x  esp 0x%08x  eip 0x%08x  eflags 0x%08x  \n", prefix, ebp, esp, eip, eflags);
+        LOGI("%sds 0x%04x  es 0x%04x  fs 0x%04x  gs 0x%04x  cs 0x%04x  ss 0x%04x\n", prefix, ds, es, fs, gs, cs, ss);
     }
 };
 
