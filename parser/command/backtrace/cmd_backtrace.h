@@ -79,6 +79,7 @@ public:
     };
 
     ThreadRecord* findRecord(int pid);
+    void DumpTrace();
 private:
     bool dump_all = false;
     std::vector<std::unique_ptr<ThreadRecord>> threads;

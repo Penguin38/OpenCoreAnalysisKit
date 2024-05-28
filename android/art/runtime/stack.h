@@ -17,6 +17,75 @@
 #ifndef ANDROID_ART_RUNTIME_STACK_H_
 #define ANDROID_ART_RUNTIME_STACK_H_
 
+#include "runtime/thread.h"
 
+/*
+ * Our current stack layout.
+ * The Dalvik registers come first, followed by the
+ * Method*, followed by other special temporaries if any, followed by
+ * regular compiler temporary. As of now we only have the Method* as
+ * as a special compiler temporary.
+ * A compiler temporary can be thought of as a virtual register that
+ * does not exist in the dex but holds intermediate values to help
+ * optimizations and code generation. A special compiler temporary is
+ * one whose location in frame is well known while non-special ones
+ * do not have a requirement on location in frame as long as code
+ * generator itself knows how to access them.
+ *
+ *     +-------------------------------+
+ *     | IN[ins-1]                     |  {Note: resides in caller's frame}
+ *     |       .                       |
+ *     | IN[0]                         |
+ *     | caller's ArtMethod            |  ... ArtMethod*
+ *     +===============================+  {Note: start of callee's frame}
+ *     | core callee-save spill        |  {variable sized}
+ *     +-------------------------------+
+ *     | fp callee-save spill          |
+ *     +-------------------------------+
+ *     | filler word                   |  {For compatibility, if V[locals-1] used as wide
+ *     +-------------------------------+
+ *     | V[locals-1]                   |
+ *     | V[locals-2]                   |
+ *     |      .                        |
+ *     |      .                        |  ... (reg == 2)
+ *     | V[1]                          |  ... (reg == 1)
+ *     | V[0]                          |  ... (reg == 0) <---- "locals_start"
+ *     +-------------------------------+
+ *     | stack alignment padding       |  {0 to (kStackAlignWords-1) of padding}
+ *     +-------------------------------+
+ *     | Compiler temp region          |  ... (reg >= max_num_special_temps)
+ *     |      .                        |
+ *     |      .                        |
+ *     | V[max_num_special_temps + 1]  |
+ *     | V[max_num_special_temps + 0]  |
+ *     +-------------------------------+
+ *     | OUT[outs-1]                   |
+ *     | OUT[outs-2]                   |
+ *     |       .                       |
+ *     | OUT[0]                        |
+ *     | ArtMethod*                    |  ... (reg == num_total_code_regs == special_temp_value) <<== sp, 16-byte aligned
+ *     +===============================+
+ */
+
+namespace art {
+
+class StackVisitor {
+public:
+    // This enum defines a flag to control whether inlined frames are included
+    // when walking the stack.
+    enum class StackWalkKind {
+        kIncludeInlinedFrames,
+        kSkipInlinedFrames,
+    };
+
+    StackVisitor(Thread* thread, StackWalkKind kind) : thread_(thread), walk_kind_(kind) {}
+    Thread* GetThread() { return thread_; }
+    void WalkStack();
+private:
+    Thread* thread_;
+    StackWalkKind walk_kind_;
+};
+
+} // namespace art
 
 #endif  // ANDROID_ART_RUNTIME_STACK_H_

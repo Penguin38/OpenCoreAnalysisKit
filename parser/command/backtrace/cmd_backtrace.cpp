@@ -89,29 +89,7 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
 #endif
     }
 
-    bool needEnd = false;
-    for (const auto& record : threads) {
-        if (needEnd) LOGI("\n");
-#if defined(__AOSP_PARSER__)
-        if (record->thread) {
-            art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
-            thread->DumpState();
-        } else {
-            LOGI("Thread(\"%d\")\n", record->pid);
-        }
-#else
-        LOGI("Thread(\"%d\")\n", record->pid);
-#endif
-        if (record->api) {
-            record->api->RegisterDump("  ");
-            //do native stackwalk
-        } else {
-            LOGI("  (NOT EXIST THREAD)\n");
-        }
-
-        needEnd = true;
-    }
-
+    DumpTrace();
     threads.clear();
     return 0;
 }
@@ -149,6 +127,38 @@ BacktraceCommand::ThreadRecord* BacktraceCommand::findRecord(int pid) {
             return record.get();
     }
     return nullptr;
+}
+
+void BacktraceCommand::DumpTrace() {
+    bool needEnd = false;
+    for (const auto& record : threads) {
+        if (needEnd) LOGI("\n");
+#if defined(__AOSP_PARSER__)
+        if (record->thread) {
+            art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
+            thread->DumpState();
+        } else {
+            LOGI("Thread(\"%d\") NotAttachJVM\n", record->pid);
+        }
+#else
+        LOGI("Thread(\"%d\")\n", record->pid);
+#endif
+        if (record->api) {
+            record->api->RegisterDump("  ");
+            //do native stackwalk
+        } else {
+            LOGI("  (NOT EXIST THREAD)\n");
+        }
+
+#if defined(__AOSP_PARSER__)
+        if (record->thread) {
+            art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
+            art::StackVisitor visitor(thread, art::StackVisitor::StackWalkKind::kSkipInlinedFrames);
+            visitor.WalkStack();
+        }
+#endif
+        needEnd = true;
+    }
 }
 
 void BacktraceCommand::usage() {

@@ -95,7 +95,6 @@ public:
     inline uint16_t GetMethodIndex() { return method_index(); }
     inline uint16_t GetCounter() { return hotness_count(); }
     inline uint16_t GetImtIndex() { return imt_index(); }
-    PtrSizedFields& GetPtrSizedFields();
 
     // Returns true if the method is declared public.
     inline bool IsPublic() {
@@ -423,7 +422,6 @@ public:
 private:
     // quick memoryref cache
     mirror::Class declaring_class_cache = 0x0;
-    PtrSizedFields ptr_sized_fields_cache = 0x0;
 
     // empty
     mirror::DexCache obsolete_dex_caches = 0x0;

@@ -29,6 +29,7 @@
 #include "runtime/class_linker.h"
 #include "runtime/indirect_reference_table.h"
 #include "runtime/vdex_file.h"
+#include "runtime/managed_stack.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -167,6 +168,7 @@ void Android::preLoad() {
     art::OatDexFile::Init();
     art::VdexFile::Init();
     art::MemMap::Init();
+    art::ManagedStack::Init();
     art::ArtMethod::PtrSizedFields::Init();
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();

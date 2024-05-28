@@ -96,15 +96,6 @@ mirror::Class& ArtMethod::GetDeclaringClass() {
     return declaring_class_cache;
 }
 
-ArtMethod::PtrSizedFields& ArtMethod::GetPtrSizedFields() {
-    if (!ptr_sized_fields_cache.Ptr()) {
-        ptr_sized_fields_cache = ptr_sized_fields();
-        ptr_sized_fields_cache.copyRef(this);
-        ptr_sized_fields_cache.Prepare(false);
-    }
-    return ptr_sized_fields_cache;
-}
-
 mirror::DexCache& ArtMethod::GetDexCache() {
     if (LIKELY(!IsObsolete())) {
         return GetDeclaringClass().GetDexCache();
@@ -212,7 +203,8 @@ dex::CodeItem ArtMethod::GetCodeItem() {
     if (Android::Sdk() < Android::S) {
         item = dex_file.DataBegin() + dex_code_item_offset();
     } else {
-        item = GetPtrSizedFields().data();
+        ArtMethod::PtrSizedFields ptr_sized_fields_(ptr_sized_fields(), this);
+        item = ptr_sized_fields_.data();
     }
     item = item.Ptr() & 0xFFFFFFFFFFFFFFFEULL;
 
