@@ -22,6 +22,9 @@ add_definitions(-D__TARGET_PARSER__="${CMAKE_BUILD_PRODUCT}")
 string(TOUPPER "${CMAKE_BUILD_TARGET}" TARGET_BUILD_PLATFORM)
 add_definitions(-D__${TARGET_BUILD_PLATFORM}__)
 
+string(TOUPPER "${CMAKE_BUILD_TYPE}" TARGET_BUILD_TYPE)
+add_definitions(-D__PARSER_${TARGET_BUILD_TYPE}__)
+
 set(AUTO_VAR_INIT_ZERO "-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -Wno-unused-command-line-argument")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 ${AUTO_VAR_INIT_ZERO} -O2 -fPIC")

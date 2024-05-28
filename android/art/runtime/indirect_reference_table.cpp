@@ -48,11 +48,13 @@ void IndirectReferenceTable::Init29() {
     if (CoreApi::GetPointSize() == 64) {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
+            .table_mem_map_ = 8,
             .table_ = 80,
         };
     } else {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
+            .table_mem_map_ = 4,
             .table_ = 44,
         };
     }
@@ -62,11 +64,13 @@ void IndirectReferenceTable::Init() {
     if (CoreApi::GetPointSize() == 64) {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
+            .table_mem_map_ = 8,
             .table_ = 80,
         };
     } else {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
+            .table_mem_map_ = 4,
             .table_ = 44,
         };
     }
@@ -75,11 +79,13 @@ void IndirectReferenceTable::Init() {
 void IndirectReferenceTable::Init34() {
     if (CoreApi::GetPointSize() == 64) {
         __IndirectReferenceTable_offset__ = {
+            .table_mem_map_ = 0,
             .table_ = 72,
             .top_index_ = 88,
         };
     } else {
         __IndirectReferenceTable_offset__ = {
+            .table_mem_map_ = 0,
             .table_ = 40,
             .top_index_ = 48,
         };

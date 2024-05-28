@@ -15,7 +15,11 @@
  */
 
 #include "api/core.h"
+#include "base/mem_map.h"
 #include "runtime/jni/java_vm_ext.h"
+#include "common/bit.h"
+#include "common/exception.h"
+#include <string.h>
 
 struct JavaVMExt_OffsetTable __JavaVMExt_offset__;
 struct JavaVMExt_SizeTable __JavaVMExt_size__;
@@ -103,6 +107,34 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
         weak_globals_cache = weak_globals();
         weak_globals_cache.copyRef(this);
         weak_globals_cache.Prepare(false);
+#if defined(__PARSER_DEBUG__)
+        if (weak_globals_cache.IsValid()) {
+            bool found = false;
+            int count = 0;
+            uint64_t point_size = CoreApi::GetPointSize() / 8;
+            MemMap table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
+            table_mem_map_.copyRef(weak_globals_cache);
+            uint64_t endloop = RoundUp(table_mem_map_.Ptr(), 0x2000) - SIZEOF(MemMap);
+            int loopcount = (endloop - table_mem_map_.Ptr()) / point_size;
+            do {
+                if (!table_mem_map_.IsValid())
+                    break;
+                try {
+                    if (!strcmp("indirect ref table", table_mem_map_.GetName())) {
+                        found = true;
+                        break;
+                    }
+                } catch (InvalidAddressException e) {}
+                count++;
+                table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
+                table_mem_map_.copyRef(weak_globals_cache);
+            } while (count < loopcount);
+            if (found) {
+                weak_globals_cache = table_mem_map_.Ptr() - OFFSET(IndirectReferenceTable, table_mem_map_);
+                weak_globals_cache.copyRef(table_mem_map_);
+            }
+        }
+#endif
     }
     return weak_globals_cache;
 }

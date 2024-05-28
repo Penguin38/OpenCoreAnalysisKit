@@ -34,6 +34,7 @@ extern struct IrtEntry_SizeTable __IrtEntry_size__;
 
 struct IndirectReferenceTable_OffsetTable {
     uint32_t segment_state_;
+    uint32_t table_mem_map_;
     uint32_t table_;
     uint32_t top_index_;
 };
@@ -85,6 +86,7 @@ public:
     static void Init();
     static void Init34();
     inline uint32_t segment_state() { return value32Of(OFFSET(IndirectReferenceTable, segment_state_)); }
+    inline uint64_t table_mem_map() { return Ptr() + OFFSET(IndirectReferenceTable, table_mem_map_); }
     inline uint64_t table() { return VALUEOF(IndirectReferenceTable, table_); }
     inline uint64_t top_index() { return VALUEOF(IndirectReferenceTable, top_index_); }
 
