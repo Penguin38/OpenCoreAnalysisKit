@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CMD_FAKE_H_
-#define PARSER_COMMAND_FAKE_CMD_FAKE_H_
+#include "logger/log.h"
+#include "api/core.h"
+#include "command/fake/core/lp32/restore.h"
 
-#include "command/command.h"
-#include <string>
+namespace lp32 {
 
-class FakeCommand : public Command {
-public:
-    FakeCommand() : Command("fake") {}
-    ~FakeCommand() {}
-    int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]);
-    void usage();
-};
+int Restore::execute(const char* output) {
+    return 0;
+}
 
-#endif // PARSER_COMMAND_FAKE_CMD_FAKE_H_
+} // namespace lp32

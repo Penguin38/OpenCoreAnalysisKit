@@ -91,6 +91,7 @@ public:
     static bool IsReady();
     static bool Load(const char* corefile);
     static void UnLoad();
+    static uint64_t GetBegin() { return INSTANCE->begin(); }
     static const char* GetName();
     static const char* GetMachineName();
     static int GetMachine();

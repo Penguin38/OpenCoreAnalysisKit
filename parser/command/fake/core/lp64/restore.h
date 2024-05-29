@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CMD_FAKE_H_
-#define PARSER_COMMAND_FAKE_CMD_FAKE_H_
+#ifndef PARSER_COMMAND_FAKE_CORE_LP64_RESTORE_H_
+#define PARSER_COMMAND_FAKE_CORE_LP64_RESTORE_H_
 
-#include "command/command.h"
-#include <string>
+namespace lp64 {
 
-class FakeCommand : public Command {
+class Restore {
 public:
-    FakeCommand() : Command("fake") {}
-    ~FakeCommand() {}
-    int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]);
-    void usage();
+    static int execute(const char* output);
 };
 
-#endif // PARSER_COMMAND_FAKE_CMD_FAKE_H_
+} // namespace lp64
+
+#endif // PARSER_COMMAND_FAKE_CORE_LP64_RESTORE_H_

@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CMD_FAKE_H_
-#define PARSER_COMMAND_FAKE_CMD_FAKE_H_
+#ifndef PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
+#define PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
 
-#include "command/command.h"
-#include <string>
-
-class FakeCommand : public Command {
+class FakeCore {
 public:
-    FakeCommand() : Command("fake") {}
-    ~FakeCommand() {}
-    int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]);
-    void usage();
+    static int OptionCore(int argc, char* const argv[]);
+    static void Usage();
 };
 
-#endif // PARSER_COMMAND_FAKE_CMD_FAKE_H_
+#endif // PARSER_COMMAND_FAKE_CORE_FAKECORE_H_

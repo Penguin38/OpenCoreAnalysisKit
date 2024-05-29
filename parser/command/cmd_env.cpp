@@ -189,13 +189,19 @@ int EnvCommand::dumpEnv() {
 }
 
 void EnvCommand::usage() {
-    LOGI("Usage: env [command] ...\n");
-    LOGI("       command:\n");
-    LOGI("         config [opt] [value]\n");
-    LOGI("           option:\n");
-    LOGI("             --sdk <VERSION>\n");
-    LOGI("             --pid|-p <PID>\n");
-    LOGI("         logger --[debug|info|warn|error|fatal]\n");
-    LOGI("         art: show art env args\n");
-    LOGI("         load: show code load segments\n");
+    LOGI("Usage: env <COMMAND> [option] ...\n");
+    LOGI("Command:\n");
+    LOGI("    config  logger  art  load\n");
+    LOGI("\n");
+    LOGI("Usage: env config <option> ..\n");
+    LOGI("Option:\n");
+    LOGI("   --sdk: <VERSION>\n");
+    LOGI("   --pid|-p <PID>\n");
+    LOGI("\n");
+    LOGI("Usage: env logger <option>\n");
+    LOGI("Option:\n");
+    LOGI("   --[debug|info|warn|error|fatal]\n");
+    LOGI("\n");
+    LOGI("Usage: env art: show art env args\n");
+    LOGI("Usage env load: show code load segments\n");
 }
