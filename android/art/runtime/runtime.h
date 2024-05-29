@@ -61,7 +61,7 @@ public:
     inline bool operator!=(Runtime& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init29();
-    static void Init();
+    static void Init30();
     static void Init31();
     static void Init33();
     static void Init34();

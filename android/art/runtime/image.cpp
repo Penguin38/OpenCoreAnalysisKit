@@ -21,7 +21,7 @@ struct ImageHeader_SizeTable __ImageHeader_size__;
 
 namespace art {
 
-void ImageHeader::Init() {
+void ImageHeader::Init29() {
     __ImageHeader_offset__ = {
         .image_methods_ = 168,
     };
@@ -42,7 +42,13 @@ void ImageHeader::Init31() {
 }
 
 void ImageHeader::Init34() {
-    Init();
+    __ImageHeader_offset__ = {
+        .image_methods_ = 168,
+    };
+
+    __ImageHeader_size__ = {
+        .THIS = 256,
+    };
 }
 
 } // namespace art

@@ -33,17 +33,6 @@ void JavaVMExt::Init29() {
             .weak_globals_ = 200,
         };
     } else {
-        //TODO
-    }
-}
-
-void JavaVMExt::Init() {
-    if (CoreApi::GetPointSize() == 64) {
-        __JavaVMExt_offset__ = {
-            .globals_ = 64,
-            .weak_globals_ = 200,
-        };
-    } else {
         __JavaVMExt_offset__ = {
             .globals_ = 32,
             .weak_globals_ = 108,

@@ -25,8 +25,8 @@ struct DexFile_SizeTable __DexFile_size__;
 
 namespace art {
 
-void DexFile::Init() {
-    // 30 ~ 33
+void DexFile::Init29() {
+    // 29 ~ 33
     if (CoreApi::GetPointSize() == 64) {
         __DexFile_offset__ = {
             .begin_ = 8,

@@ -42,7 +42,7 @@ void Runtime::Init29() {
     }
 }
 
-void Runtime::Init() {
+void Runtime::Init30() {
     if (CoreApi::GetPointSize() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
@@ -203,8 +203,12 @@ Runtime Runtime::AnalysisInstance() {
                         sizeof(callee_methods))) {
                 runtime = current - block->begin() + block->vaddr();
                 runtime.checkCopyBlock(block);
-                LOGI(">>> '%s' = 0x%lx\n", Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
-                return true;
+                ArtMethod& resolution_method_ = runtime.GetResolutionMethod();
+                if (resolution_method_.Block() &&
+                        resolution_method_.Block()->virtualContains(callee_methods[0])) {
+                    LOGI(">>> '%s' = 0x%lx\n", Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
+                    return true;
+                }
             }
             current += point_size;
         }

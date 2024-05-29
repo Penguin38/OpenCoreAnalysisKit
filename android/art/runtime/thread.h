@@ -79,7 +79,7 @@ public:
     Thread(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init29();
-    static void Init();
+    static void Init30();
     static void Init31();
     static void Init33();
     static void Init34();
@@ -93,7 +93,7 @@ public:
         tls_32bit_sized_values(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         tls_32bit_sized_values(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-        static void Init();
+        static void Init29();
         static void Init31();
         inline uint32_t state_and_flags() { return value32Of(OFFSET(Thread_tls_32bit_sized_values, state_and_flags)); }
         inline uint32_t suspend_count() { return value32Of(OFFSET(Thread_tls_32bit_sized_values, suspend_count)); }
@@ -109,7 +109,7 @@ public:
         tls_ptr_sized_values(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         static void Init29();
-        static void Init();
+        static void Init30();
         static void Init34();
         inline uint64_t stack_end() { return VALUEOF(Thread_tls_ptr_sized_values, stack_end); }
         inline uint64_t managed_stack() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, managed_stack); }

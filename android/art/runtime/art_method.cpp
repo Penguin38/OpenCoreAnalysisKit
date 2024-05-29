@@ -29,7 +29,7 @@ struct PtrSizedFields_OffsetTable __PtrSizedFields_offset__;
 
 namespace art {
 
-void ArtMethod::Init() {
+void ArtMethod::Init29() {
     __ArtMethod_offset__ = {
         .declaring_class_ = 0,
         .access_flags_ = 4,

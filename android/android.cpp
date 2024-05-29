@@ -198,32 +198,30 @@ void Android::preLoad() {
 
     // preLoadLater listener
     // 29
+    RegisterSdkListener(Q, art::DexFile::Init29);
     RegisterSdkListener(Q, art::Runtime::Init29);
     RegisterSdkListener(Q, art::Thread::Init29);
     RegisterSdkListener(Q, art::Thread::tls_ptr_sized_values::Init29);
+    RegisterSdkListener(Q, art::Thread::tls_32bit_sized_values::Init29);
+    RegisterSdkListener(Q, art::ImageHeader::Init29);
     RegisterSdkListener(Q, art::mirror::DexCache::Init29);
     RegisterSdkListener(Q, art::gc::space::RegionSpace::Init29);
     RegisterSdkListener(Q, art::gc::space::LargeObjectSpace::Init29);
     RegisterSdkListener(Q, art::gc::space::LargeObjectMapSpace::Init29);
     RegisterSdkListener(Q, art::JavaVMExt::Init29);
     RegisterSdkListener(Q, art::IndirectReferenceTable::Init29);
+    RegisterSdkListener(Q, art::ClassLinker::DexCacheData::Init29);
+    RegisterSdkListener(Q, art::IrtEntry::Init29);
+    RegisterSdkListener(Q, art::ArtMethod::Init29);
 
     // 30 base
-    RegisterSdkListener(R, art::DexFile::Init);
-    RegisterSdkListener(R, art::Runtime::Init);
-    RegisterSdkListener(R, art::mirror::DexCache::Init);
-    RegisterSdkListener(R, art::ImageHeader::Init);
-    RegisterSdkListener(R, art::Thread::Init);
-    RegisterSdkListener(R, art::Thread::tls_32bit_sized_values::Init);
-    RegisterSdkListener(R, art::Thread::tls_ptr_sized_values::Init);
-    RegisterSdkListener(R, art::gc::space::RegionSpace::Init);
-    RegisterSdkListener(R, art::gc::space::LargeObjectSpace::Init);
-    RegisterSdkListener(R, art::gc::space::LargeObjectMapSpace::Init);
-    RegisterSdkListener(R, art::JavaVMExt::Init);
-    RegisterSdkListener(R, art::ClassLinker::DexCacheData::Init);
-    RegisterSdkListener(R, art::IrtEntry::Init);
-    RegisterSdkListener(R, art::IndirectReferenceTable::Init);
-    RegisterSdkListener(R, art::ArtMethod::Init);
+    RegisterSdkListener(R, art::Runtime::Init30);
+    RegisterSdkListener(R, art::mirror::DexCache::Init30);
+    RegisterSdkListener(R, art::Thread::Init30);
+    RegisterSdkListener(R, art::Thread::tls_ptr_sized_values::Init30);
+    RegisterSdkListener(R, art::gc::space::RegionSpace::Init30);
+    RegisterSdkListener(R, art::gc::space::LargeObjectSpace::Init30);
+    RegisterSdkListener(R, art::gc::space::LargeObjectMapSpace::Init30);
 
     // 31
     RegisterSdkListener(S, art::Runtime::Init31);
@@ -255,21 +253,6 @@ void Android::preLoadLater() {
     if (Sdk() > Q) {
         realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64 : LIBART32;
     } else {
-        art::DexFile::Init();
-        art::Runtime::Init();
-        art::mirror::DexCache::Init();
-        art::ImageHeader::Init();
-        art::Thread::Init();
-        art::Thread::tls_32bit_sized_values::Init();
-        art::Thread::tls_ptr_sized_values::Init();
-        art::gc::space::RegionSpace::Init();
-        art::gc::space::LargeObjectSpace::Init();
-        art::gc::space::LargeObjectMapSpace::Init();
-        art::JavaVMExt::Init();
-        art::ClassLinker::DexCacheData::Init();
-        art::IrtEntry::Init();
-        art::IndirectReferenceTable::Init();
-        art::ArtMethod::Init();
         realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV29 : LIBART32_LV29;
     }
 

@@ -72,7 +72,7 @@ public:
         template<typename U> DexCacheData(U *v) : api::MemoryRef(v) {}
         template<typename U> DexCacheData(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-        static void Init();
+        static void Init29();
         static void Init33();
         inline uint64_t weak_root() { return VALUEOF(DexCacheData, weak_root); }
         inline uint64_t dex_file() { return VALUEOF(DexCacheData, dex_file); }

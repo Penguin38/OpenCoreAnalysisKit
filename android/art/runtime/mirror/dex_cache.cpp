@@ -47,7 +47,7 @@ void DexCache::Init29() {
     };
 }
 
-void DexCache::Init() {
+void DexCache::Init30() {
     __DexCache_offset__ = {
         .class_loader_ = 8,
         .location_ = 12,

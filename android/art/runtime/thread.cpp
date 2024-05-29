@@ -36,7 +36,7 @@ void Thread::Init29() {
     };
 }
 
-void Thread::Init() {
+void Thread::Init30() {
     __Thread_offset__ = {
         .tls32_ = 0,
         .tlsPtr_ = 160,
@@ -64,7 +64,7 @@ void Thread::Init34() {
     };
 }
 
-void Thread::tls_32bit_sized_values::Init() {
+void Thread::tls_32bit_sized_values::Init29() {
     __Thread_tls_32bit_sized_values_offset__ = {
         .state_and_flags = 0,
         .suspend_count = 4,
@@ -100,7 +100,7 @@ void Thread::tls_ptr_sized_values::Init29() {
     }
 }
 
-void Thread::tls_ptr_sized_values::Init() {
+void Thread::tls_ptr_sized_values::Init30() {
     if (CoreApi::GetPointSize() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,

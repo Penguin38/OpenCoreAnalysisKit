@@ -60,7 +60,7 @@ public:
     inline bool operator==(ImageHeader& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ImageHeader& ref) { return Ptr() != ref.Ptr(); }
 
-    static void Init();
+    static void Init29();
     static void Init31();
     static void Init34();
     inline uint64_t image_methods() { return Real() + OFFSET(ImageHeader, image_methods_); }

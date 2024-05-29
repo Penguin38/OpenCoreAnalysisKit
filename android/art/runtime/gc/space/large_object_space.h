@@ -115,7 +115,7 @@ public:
     template<typename U> LargeObjectSpace(U *v, DiscontinuousSpace* ref) : DiscontinuousSpace(v, ref) {}
 
     static void Init29();
-    static void Init();
+    static void Init30();
     inline uint64_t begin() { return VALUEOF(LargeObjectSpace, begin_); }
     inline uint64_t end() { return VALUEOF(LargeObjectSpace, end_); }
 
@@ -139,7 +139,7 @@ public:
     template<typename U> LargeObjectMapSpace(U *v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
     static void Init29();
-    static void Init();
+    static void Init30();
     inline uint64_t large_objects() { return Ptr() + OFFSET(LargeObjectMapSpace, large_objects_); }
 
     cxx::map& GetLargeObjectsCache();

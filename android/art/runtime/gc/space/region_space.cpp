@@ -41,7 +41,7 @@ void RegionSpace::Init29() {
     }
 }
 
-void RegionSpace::Init() {
+void RegionSpace::Init30() {
     if (CoreApi::GetPointSize() == 64) {
         __RegionSpace_offset__ = {
             .num_regions_ = 576,

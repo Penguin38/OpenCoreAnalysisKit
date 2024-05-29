@@ -55,7 +55,7 @@ void LargeObjectSpace::Init29() {
     }
 }
 
-void LargeObjectSpace::Init() {
+void LargeObjectSpace::Init30() {
     if (CoreApi::GetPointSize() == 64) {
         __LargeObjectSpace_offset__ = {
             .lock_ = 304,
@@ -101,7 +101,7 @@ void LargeObjectMapSpace::Init29() {
     }
 }
 
-void LargeObjectMapSpace::Init() {
+void LargeObjectMapSpace::Init30() {
     if (CoreApi::GetPointSize() == 64) {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 392,
