@@ -18,16 +18,36 @@
 #include "base/utils.h"
 #include "command/cmd_linkmap.h"
 #include "api/core.h"
+#include <unistd.h>
+#include <getopt.h>
 
 int LinkMapCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
         return 0;
 
-    auto callback = [](LinkMap* map) -> bool {
+    bool dump_ori = false;
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"--origin",  no_argument,       0,  'o'},
+        {0,           0,                 0,   0 }
+    };
+
+    while ((opt = getopt_long(argc, argv, "o",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'o':
+                dump_ori = true;
+                break;
+        }
+    }
+
+    auto callback = [&](LinkMap* map) -> bool {
         LoadBlock* block = map->block();
         if (block) {
             std::string name;
-            if (block->isMmapBlock()) {
+            if (!dump_ori && block->isMmapBlock()) {
                 name = block->name();
             } else {
                 name = map->name();
@@ -60,5 +80,9 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
     CoreApi::ForeachLinkMap(callback);
 
     return 0;
+}
+
+void LinkMapCommand::usage() {
+    LOGI("Usage: map [--origin|-o]\n");
 }
 

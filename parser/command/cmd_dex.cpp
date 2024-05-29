@@ -22,10 +22,30 @@
 #include "runtime/runtime.h"
 #include "runtime/class_linker.h"
 #include <string>
+#include <unistd.h>
+#include <getopt.h>
 
 int DexCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
+
+    bool dump_ori = false;
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"--origin",  no_argument,       0,  'o'},
+        {0,           0,                 0,   0 }
+    };
+
+    while ((opt = getopt_long(argc, argv, "o",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'o':
+                dump_ori = true;
+                break;
+        }
+    }
 
     art::Runtime& runtime = art::Runtime::Current();
     art::ClassLinker& linker = runtime.GetClassLinker();
@@ -41,7 +61,7 @@ int DexCommand::main(int argc, char* const argv[]) {
         }
         LoadBlock* block = CoreApi::FindLoadBlock(dex_file.data_begin(), false);
         if (block) {
-            if (block->isMmapBlock()) {
+            if (!dump_ori && block->isMmapBlock()) {
                 name = block->name();
             } else {
                 art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
@@ -79,5 +99,5 @@ int DexCommand::main(int argc, char* const argv[]) {
 }
 
 void DexCommand::usage() {
-    LOGI("Usage: dex\n");
+    LOGI("Usage: dex [--origin|-o]\n");
 }

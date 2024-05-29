@@ -24,7 +24,7 @@ public:
     LinkMapCommand() : Command("map") {}
     ~LinkMapCommand() {}
     int main(int argc, char* const argv[]);
-    void usage() {}
+    void usage();
 };
 
 #endif // PARSER_COMMAND_CMD_LINKMAP_H_
