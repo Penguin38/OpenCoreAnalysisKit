@@ -242,10 +242,10 @@ void CoreApi::ExecFile(const char* path) {
     }
 
     uint64_t phdr = FindAuxv(AT_PHDR);
-    uint64_t execfn = FindAuxv(AT_EXECFN);
-    if (IsVirtualValid(execfn)) {
+    api::MemoryRef execfn = FindAuxv(AT_EXECFN);
+    if (execfn.IsValid()) {
         std::string filepath;
-        std::string search = reinterpret_cast<const char*>(GetReal(execfn));
+        const char* search = reinterpret_cast<const char*>(execfn.Real());
         for (char *dir : dirs) {
             if (Utils::SearchFile(dir, &filepath, search))
                 break;

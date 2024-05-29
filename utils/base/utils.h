@@ -21,7 +21,8 @@
 
 class Utils {
 public:
-    static bool SearchFile(const std::string& directory, std::string* result, const std::string& name);
+    static bool SearchFile(const std::string& directory, std::string* result, const char* name);
+    static bool InnerSearchFile(const std::string& directory, std::string* result, const std::string& name);
     static void ListFiles(const std::string& directory, std::string* result, const std::string& name);
     static std::string ConvertAscii(uint64_t value, int len);
     static uint64_t atol(const char* src);

@@ -28,7 +28,14 @@
 #include <iostream>
 #include <sstream>
 
-bool Utils::SearchFile(const std::string& directory, std::string* result, const std::string& name) {
+bool Utils::SearchFile(const std::string& directory, std::string* result, const char* name) {
+    if (!directory.empty() && name && name[0] != '\0') {
+        return InnerSearchFile(directory, result, name);
+    }
+    return false;
+}
+
+bool Utils::InnerSearchFile(const std::string& directory, std::string* result, const std::string& name) {
     struct stat d_stat;
     stat(directory.c_str(), &d_stat);
 
