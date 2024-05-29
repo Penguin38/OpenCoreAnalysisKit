@@ -125,6 +125,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     if (!Android::IsReady())
         return 0;
 
+    LOGI("  * LIB: %s\n", Android::GetRealLibart().c_str());
     art::Runtime& runtime = Android::GetRuntime();
     LOGI("  * art::Runtime: 0x%lx\n", runtime.Ptr());
     if (!runtime.Ptr())
