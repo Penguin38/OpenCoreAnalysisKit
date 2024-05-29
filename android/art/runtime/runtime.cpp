@@ -25,6 +25,23 @@ struct Runtime_SizeTable __Runtime_size__;
 
 namespace art {
 
+void Runtime::Init28() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 56,
+            .imt_conflict_method_ = 64,
+            .imt_unimplemented_method_ = 72,
+            .heap_ = 448,
+            .thread_list_ = 512,
+            .class_linker_ = 528,
+            .java_vm_ = 576,
+        };
+    } else {
+        //TODO
+    }
+}
+
 void Runtime::Init29() {
     if (CoreApi::GetPointSize() == 64) {
         __Runtime_offset__ = {

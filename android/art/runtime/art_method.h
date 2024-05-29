@@ -64,7 +64,7 @@ public:
     inline bool operator==(ArtMethod& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ArtMethod& ref) { return Ptr() != ref.Ptr(); }
 
-    static void Init29();
+    static void Init28();
     static void Init31();
     inline uint32_t declaring_class() { return value32Of(OFFSET(ArtMethod, declaring_class_)); }
     inline uint32_t access_flags() { return value32Of(OFFSET(ArtMethod, access_flags_)); }

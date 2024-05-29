@@ -29,6 +29,13 @@ struct Thread_tls_ptr_sized_values_SizeTable __Thread_tls_ptr_sized_values_size_
 
 namespace art {
 
+void Thread::Init28() {
+    __Thread_offset__ = {
+        .tls32_ = 0,
+        .tlsPtr_ = 136,
+    };
+}
+
 void Thread::Init29() {
     __Thread_offset__ = {
         .tls32_ = 0,
@@ -64,7 +71,7 @@ void Thread::Init34() {
     };
 }
 
-void Thread::tls_32bit_sized_values::Init29() {
+void Thread::tls_32bit_sized_values::Init28() {
     __Thread_tls_32bit_sized_values_offset__ = {
         .state_and_flags = 0,
         .suspend_count = 4,
@@ -82,7 +89,7 @@ void Thread::tls_32bit_sized_values::Init31() {
     };
 }
 
-void Thread::tls_ptr_sized_values::Init29() {
+void Thread::tls_ptr_sized_values::Init28() {
     if (CoreApi::GetPointSize() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
@@ -187,7 +194,12 @@ ThreadState Thread::GetState() {
 }
 
 const char* Thread::GetStateDescriptor() {
-    switch (GetState()) {
+    uint8_t state = static_cast<uint8_t>(GetState());
+    if (Android::Sdk() < Android::Q) {
+        if (state >= static_cast<uint8_t>(ThreadState::kNativeForAbort))
+            ++state;
+    }
+    switch (static_cast<ThreadState>(state)) {
         case ThreadState::kTerminated:
             return "Terminated";
         case ThreadState::kRunnable:

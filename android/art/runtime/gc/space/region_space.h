@@ -72,12 +72,14 @@ public:
     template<typename U> RegionSpace(U *v) : ContinuousMemMapAllocSpace(v) {}
     template<typename U> RegionSpace(U *v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
+    static void Init28();
     static void Init29();
     static void Init30();
     static void Init31();
     inline uint64_t num_regions() { return VALUEOF(RegionSpace, num_regions_); }
     inline uint64_t regions() { return VALUEOF(RegionSpace, regions_); }
     inline uint64_t mark_bitmap() { return Ptr() + OFFSET(RegionSpace, mark_bitmap_); }
+    inline uint64_t mark_bitmap_v28() { return VALUEOF(RegionSpace, mark_bitmap_); }
 
     SpaceType GetType() { return kSpaceTypeRegionSpace; }
     void Walk(std::function<bool (mirror::Object& object)> fn);
@@ -109,7 +111,8 @@ public:
         template<typename U> Region(U *v) : api::MemoryRef(v) {}
         template<typename U> Region(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-        static void Init();
+        static void Init28();
+        static void Init29();
         inline uint64_t live_bytes() { return VALUEOF(Region, live_bytes_); }
         inline uint64_t begin() { return VALUEOF(Region, begin_); }
         inline uint64_t top() { return VALUEOF(Region, top_); }

@@ -66,11 +66,13 @@ public:
     inline static const char *LIBART32 = "/apex/com.android.art/lib/libart.so";
     inline static const char *LIBART64_LV29 = "/apex/com.android.runtime/lib64/libart.so";
     inline static const char *LIBART32_LV29 = "/apex/com.android.runtime/lib/libart.so";
+    inline static const char* LIBART64_LV28 = "/system/lib64/libart.so";
+    inline static const char* LIBART32_LV28 = "/system/lib/libart.so";
     inline static const char* ART_RUNTIME_INSTANCE = "_ZN3art7Runtime9instance_E";
 
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
-    static bool IsSdkReady() { return IsReady() && Sdk() >= Q; }
+    static bool IsSdkReady() { return IsReady() && Sdk() >= P; }
     static void Init();
     static void Clean();
     static void Dump();
@@ -116,6 +118,7 @@ public:
     static void SysRoot(const char* path);
     inline static uint64_t SearchSymbol(const char* symbol) { return CoreApi::SearchSymbol(INSTANCE->realLibart.c_str(), symbol); }
     static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn);
+    static inline std::string& GetRealLibart() { return INSTANCE->realLibart; }
 
     static constexpr int EACH_APP_OBJECTS = 1 << 0;
     static constexpr int EACH_ZYGOTE_OBJECTS = 1 << 1;

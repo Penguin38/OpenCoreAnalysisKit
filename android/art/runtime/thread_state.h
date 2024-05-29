@@ -56,7 +56,7 @@ enum class ThreadState : uint8_t {
   kWaitingForGetObjectsAllocated,   // WAITING        TS_WAIT      waiting for getting the number of allocated objects
   kWaitingWeakGcRootRead,           // WAITING        TS_WAIT      waiting on the GC to read a weak root
   kWaitingForGcThreadFlip,          // WAITING        TS_WAIT      waiting on the GC thread flip (CC collector) to finish
-  kNativeForAbort,                  // WAITING        TS_WAIT      checking other threads are not run on abort.
+  kNativeForAbort,                  // WAITING        TS_WAIT      checking other threads are not run on abort.   //  SDK 29
   kStarting,                        // NEW            TS_WAIT      native thread started, not yet ready to run managed code
   kNative,                          // RUNNABLE       TS_RUNNING   running in a JNI native method
   kSuspended,                       // RUNNABLE       TS_RUNNING   suspended by GC or debugger

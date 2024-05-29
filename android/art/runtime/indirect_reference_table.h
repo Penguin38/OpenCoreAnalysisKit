@@ -67,7 +67,7 @@ public:
     template<typename U> IrtEntry(U *v) : api::MemoryRef(v) {}
     template<typename U> IrtEntry(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    static void Init29();
+    static void Init28();
     static void Init33();
     inline uint32_t serial() { return value32Of(OFFSET(IrtEntry, serial_)); }
     inline uint64_t references() { return Ptr() + OFFSET(IrtEntry, references_); }
@@ -82,10 +82,12 @@ public:
     template<typename U> IndirectReferenceTable(U *v) : api::MemoryRef(v) {}
     template<typename U> IndirectReferenceTable(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init28();
     static void Init29();
     static void Init34();
     inline uint32_t segment_state() { return value32Of(OFFSET(IndirectReferenceTable, segment_state_)); }
     inline uint64_t table_mem_map() { return Ptr() + OFFSET(IndirectReferenceTable, table_mem_map_); }
+    inline uint64_t table_mem_map_v28() { return VALUEOF(IndirectReferenceTable, table_mem_map_); }
     inline uint64_t table() { return VALUEOF(IndirectReferenceTable, table_); }
     inline uint64_t top_index() { return VALUEOF(IndirectReferenceTable, top_index_); }
 

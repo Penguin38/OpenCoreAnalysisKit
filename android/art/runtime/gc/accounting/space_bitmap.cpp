@@ -25,7 +25,37 @@ namespace art {
 namespace gc {
 namespace accounting {
 
-void ContinuousSpaceBitmap::Init() {
+void ContinuousSpaceBitmap::Init28() {
+    if (CoreApi::GetPointSize() == 64) {
+        __ContinuousSpaceBitmap_offset__ = {
+            .mem_map_ = 0,
+            .bitmap_begin_ = 8,
+            .bitmap_size_ = 16,
+            .heap_begin_ = 24,
+            .heap_limit_ = 32,
+            .name_ = 40,
+        };
+
+        __ContinuousSpaceBitmap_size__ = {
+            .THIS = 64,
+        };
+    } else {
+        __ContinuousSpaceBitmap_offset__ = {
+            .mem_map_ = 0,
+            .bitmap_begin_ = 4,
+            .bitmap_size_ = 8,
+            .heap_begin_ = 12,
+            .heap_limit_ = 16,
+            .name_ = 20,
+        };
+
+        __ContinuousSpaceBitmap_size__ = {
+            .THIS = 32,
+        };
+    }
+}
+
+void ContinuousSpaceBitmap::Init29() {
     if (CoreApi::GetPointSize() == 64) {
         __ContinuousSpaceBitmap_offset__ = {
             .mem_map_ = 0,

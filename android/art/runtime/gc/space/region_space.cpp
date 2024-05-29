@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/gc/space/region_space.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/object.h"
@@ -29,12 +30,24 @@ namespace art {
 namespace gc {
 namespace space {
 
+void RegionSpace::Init28() {
+    if (CoreApi::GetPointSize() == 64) {
+        __RegionSpace_offset__ = {
+            .num_regions_ = 168,
+            .regions_ = 200,
+            .mark_bitmap_ = 312,
+        };
+    } else {
+        //TODO
+    }
+}
+
 void RegionSpace::Init29() {
     if (CoreApi::GetPointSize() == 64) {
         __RegionSpace_offset__ = {
             .num_regions_ = 216,
             .regions_ = 248,
-            .mark_bitmap_ = 344,
+            .mark_bitmap_ = 352,
         };
     } else {
         //TODO
@@ -73,7 +86,32 @@ void RegionSpace::Init31() {
     }
 }
 
-void RegionSpace::Region::Init() {
+void RegionSpace::Region::Init28() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Region_offset__ = {
+            .idx_ = 0,
+            .live_bytes_ = 56,
+            .begin_ = 8,
+            .thread_ = 72,
+            .top_ = 16,
+            .end_ = 24,
+            .objects_allocated_ = 40,
+            .alloc_time_ = 48,
+            .is_newly_allocated_ = 64,
+            .is_a_tlab_ = 65,
+            .state_ = 32,
+            .type_ = 33,
+        };
+
+        __Region_size__ = {
+            .THIS = 80,
+        };
+    } else {
+        //TODO
+    }
+}
+
+void RegionSpace::Region::Init29() {
     if (CoreApi::GetPointSize() == 64) {
         __Region_offset__ = {
             .idx_ = 0,
@@ -172,8 +210,13 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
 
 accounting::ContinuousSpaceBitmap& RegionSpace::GetLiveBitmap() {
     if (!mark_bitmap_cache.Ptr()) {
-        mark_bitmap_cache = mark_bitmap();
+        if (Android::Sdk() > Android::Q) {
+            mark_bitmap_cache = mark_bitmap();
+        } else {
+            mark_bitmap_cache = mark_bitmap_v28();
+        }
         mark_bitmap_cache.copyRef(this);
+        mark_bitmap_cache.Prepare(false);
     }
     return mark_bitmap_cache;
 }

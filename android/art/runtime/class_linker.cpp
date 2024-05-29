@@ -37,7 +37,7 @@ void ClassLinker::Init() {
     }
 }
 
-void ClassLinker::DexCacheData::Init29() {
+void ClassLinker::DexCacheData::Init28() {
     if (CoreApi::GetPointSize() == 64) {
         __DexCacheData_offset__ = {
             .weak_root = 0,

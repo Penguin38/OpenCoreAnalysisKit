@@ -88,7 +88,7 @@ public:
     inline bool operator==(DexFile& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(DexFile& ref) { return Ptr() != ref.Ptr(); }
 
-    static void Init29();
+    static void Init28();
     static void Init34();
     inline uint64_t data_begin() { return VALUEOF(DexFile, data_begin_); }
     inline uint64_t location() { return Ptr() + OFFSET(DexFile, location_); }

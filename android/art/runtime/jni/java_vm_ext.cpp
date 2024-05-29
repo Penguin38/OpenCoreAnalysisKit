@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "base/mem_map.h"
 #include "runtime/jni/java_vm_ext.h"
 #include "common/bit.h"
@@ -25,6 +26,17 @@ struct JavaVMExt_OffsetTable __JavaVMExt_offset__;
 struct JavaVMExt_SizeTable __JavaVMExt_size__;
 
 namespace art {
+
+void JavaVMExt::Init28() {
+    if (CoreApi::GetPointSize() == 64) {
+        __JavaVMExt_offset__ = {
+            .globals_ = 64,
+            .weak_globals_ = 136,
+        };
+    } else {
+        //TODO
+    }
+}
 
 void JavaVMExt::Init29() {
     if (CoreApi::GetPointSize() == 64) {
@@ -97,7 +109,7 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
         weak_globals_cache.copyRef(this);
         weak_globals_cache.Prepare(false);
 #if defined(__PARSER_DEBUG__)
-        if (weak_globals_cache.IsValid()) {
+        if (Android::Sdk() > Android::P && weak_globals_cache.IsValid()) {
             bool found = false;
             int count = 0;
             uint64_t point_size = CoreApi::GetPointSize() / 8;

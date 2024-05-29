@@ -189,30 +189,42 @@ void Android::preLoad() {
     art::gc::Heap::Init();
     art::gc::space::Space::Init();
     art::gc::space::ContinuousSpace::Init();
-    art::gc::space::RegionSpace::Region::Init();
     art::gc::space::LargeObjectMapSpace::LargeObject::Init();
     art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
     art::gc::space::AllocationInfo::Init();
     art::gc::space::FreeListSpace::Init();
-    art::gc::accounting::ContinuousSpaceBitmap::Init();
 
     // preLoadLater listener
+    // 28
+    RegisterSdkListener(P, art::DexFile::Init28);
+    RegisterSdkListener(P, art::Runtime::Init28);
+    RegisterSdkListener(P, art::Thread::Init28);
+    RegisterSdkListener(P, art::Thread::tls_ptr_sized_values::Init28);
+    RegisterSdkListener(P, art::Thread::tls_32bit_sized_values::Init28);
+    RegisterSdkListener(P, art::ImageHeader::Init28);
+    RegisterSdkListener(P, art::mirror::DexCache::Init28);
+    RegisterSdkListener(P, art::gc::space::RegionSpace::Init28);
+    RegisterSdkListener(P, art::gc::space::RegionSpace::Region::Init28);
+    RegisterSdkListener(P, art::gc::space::LargeObjectSpace::Init28);
+    RegisterSdkListener(P, art::gc::space::LargeObjectMapSpace::Init28);
+    RegisterSdkListener(P, art::JavaVMExt::Init28);
+    RegisterSdkListener(P, art::IndirectReferenceTable::Init28);
+    RegisterSdkListener(P, art::ClassLinker::DexCacheData::Init28);
+    RegisterSdkListener(P, art::IrtEntry::Init28);
+    RegisterSdkListener(P, art::ArtMethod::Init28);
+    RegisterSdkListener(P, art::gc::accounting::ContinuousSpaceBitmap::Init28);
+
     // 29
-    RegisterSdkListener(Q, art::DexFile::Init29);
     RegisterSdkListener(Q, art::Runtime::Init29);
     RegisterSdkListener(Q, art::Thread::Init29);
-    RegisterSdkListener(Q, art::Thread::tls_ptr_sized_values::Init29);
-    RegisterSdkListener(Q, art::Thread::tls_32bit_sized_values::Init29);
     RegisterSdkListener(Q, art::ImageHeader::Init29);
-    RegisterSdkListener(Q, art::mirror::DexCache::Init29);
     RegisterSdkListener(Q, art::gc::space::RegionSpace::Init29);
+    RegisterSdkListener(Q, art::gc::space::RegionSpace::Region::Init29);
     RegisterSdkListener(Q, art::gc::space::LargeObjectSpace::Init29);
     RegisterSdkListener(Q, art::gc::space::LargeObjectMapSpace::Init29);
     RegisterSdkListener(Q, art::JavaVMExt::Init29);
     RegisterSdkListener(Q, art::IndirectReferenceTable::Init29);
-    RegisterSdkListener(Q, art::ClassLinker::DexCacheData::Init29);
-    RegisterSdkListener(Q, art::IrtEntry::Init29);
-    RegisterSdkListener(Q, art::ArtMethod::Init29);
+    RegisterSdkListener(Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
 
     // 30 base
     RegisterSdkListener(R, art::Runtime::Init30);
@@ -253,7 +265,11 @@ void Android::preLoadLater() {
     if (Sdk() > Q) {
         realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64 : LIBART32;
     } else {
-        realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV29 : LIBART32_LV29;
+        if (Sdk() > P) {
+            realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV29 : LIBART32_LV29;
+        } else {
+            realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV28 : LIBART32_LV28;
+        }
     }
 
     LOGI("Switch android(%d) env.\n", sdk);
