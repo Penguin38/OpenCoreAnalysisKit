@@ -217,6 +217,15 @@ int TopCommand::main(int argc, char* const argv[]) {
 }
 
 void TopCommand::usage() {
-    LOGI("Usage: top <NUM> [--alloc|-a] [--shallow|-s] [--native|-n] [--display|-d] [--app|--zygote|--image|--fake]\n");
+    LOGI("Usage: top <NUM> [Option]...\n");
+    LOGI("Option:\n");
+    LOGI("    --alloc|-a: order by allocation\n");
+    LOGI("    --shallow|-s: order by shallow\n");
+    LOGI("    --native|-n: order by native\n");
+    LOGI("    --display|-d: show class name\n");
+    LOGI("    --app:\n");
+    LOGI("    --zygote:\n");
+    LOGI("    --image:\n");
+    LOGI("    --fake:\n");
 }
 

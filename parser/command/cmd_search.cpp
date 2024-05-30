@@ -41,19 +41,24 @@ int SearchCommand::main(int argc, char* const argv[]) {
         {"regex",    no_argument,       0,  'r'},
         {"show",     no_argument,       0,  's'},
         {"instanceof",  no_argument,    0,  'i'},
+        {"app",        no_argument,     0,   0 },
+        {"zygote",     no_argument,     0,   1 },
+        {"image",      no_argument,     0,   2 },
+        {"fake",       no_argument,     0,   3 },
     };
 
-    flag = 0;
+    type_flag = 0;
+    each_flag = 0;
     regex = false;
     show = false;
     while ((opt = getopt_long(argc, argv, "ocrsi",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
-                flag |= SEARCH_OBJECT;
+                type_flag |= SEARCH_OBJECT;
                 break;
             case 'c':
-                flag |= SEARCH_CLASS;
+                type_flag |= SEARCH_CLASS;
                 break;
             case 'r':
                 regex = true;
@@ -66,22 +71,42 @@ int SearchCommand::main(int argc, char* const argv[]) {
                 regex = false;
                 instof = true;
                 break;
+            case 0:
+                each_flag |= Android::EACH_APP_OBJECTS;
+                break;
+            case 1:
+                each_flag |= Android::EACH_ZYGOTE_OBJECTS;
+                break;
+            case 2:
+                each_flag |= Android::EACH_IMAGE_OBJECTS;
+                break;
+            case 3:
+                each_flag |= Android::EACH_FAKE_OBJECTS;
+                break;
         }
     }
 
     total_objects = 0;
     const char* classname = argv[optind];
-    if (!flag) flag = SEARCH_OBJECT | SEARCH_CLASS;
+    if (!type_flag) type_flag = SEARCH_OBJECT | SEARCH_CLASS;
+
+    if (!each_flag) {
+        each_flag |= Android::EACH_APP_OBJECTS;
+        each_flag |= Android::EACH_ZYGOTE_OBJECTS;
+        each_flag |= Android::EACH_IMAGE_OBJECTS;
+        each_flag |= Android::EACH_FAKE_OBJECTS;
+    }
+
     auto callback = [&](art::mirror::Object& object) -> bool {
         return SearchObjects(classname, object);
     };
-    Android::ForeachObjects(callback);
+    Android::ForeachObjects(callback, each_flag);
     return 0;
 }
 
 bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& object) {
     int mask = object.IsClass() ? SEARCH_CLASS : SEARCH_OBJECT;
-    if (!(flag & mask))
+    if (!(type_flag & mask))
         return false;
 
     std::string descriptor;
@@ -115,6 +140,16 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
 }
 
 void SearchCommand::usage() {
-    LOGI("Usage: search [CLASSNAME] [-r|--regex] [-i|--instanceof] [-o|--object] [-c|--class] [-s|--show]\n");
+    LOGI("Usage: search <CLASSNAME> [Option]..\n");
+    LOGI("Option:\n");
+    LOGI("    --regex|-r:\n");
+    LOGI("    --instanceof|-i:\n");
+    LOGI("    --object|-o:\n");
+    LOGI("    --class|-c:\n");
+    LOGI("    --show|-s:\n");
+    LOGI("    --app:\n");
+    LOGI("    --zygote:\n");
+    LOGI("    --image:\n");
+    LOGI("    --fake:\n");
 }
 

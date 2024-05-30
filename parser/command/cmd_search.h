@@ -37,7 +37,8 @@ public:
     bool SearchObjects(const char* classsname, art::mirror::Object& object);
 private:
     uint64_t total_objects;
-    int flag;
+    int type_flag;
+    int each_flag;
     bool regex;
     bool instof;
     bool show;
