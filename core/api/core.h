@@ -92,6 +92,7 @@ public:
     static bool Load(const char* corefile);
     static void UnLoad();
     static uint64_t GetBegin() { return INSTANCE->begin(); }
+    static uint64_t GetDebugPtr() { return INSTANCE->r_debug_ptr(); }
     static const char* GetName();
     static const char* GetMachineName();
     static int GetMachine();
@@ -186,6 +187,7 @@ private:
     virtual void loadLinkMap() = 0;
     virtual void sysroot(uint64_t begin, const char* file, const char* subfile) = 0;
     virtual uint64_t dlsym(LinkMap* handle, const char* symbol) = 0;
+    virtual uint64_t r_debug_ptr() { return 0x0; }
 
     std::unique_ptr<MemoryMap> mCore;
     std::vector<std::shared_ptr<LoadBlock>> mLoad;

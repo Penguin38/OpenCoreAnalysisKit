@@ -29,7 +29,8 @@ public:
     static int onConfigChanged(int argc, char* const argv[]);
     static int onLoggerChanged(int argc, char* const argv[]);
     static int showArtEnv(int argc, char* const argv[]);
-    static int showLoadEnv(int argc, char* const argv[]);
+    static int showCoreEnv(int argc, char* const argv[]);
+    static int showLoadEnv();
 };
 
 #endif // PARSER_COMMAND_CMD_ENV_H_

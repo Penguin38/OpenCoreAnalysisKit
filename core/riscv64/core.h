@@ -38,6 +38,7 @@ private:
     void loadLinkMap() { loadLinkMap64(this); }
     void sysroot(uint64_t begin, const char* file, const char* subfile) { dlopen64(this, begin, file, subfile); }
     uint64_t dlsym(LinkMap* handle, const char* symbol);
+    uint64_t r_debug_ptr() { return GetDebug().Ptr(); }
 };
 
 } // namespace riscv64

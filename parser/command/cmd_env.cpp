@@ -33,7 +33,7 @@ EnvOption env_option[] = {
     { "config", EnvCommand::onConfigChanged },
     { "logger", EnvCommand::onLoggerChanged },
     { "art", EnvCommand::showArtEnv },
-    { "load", EnvCommand::showLoadEnv },
+    { "core", EnvCommand::showCoreEnv },
 };
 
 int EnvCommand::main(int argc, char* const argv[]) {
@@ -138,7 +138,26 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     return 0;
 }
 
-int EnvCommand::showLoadEnv(int argc, char* const argv[]) {
+int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"load",   no_argument,       0, 1},
+    };
+
+    while ((opt = getopt_long(argc, argv, "1",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 1: return showLoadEnv();
+        }
+    }
+
+    LOGI("  * r_debug: 0x%lx\n", CoreApi::GetDebugPtr());
+    return 0;
+}
+
+int EnvCommand::showLoadEnv() {
     if (!CoreApi::IsReady())
         return 0;
 
@@ -192,7 +211,7 @@ int EnvCommand::dumpEnv() {
 void EnvCommand::usage() {
     LOGI("Usage: env <COMMAND> [option] ...\n");
     LOGI("Command:\n");
-    LOGI("    config  logger  art  load\n");
+    LOGI("    config  logger  art  core\n");
     LOGI("\n");
     LOGI("Usage: env config <option> ..\n");
     LOGI("Option:\n");
@@ -204,5 +223,7 @@ void EnvCommand::usage() {
     LOGI("   --[debug|info|warn|error|fatal]\n");
     LOGI("\n");
     LOGI("Usage: env art: show art env args\n");
-    LOGI("Usage env load: show code load segments\n");
+    LOGI("Usage: env core [option]...\n");
+    LOGI("Option:\n");
+    LOGI("   --load: show code load segments\n");
 }
