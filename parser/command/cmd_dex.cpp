@@ -67,7 +67,7 @@ int DexCommand::main(int argc, char* const argv[]) {
                 art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
                 if (oat_dex_file.Ptr()) {
                     art::OatFile& oat_file = oat_dex_file.GetOatFile();
-                    if (oat_file.Ptr() && block->virtualContains(oat_file.vdex_begin())) {
+                    if (oat_file.Ptr() && block->virtualContains(oat_file.GetVdexBegin())) {
                         name = oat_file.GetVdexFile().GetName();
                     }
                 }

@@ -60,7 +60,8 @@ public:
     template<typename U> ClassLinker(U *v) : api::MemoryRef(v) {}
     template<typename U> ClassLinker(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    static void Init();
+    static void Init26();
+    static void Init28();
     inline uint64_t dex_caches() { return Ptr() + OFFSET(ClassLinker, dex_caches_); }
 
     class DexCacheData : public api::MemoryRef {
@@ -72,6 +73,7 @@ public:
         template<typename U> DexCacheData(U *v) : api::MemoryRef(v) {}
         template<typename U> DexCacheData(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+        static void Init26();
         static void Init28();
         static void Init33();
         inline uint64_t weak_root() { return VALUEOF(DexCacheData, weak_root); }

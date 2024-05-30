@@ -45,7 +45,7 @@ public:
         kSaveEverythingMethod,
         kSaveEverythingMethodForClinit,
         kSaveEverythingMethodForSuspendCheck,
-        kImageMethodsCount,  // Number of elements in enum.
+        // kImageMethodsCount,  // Number of elements in enum.
     };
 
     ImageHeader() : api::MemoryRef() {}
@@ -60,11 +60,14 @@ public:
     inline bool operator==(ImageHeader& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ImageHeader& ref) { return Ptr() != ref.Ptr(); }
 
+    static void Init26();
     static void Init28();
     static void Init29();
     static void Init31();
     static void Init34();
     inline uint64_t image_methods() { return Real() + OFFSET(ImageHeader, image_methods_); }
+
+    uint32_t GetImageMethodsCount();
 };
 
 } // namespace art

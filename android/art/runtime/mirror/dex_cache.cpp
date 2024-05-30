@@ -22,7 +22,7 @@ struct DexCache_SizeTable __DexCache_size__;
 namespace art {
 namespace mirror {
 
-void DexCache::Init28() {
+void DexCache::Init26() {
     __DexCache_offset__ = {
         .location_ = 8,
         .dex_file_ = 16,

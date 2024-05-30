@@ -163,13 +163,11 @@ void Android::preLoad() {
     art::ArtField::Init();
     art::LengthPrefixedArray::Init();
     art::ThreadList::Init();
-    art::ClassLinker::Init();
     art::OatFile::Init();
     art::OatDexFile::Init();
     art::VdexFile::Init();
     art::MemMap::Init();
     art::ManagedStack::Init();
-    art::ArtMethod::PtrSizedFields::Init();
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();
 
@@ -195,26 +193,41 @@ void Android::preLoad() {
     art::gc::space::FreeListSpace::Init();
 
     // preLoadLater listener
+    // 26
+    RegisterSdkListener(O, art::DexFile::Init26);
+    RegisterSdkListener(O, art::Runtime::Init26);
+    RegisterSdkListener(O, art::Thread::Init26);
+    RegisterSdkListener(O, art::Thread::tls_ptr_sized_values::Init26);
+    RegisterSdkListener(O, art::Thread::tls_32bit_sized_values::Init26);
+    RegisterSdkListener(O, art::ImageHeader::Init26);
+    RegisterSdkListener(O, art::mirror::DexCache::Init26);
+    RegisterSdkListener(O, art::gc::space::RegionSpace::Init26);
+    RegisterSdkListener(O, art::gc::space::LargeObjectSpace::Init26);
+    RegisterSdkListener(O, art::gc::space::LargeObjectMapSpace::Init26);
+    RegisterSdkListener(O, art::JavaVMExt::Init28);
+    RegisterSdkListener(O, art::IndirectReferenceTable::Init26);
+    RegisterSdkListener(O, art::ClassLinker::Init26);
+    RegisterSdkListener(O, art::ClassLinker::DexCacheData::Init26);
+    RegisterSdkListener(O, art::IrtEntry::Init26);
+    RegisterSdkListener(O, art::ArtMethod::Init26);
+    RegisterSdkListener(O, art::ArtMethod::PtrSizedFields::Init26);
+    RegisterSdkListener(O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
+
     // 28
     RegisterSdkListener(P, art::DexFile::Init28);
     RegisterSdkListener(P, art::Runtime::Init28);
     RegisterSdkListener(P, art::Thread::Init28);
-    RegisterSdkListener(P, art::Thread::tls_ptr_sized_values::Init28);
-    RegisterSdkListener(P, art::Thread::tls_32bit_sized_values::Init28);
     RegisterSdkListener(P, art::ImageHeader::Init28);
-    RegisterSdkListener(P, art::mirror::DexCache::Init28);
     RegisterSdkListener(P, art::gc::space::RegionSpace::Init28);
-    RegisterSdkListener(P, art::gc::space::RegionSpace::Region::Init28);
-    RegisterSdkListener(P, art::gc::space::LargeObjectSpace::Init28);
     RegisterSdkListener(P, art::gc::space::LargeObjectMapSpace::Init28);
     RegisterSdkListener(P, art::JavaVMExt::Init28);
-    RegisterSdkListener(P, art::IndirectReferenceTable::Init28);
+    RegisterSdkListener(P, art::ClassLinker::Init28);
     RegisterSdkListener(P, art::ClassLinker::DexCacheData::Init28);
-    RegisterSdkListener(P, art::IrtEntry::Init28);
     RegisterSdkListener(P, art::ArtMethod::Init28);
-    RegisterSdkListener(P, art::gc::accounting::ContinuousSpaceBitmap::Init28);
+    RegisterSdkListener(P, art::ArtMethod::PtrSizedFields::Init28);
 
     // 29
+    RegisterSdkListener(Q, art::DexFile::Init29);
     RegisterSdkListener(Q, art::Runtime::Init29);
     RegisterSdkListener(Q, art::Thread::Init29);
     RegisterSdkListener(Q, art::ImageHeader::Init29);
@@ -413,7 +426,7 @@ void Android::SysRoot(const char* path) {
             art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
             if (oat_dex_file.Ptr()) {
                 art::OatFile& oat_file = oat_dex_file.GetOatFile();
-                if (oat_file.Ptr() && block->virtualContains(oat_file.vdex_begin())) {
+                if (oat_file.Ptr() && block->virtualContains(oat_file.GetVdexBegin())) {
                     name = oat_file.GetVdexFile().GetName();
                     isVdex = true;
                 }

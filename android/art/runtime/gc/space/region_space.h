@@ -72,6 +72,7 @@ public:
     template<typename U> RegionSpace(U *v) : ContinuousMemMapAllocSpace(v) {}
     template<typename U> RegionSpace(U *v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
+    static void Init26();
     static void Init28();
     static void Init29();
     static void Init30();
@@ -111,7 +112,7 @@ public:
         template<typename U> Region(U *v) : api::MemoryRef(v) {}
         template<typename U> Region(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-        static void Init28();
+        static void Init26();
         static void Init29();
         inline uint64_t live_bytes() { return VALUEOF(Region, live_bytes_); }
         inline uint64_t begin() { return VALUEOF(Region, begin_); }

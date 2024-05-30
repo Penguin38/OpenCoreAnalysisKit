@@ -25,7 +25,19 @@ struct DexCacheData_SizeTable __DexCacheData_size__;
 
 namespace art {
 
-void ClassLinker::Init() {
+void ClassLinker::Init26() {
+    if (CoreApi::GetPointSize() == 64) {
+        __ClassLinker_offset__ = {
+            .dex_caches_ = 48,
+        };
+    } else {
+        __ClassLinker_offset__ = {
+            .dex_caches_ = 24,
+        };
+    }
+}
+
+void ClassLinker::Init28() {
     if (CoreApi::GetPointSize() == 64) {
         __ClassLinker_offset__ = {
             .dex_caches_ = 56,
@@ -33,6 +45,22 @@ void ClassLinker::Init() {
     } else {
         __ClassLinker_offset__ = {
             .dex_caches_ = 28,
+        };
+    }
+}
+
+void ClassLinker::DexCacheData::Init26() {
+    if (CoreApi::GetPointSize() == 64) {
+        __DexCacheData_offset__ = {
+            .weak_root = 0,
+            .dex_file = 8,
+            .class_table = 24,
+        };
+    } else {
+        __DexCacheData_offset__ = {
+            .weak_root = 0,
+            .dex_file = 4,
+            .class_table = 12,
         };
     }
 }

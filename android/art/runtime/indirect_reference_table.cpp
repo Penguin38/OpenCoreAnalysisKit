@@ -24,7 +24,7 @@ struct IndirectReferenceTable_OffsetTable __IndirectReferenceTable_offset__;
 
 namespace art {
 
-void IrtEntry::Init28() {
+void IrtEntry::Init26() {
     __IrtEntry_offset__ = {
         .serial_ = 0,
         .references_ = 4,
@@ -44,7 +44,7 @@ void IrtEntry::Init33() {
     };
 }
 
-void IndirectReferenceTable::Init28() {
+void IndirectReferenceTable::Init26() {
     if (CoreApi::GetPointSize() == 64) {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,

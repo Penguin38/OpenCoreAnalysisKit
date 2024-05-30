@@ -52,7 +52,7 @@ public:
     template<typename U> ContinuousSpaceBitmap(U *v) : api::MemoryRef(v) {}
     template<typename U> ContinuousSpaceBitmap(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    static void Init28();
+    static void Init26();
     static void Init29();
     inline uint64_t bitmap_begin() { return VALUEOF(ContinuousSpaceBitmap, bitmap_begin_); }
     inline uint64_t bitmap_size() { return VALUEOF(ContinuousSpaceBitmap, bitmap_size_); }

@@ -38,9 +38,11 @@ public:
 
     static void Init();
     inline uint64_t mmap() { return Ptr() + OFFSET(VdexFile, mmap_); }
+    inline uint64_t mmap_lv29() { return VALUEOF(VdexFile, mmap_); }
 
     MemMap& GetMap();
     const char* GetName();
+    uint64_t Begin();
 private:
     // quick memoryref cache
     MemMap mmap_cache = 0x0;

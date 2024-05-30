@@ -15,11 +15,22 @@
  */
 
 #include "runtime/image.h"
+#include "android.h"
 
 struct ImageHeader_OffsetTable __ImageHeader_offset__;
 struct ImageHeader_SizeTable __ImageHeader_size__;
 
 namespace art {
+
+void ImageHeader::Init26() {
+    __ImageHeader_offset__ = {
+        .image_methods_ = 152,
+    };
+
+    __ImageHeader_size__ = {
+        .THIS = 216,
+    };
+}
 
 void ImageHeader::Init28() {
     __ImageHeader_offset__ = {
@@ -59,6 +70,16 @@ void ImageHeader::Init34() {
     __ImageHeader_size__ = {
         .THIS = 256,
     };
+}
+
+uint32_t ImageHeader::GetImageMethodsCount() {
+    if (Android::Sdk() >= Android::P) {
+        // 28~..
+        return ImageHeader::ImageMethod::kSaveEverythingMethodForSuspendCheck + 1;
+    } else {
+        // 26~27
+        return ImageHeader::ImageMethod::kSaveEverythingMethod + 1;
+    }
 }
 
 } // namespace art

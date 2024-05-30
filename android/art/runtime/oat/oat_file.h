@@ -46,6 +46,7 @@ public:
     inline uint64_t vdex_begin() { return VALUEOF(OatFile, vdex_begin_); }
 
     VdexFile& GetVdexFile();
+    uint64_t GetVdexBegin();
 private:
     // quick memoryref cache
     VdexFile vdex_cache = 0x0;

@@ -30,6 +30,18 @@ namespace art {
 namespace gc {
 namespace space {
 
+void RegionSpace::Init26() {
+    if (CoreApi::GetPointSize() == 64) {
+        __RegionSpace_offset__ = {
+            .num_regions_ = 176,
+            .regions_ = 192,
+            .mark_bitmap_ = 304,
+        };
+    } else {
+        //TODO
+    }
+}
+
 void RegionSpace::Init28() {
     if (CoreApi::GetPointSize() == 64) {
         __RegionSpace_offset__ = {
@@ -86,7 +98,7 @@ void RegionSpace::Init31() {
     }
 }
 
-void RegionSpace::Region::Init28() {
+void RegionSpace::Region::Init26() {
     if (CoreApi::GetPointSize() == 64) {
         __Region_offset__ = {
             .idx_ = 0,

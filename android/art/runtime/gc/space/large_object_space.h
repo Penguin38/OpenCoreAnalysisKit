@@ -114,7 +114,7 @@ public:
     template<typename U> LargeObjectSpace(U *v) : DiscontinuousSpace(v) {}
     template<typename U> LargeObjectSpace(U *v, DiscontinuousSpace* ref) : DiscontinuousSpace(v, ref) {}
 
-    static void Init28();
+    static void Init26();
     static void Init29();
     static void Init30();
     inline uint64_t begin() { return VALUEOF(LargeObjectSpace, begin_); }
@@ -139,6 +139,7 @@ public:
     template<typename U> LargeObjectMapSpace(U *v) : LargeObjectSpace(v) {}
     template<typename U> LargeObjectMapSpace(U *v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
+    static void Init26();
     static void Init28();
     static void Init29();
     static void Init30();

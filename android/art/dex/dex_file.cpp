@@ -25,8 +25,164 @@ struct DexFile_SizeTable __DexFile_size__;
 
 namespace art {
 
+void DexFile::Init26() {
+    if (CoreApi::GetPointSize() == 64) {
+        __DexFile_offset__ = {
+            .begin_ = 8,
+            .size_ = 16,
+            .data_begin_ = 8,
+            .data_size_ = 16,
+            .location_ = 24,
+            .location_checksum_ = 48,
+            .header_ = 64,
+            .string_ids_ = 72,
+            .type_ids_ = 80,
+            .field_ids_ = 88,
+            .method_ids_ = 96,
+            .proto_ids_ = 104,
+            .class_defs_ = 112,
+            .method_handles_ = 120,
+            .num_method_handles_ = 128,
+            .call_site_ids_ = 136,
+            .num_call_site_ids_ = 144,
+            .hiddenapi_class_data_ = 0,
+            .oat_dex_file_ = 152,
+            .container_ = 0,
+            .is_compact_dex_ = 0,
+        };
+
+         __DexFile_size__ = {
+            .THIS = 160,
+            .begin_ = 8,
+            .size_ = 8,
+            .data_begin_ = 8,
+            .data_size_ = 8,
+            .location_ = 24,
+            .location_checksum_ = 8,
+            .header_ = 8,
+            .string_ids_ = 8,
+            .type_ids_ = 8,
+            .field_ids_ = 8,
+            .method_ids_ = 8,
+            .proto_ids_ = 8,
+            .class_defs_ = 8,
+            .method_handles_ = 8,
+            .num_method_handles_ = 8,
+            .call_site_ids_ = 8,
+            .num_call_site_ids_ = 8,
+            .hiddenapi_class_data_ = 8,
+            .oat_dex_file_ = 8,
+        };
+    } else {
+        // TODO
+    }
+}
+
 void DexFile::Init28() {
-    // 28 ~ 33
+    if (CoreApi::GetPointSize() == 64) {
+        __DexFile_offset__ = {
+            .begin_ = 8,
+            .size_ = 16,
+            .data_begin_ = 24,
+            .data_size_ = 32,
+            .location_ = 40,
+            .location_checksum_ = 64,
+            .header_ = 72,
+            .string_ids_ = 80,
+            .type_ids_ = 88,
+            .field_ids_ = 96,
+            .method_ids_ = 104,
+            .proto_ids_ = 112,
+            .class_defs_ = 120,
+            .method_handles_ = 128,
+            .num_method_handles_ = 136,
+            .call_site_ids_ = 144,
+            .num_call_site_ids_ = 152,
+            .hiddenapi_class_data_ = 0,
+            .oat_dex_file_ = 160,
+            .container_ = 168,
+            .is_compact_dex_ = 176,
+        };
+
+         __DexFile_size__ = {
+            .THIS = 184,
+            .begin_ = 8,
+            .size_ = 8,
+            .data_begin_ = 8,
+            .data_size_ = 8,
+            .location_ = 24,
+            .location_checksum_ = 8,
+            .header_ = 8,
+            .string_ids_ = 8,
+            .type_ids_ = 8,
+            .field_ids_ = 8,
+            .method_ids_ = 8,
+            .proto_ids_ = 8,
+            .class_defs_ = 8,
+            .method_handles_ = 8,
+            .num_method_handles_ = 8,
+            .call_site_ids_ = 8,
+            .num_call_site_ids_ = 8,
+            .hiddenapi_class_data_ = 8,
+            .oat_dex_file_ = 8,
+            .container_ = 8,
+            .is_compact_dex_ = 1,
+        };
+    } else {
+        __DexFile_offset__ = {
+            .begin_ = 4,
+            .size_ = 8,
+            .data_begin_ = 12,
+            .data_size_ = 16,
+            .location_ = 20,
+            .location_checksum_ = 32,
+            .header_ = 36,
+            .string_ids_ = 40,
+            .type_ids_ = 44,
+            .field_ids_ = 48,
+            .method_ids_ = 52,
+            .proto_ids_ = 56,
+            .class_defs_ = 60,
+            .method_handles_ = 64,
+            .num_method_handles_ = 68,
+            .call_site_ids_ = 72,
+            .num_call_site_ids_ = 76,
+            .hiddenapi_class_data_ = 0,
+            .oat_dex_file_ = 80,
+            .container_ = 84,
+            .is_compact_dex_ = 88,
+        };
+
+        __DexFile_size__ = {
+            .THIS = 92,
+            .begin_ = 4,
+            .size_ = 4,
+            .data_begin_ = 4,
+            .data_size_ = 4,
+            .location_ = 12,
+            .location_checksum_ = 4,
+            .header_ = 4,
+            .string_ids_ = 4,
+            .type_ids_ = 4,
+            .field_ids_ = 4,
+            .method_ids_ = 4,
+            .proto_ids_ = 4,
+            .class_defs_ = 4,
+            .method_handles_ = 4,
+            .num_method_handles_ = 4,
+            .call_site_ids_ = 4,
+            .num_call_site_ids_ = 4,
+            .hiddenapi_class_data_ = 4,
+            .oat_dex_file_ = 4,
+            .container_ = 4,
+            .is_compact_dex_ = 1,
+        };
+    }
+}
+
+
+void DexFile::Init29() {
+    // 29 ~ 33
     if (CoreApi::GetPointSize() == 64) {
         __DexFile_offset__ = {
             .begin_ = 8,

@@ -25,7 +25,7 @@ namespace art {
 namespace gc {
 namespace accounting {
 
-void ContinuousSpaceBitmap::Init28() {
+void ContinuousSpaceBitmap::Init26() {
     if (CoreApi::GetPointSize() == 64) {
         __ContinuousSpaceBitmap_offset__ = {
             .mem_map_ = 0,

@@ -25,6 +25,23 @@ struct Runtime_SizeTable __Runtime_size__;
 
 namespace art {
 
+void Runtime::Init26() {
+    if (CoreApi::GetPointSize() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 40,
+            .imt_conflict_method_ = 48,
+            .imt_unimplemented_method_ = 56,
+            .heap_ = 384,
+            .thread_list_ = 448,
+            .class_linker_ = 464,
+            .java_vm_ = 504,
+        };
+    } else {
+        //TODO
+    }
+}
+
 void Runtime::Init28() {
     if (CoreApi::GetPointSize() == 64) {
         __Runtime_offset__ = {
@@ -180,6 +197,10 @@ Runtime& Runtime::Current() {
 Runtime Runtime::AnalysisInstance() {
     Runtime runtime = 0x0;
     uint64_t callee_methods[6] = {0x0};
+    uint32_t sizeof_callee_methods = sizeof(callee_methods);
+    if (Android::Sdk() < Android::P) {
+        sizeof_callee_methods = 4 * sizeof(uint64_t);
+    }
     uint8_t art_magic[4] = {0x61, 0x72, 0x74, 0x0A}; // art\n
     auto callback = [&](LoadBlock *block) -> bool {
         if (memcmp(reinterpret_cast<void *>(block->begin()),
@@ -191,7 +212,7 @@ Runtime Runtime::AnalysisInstance() {
         memcpy(reinterpret_cast<void *>(callee_methods),
                reinterpret_cast<void *>(header.image_methods()
                    + ImageHeader::ImageMethod::kSaveAllCalleeSavesMethod * sizeof(uint64_t)),
-               sizeof(callee_methods));
+               sizeof_callee_methods);
 
         return true;
     };
@@ -214,10 +235,10 @@ Runtime Runtime::AnalysisInstance() {
 
         uint64_t current = block->begin();
         uint64_t outsize = block->begin() + block->size();
-        while (current + sizeof(callee_methods) < outsize) {
+        while (current + sizeof_callee_methods < outsize) {
             if (!memcmp(reinterpret_cast<void *>(callee_methods),
                         reinterpret_cast<void *>(current),
-                        sizeof(callee_methods))) {
+                        sizeof_callee_methods)) {
                 runtime = current - block->begin() + block->vaddr();
                 runtime.checkCopyBlock(block);
                 ArtMethod& resolution_method_ = runtime.GetResolutionMethod();

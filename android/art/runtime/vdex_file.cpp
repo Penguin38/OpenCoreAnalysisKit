@@ -15,6 +15,7 @@
  */
 
 #include "runtime/vdex_file.h"
+#include "android.h"
 
 struct VdexFile_OffsetTable __VdexFile_offset__;
 
@@ -28,7 +29,11 @@ void VdexFile::Init() {
 
 MemMap& VdexFile::GetMap() {
     if (!mmap_cache.Ptr()) {
-        mmap_cache = mmap();
+        if (Android::Sdk() > Android::P) {
+            mmap_cache = mmap();
+        } else {
+            mmap_cache = mmap_lv29();
+        }
         mmap_cache.Prepare(false);
     }
     return mmap_cache;
@@ -36,6 +41,10 @@ MemMap& VdexFile::GetMap() {
 
 const char* VdexFile::GetName() {
     return GetMap().GetName();
+}
+
+uint64_t VdexFile::Begin() {
+    return GetMap().begin();
 }
 
 } //namespace art

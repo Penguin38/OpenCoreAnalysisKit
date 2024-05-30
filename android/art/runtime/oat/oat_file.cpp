@@ -15,6 +15,7 @@
  */
 
 #include "runtime/oat/oat_file.h"
+#include "android.h"
 #include "api/core.h"
 
 struct OatFile_OffsetTable __OatFile_offset__;
@@ -48,6 +49,14 @@ VdexFile& OatFile::GetVdexFile() {
         vdex_cache.Prepare(false);
     }
     return vdex_cache;
+}
+
+uint64_t OatFile::GetVdexBegin() {
+    if (Android::Sdk() < Android::P) {
+        return GetVdexFile().Begin();
+    } else {
+        return vdex_begin();
+    }
 }
 
 OatFile& OatDexFile::GetOatFile() {

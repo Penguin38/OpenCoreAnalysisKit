@@ -29,6 +29,32 @@ struct PtrSizedFields_OffsetTable __PtrSizedFields_offset__;
 
 namespace art {
 
+void ArtMethod::Init26() {
+    __ArtMethod_offset__ = {
+        .declaring_class_ = 0,
+        .access_flags_ = 4,
+        .dex_code_item_offset_ = 8,
+        .dex_method_index_ = 12,
+        .method_index_ = 16,
+        .hotness_count_ = 18,
+        .imt_index_ = 18,
+        .ptr_sized_fields_ = 24,
+    };
+
+    if (CoreApi::GetPointSize() == 64) {
+        __ArtMethod_size__ = {
+            .THIS = 48,
+        };
+    } else {
+        __ArtMethod_offset__ = {
+            .ptr_sized_fields_ = 20,
+        };
+        __ArtMethod_size__ = {
+            .THIS = 32,
+        };
+    }
+}
+
 void ArtMethod::Init28() {
     __ArtMethod_offset__ = {
         .declaring_class_ = 0,
@@ -46,6 +72,9 @@ void ArtMethod::Init28() {
             .THIS = 40,
         };
     } else {
+        __ArtMethod_offset__ = {
+            .ptr_sized_fields_ = 20,
+        };
         __ArtMethod_size__ = {
             .THIS = 28,
         };
@@ -74,7 +103,21 @@ void ArtMethod::Init31() {
     }
 }
 
-void ArtMethod::PtrSizedFields::Init() {
+void ArtMethod::PtrSizedFields::Init26() {
+    if (CoreApi::GetPointSize() == 64) {
+        __PtrSizedFields_offset__ = {
+            .data_ = 8,
+            .entry_point_from_quick_compiled_code_ = 16,
+        };
+    } else {
+        __PtrSizedFields_offset__ = {
+            .data_ = 4,
+            .entry_point_from_quick_compiled_code_ = 8,
+        };
+    }
+}
+
+void ArtMethod::PtrSizedFields::Init28() {
     if (CoreApi::GetPointSize() == 64) {
         __PtrSizedFields_offset__ = {
             .data_ = 0,
@@ -208,9 +251,14 @@ dex::CodeItem ArtMethod::GetCodeItem() {
     }
     item = item.Ptr() & 0xFFFFFFFFFFFFFFFEULL;
 
-    if (dex_file.IsCompactDexFile()) {
-        CompactDexFile::CodeItem* compact = reinterpret_cast<CompactDexFile::CodeItem*>(&item);
-        compact->DecodeFields();
+    if (Android::Sdk() >= Android::P) {
+        if (dex_file.IsCompactDexFile()) {
+            CompactDexFile::CodeItem* compact = reinterpret_cast<CompactDexFile::CodeItem*>(&item);
+            compact->DecodeFields();
+        } else {
+            StandardDexFile::CodeItem* standard = reinterpret_cast<StandardDexFile::CodeItem*>(&item);
+            standard->DecodeFields();
+        }
     } else {
         StandardDexFile::CodeItem* standard = reinterpret_cast<StandardDexFile::CodeItem*>(&item);
         standard->DecodeFields();

@@ -42,6 +42,7 @@ extern struct ArtMethod_OffsetTable __ArtMethod_offset__;
 extern struct ArtMethod_SizeTable __ArtMethod_size__;
 
 struct PtrSizedFields_OffsetTable {
+    uint32_t dex_cache_resolved_methods_;
     uint32_t data_;
     uint32_t entry_point_from_quick_compiled_code_;
 };
@@ -64,6 +65,7 @@ public:
     inline bool operator==(ArtMethod& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ArtMethod& ref) { return Ptr() != ref.Ptr(); }
 
+    static void Init26();
     static void Init28();
     static void Init31();
     inline uint32_t declaring_class() { return value32Of(OFFSET(ArtMethod, declaring_class_)); }
@@ -84,7 +86,8 @@ public:
         template<typename U> PtrSizedFields(U *v) : api::MemoryRef(v) {}
         template<typename U> PtrSizedFields(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-        static void Init();
+        static void Init26();
+        static void Init28();
         inline uint64_t data() { return VALUEOF(PtrSizedFields, data_); }
         inline uint64_t entry_point_from_quick_compiled_code() { return VALUEOF(PtrSizedFields, entry_point_from_quick_compiled_code_); }
     };
