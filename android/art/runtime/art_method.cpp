@@ -46,9 +46,7 @@ void ArtMethod::Init26() {
             .THIS = 48,
         };
     } else {
-        __ArtMethod_offset__ = {
-            .ptr_sized_fields_ = 20,
-        };
+        __ArtMethod_offset__.ptr_sized_fields_ = 20;
         __ArtMethod_size__ = {
             .THIS = 32,
         };
@@ -72,9 +70,7 @@ void ArtMethod::Init28() {
             .THIS = 40,
         };
     } else {
-        __ArtMethod_offset__ = {
-            .ptr_sized_fields_ = 20,
-        };
+        __ArtMethod_offset__.ptr_sized_fields_ = 20;
         __ArtMethod_size__ = {
             .THIS = 28,
         };

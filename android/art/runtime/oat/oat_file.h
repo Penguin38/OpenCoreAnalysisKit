@@ -22,7 +22,6 @@
 
 struct OatFile_OffsetTable {
     uint32_t vdex_;
-    uint32_t vdex_begin_;
 };
 extern struct OatFile_OffsetTable __OatFile_offset__;
 
@@ -43,7 +42,6 @@ public:
 
     static void Init();
     inline uint64_t vdex() { return VALUEOF(OatFile, vdex_); }
-    inline uint64_t vdex_begin() { return VALUEOF(OatFile, vdex_begin_); }
 
     VdexFile& GetVdexFile();
     uint64_t GetVdexBegin();

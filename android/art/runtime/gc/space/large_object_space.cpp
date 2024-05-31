@@ -252,8 +252,11 @@ void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visi
     cxx::map& large_objects_ = GetLargeObjectsCache();
     for (const auto& value : large_objects_) {
         LargeObjectMapSpace::LargeObjectsPair pair = value;
-        mirror::Object object = pair.first();
-        if (object.IsValid()) visitor(object);
+        api::MemoryRef ref = pair.first();
+        if (ref.IsValid()) {
+            mirror::Object object(ref);
+            if (object.IsValid()) visitor(object);
+        }
     }
 }
 

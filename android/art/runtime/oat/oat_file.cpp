@@ -27,12 +27,10 @@ void OatFile::Init() {
     if (CoreApi::GetPointSize() == 64) {
         __OatFile_offset__ = {
             .vdex_ = 32,
-            .vdex_begin_ = 112,
         };
     } else {
         __OatFile_offset__ = {
             .vdex_ = 16,
-            .vdex_begin_ = 56,
         };
     }
 }
@@ -52,11 +50,7 @@ VdexFile& OatFile::GetVdexFile() {
 }
 
 uint64_t OatFile::GetVdexBegin() {
-    if (Android::Sdk() < Android::P) {
-        return GetVdexFile().Begin();
-    } else {
-        return vdex_begin();
-    }
+    return GetVdexFile().Begin();
 }
 
 OatFile& OatDexFile::GetOatFile() {

@@ -19,7 +19,6 @@
 #include "runtime/runtime_globals.h"
 
 struct ContinuousSpaceBitmap_OffsetTable __ContinuousSpaceBitmap_offset__;
-struct ContinuousSpaceBitmap_SizeTable __ContinuousSpaceBitmap_size__;
 
 namespace art {
 namespace gc {
@@ -32,12 +31,6 @@ void ContinuousSpaceBitmap::Init26() {
             .bitmap_begin_ = 8,
             .bitmap_size_ = 16,
             .heap_begin_ = 24,
-            .heap_limit_ = 32,
-            .name_ = 40,
-        };
-
-        __ContinuousSpaceBitmap_size__ = {
-            .THIS = 64,
         };
     } else {
         __ContinuousSpaceBitmap_offset__ = {
@@ -45,12 +38,6 @@ void ContinuousSpaceBitmap::Init26() {
             .bitmap_begin_ = 4,
             .bitmap_size_ = 8,
             .heap_begin_ = 12,
-            .heap_limit_ = 16,
-            .name_ = 20,
-        };
-
-        __ContinuousSpaceBitmap_size__ = {
-            .THIS = 32,
         };
     }
 }
@@ -62,12 +49,6 @@ void ContinuousSpaceBitmap::Init29() {
             .bitmap_begin_ = 72,
             .bitmap_size_ = 80,
             .heap_begin_ = 88,
-            .heap_limit_ = 96,
-            .name_ = 104,
-        };
-
-        __ContinuousSpaceBitmap_size__ = {
-            .THIS = 128,
         };
     } else {
         __ContinuousSpaceBitmap_offset__ = {
@@ -75,12 +56,6 @@ void ContinuousSpaceBitmap::Init29() {
             .bitmap_begin_ = 40,
             .bitmap_size_ = 44,
             .heap_begin_ = 48,
-            .heap_limit_ = 52,
-            .name_ = 56,
-        };
-
-        __ContinuousSpaceBitmap_size__ = {
-            .THIS = 68,
         };
     }
 }

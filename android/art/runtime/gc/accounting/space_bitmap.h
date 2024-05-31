@@ -26,16 +26,9 @@ struct ContinuousSpaceBitmap_OffsetTable {
     uint32_t bitmap_begin_;
     uint32_t bitmap_size_;
     uint32_t heap_begin_;
-    uint32_t heap_limit_;
-    uint32_t name_;
-};
-
-struct ContinuousSpaceBitmap_SizeTable {
-    uint32_t THIS;
 };
 
 extern struct ContinuousSpaceBitmap_OffsetTable __ContinuousSpaceBitmap_offset__;
-extern struct ContinuousSpaceBitmap_SizeTable __ContinuousSpaceBitmap_size__;
 
 namespace art {
 namespace gc {
@@ -57,7 +50,6 @@ public:
     inline uint64_t bitmap_begin() { return VALUEOF(ContinuousSpaceBitmap, bitmap_begin_); }
     inline uint64_t bitmap_size() { return VALUEOF(ContinuousSpaceBitmap, bitmap_size_); }
     inline uint64_t heap_begin() { return VALUEOF(ContinuousSpaceBitmap, heap_begin_); }
-    inline uint64_t heap_limit() { return VALUEOF(ContinuousSpaceBitmap, heap_limit_); }
 
     void VisitMarkedRange(uint64_t visit_begin, uint64_t visit_end, std::function<bool (mirror::Object& object)> fn);
     uint64_t OffsetToIndex(uint64_t offset, int point_bit);

@@ -202,6 +202,7 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::ImageHeader::Init26);
     RegisterSdkListener(O, art::mirror::DexCache::Init26);
     RegisterSdkListener(O, art::gc::space::RegionSpace::Init26);
+    RegisterSdkListener(O, art::gc::space::RegionSpace::Region::Init26);
     RegisterSdkListener(O, art::gc::space::LargeObjectSpace::Init26);
     RegisterSdkListener(O, art::gc::space::LargeObjectMapSpace::Init26);
     RegisterSdkListener(O, art::JavaVMExt::Init28);
