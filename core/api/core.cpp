@@ -189,8 +189,8 @@ ThreadApi* CoreApi::FindThread(int tid) {
     return INSTANCE->findThread(tid);
 }
 
-void CoreApi::addLinkMap(uint64_t map, uint64_t begin, uint64_t name) {
-    std::unique_ptr<LinkMap> linkmap = std::make_unique<LinkMap>(map, begin, name);
+void CoreApi::addLinkMap(uint64_t map) {
+    std::unique_ptr<LinkMap> linkmap = std::make_unique<LinkMap>(map);
     mLinkMap.push_back(std::move(linkmap));
 }
 
@@ -212,6 +212,7 @@ void CoreApi::ForeachFile(std::function<bool (File *)> callback) {
 
 File* CoreApi::FindFile(uint64_t vaddr) {
     File *result = nullptr;
+    if (!vaddr) return result;
     uint64_t clocvaddr = vaddr & GetVabitsMask();
     auto callback = [&](File* file) -> bool {
         if (file->contains(clocvaddr)) {
@@ -251,7 +252,7 @@ void CoreApi::ExecFile(const char* path) {
                 break;
         }
         if (filepath.length() > 0) {
-            INSTANCE->sysroot(phdr, filepath.c_str(), nullptr);
+            INSTANCE->exec(phdr, filepath.c_str());
         }
     }
 }
@@ -276,7 +277,7 @@ void CoreApi::SysRoot(const char* path) {
                 break;
         }
         if (filepath.length() > 0) {
-            INSTANCE->sysroot(map->begin(), filepath.c_str(), sub_file);
+            INSTANCE->sysroot(map, filepath.c_str(), sub_file);
         }
         return false;
     };

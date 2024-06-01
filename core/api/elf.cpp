@@ -166,76 +166,77 @@ MemoryRef& Elf::GetDebug() {
         return mDebug;
 
     Elf::Init();
-    uint64_t phdr = CoreApi::FindAuxv(AT_PHDR);
+    Elfx_Phdr phdr = CoreApi::FindAuxv(AT_PHDR);
     uint64_t phent = CoreApi::FindAuxv(AT_PHENT);
     uint64_t phnum = CoreApi::FindAuxv(AT_PHNUM);
     uint64_t execfn = CoreApi::FindAuxv(AT_EXECFN);
 
-    if (!CoreApi::IsVirtualValid(phdr)) {
+    if (!phdr.IsValid()) {
         std::string name;
         if (CoreApi::IsVirtualValid(execfn)) {
             name.append(reinterpret_cast<const char*>(CoreApi::GetReal(execfn)));
         }
-        LOGW("WARN: Not found execfn [%s].\n", name.c_str());
+        LOGW("WARN: Not found exec [%s].\n", name.c_str());
         return mDebug;
     }
 
-    Elfx_Phdr dyphdr = 0x0;
-    Elfx_Phdr cphdr = phdr;
-    Elfx_Ehdr ehdr(phdr - cphdr.p_vaddr(), cphdr);
-
+    Elfx_Dynamic dynamic = 0x0;
+    Elfx_Phdr tmp = phdr;
     int index = 0;
     while (index < phnum) {
-        if (cphdr.p_type() == PT_DYNAMIC) {
-            dyphdr = cphdr;
+        if (tmp.p_type() == PT_DYNAMIC) {
+            dynamic = phdr.Ptr() - phdr.p_offset() + tmp.p_vaddr();
             break;
         }
         index++;
-        cphdr.MovePtr(SIZEOF(Elfx_Phdr));
+        tmp.MovePtr(SIZEOF(Elfx_Phdr));
     }
 
-    mDebug = FindDynamicEntry(ehdr, dyphdr, DT_DEBUG);
+    mDebug = FindDynamicEntry(dynamic, DT_DEBUG);
     return mDebug;
 }
 
-uint64_t Elf::FindDynamicEntry(Elfx_Ehdr& ehdr, Elfx_Phdr& phdr, uint64_t type) {
-    if (!phdr.Ptr()) return 0x0;
-
-    Elfx_Dynamic dynamic = ehdr.Ptr() + phdr.p_vaddr();
-    int numdynamic = phdr.p_filesz() / SIZEOF(Elfx_Dynamic);
-    int index = 0;
-    while (index < numdynamic) {
-        if (dynamic.d_type() == type) {
-            return dynamic.d_val();
+uint64_t Elf::FindDynamicEntry(Elfx_Dynamic& dynamic, uint64_t type) {
+    if (!dynamic.Ptr()) return 0x0;
+    uint64_t value = 0x0;
+    Elfx_Dynamic tmp = dynamic;
+    do {
+        if (tmp.d_type() == type) {
+            value = tmp.d_val();
+            break;
         }
-        index++;
-        dynamic.MovePtr(SIZEOF(Elfx_Dynamic));
-    }
-
-    return 0x0;
+        tmp.MovePtr(SIZEOF(Elfx_Dynamic));
+    } while(tmp.d_type() != 0x0);
+    return value;
 }
 
 uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
-    Elfx_Ehdr ehdr(handle->begin(), handle->block());
-    Elfx_Phdr phdr(ehdr.Ptr() + ehdr.e_phoff(), ehdr);
-    int phnum = ehdr.e_phnum();
+    if (!handle->l_addr()) return 0x0;
+    Elfx_Dynamic dynamic = 0x0;
 
-    Elfx_Phdr dyphdr = 0x0;
-    int index = 0;
+    if (handle->l_ld()) {
+        dynamic = handle->l_ld();
+    } else {
+        Elfx_Ehdr ehdr(handle->begin(), handle->block());
+        Elfx_Phdr phdr(ehdr.Ptr() + ehdr.e_phoff(), ehdr);
+        int phnum = ehdr.e_phnum();
 
-    while (index < phnum) {
-        if (phdr.p_type() == PT_DYNAMIC) {
-            dyphdr = phdr;
-            break;
+        Elfx_Phdr tmp = phdr;
+        int index = 0;
+        while (index < phnum) {
+            if (tmp.p_type() == PT_DYNAMIC) {
+                dynamic = handle->l_addr() + tmp.p_vaddr();
+                break;
+            }
+            index++;
+            tmp.MovePtr(SIZEOF(Elfx_Phdr));
         }
-        index++;
-        phdr.MovePtr(SIZEOF(Elfx_Phdr));
     }
 
-    uint64_t strtab = FindDynamicEntry(ehdr, dyphdr, DT_STRTAB);
-    uint64_t symtab = FindDynamicEntry(ehdr, dyphdr, DT_SYMTAB);
-    uint64_t syment = FindDynamicEntry(ehdr, dyphdr, DT_SYMENT);
-    uint64_t versym = FindDynamicEntry(ehdr, dyphdr, DT_VERSYM);
+    uint64_t strtab = FindDynamicEntry(dynamic, DT_STRTAB);
+    uint64_t symtab = FindDynamicEntry(dynamic, DT_SYMTAB);
+    uint64_t syment = FindDynamicEntry(dynamic, DT_SYMENT);
+    uint64_t versym = FindDynamicEntry(dynamic, DT_VERSYM);
 
     // check page fault
     if (!syment) return 0;
@@ -244,8 +245,8 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
     uint64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
     int64_t count = symsz / syment;
 
-    api::MemoryRef tables(ehdr.Ptr() + strtab, ehdr);
-    Elfx_Sym symbols(ehdr.Ptr() + symtab, ehdr);
+    api::MemoryRef tables(handle->l_addr() + strtab, handle->block());
+    Elfx_Sym symbols(handle->l_addr() + symtab, tables);
 
     for (int i = 0; i < count; ++i) {
         std::string name = reinterpret_cast<const char* >(tables.Real() + symbols.st_name());

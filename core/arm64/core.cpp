@@ -49,7 +49,7 @@ uint64_t Core::dlsym(LinkMap* handle, const char* symbol) {
             value = dlsym64(block->name().c_str(), symbol);
         }
     }
-    if (value) return handle->begin() + value;
+    if (value) return handle->l_addr() + value;
     return 0x0;
 }
 

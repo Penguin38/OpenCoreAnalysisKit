@@ -24,6 +24,8 @@
 
 class File {
 public:
+    inline static std::string FIRST_STAGE_RAMDIS = "/first_stage_ramdisk";
+
     inline uint64_t begin() { return mBegin; }
     inline uint64_t end() { return mEnd; }
     inline uint64_t offset() { return mOffset; }
@@ -31,7 +33,12 @@ public:
     inline bool contains(uint64_t vaddr) { return (vaddr >= mBegin && vaddr < mEnd); }
 
     File(uint64_t b, uint64_t e, uint64_t off, const char* name)
-            : mBegin(b), mEnd(e), mOffset(off) { mName = name; }
+            : mBegin(b), mEnd(e), mOffset(off) {
+        mName = name;
+        std::size_t index = mName.find(FIRST_STAGE_RAMDIS);
+        if (index != std::string::npos)
+            mName = mName.substr(FIRST_STAGE_RAMDIS.length());
+    }
     ~File() {}
 private:
     //  file member

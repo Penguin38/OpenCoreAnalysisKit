@@ -126,6 +126,7 @@ public:
     inline uint32_t p_type() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Elfx_Phdr, p_type)); }
     inline uint64_t p_vaddr() { return VALUEOF(Elfx_Phdr, p_vaddr); }
     inline uint64_t p_filesz() { return VALUEOF(Elfx_Phdr, p_filesz); }
+    inline uint64_t p_offset() { return VALUEOF(Elfx_Phdr, p_offset); }
 };
 
 class Elfx_Dynamic : public MemoryRef {
@@ -168,7 +169,7 @@ class Elf {
 public:
     Elf() {}
     MemoryRef& GetDebug();
-    uint64_t FindDynamicEntry(Elfx_Ehdr& ehdr, Elfx_Phdr& phdr, uint64_t type);
+    uint64_t FindDynamicEntry(Elfx_Dynamic& dynamic, uint64_t type);
     uint64_t DynamicSymbol(LinkMap* handle, const char* symbol);
 
     static void Init();

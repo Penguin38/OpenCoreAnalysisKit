@@ -113,7 +113,7 @@ void lp32::Core::loadLinkMap32(CoreApi* api) {
         uint32_t map = dbg->map;
         while (map) {
             lp32::LinkMap* link = reinterpret_cast<lp32::LinkMap*>(CoreApi::GetReal(map));
-            api->addLinkMap(map, link->addr, link->name);
+            api->addLinkMap(map);
             map = link->next;
         }
     } catch (InvalidAddressException e) {
@@ -121,18 +121,69 @@ void lp32::Core::loadLinkMap32(CoreApi* api) {
     }
 }
 
-bool lp32::Core::dlopen32(CoreApi* api, uint32_t begin, const char* file, const char* subfile) {
+bool lp32::Core::exec32(CoreApi* api, uint32_t phdr, const char* file) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file));
-    LoadBlock* begin_block = api->findLoadBlock(begin);
-    if (!begin_block) {
-        LOGE("ERROR: Not found LoadBlock(%x)\n", begin);
-        return false;
-    }
+    if (map) {
+        ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
+        if (memcmp(header->ident, ELFMAG, 4)) {
+            LOGE("ERROR: Invalid ELF file (%s)\n", file);
+            return false;
+        }
 
+        if (header->type != ET_DYN) {
+            LOGE("ERROR: Invalid shared object file (%s)\n", file);
+            return false;
+        }
+
+        if (header->machine != CoreApi::GetMachine()) {
+            LOGE("ERROR: Invalid match machine(%d) (%s)\n", header->machine, file);
+            return false;
+        }
+
+        Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
+        Elf32_Phdr* pt = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
+
+        if (pt[0].p_type != PT_PHDR) {
+            LOGE("ERROR: Exec file PHDR segment non-first\n");
+            return false;
+        }
+
+        uint32_t loadidx = 0;
+        for (int index = 0; index < ehdr->e_phnum; ++index) {
+            if (pt[index].p_type != PT_LOAD)
+                continue;
+
+            uint32_t current = phdr - ehdr->e_phoff -
+                               (pt[0].p_vaddr - pt[0].p_offset) +
+                               RoundDown(pt[index].p_vaddr, pt[index].p_align);
+            LoadBlock* block = api->findLoadBlock(current);
+
+            if (!block) {
+                LOGE("ERROR: Not found LoadBlock(%x)\n", current);
+                continue;
+            }
+
+            if (current != block->vaddr())
+                break;
+
+            if (!(pt[index].p_flags & PF_W) && !(block->flags() & PF_W)
+                    && !(loadidx && !pt[index].p_offset)) {
+                uint32_t page_offset = RoundDown(pt[index].p_offset + map->offset(), 0x1000);
+                block->setMmapFile(file, page_offset);
+            }
+            ++loadidx;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile) {
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file));
     if (subfile) {
         ZipFile zip;
         if (zip.open(file)) {
-            LOGE("ERROR: Zip open fail [%lx] %s\n", begin_block->vaddr(), file);
+            LOGE("ERROR: Zip open fail %s\n", file);
             return false;
         }
 
@@ -148,11 +199,13 @@ bool lp32::Core::dlopen32(CoreApi* api, uint32_t begin, const char* file, const 
         }
 
         if (!entry->IsUncompressed()) {
-            LOGE("ERROR: Not support compress zip [%lx] %s!%s\n", begin_block->vaddr(), file, entry->getFileName());
+            LOGE("ERROR: Not support compress zip %s!%s\n", file, entry->getFileName());
             return false;
         }
 
-        std::unique_ptr<MemoryMap> submap(MemoryMap::MmapFile(file, begin_block->size(), entry->getFileOffset()));
+        std::unique_ptr<MemoryMap> submap(MemoryMap::MmapFile(file,
+                                                              RoundUp(entry->getEntryTotalMemsz(), 0x1000),
+                                                              entry->getFileOffset()));
         map = std::move(submap);
     }
     if (map) {
@@ -175,16 +228,18 @@ bool lp32::Core::dlopen32(CoreApi* api, uint32_t begin, const char* file, const 
         Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
         Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
 
-        int loadidx = 0;
+        uint32_t loadidx = 0;
         for (int index = 0; index < ehdr->e_phnum; ++index) {
             if (phdr[index].p_type != PT_LOAD)
                 continue;
 
-            uint32_t current = begin_block->vaddr() + RoundDown(phdr[index].p_vaddr, phdr[index].p_align);
+            uint32_t current = handle->l_addr() + RoundDown(phdr[index].p_vaddr, phdr[index].p_align);
             LoadBlock* block = api->findLoadBlock(current);
 
-            if (!block)
+            if (!block) {
+                LOGE("ERROR: Not found LoadBlock(%x)\n", current);
                 continue;
+            }
 
             if (current != block->vaddr())
                 break;

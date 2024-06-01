@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "api/core.h"
 #include "common/link_map.h"
 
@@ -38,6 +39,28 @@ void LinkMap::Init() {
 api::MemoryRef& LinkMap::GetAddrCache() {
     if (!addr_cache.Ptr()) {
         addr_cache = l_addr();
+
+        // adjustment
+        File* header = CoreApi::FindFile(l_addr());
+        File* dynamic = CoreApi::FindFile(l_ld());
+        if (dynamic) {
+            if (!header || header->name() != dynamic->name()) {
+                /*
+                 * ---------
+                 * |N *4096| <---------
+                 * ---------          | offset
+                 * |N *4096|          |
+                 * --------- begin  ---
+                 * |Dynamic|
+                 * ---------
+                 *
+                 */
+                header = CoreApi::FindFile(dynamic->begin() - dynamic->offset());
+                if (header && header->name() == dynamic->name()) {
+                    addr_cache = header->begin();
+                }
+            }
+        }
         addr_cache.Prepare(false);
     }
     return addr_cache;
@@ -56,8 +79,10 @@ uint64_t LinkMap::begin() {
 }
 
 const char* LinkMap::name() {
-    if (!GetNameCache().IsReady())
-        return "";
+    if (!GetNameCache().IsValid() || !GetNameCache().value8Of()) {
+        File* dynamic = CoreApi::FindFile(l_ld());
+        return dynamic ? dynamic->name().data() : "";
+    }
     return reinterpret_cast<const char*>(GetNameCache().Real());
 }
 

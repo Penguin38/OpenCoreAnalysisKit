@@ -169,7 +169,7 @@ public:
     void removeAllNoteBlock();
     uint64_t findAuxv(uint64_t type);
     ThreadApi* findThread(int tid);
-    void addLinkMap(uint64_t map, uint64_t begin, uint64_t name);
+    void addLinkMap(uint64_t map);
     void removeAllLinkMap();
     void foreachThread(std::function<bool (ThreadApi *)> callback);
     void foreachFile(std::function<bool (File *)> callback);
@@ -185,7 +185,8 @@ private:
     virtual int getPointSize() = 0;
     virtual uint64_t getVabitsMask() = 0;
     virtual void loadLinkMap() = 0;
-    virtual void sysroot(uint64_t begin, const char* file, const char* subfile) = 0;
+    virtual void exec(uint64_t phdr, const char* file) = 0;
+    virtual void sysroot(LinkMap* handle, const char* file, const char* subfile) = 0;
     virtual uint64_t dlsym(LinkMap* handle, const char* symbol) = 0;
     virtual uint64_t r_debug_ptr() { return 0x0; }
 

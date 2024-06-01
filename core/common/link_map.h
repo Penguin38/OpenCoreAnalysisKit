@@ -37,21 +37,16 @@ extern struct LinkMap_SizeTable __LinkMap_size__;
 
 class LinkMap : public api::MemoryRef {
 public:
+    LinkMap(uint64_t m) : api::MemoryRef(m) {}
+    static void Init();
+    inline uint64_t l_addr() { return VALUEOF(LinkMap, l_addr); }
+    inline uint64_t l_name() { return VALUEOF(LinkMap, l_name); }
+    inline uint64_t l_ld() { return VALUEOF(LinkMap, l_ld); }
+
     inline uint64_t map() { return Ptr(); }
     uint64_t begin();
     const char* name();
     LoadBlock* block();
-
-    LinkMap(uint64_t m, uint64_t b, uint64_t n)
-            : api::MemoryRef(m), addr_cache(b), name_cache(n) {
-        addr_cache.Prepare(false);
-        name_cache.Prepare(false);
-    }
-
-    static void Init();
-    inline uint64_t l_addr() { return VALUEOF(LinkMap, l_addr); }
-    inline uint64_t l_name() { return VALUEOF(LinkMap, l_name); }
-    ~LinkMap() {}
 
     api::MemoryRef& GetAddrCache();
     api::MemoryRef& GetNameCache();
