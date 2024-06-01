@@ -125,8 +125,28 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     if (!Android::IsReady())
         return 0;
 
-    LOGI("  * LIB: %s\n", Android::GetRealLibart().c_str());
     art::Runtime& runtime = Android::GetRuntime();
+
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"clean-cache",   no_argument, 0, 'c'},
+    };
+
+    while ((opt = getopt_long(argc, argv, "c",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'c':
+                if (runtime.Ptr()) {
+                    runtime.CleanCache();
+                    runtime = 0x0;
+                }
+                return 0;
+        }
+    }
+
+    LOGI("  * LIB: %s\n", Android::GetRealLibart().c_str());
     LOGI("  * art::Runtime: 0x%lx\n", runtime.Ptr());
     if (!runtime.Ptr())
         return 0;
@@ -222,7 +242,10 @@ void EnvCommand::usage() {
     LOGI("Option:\n");
     LOGI("   --[debug|info|warn|error|fatal]\n");
     LOGI("\n");
-    LOGI("Usage: env art: show art env args\n");
+    LOGI("Usage: env art [option] ...\n");
+    LOGI("Option:\n");
+    LOGI("   --clean-cache|-c: clean art::Runtime cache\n");
+    LOGI("\n");
     LOGI("Usage: env core [option]...\n");
     LOGI("Option:\n");
     LOGI("   --load: show code load segments\n");

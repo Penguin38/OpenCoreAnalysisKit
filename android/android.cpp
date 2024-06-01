@@ -129,8 +129,10 @@ void Android::Init() {
 
 void Android::Clean() {
     if (INSTANCE) {
-        if (INSTANCE->instance_.Ptr())
+        if (INSTANCE->instance_.Ptr()) {
             INSTANCE->instance_.CleanCache();
+            INSTANCE->instance_ = 0x0;
+        }
         delete INSTANCE;
         INSTANCE = nullptr;
     }
@@ -298,7 +300,7 @@ void Android::RegisterSdkListener(int minisdk, std::function<void ()> fn) {
 }
 
 void Android::OnSdkChanged(int sdk) {
-    if (sdk < Q) {
+    if (sdk < O) {
         LOGI("Invaild sdk(%d)\n", sdk);
         return;
     }
@@ -309,6 +311,10 @@ void Android::onSdkChanged(int current_sdk) {
     if (sdk != current_sdk) {
         sdk = current_sdk;
         preLoadLater();
+        if (instance_.Ptr()) {
+            instance_.CleanCache();
+            instance_ = 0x0;
+        }
     }
 }
 
