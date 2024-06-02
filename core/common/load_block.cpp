@@ -43,7 +43,7 @@ bool LoadBlock::newOverlay() {
     return mOverlay != 0x0;
 }
 
-void LoadBlock::setOverlay(uint64_t addr, uint64_t *buf, uint64_t size) {
+void LoadBlock::setOverlay(uint64_t addr, void *buf, uint64_t size) {
     if (newOverlay()) {
         uint64_t clocaddr = addr & mVabitsMask;
         memcpy(reinterpret_cast<uint64_t *>(mOverlay->data() + (clocaddr - vaddr())), buf, size);

@@ -119,7 +119,7 @@ public:
     static void Write(uint64_t vaddr, uint64_t value) {
         Write(vaddr, &value, 8);
     }
-    static void Write(uint64_t vaddr, uint64_t *buf, uint64_t size);
+    static void Write(uint64_t vaddr, void *buf, uint64_t size);
     static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf) {
         return Read(vaddr, size, buf, OPT_READ_ALL);
     }

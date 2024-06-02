@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "command/fake/cmd_fake.h"
 #include "command/fake/core/fake_core.h"
+#include "command/fake/map/fake_map.h"
 #include <unistd.h>
 #include <getopt.h>
 
@@ -24,14 +25,27 @@ typedef int (*FakeCall)(int argc, char* const argv[]);
 struct FakeOption {
     const char* cmd;
     FakeCall call;
+    bool onbg;
 };
 
 FakeOption fake_option[] = {
-    { "core", FakeCore::OptionCore },
+    { "core", FakeCore::OptionCore, true },
+    { "map", FakeLinkMap::OptionMap, false },
 };
 
 bool FakeCommand::prepare(int argc, char* const argv[]) {
-    return true;
+    if (!(argc > 1)) {
+        return false;
+    }
+
+    int count = sizeof(fake_option)/sizeof(fake_option[0]);
+    for (int index = 0; index < count; ++index) {
+        if (!strcmp(argv[1], fake_option[index].cmd)) {
+            return fake_option[index].onbg;
+        }
+    }
+
+    return false;
 }
 
 int FakeCommand::main(int argc, char* const argv[]) {
@@ -53,7 +67,9 @@ int FakeCommand::main(int argc, char* const argv[]) {
 void FakeCommand::usage() {
     LOGI("Usage: fake <COMMAND> [option] ...\n");
     LOGI("Command:\n");
-    LOGI("    core\n");
+    LOGI("    core  map\n");
     LOGI("\n");
     FakeCore::Usage();
+    LOGI("\n");
+    FakeLinkMap::Usage();
 }

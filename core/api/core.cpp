@@ -284,7 +284,7 @@ void CoreApi::SysRoot(const char* path) {
     INSTANCE->foreachLinkMap(callback);
 }
 
-void CoreApi::Write(uint64_t vaddr, uint64_t *buf, uint64_t size) {
+void CoreApi::Write(uint64_t vaddr, void *buf, uint64_t size) {
     LoadBlock* block = FindLoadBlock(vaddr);
     block->setOverlay(vaddr, buf, size);
 }

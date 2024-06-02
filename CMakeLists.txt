@@ -176,6 +176,7 @@ add_library(parser STATIC
             parser/command/fake/core/fake_core.cpp
             parser/command/fake/core/lp64/restore.cpp
             parser/command/fake/core/lp32/restore.cpp
+            parser/command/fake/map/fake_map.cpp
             parser/command/backtrace/cmd_backtrace.cpp
             parser/command/backtrace/cmd_frame.cpp)
 target_link_libraries(parser android llvm core utils)
