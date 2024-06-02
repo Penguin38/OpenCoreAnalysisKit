@@ -22,6 +22,7 @@
 #define ALWAYS_INLINE  __attribute__ ((always_inline))
 #define NO_INLINE __attribute__ ((noinline))
 #define FLATTEN  __attribute__ ((flatten))
+#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a) - 1)) == 0)
 #define ALIGNED(x) __attribute__ ((__aligned__(x)))
 #define PACKED(x) __attribute__ ((__aligned__(x), __packed__))
 #define UNREACHABLE  __builtin_unreachable
