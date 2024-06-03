@@ -80,6 +80,7 @@ public:
 
     ThreadRecord* findRecord(int pid);
     void DumpTrace();
+    void DumpJavaStack(void *thread);
 private:
     bool dump_all = false;
     std::vector<std::unique_ptr<ThreadRecord>> threads;

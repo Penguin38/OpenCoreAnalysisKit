@@ -151,13 +151,22 @@ void BacktraceCommand::DumpTrace() {
         }
 
 #if defined(__AOSP_PARSER__)
-        if (record->thread) {
-            art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
-            art::StackVisitor visitor(thread, art::StackVisitor::StackWalkKind::kSkipInlinedFrames);
-            visitor.WalkStack();
-        }
+        DumpJavaStack(record->thread);
 #endif
         needEnd = true;
+    }
+}
+
+void BacktraceCommand::DumpJavaStack(void *th) {
+    if (!th) return;
+
+    art::Thread* thread = reinterpret_cast<art::Thread*>(th);
+    art::StackVisitor visitor(thread, art::StackVisitor::StackWalkKind::kSkipInlinedFrames);
+    visitor.WalkStack();
+    uint32_t frameid = 0;
+    for (const auto& java_frame : visitor.GetJavaFrames()) {
+        LOGI("  Java: #%d %s\n", frameid, java_frame->GetMethod().PrettyMethod().c_str());
+        ++frameid;
     }
 }
 

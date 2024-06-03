@@ -18,6 +18,7 @@
 #define ANDROID_ART_RUNTIME_MANAGED_STACK_H_
 
 #include "api/memory_ref.h"
+#include "runtime/interpreter/shadow_frame.h"
 
 struct ManagedStack_OffsetTable {
     uint32_t tagged_top_quick_frame_;
@@ -53,12 +54,24 @@ public:
         template<typename U> TaggedTopQuickFrame(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         inline uint64_t tagged_sp() { return valueOf(); }
+        inline uint64_t GetSp() { return tagged_sp() & (~static_cast<uint64_t>(3u) & PointMask()); }
+        inline bool GetGenericJniTag() { return (tagged_sp() & 1u) != 0u; }
+        inline bool GetJitJniTag() { return (tagged_sp() & 2u) != 0u; }
     };
 
     static void Init();
     inline uint64_t tagged_top_quick_frame() { return Ptr() + OFFSET(ManagedStack, tagged_top_quick_frame_); }
     inline uint64_t link() { return VALUEOF(ManagedStack, link_); }
     inline uint64_t top_shadow_frame() { return VALUEOF(ManagedStack, top_shadow_frame_); }
+
+    TaggedTopQuickFrame& GetTaggedTopQuickFrame();
+    ShadowFrame& GetTopShadowFrame();
+    inline uint64_t GetTopQuickFrame() { return GetTaggedTopQuickFrame().GetSp(); }
+    inline bool GetTopQuickFrameGenericJniTag() { return GetTaggedTopQuickFrame().GetGenericJniTag(); }
+    inline bool GetTopQuickFrameJitJniTag() { return GetTaggedTopQuickFrame().GetJitJniTag(); }
+private:
+    TaggedTopQuickFrame tagged_top_quick_frame_cache = 0x0;
+    ShadowFrame top_shadow_frame_cache = 0x0;
 };
 
 } //namespace art

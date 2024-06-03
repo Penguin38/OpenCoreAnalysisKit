@@ -39,6 +39,7 @@
 #include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/jni/java_vm_ext.h"
 #include "runtime/oat/oat_file.h"
+#include "runtime/interpreter/shadow_frame.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "dex/standard_dex_file.h"
@@ -170,6 +171,7 @@ void Android::preLoad() {
     art::VdexFile::Init();
     art::MemMap::Init();
     art::ManagedStack::Init();
+    art::ShadowFrame::Init();
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();
 

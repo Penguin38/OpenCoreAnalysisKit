@@ -18,6 +18,10 @@
 #define ANDROID_ART_RUNTIME_STACK_H_
 
 #include "runtime/thread.h"
+#include "runtime/managed_stack.h"
+#include "runtime/art_method.h"
+#include <vector>
+#include <memory>
 
 /*
  * Our current stack layout.
@@ -78,12 +82,31 @@ public:
         kSkipInlinedFrames,
     };
 
+    class JavaFrame {
+    public:
+        JavaFrame(ArtMethod& m, api::MemoryRef& qf, ShadowFrame& sf)
+            : method(m), quick_frame(qf), shadow_frame(sf) {}
+        ArtMethod& GetMethod() { return method; }
+    private:
+        ArtMethod method;
+        ShadowFrame shadow_frame = 0x0;
+        api::MemoryRef quick_frame = 0x0;
+    };
+
     StackVisitor(Thread* thread, StackWalkKind kind) : thread_(thread), walk_kind_(kind) {}
+    std::vector<std::unique_ptr<JavaFrame>>& GetJavaFrames() { return java_frames_; }
     Thread* GetThread() { return thread_; }
     void WalkStack();
+    bool VisitFrame();
+    ArtMethod GetMethod();
+    ~StackVisitor() { java_frames_.clear(); }
 private:
+    std::vector<std::unique_ptr<JavaFrame>> java_frames_;
     Thread* thread_;
-    StackWalkKind walk_kind_;
+    const StackWalkKind walk_kind_;
+    ShadowFrame cur_shadow_frame_ = 0x0;
+    api::MemoryRef cur_quick_frame_ = 0x0;
+    uint64_t cur_quick_frame_pc_;
 };
 
 } // namespace art

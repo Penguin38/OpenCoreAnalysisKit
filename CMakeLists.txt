@@ -109,8 +109,8 @@ add_library(android STATIC
             android/art/runtime/gc/accounting/space_bitmap.cpp
 
             android/art/runtime/jni/java_vm_ext.cpp
-
             android/art/runtime/oat/oat_file.cpp
+            android/art/runtime/interpreter/shadow_frame.cpp
 
             android/art/dex/primitive.cpp
             android/art/dex/modifiers.cpp

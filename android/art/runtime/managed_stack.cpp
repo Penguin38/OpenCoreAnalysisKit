@@ -35,4 +35,19 @@ void ManagedStack::Init() {
     };
 }
 
+ManagedStack::TaggedTopQuickFrame& ManagedStack::GetTaggedTopQuickFrame() {
+    if (!tagged_top_quick_frame_cache.Ptr()) {
+        tagged_top_quick_frame_cache = tagged_top_quick_frame();
+        tagged_top_quick_frame_cache.copyRef(this);
+    }
+    return tagged_top_quick_frame_cache;
+}
+
+ShadowFrame& ManagedStack::GetTopShadowFrame() {
+    if (!top_shadow_frame_cache.Ptr()) {
+        top_shadow_frame_cache = top_shadow_frame();
+    }
+    return top_shadow_frame_cache;
+}
+
 } //namespace art
