@@ -63,7 +63,7 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
             uint64_t end = block->oraddr() + block->realSize();
             while (pos < end) {
                 Elf64_Nhdr *nhdr = reinterpret_cast<Elf64_Nhdr *>(pos);
-                uint64_t item_pos = pos + sizeof(Elf64_Nhdr) + sizeof(uint64_t);
+                uint64_t item_pos = nhdr->n_descsz == 0 ? 0 : pos + sizeof(Elf64_Nhdr) + RoundUp(nhdr->n_namesz, 0x4);
                 switch(nhdr->n_type) {
                     case NT_PRSTATUS:
                         block->addThreadItem(callback(NT_PRSTATUS, item_pos));
@@ -91,7 +91,7 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                     } break;
                 }
 
-                pos = pos + RoundUp(nhdr->n_descsz, 0x4) + sizeof(Elf64_Nhdr) + sizeof(uint64_t);
+                pos = pos + sizeof(Elf64_Nhdr) + RoundUp(nhdr->n_namesz, 0x4) + RoundUp(nhdr->n_descsz, 0x4);
             }
 
             api->addNoteBlock(block);
