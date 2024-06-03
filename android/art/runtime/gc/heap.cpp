@@ -44,7 +44,7 @@ void Heap::Init() {
     }
 }
 
-std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces() {
+cxx::vector& Heap::GetContinuousSpacesCache() {
     if (!continuous_spaces_cache.Ptr()) {
         continuous_spaces_cache = continuous_spaces();
         continuous_spaces_cache.copyRef(this);
@@ -69,8 +69,42 @@ std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces(
             } while(count < loopcount);
         }
 #endif
+    }
+    return continuous_spaces_cache;
+}
 
-        for (const auto& value : continuous_spaces_cache) {
+cxx::vector& Heap::GetDiscontinuousSpacesCache() {
+    if (!discontinuous_spaces_cache.Ptr()) {
+        discontinuous_spaces_cache = discontinuous_spaces();
+        discontinuous_spaces_cache.copyRef(this);
+        discontinuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize() / 8);
+
+#if defined(__PARSER_DEBUG__)
+        if (!(discontinuous_spaces_cache.size() < 8)) {
+            LOGE("ERROR: discontinuous_spaces_ invalid, do analysis ...\n");
+            bool found = false;
+            int count = 0;
+            uint64_t point_size = CoreApi::GetPointSize() / 8;
+            uint64_t endloop = RoundUp(discontinuous_spaces_cache.Ptr(), 0x2000) - SIZEOF(cxx_vector);
+            int loopcount = (endloop - discontinuous_spaces_cache.Ptr()) / point_size;
+            do {
+                if (discontinuous_spaces_cache.size() < 8) {
+                    LOGI(">>> 'discontinuous_spaces_' = 0x%lx\n", discontinuous_spaces_cache.Ptr());
+                    found = true;
+                    break;
+                }
+                count++;
+                discontinuous_spaces_cache.MovePtr(point_size);
+            } while(count < loopcount);
+        }
+#endif
+    }
+    return discontinuous_spaces_cache;
+}
+
+std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces() {
+    if (!continuous_spaces_second_cache.size()) {
+        for (const auto& value : GetContinuousSpacesCache()) {
             api::MemoryRef ref = value;
             std::unique_ptr<space::ContinuousSpace> space = std::make_unique<space::ContinuousSpace>(ref.valueOf());
             if (space->IsRegionSpace()) {
@@ -99,32 +133,8 @@ std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces(
 }
 
 std::vector<std::unique_ptr<space::DiscontinuousSpace>>& Heap::GetDiscontinuousSpaces() {
-    if (!discontinuous_spaces_cache.Ptr()) {
-        discontinuous_spaces_cache = discontinuous_spaces();
-        discontinuous_spaces_cache.copyRef(this);
-        discontinuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize() / 8);
-
-#if defined(__PARSER_DEBUG__)
-        if (!(discontinuous_spaces_cache.size() < 8)) {
-            LOGE("ERROR: discontinuous_spaces_ invalid, do analysis ...\n");
-            bool found = false;
-            int count = 0;
-            uint64_t point_size = CoreApi::GetPointSize() / 8;
-            uint64_t endloop = RoundUp(discontinuous_spaces_cache.Ptr(), 0x2000) - SIZEOF(cxx_vector);
-            int loopcount = (endloop - discontinuous_spaces_cache.Ptr()) / point_size;
-            do {
-                if (discontinuous_spaces_cache.size() < 8) {
-                    LOGI(">>> 'discontinuous_spaces_' = 0x%lx\n", discontinuous_spaces_cache.Ptr());
-                    found = true;
-                    break;
-                }
-                count++;
-                discontinuous_spaces_cache.MovePtr(point_size);
-            } while(count < loopcount);
-        }
-#endif
-
-        for (const auto& value : discontinuous_spaces_cache) {
+    if (!discontinuous_spaces_second_cache.size()) {
+        for (const auto& value : GetDiscontinuousSpacesCache()) {
             api::MemoryRef ref = value;
             std::unique_ptr<space::DiscontinuousSpace> space = std::make_unique<space::DiscontinuousSpace>(ref.valueOf());
             if (space->IsLargeObjectSpace()) {

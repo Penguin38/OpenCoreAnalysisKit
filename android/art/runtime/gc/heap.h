@@ -57,6 +57,8 @@ public:
     inline uint64_t continuous_spaces() { return Ptr() + OFFSET(Heap, continuous_spaces_); }
     inline uint64_t discontinuous_spaces() { return Ptr() + OFFSET(Heap, discontinuous_spaces_); }
 
+    cxx::vector& GetContinuousSpacesCache();
+    cxx::vector& GetDiscontinuousSpacesCache();
     std::vector<std::unique_ptr<space::ContinuousSpace>>& GetContinuousSpaces();
     std::vector<std::unique_ptr<space::DiscontinuousSpace>>& GetDiscontinuousSpaces();
     void CleanCache() {

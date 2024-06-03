@@ -27,12 +27,17 @@ void ThreadList::Init() {
     };
 }
 
-std::list<std::unique_ptr<Thread>>& ThreadList::GetList() {
+cxx::list& ThreadList::GetListCache() {
     if (!list_cache.Ptr()) {
         list_cache = list();
         list_cache.copyRef(this);
+    }
+    return list_cache;
+}
 
-        for (const auto& value : list_cache) {
+std::list<std::unique_ptr<Thread>>& ThreadList::GetList() {
+    if (!list_second_cache.size()) {
+        for (const auto& value : GetListCache()) {
             api::MemoryRef ref = value;
             std::unique_ptr<Thread> thread = std::make_unique<Thread>(ref.valueOf());
             list_second_cache.push_back(std::move(thread));

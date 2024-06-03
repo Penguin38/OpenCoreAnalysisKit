@@ -152,9 +152,27 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
         return 0;
 
     LOGI("  * art::gc::Heap: 0x%lx\n", runtime.GetHeap().Ptr());
+    if (runtime.GetHeap().Ptr()) {
+        LOGI("  *     continuous_spaces_: 0x%lx\n", runtime.GetHeap().GetContinuousSpacesCache().Ptr());
+        LOGI("  *     discontinuous_spaces_: 0x%lx\n", runtime.GetHeap().GetDiscontinuousSpacesCache().Ptr());
+    }
     LOGI("  * art::ThreadList: 0x%lx\n", runtime.GetThreadList().Ptr());
+    if (runtime.GetThreadList().Ptr()) {
+        LOGI("  *     list_: 0x%lx\n", runtime.GetThreadList().GetListCache().Ptr());
+    }
     LOGI("  * art::ClassLinker: 0x%lx\n", runtime.GetClassLinker().Ptr());
+    if (runtime.GetClassLinker().Ptr()) {
+        if (Android::Sdk() < Android::TIRAMISU) {
+            LOGI("  *     dex_caches_: 0x%lx\n", runtime.GetClassLinker().GetDexCachesData().Ptr());
+        } else {
+            LOGI("  *     dex_caches_: 0x%lx\n", runtime.GetClassLinker().GetDexCachesData_v33().Ptr());
+        }
+    }
     LOGI("  * art::JavaVMExt: 0x%lx\n", runtime.GetJavaVM().Ptr());
+    if (runtime.GetJavaVM().Ptr()) {
+        LOGI("  *     globals_: 0x%lx\n", runtime.GetJavaVM().GetGlobalsTable().Ptr());
+        LOGI("  *     weak_globals_: 0x%lx\n", runtime.GetJavaVM().GetWeakGlobalsTable().Ptr());
+    }
     return 0;
 }
 

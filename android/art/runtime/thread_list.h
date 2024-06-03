@@ -52,6 +52,7 @@ public:
     static void Init();
     inline uint64_t list() { return Ptr() + OFFSET(ThreadList, list_); }
 
+    cxx::list& GetListCache();
     std::list<std::unique_ptr<Thread>>& GetList();
     bool Contains(int tid);
 
