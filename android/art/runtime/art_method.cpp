@@ -17,8 +17,10 @@
 #include "logger/log.h"
 #include "android.h"
 #include "base/macros.h"
+#include "base/enums.h"
 #include "runtime/runtime.h"
 #include "runtime/art_method.h"
+#include "runtime/entrypoints/runtime_asm_entrypoints.h"
 #include "dex/descriptors_names.h"
 #include "dex/standard_dex_file.h"
 #include "dex/compact_dex_file.h"
@@ -260,6 +262,56 @@ dex::CodeItem ArtMethod::GetCodeItem() {
         standard->DecodeFields();
     }
     return item;
+}
+
+uint64_t ArtMethod::GetEntryPointFromQuickCompiledCode() {
+    return GetEntryPointFromQuickCompiledCodePtrSize(CoreApi::GetPointSize() / 8);
+}
+
+uint64_t ArtMethod::GetEntryPointFromQuickCompiledCodePtrSize(uint32_t pointer_size) {
+    return GetNativePointer(EntryPointFromQuickCompiledCodeOffset(pointer_size), pointer_size);
+}
+
+uint32_t ArtMethod::EntryPointFromQuickCompiledCodeOffset(uint32_t pointer_size) {
+    return (OFFSET(ArtMethod, ptr_sized_fields_) +
+            OFFSET(PtrSizedFields, entry_point_from_quick_compiled_code_) /
+            pointer_size * pointer_size);
+}
+
+uint64_t ArtMethod::GetNativePointer(uint32_t offset, uint32_t pointer_size) {
+    if (pointer_size == static_cast<uint32_t>(PointerSize::k32)) {
+        return value32Of(offset);
+    } else {
+        return value64Of(offset);
+    }
+}
+
+OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
+    OatQuickMethodHeader method_header = 0x0;
+    if (IsRuntimeMethod()) {
+        return method_header;
+    }
+
+    Runtime& runtime = Runtime::Current();
+    uint64_t existing_entry_point = GetEntryPointFromQuickCompiledCode();
+    ClassLinker& class_linker = runtime.GetClassLinker();
+
+    if (existing_entry_point == GetQuickProxyInvokeHandler()) {
+        return method_header;
+    }
+
+    if (!class_linker.IsQuickGenericJniStub(existing_entry_point) &&
+        !class_linker.IsQuickResolutionStub(existing_entry_point) &&
+        !class_linker.IsQuickToInterpreterBridge(existing_entry_point) &&
+        existing_entry_point != GetInvokeObsoleteMethodStub()) {
+        method_header = OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
+
+        if (method_header.Contains(pc)) {
+            return method_header;
+        }
+    }
+
+    return method_header;
 }
 
 } //namespace art

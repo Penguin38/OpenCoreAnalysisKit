@@ -18,6 +18,7 @@
 #define ANDROID_ANDROID_H_
 
 #include "api/core.h"
+#include "runtime/oat.h"
 #include "runtime/runtime.h"
 #include "runtime/art_field.h"
 #include "runtime/art_method.h"
@@ -62,13 +63,14 @@ public:
     static Android::BasicType SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out);
     static Android::BasicType SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out, const char* def);
 
-    inline static const char *LIBART64 = "/apex/com.android.art/lib64/libart.so";
-    inline static const char *LIBART32 = "/apex/com.android.art/lib/libart.so";
-    inline static const char *LIBART64_LV29 = "/apex/com.android.runtime/lib64/libart.so";
-    inline static const char *LIBART32_LV29 = "/apex/com.android.runtime/lib/libart.so";
+    inline static const char* LIBART64 = "/apex/com.android.art/lib64/libart.so";
+    inline static const char* LIBART32 = "/apex/com.android.art/lib/libart.so";
+    inline static const char* LIBART64_LV29 = "/apex/com.android.runtime/lib64/libart.so";
+    inline static const char* LIBART32_LV29 = "/apex/com.android.runtime/lib/libart.so";
     inline static const char* LIBART64_LV28 = "/system/lib64/libart.so";
     inline static const char* LIBART32_LV28 = "/system/lib/libart.so";
     inline static const char* ART_RUNTIME_INSTANCE = "_ZN3art7Runtime9instance_E";
+    inline static const char* ART_OAT_HEADER_VERSION = "_ZN3art9OatHeader11kOatVersionE";
 
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
@@ -77,6 +79,7 @@ public:
     static void Clean();
     static void Dump();
     static int Sdk() { return INSTANCE->sdk; }
+    static int Oat() { return GetOatHeader().kOatVersion; }
     static const char* Id() { return INSTANCE->id.c_str(); }
     static const char* Name() { return INSTANCE->name.c_str(); }
     static const char* Model() { return INSTANCE->model.c_str(); }
@@ -119,6 +122,7 @@ public:
     inline static uint64_t SearchSymbol(const char* symbol) { return CoreApi::SearchSymbol(INSTANCE->realLibart.c_str(), symbol); }
     static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn);
     static inline std::string& GetRealLibart() { return INSTANCE->realLibart; }
+    static inline art::OatHeader& GetOatHeader() { return INSTANCE->oat_header(); }
 
     static constexpr int EACH_APP_OBJECTS = 1 << 0;
     static constexpr int EACH_ZYGOTE_OBJECTS = 1 << 1;
@@ -136,6 +140,7 @@ private:
     void preLoad();
     void preLoadLater();
     inline art::Runtime& current() { return instance_; }
+    inline art::OatHeader& oat_header() { return oat_header_; }
 
     int sdk;
     std::string id;
@@ -156,6 +161,7 @@ private:
 
     art::Runtime instance_;
     std::string realLibart;
+    art::OatHeader oat_header_;
 protected:
     std::vector<std::unique_ptr<SdkListener>> mSdkListeners;
 };

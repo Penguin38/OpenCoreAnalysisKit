@@ -149,4 +149,16 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
     return dex_caches_second_cache;
 }
 
+bool ClassLinker::IsQuickGenericJniStub(uint64_t entry_point) {
+    return false;
+}
+
+bool ClassLinker::IsQuickResolutionStub(uint64_t entry_point) {
+    return false;
+}
+
+bool ClassLinker::IsQuickToInterpreterBridge(uint64_t entry_point) {
+    return false;
+}
+
 } //namespace art

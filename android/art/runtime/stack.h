@@ -20,6 +20,8 @@
 #include "runtime/thread.h"
 #include "runtime/managed_stack.h"
 #include "runtime/art_method.h"
+#include "runtime/oat_quick_method_header.h"
+#include "runtime/quick/quick_method_frame_info.h"
 #include <vector>
 #include <memory>
 
@@ -99,6 +101,7 @@ public:
     void WalkStack();
     bool VisitFrame();
     ArtMethod GetMethod();
+    QuickMethodFrameInfo GetCurrentQuickFrameInfo();
     ~StackVisitor() { java_frames_.clear(); }
 private:
     std::vector<std::unique_ptr<JavaFrame>> java_frames_;
@@ -107,6 +110,7 @@ private:
     ShadowFrame cur_shadow_frame_ = 0x0;
     api::MemoryRef cur_quick_frame_ = 0x0;
     uint64_t cur_quick_frame_pc_;
+    OatQuickMethodHeader cur_oat_quick_method_header_ = 0x0;
 };
 
 } // namespace art

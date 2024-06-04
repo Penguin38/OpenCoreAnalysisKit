@@ -30,6 +30,7 @@
 #include "runtime/indirect_reference_table.h"
 #include "runtime/vdex_file.h"
 #include "runtime/managed_stack.h"
+#include "runtime/oat_quick_method_header.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -217,6 +218,7 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::ArtMethod::Init26);
     RegisterSdkListener(O, art::ArtMethod::PtrSizedFields::Init26);
     RegisterSdkListener(O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
+    RegisterSdkListener(O, art::OatQuickMethodHeader::Init26);
 
     // 28
     RegisterSdkListener(P, art::DexFile::Init28);
@@ -243,6 +245,7 @@ void Android::preLoad() {
     RegisterSdkListener(Q, art::JavaVMExt::Init29);
     RegisterSdkListener(Q, art::IndirectReferenceTable::Init29);
     RegisterSdkListener(Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
+    RegisterSdkListener(Q, art::OatQuickMethodHeader::Init29);
 
     // 30 base
     RegisterSdkListener(R, art::Runtime::Init30);
@@ -261,6 +264,7 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::gc::space::RegionSpace::Init31);
     RegisterSdkListener(S, art::JavaVMExt::Init31);
     RegisterSdkListener(S, art::ArtMethod::Init31);
+    RegisterSdkListener(S, art::OatQuickMethodHeader::Init31);
 
     // 33
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);

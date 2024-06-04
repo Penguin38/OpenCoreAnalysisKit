@@ -147,6 +147,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     }
 
     LOGI("  * LIB: %s\n", Android::GetRealLibart().c_str());
+    LOGI("  * art::OatHeader::kOatVersion: %d\n", Android::Oat());
     LOGI("  * art::Runtime: 0x%lx\n", runtime.Ptr());
     if (!runtime.Ptr())
         return 0;

@@ -90,6 +90,9 @@ add_library(android STATIC
             android/art/runtime/art_method.cpp
             android/art/runtime/stack.cpp
             android/art/runtime/managed_stack.cpp
+            android/art/runtime/oat_quick_method_header.cpp
+            android/art/runtime/oat.cpp
+            android/art/runtime/nterp_helpers.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp
@@ -111,6 +114,7 @@ add_library(android STATIC
             android/art/runtime/jni/java_vm_ext.cpp
             android/art/runtime/oat/oat_file.cpp
             android/art/runtime/interpreter/shadow_frame.cpp
+            android/art/runtime/entrypoints/quick/callee_save_frame.cpp
 
             android/art/dex/primitive.cpp
             android/art/dex/modifiers.cpp

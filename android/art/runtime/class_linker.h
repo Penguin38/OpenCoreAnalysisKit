@@ -95,6 +95,9 @@ public:
     cxx::list& GetDexCachesData();
     cxx::unordered_map& GetDexCachesData_v33();
     std::vector<std::unique_ptr<DexCacheData>>& GetDexCacheDatas();
+    bool IsQuickGenericJniStub(uint64_t entry_point);
+    bool IsQuickResolutionStub(uint64_t entry_point);
+    bool IsQuickToInterpreterBridge(uint64_t entry_point);
     void CleanCache() {
         dex_caches_second_cache.clear();
     }

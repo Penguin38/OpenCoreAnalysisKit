@@ -20,6 +20,7 @@
 #include "api/memory_ref.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/dex_cache.h"
+#include "runtime/oat_quick_method_header.h"
 #include "dex/modifiers.h"
 #include "dex/dex_file_types.h"
 
@@ -422,6 +423,11 @@ public:
     std::string PrettyMethod();
     bool HasCodeItem();
     dex::CodeItem GetCodeItem();
+    uint64_t GetEntryPointFromQuickCompiledCode();
+    uint64_t GetEntryPointFromQuickCompiledCodePtrSize(uint32_t pointer_size);
+    uint32_t EntryPointFromQuickCompiledCodeOffset(uint32_t pointer_size);
+    uint64_t GetNativePointer(uint32_t offset, uint32_t pointer_size);
+    OatQuickMethodHeader GetOatQuickMethodHeader(uint64_t pc);
 private:
     // quick memoryref cache
     mirror::Class declaring_class_cache = 0x0;

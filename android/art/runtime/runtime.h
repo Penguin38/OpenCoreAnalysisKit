@@ -25,6 +25,7 @@
 #include "runtime/art_method.h"
 #include "runtime/jni/java_vm_ext.h"
 #include "runtime/base/callee_save_type.h"
+#include "runtime/quick/quick_method_frame_info.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
@@ -86,6 +87,7 @@ public:
     ArtMethod& GetImtUnimplementedMethod();
     ArtMethod& GetCalleeSaveMethod(CalleeSaveType type);
     ArtMethod& GetCalleeSaveMethodUnchecked(CalleeSaveType type);
+    QuickMethodFrameInfo GetRuntimeMethodFrameInfo(ArtMethod& method);
 
     void CleanCache() {
         if (heap_cache.Ptr()) heap_cache.CleanCache();

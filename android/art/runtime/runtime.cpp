@@ -16,6 +16,7 @@
 
 #include "runtime/runtime.h"
 #include "runtime/image.h"
+#include "runtime/entrypoints/quick/callee_save_frame.h"
 #include "android.h"
 #include "common/exception.h"
 #include <string.h>
@@ -330,6 +331,18 @@ ArtMethod& Runtime::GetCalleeSaveMethodUnchecked(CalleeSaveType type) {
         }
     }
     return callee_save_methods_cache[index];
+}
+
+QuickMethodFrameInfo Runtime::GetRuntimeMethodFrameInfo(ArtMethod& method) {
+    if (method == GetCalleeSaveMethodUnchecked(CalleeSaveType::kSaveRefsAndArgs)) {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsAndArgs);
+    } else if (method == GetCalleeSaveMethodUnchecked(CalleeSaveType::kSaveAllCalleeSaves)) {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveAllCalleeSaves);
+    } else if (method == GetCalleeSaveMethodUnchecked(CalleeSaveType::kSaveRefsOnly)) {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsOnly);
+    } else {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveEverything);
+    }
 }
 
 } // namespace art

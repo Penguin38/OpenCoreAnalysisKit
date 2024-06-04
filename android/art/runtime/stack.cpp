@@ -16,11 +16,42 @@
 
 #include "logger/log.h"
 #include "common/exception.h"
+#include "runtime/runtime.h"
 #include "runtime/stack.h"
+#include "runtime/nterp_helpers.h"
 #include "runtime/managed_stack.h"
 #include "runtime/art_method.h"
+#include "runtime/base/callee_save_type.h"
+#include "runtime/entrypoints/quick/callee_save_frame.h"
 
 namespace art {
+
+QuickMethodFrameInfo StackVisitor::GetCurrentQuickFrameInfo() {
+    if (cur_oat_quick_method_header_.Ptr()) {
+        if (cur_oat_quick_method_header_.IsOptimized()) {
+            return cur_oat_quick_method_header_.GetFrameInfo();
+        } else {
+            return NterpFrameInfo(cur_quick_frame_);
+        }
+    }
+
+    ArtMethod method = GetMethod();
+    Runtime& runtime = Runtime::Current();
+
+    if (method.IsAbstract()) {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsAndArgs);
+    }
+
+    if (method.IsRuntimeMethod()) {
+        return runtime.GetRuntimeMethodFrameInfo(method);
+    }
+
+    if (method.IsProxyMethod()) {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsAndArgs);
+    }
+
+    return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsAndArgs);
+}
 
 ArtMethod StackVisitor::GetMethod() {
     if (cur_shadow_frame_.Ptr()) {
@@ -53,15 +84,26 @@ void StackVisitor::WalkStack() {
                 bool header_retrieved = false;
                 if (method.IsNative()) {
                     if (current_fragment.GetTopQuickFrameGenericJniTag()) {
+                        cur_oat_quick_method_header_ = 0x0;
                     } else if (current_fragment.GetTopQuickFrameJitJniTag()) {
+                        // JIT TODO
                     } else {
+                        uint64_t existing_entry_point = method.GetEntryPointFromQuickCompiledCode();
+                        Runtime& runtime = Runtime::Current();
+                        ClassLinker& class_linker = runtime.GetClassLinker();
+                        if (!class_linker.IsQuickGenericJniStub(existing_entry_point) &&
+                            !class_linker.IsQuickResolutionStub(existing_entry_point)) {
+                            cur_oat_quick_method_header_ = OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
+                        } else {
+                            // very few TODO
+                        }
                     }
                     header_retrieved = true;
                 }
 
                 while (method.Ptr()) {
                     if (!header_retrieved) {
-
+                        cur_oat_quick_method_header_ = method.GetOatQuickMethodHeader(cur_quick_frame_pc_);
                     }
                     header_retrieved = false;
 
@@ -73,6 +115,8 @@ void StackVisitor::WalkStack() {
                     if (!should_continue) {
                         return;
                     }
+
+                    QuickMethodFrameInfo frame_info = GetCurrentQuickFrameInfo();
 
                     method = 0x0;
                 }
