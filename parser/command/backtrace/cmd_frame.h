@@ -19,6 +19,7 @@
 
 #include "command/command.h"
 #include "android.h"
+#include <vector>
 
 class FrameCommand : public Command {
 public:
@@ -34,6 +35,7 @@ public:
     }
     void usage();
     void ShowJavaFrameInfo(int number);
+    void ShowJavaFrameRegister(const char* prefix, std::vector<uint32_t>& vregs);
 private:
     bool java;
 };

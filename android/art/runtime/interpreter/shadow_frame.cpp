@@ -64,4 +64,24 @@ void ShadowFrame::Init() {
     }
 }
 
+uint64_t ShadowFrame::GetDexPcPtr() {
+    if (!dex_pc_ptr()) {
+        ArtMethod method = GetMethod();
+        art::dex::CodeItem item = method.GetCodeItem();
+        art::DexFile& dex_file = method.GetDexFile();
+        if (item.Ptr()) return (item.Ptr() + item.code_offset_ + 0x2 * dex_pc());
+    }
+    return dex_pc_ptr();
+}
+
+std::vector<uint32_t>& ShadowFrame::GetVRegs() {
+    if (!vregs_cache.size()) {
+        api::MemoryRef ref = vregs();
+        for (int i = 0; i < number_of_vregs(); i++) {
+            vregs_cache.push_back(ref.value32Of(i * sizeof(uint32_t)));
+        }
+    }
+    return vregs_cache;
+}
+
 } //namespace art

@@ -57,12 +57,15 @@ int FrameCommand::main(int argc, char* const argv[]) {
     int number = 0;
     if (optind < argc) number = atoi(argv[optind]);
 
-    if (java) ShowJavaFrameInfo(number);
+#if defined(__AOSP_PARSER__)
+    if (java) {
+        ShowJavaFrameInfo(number);
+    }
+#endif
     return 0;
 }
 
 void FrameCommand::ShowJavaFrameInfo(int number) {
-#if defined(__AOSP_PARSER__)
     art::Thread* current = nullptr;
     int pid = Env::CurrentPid();
     if (Android::IsSdkReady()) {
@@ -98,16 +101,43 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             LOGI("      art::ArtMethod: 0x%lx\n", method.Ptr());
             LOGI("      shadow_frame: 0x%lx\n", shadow_frame.Ptr());
             LOGI("      quick_frame: 0x%lx\n", quick_frame.Ptr());
-            LOGI("\n");
-            if (shadow_frame.Ptr() && shadow_frame.dex_pc_ptr()) {
-                api::MemoryRef coderef = shadow_frame.dex_pc_ptr();
+            if (shadow_frame.Ptr() && shadow_frame.GetDexPcPtr()) {
+                LOGI("\n");
+                api::MemoryRef coderef = shadow_frame.GetDexPcPtr();
                 LOGI("      %s\n", art::Dexdump::PrettyDexInst(coderef, dex_file).c_str());
+                ShowJavaFrameRegister("      ", shadow_frame.GetVRegs());
             }
             LOGI("  }\n");
         }
         ++frameid;
     }
-#endif
+}
+
+void FrameCommand::ShowJavaFrameRegister(const char* prefix, std::vector<uint32_t>& vregs) {
+    uint32_t vregs_size = vregs.size();
+    uint32_t vregs_line = vregs_size / 4;
+    uint32_t vregs_mod = vregs_size % 4;
+    if (vregs_size) {
+        LOGI("%s{\n", prefix);
+        for (int i = 0; i < vregs_line; i++) {
+            char value[256];
+            sprintf(value, "%s    v%d = 0x%08x    v%d = 0x%08x    v%d = 0x%08x    v%d = 0x%08x",
+                    prefix, 4 * i, vregs[4 * i], 4 * i + 1, vregs[4 * i + 1],
+                    4 * i + 2, vregs[4 * i + 2], 4 * i + 3, vregs[4 * i + 3]);
+            LOGI("%s\n", value);
+        }
+
+        if (vregs_mod) {
+            LOGI("%s", prefix);
+            for (int i = 0; i < vregs_mod; i++) {
+                char value[32];
+                sprintf(value, "    v%d = 0x%08x", 4 * vregs_line + i, vregs[4 * vregs_line + i]);
+                LOGI("%s", value);
+            }
+            LOGI("\n");
+        }
+        LOGI("%s}\n", prefix);
+    }
 }
 
 void FrameCommand::usage() {

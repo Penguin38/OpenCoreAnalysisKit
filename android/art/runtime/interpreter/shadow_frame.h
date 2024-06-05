@@ -19,6 +19,7 @@
 
 #include "api/memory_ref.h"
 #include "runtime/art_method.h"
+#include <vector>
 
 struct ShadowFrame_OffsetTable {
     uint32_t link_;
@@ -59,9 +60,13 @@ public:
     inline uint64_t dex_pc_ptr() { return VALUEOF(ShadowFrame, dex_pc_ptr_); }
     inline uint32_t number_of_vregs() { return value32Of(OFFSET(ShadowFrame, number_of_vregs_)); }
     inline uint32_t dex_pc() { return value32Of(OFFSET(ShadowFrame, dex_pc_)); }
-    inline uint32_t vregs() { return Ptr() + OFFSET(ShadowFrame, vregs_); }
+    inline uint64_t vregs() { return Ptr() + OFFSET(ShadowFrame, vregs_); }
 
     inline ArtMethod GetMethod() { return method(); }
+    uint64_t GetDexPcPtr();
+    std::vector<uint32_t>& GetVRegs();
+private:
+    std::vector<uint32_t> vregs_cache;
 };
 
 } //namespace art
