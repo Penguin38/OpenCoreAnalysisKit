@@ -148,9 +148,11 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
             return false;
         }
 
-        uint32_t loadidx = 0;
         for (int index = 0; index < ehdr->e_phnum; ++index) {
             if (pt[index].p_type != PT_LOAD)
+                continue;
+
+            if (pt[index].p_flags & PF_W)
                 continue;
 
             uint64_t current = phdr - ehdr->e_phoff -
@@ -163,15 +165,18 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
                 continue;
             }
 
-            if (current != block->vaddr())
-                break;
+            if (block->flags() & PF_W)
+                continue;
 
-            if (!(pt[index].p_flags & PF_W) && !(block->flags() & PF_W)
-                    && !(loadidx && !pt[index].p_offset)) {
-                uint64_t page_offset = RoundDown(pt[index].p_offset + map->offset(), 0x1000);
-                block->setMmapFile(file, page_offset);
+            if (current != block->vaddr())
+                continue;
+
+            uint64_t page_offset = RoundDown(pt[index].p_offset + map->offset(), 0x1000);
+            ::File* vma = CoreApi::FindFile(current);
+            if (vma && page_offset != vma->offset()) {
+                page_offset = vma->offset();
             }
-            ++loadidx;
+            block->setMmapFile(file, page_offset);
         }
         return true;
     }
@@ -228,9 +233,11 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
         Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
         Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
 
-        uint32_t loadidx = 0;
         for (int index = 0; index < ehdr->e_phnum; ++index) {
             if (phdr[index].p_type != PT_LOAD)
+                continue;
+
+            if (phdr[index].p_flags & PF_W)
                 continue;
 
             uint64_t current = handle->l_addr() + RoundDown(phdr[index].p_vaddr, phdr[index].p_align);
@@ -241,15 +248,18 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
                 continue;
             }
 
-            if (current != block->vaddr())
-                break;
+            if (block->flags() & PF_W)
+                continue;
 
-            if (!(phdr[index].p_flags & PF_W) && !(block->flags() & PF_W)
-                    && !(loadidx && !phdr[index].p_offset)) {
-                uint64_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), 0x1000);
-                block->setMmapFile(file, page_offset);
+            if (current != block->vaddr())
+                continue;
+
+            uint64_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), 0x1000);
+            ::File* vma = CoreApi::FindFile(current);
+            if (vma && page_offset != vma->offset()) {
+                page_offset = vma->offset();
             }
-            ++loadidx;
+            block->setMmapFile(file, page_offset);
         }
         return true;
     }
