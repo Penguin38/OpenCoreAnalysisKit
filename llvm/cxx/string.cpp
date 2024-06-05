@@ -23,7 +23,7 @@ struct cxx_string_SizeTable __cxx_string_size__;
 namespace cxx {
 
 void string::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __cxx_string_offset__ = {
         .__l__cap_ = 0,
         .__l__size_ = 8 / cap,

@@ -31,7 +31,7 @@ namespace gc {
 namespace space {
 
 void RegionSpace::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __RegionSpace_offset__ = {
             .num_regions_ = 176,
             .regions_ = 192,
@@ -43,7 +43,7 @@ void RegionSpace::Init26() {
 }
 
 void RegionSpace::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __RegionSpace_offset__ = {
             .num_regions_ = 168,
             .regions_ = 200,
@@ -55,7 +55,7 @@ void RegionSpace::Init28() {
 }
 
 void RegionSpace::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __RegionSpace_offset__ = {
             .num_regions_ = 216,
             .regions_ = 248,
@@ -67,7 +67,7 @@ void RegionSpace::Init29() {
 }
 
 void RegionSpace::Init30() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __RegionSpace_offset__ = {
             .num_regions_ = 576,
             .regions_ = 608,
@@ -83,7 +83,7 @@ void RegionSpace::Init30() {
 }
 
 void RegionSpace::Init31() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __RegionSpace_offset__ = {
             .num_regions_ = 576,
             .regions_ = 616,
@@ -99,7 +99,7 @@ void RegionSpace::Init31() {
 }
 
 void RegionSpace::Region::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Region_offset__ = {
             .idx_ = 0,
             .live_bytes_ = 56,
@@ -124,7 +124,7 @@ void RegionSpace::Region::Init26() {
 }
 
 void RegionSpace::Region::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Region_offset__ = {
             .idx_ = 0,
             .live_bytes_ = 8,

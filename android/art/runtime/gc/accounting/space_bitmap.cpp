@@ -25,7 +25,7 @@ namespace gc {
 namespace accounting {
 
 void ContinuousSpaceBitmap::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ContinuousSpaceBitmap_offset__ = {
             .mem_map_ = 0,
             .bitmap_begin_ = 8,
@@ -43,7 +43,7 @@ void ContinuousSpaceBitmap::Init26() {
 }
 
 void ContinuousSpaceBitmap::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ContinuousSpaceBitmap_offset__ = {
             .mem_map_ = 0,
             .bitmap_begin_ = 72,
@@ -65,7 +65,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
     api::MemoryRef bitmap_begin_ref(bitmap_begin());
     api::MemoryRef heap_begin_ref(heap_begin());
     heap_begin_ref.Prepare(false);
-    int point_bit = CoreApi::GetPointSize() / 8;
+    int point_bit = CoreApi::GetPointSize();
 
     uint64_t offset_start = visit_begin - heap_begin_ref.Ptr();
     uint64_t offset_end = visit_end - heap_begin_ref.Ptr();

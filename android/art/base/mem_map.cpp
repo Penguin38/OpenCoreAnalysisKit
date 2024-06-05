@@ -23,7 +23,7 @@ struct MemMap_SizeTable __MemMap_size__;
 namespace art {
 
 void MemMap::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __MemMap_offset__ = {
             .name_ = 0,
             .begin_ = 24,

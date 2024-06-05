@@ -24,7 +24,7 @@ struct OatDexFile_OffsetTable __OatDexFile_offset__;
 namespace art {
 
 void OatFile::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __OatFile_offset__ = {
             .vdex_ = 32,
         };

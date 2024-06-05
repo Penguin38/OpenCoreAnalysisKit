@@ -421,6 +421,7 @@ public:
     const char* GetRuntimeMethodName();
     std::string PrettyParameters();
     std::string PrettyMethod();
+    std::string PrettyMethodOnlyNP();
     bool HasCodeItem();
     dex::CodeItem GetCodeItem();
     uint64_t GetEntryPointFromQuickCompiledCode();

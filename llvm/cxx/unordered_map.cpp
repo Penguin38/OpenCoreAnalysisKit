@@ -23,7 +23,7 @@ struct cxx_unordered_map_SizeTable __cxx_unordered_map_size__;
 namespace cxx {
 
 void unordered_map::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __cxx_unordered_map_offset__ = {
         .__bucket_list_ = 0,
         .__p1_ = 16 / cap,

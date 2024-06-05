@@ -23,7 +23,7 @@ struct ManagedStack_SizeTable __ManagedStack_size__;
 namespace art {
 
 void ManagedStack::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __ManagedStack_offset__ = {
         .tagged_top_quick_frame_ = 0,
         .link_ = 8 / cap,

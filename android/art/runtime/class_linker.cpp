@@ -26,7 +26,7 @@ struct DexCacheData_SizeTable __DexCacheData_size__;
 namespace art {
 
 void ClassLinker::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ClassLinker_offset__ = {
             .dex_caches_ = 48,
         };
@@ -38,7 +38,7 @@ void ClassLinker::Init26() {
 }
 
 void ClassLinker::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ClassLinker_offset__ = {
             .dex_caches_ = 56,
         };
@@ -50,7 +50,7 @@ void ClassLinker::Init28() {
 }
 
 void ClassLinker::DexCacheData::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __DexCacheData_offset__ = {
             .weak_root = 0,
             .dex_file = 8,
@@ -66,7 +66,7 @@ void ClassLinker::DexCacheData::Init26() {
 }
 
 void ClassLinker::DexCacheData::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __DexCacheData_offset__ = {
             .weak_root = 0,
             .dex_file = 8,
@@ -82,7 +82,7 @@ void ClassLinker::DexCacheData::Init28() {
 }
 
 void ClassLinker::DexCacheData::Init33() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __DexCacheData_offset__ = {
             .weak_root = 0,
             .class_table = 8,
@@ -141,7 +141,7 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
         for (const auto& value : GetDexCachesData_v33()) {
             // std::unordered_map<const DexFile*, DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
             api::MemoryRef ref = value;
-            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(CoreApi::GetPointSize() / 8 + value);
+            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(CoreApi::GetPointSize() + value);
             data->InitCache(vm.Decode(data->weak_root()), ref.valueOf());
             dex_caches_second_cache.push_back(std::move(data));
         }

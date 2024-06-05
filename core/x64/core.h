@@ -33,7 +33,8 @@ private:
     void unload();
     const char* getMachineName() { return "x86_64"; }
     int getMachine() { return EM_X86_64; }
-    int getPointSize() { return 64; }
+    int bits() { return 64; }
+    int getPointSize() { return 8; }
     uint64_t getVabitsMask() { return 0xFFFFFFFFFFFFFFFFULL; }
     void loadLinkMap() { loadLinkMap64(this); }
     void exec(uint64_t phdr, const char* file) { exec64(this, phdr, file); }

@@ -96,6 +96,7 @@ public:
     static const char* GetName();
     static const char* GetMachineName();
     static int GetMachine();
+    static int Bits() { return INSTANCE->bits(); }
     static int GetPointSize();
     static uint64_t GetPointMask();
     static uint64_t GetVabitsMask();
@@ -181,6 +182,7 @@ private:
     virtual bool load() = 0;
     virtual void unload() = 0;
     virtual const char* getMachineName() = 0;
+    virtual int bits() = 0;
     virtual int getMachine() = 0;
     virtual int getPointSize() = 0;
     virtual uint64_t getVabitsMask() = 0;

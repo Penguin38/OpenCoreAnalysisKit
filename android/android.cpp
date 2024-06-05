@@ -135,6 +135,7 @@ void Android::Clean() {
             INSTANCE->instance_.CleanCache();
             INSTANCE->instance_ = 0x0;
         }
+        ResetOatVersion();
         delete INSTANCE;
         INSTANCE = nullptr;
     }
@@ -281,16 +282,24 @@ void Android::preLoad() {
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::tls_ptr_sized_values::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::JavaVMExt::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::IndirectReferenceTable::Init34);
+
+    // OAT
+    RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);
+    RegisterOatListener(156, art::OatQuickMethodHeader::OatInit156);
+    RegisterOatListener(158, art::OatQuickMethodHeader::OatInit158);
+    RegisterOatListener(192, art::OatQuickMethodHeader::OatInit192);
+    RegisterOatListener(238, art::OatQuickMethodHeader::OatInit238);
+    RegisterOatListener(239, art::OatQuickMethodHeader::OatInit239);
 }
 
 void Android::preLoadLater() {
     if (Sdk() > Q) {
-        realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64 : LIBART32;
+        realLibart = (CoreApi::Bits() == 64) ? LIBART64 : LIBART32;
     } else {
         if (Sdk() > P) {
-            realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV29 : LIBART32_LV29;
+            realLibart = (CoreApi::Bits() == 64) ? LIBART64_LV29 : LIBART32_LV29;
         } else {
-            realLibart = (CoreApi::GetPointSize() == 64) ? LIBART64_LV28 : LIBART32_LV28;
+            realLibart = (CoreApi::Bits() == 64) ? LIBART64_LV28 : LIBART32_LV28;
         }
     }
 
@@ -300,17 +309,37 @@ void Android::preLoadLater() {
     }
 }
 
+void Android::oatPreLoadLater() {
+    LOGI("Switch oat version(%d) env.\n", oat_header_.kOatVersion);
+    for (const auto& listener : mOatListeners) {
+        listener->execute(oat_header_.kOatVersion);
+    }
+}
+
 void Android::RegisterSdkListener(int minisdk, std::function<void ()> fn) {
     std::unique_ptr<Android::SdkListener> listener = std::make_unique<Android::SdkListener>(minisdk, fn);
     INSTANCE->mSdkListeners.push_back(std::move(listener));
 }
 
+void Android::RegisterOatListener(int minioat, std::function<void ()> fn) {
+    std::unique_ptr<Android::OatListener> listener = std::make_unique<Android::OatListener>(minioat, fn);
+    INSTANCE->mOatListeners.push_back(std::move(listener));
+}
+
 void Android::OnSdkChanged(int sdk) {
     if (sdk < O) {
-        LOGI("Invaild sdk(%d)\n", sdk);
+        LOGE("ERROR: Invaild sdk(%d)\n", sdk);
         return;
     }
     INSTANCE->onSdkChanged(sdk);
+}
+
+void Android::OnOatChanged(int oat) {
+    if (oat > 999) {
+        LOGE("ERROR: Invaild oat(%d)\n", oat);
+        return;
+    }
+    INSTANCE->onOatChanged(oat);
 }
 
 void Android::onSdkChanged(int current_sdk) {
@@ -321,6 +350,13 @@ void Android::onSdkChanged(int current_sdk) {
             instance_.CleanCache();
             instance_ = 0x0;
         }
+    }
+}
+
+void Android::onOatChanged(int current_oat) {
+    if (oat != current_oat) {
+        oat = current_oat;
+        oatPreLoadLater();
     }
 }
 
@@ -511,6 +547,10 @@ void Android::Prepare() {
             heap.GetDiscontinuousSpaces();
         }
     } catch (InvalidAddressException e) {}
+}
+
+void Android::OatPrepare() {
+    OnOatChanged(art::OatHeader::OatVersion());
 }
 
 void Android::Dump() {

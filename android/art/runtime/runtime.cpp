@@ -27,7 +27,7 @@ struct Runtime_SizeTable __Runtime_size__;
 namespace art {
 
 void Runtime::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 40,
@@ -44,7 +44,7 @@ void Runtime::Init26() {
 }
 
 void Runtime::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 56,
@@ -61,7 +61,7 @@ void Runtime::Init28() {
 }
 
 void Runtime::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 64,
@@ -78,7 +78,7 @@ void Runtime::Init29() {
 }
 
 void Runtime::Init30() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 64,
@@ -104,7 +104,7 @@ void Runtime::Init30() {
 }
 
 void Runtime::Init31() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 64,
@@ -130,7 +130,7 @@ void Runtime::Init31() {
 }
 
 void Runtime::Init33() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 64,
@@ -156,7 +156,7 @@ void Runtime::Init33() {
 }
 
 void Runtime::Init34() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 64,
@@ -223,7 +223,7 @@ Runtime Runtime::AnalysisInstance() {
     if (!callee_methods[0])
         return runtime;
 
-    uint64_t point_size = CoreApi::GetPointSize() / 8;
+    uint64_t point_size = CoreApi::GetPointSize();
     auto match = [&](LoadBlock *block) -> bool {
         // must can write vma
         if (!(block->flags() & Block::FLAG_W))

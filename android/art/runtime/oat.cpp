@@ -46,7 +46,7 @@ int OatHeader::AnalysiOatVersion() {
     char kOatVersion[4];
     int found_version = 0;
 
-    uint64_t point_size = CoreApi::GetPointSize() / 8;
+    uint64_t point_size = CoreApi::GetPointSize();
     auto callback = [&](LoadBlock *block) -> bool {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(block->begin());
         if (memcmp(header->ident, ELFMAG, 4)) {
@@ -54,9 +54,9 @@ int OatHeader::AnalysiOatVersion() {
         }
 
         api::MemoryRef current(block->vaddr(), block);
-        uint64_t outsize = block->begin() + block->size();
+        uint64_t outsize = block->vaddr() + block->size();
         uint64_t padding_offset = sizeof(kOatVersion) + sizeof(oat_magic);
-        while (current.Ptr() + padding_offset < outsize) {
+        while (current.Ptr() + padding_offset <= outsize) {
             if (!memcmp(reinterpret_cast<void *>(current.Real()),
                         reinterpret_cast<void *>(oat_magic),
                         sizeof(oat_magic))) {
@@ -72,7 +72,7 @@ int OatHeader::AnalysiOatVersion() {
                         && kOatVersion[2] >= 0x30 && kOatVersion[2] <= 0x39
                         && kOatVersion[3] == 0x0) {
                     found_version = std::stoi(kOatVersion);
-                    LOGI(">>> %s = %d\n", Android::ART_OAT_HEADER_VERSION, found_version);
+                    LOGI(">>> \'%s\' = %d\n", Android::ART_OAT_HEADER_VERSION, found_version);
                     return true;
                 }
             }

@@ -57,7 +57,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
     }
 
     if (restore) {
-        if (CoreApi::GetPointSize() == 64) {
+        if (CoreApi::Bits() == 64) {
             lp64::Restore::execute(output);
         } else {
             lp32::Restore::execute(output);

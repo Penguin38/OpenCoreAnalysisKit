@@ -394,7 +394,7 @@ uint32_t Class::NumMethods() {
 
 uint64_t Class::GetMethods() {
     LengthPrefixedArray arr(methods(), this);
-    return arr.Ptr() ? RoundUp(arr.data(), CoreApi::GetPointSize() / 8) : 0u;
+    return arr.Ptr() ? RoundUp(arr.data(), CoreApi::GetPointSize()) : 0u;
 }
 
 } // namespcae mirror

@@ -28,7 +28,7 @@ struct JavaVMExt_SizeTable __JavaVMExt_size__;
 namespace art {
 
 void JavaVMExt::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __JavaVMExt_offset__ = {
             .globals_ = 64,
             .weak_globals_ = 136,
@@ -39,7 +39,7 @@ void JavaVMExt::Init28() {
 }
 
 void JavaVMExt::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __JavaVMExt_offset__ = {
             .globals_ = 64,
             .weak_globals_ = 200,
@@ -53,7 +53,7 @@ void JavaVMExt::Init29() {
 }
 
 void JavaVMExt::Init31() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __JavaVMExt_offset__ = {
             .globals_ = 64,
             .weak_globals_ = 200,
@@ -67,7 +67,7 @@ void JavaVMExt::Init31() {
 }
 
 void JavaVMExt::Init33() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __JavaVMExt_offset__ = {
             .globals_ = 64,
             .weak_globals_ = 200,
@@ -81,7 +81,7 @@ void JavaVMExt::Init33() {
 }
 
 void JavaVMExt::Init34() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __JavaVMExt_offset__ = {
             .globals_ = 64,
             .weak_globals_ = 192,
@@ -112,7 +112,7 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
         if (Android::Sdk() > Android::P && weak_globals_cache.IsValid()) {
             bool found = false;
             int count = 0;
-            uint64_t point_size = CoreApi::GetPointSize() / 8;
+            uint64_t point_size = CoreApi::GetPointSize();
             MemMap table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
             table_mem_map_.copyRef(weak_globals_cache);
             uint64_t endloop = RoundUp(table_mem_map_.Ptr(), 0x2000) - SIZEOF(MemMap);

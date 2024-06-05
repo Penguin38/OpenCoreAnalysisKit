@@ -33,7 +33,7 @@ struct Elfx_Sym_SizeTable __Elfx_Sym_size__;
 namespace api {
 
 void Elfx_Ehdr::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Elfx_Ehdr_offset__ = {
             .e_ident = 0,
             .e_type = 16,
@@ -79,7 +79,7 @@ void Elfx_Ehdr::Init() {
 }
 
 void Elfx_Phdr::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Elfx_Phdr_offset__ = {
             .p_type = 0,
             .p_flags = 4,
@@ -113,7 +113,7 @@ void Elfx_Phdr::Init() {
 }
 
 void Elfx_Dynamic::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __Elfx_Dynamic_offset__ = {
         .d_type = 0,
         .d_val = 8 / cap,
@@ -125,7 +125,7 @@ void Elfx_Dynamic::Init() {
 }
 
 void Elfx_Sym::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Elfx_Sym_offset__ = {
             .st_name = 0,
             .st_value = 8,

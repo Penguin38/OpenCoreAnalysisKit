@@ -25,7 +25,7 @@ struct cxx_map_pair_SizeTable __cxx_map_pair_size__;
 namespace cxx {
 
 void map::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __cxx_map_offset__ = {
         .__begin_node_ = 0,
         .__pair1_ = 8 / cap,
@@ -38,7 +38,7 @@ void map::Init() {
 }
 
 void map::pair::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __cxx_map_pair_offset__ = {
         .__left_ = 0,
         .__right_ = 8 / cap,

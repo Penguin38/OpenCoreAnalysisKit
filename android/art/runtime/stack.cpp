@@ -64,17 +64,21 @@ ArtMethod StackVisitor::GetMethod() {
 
 bool StackVisitor::VisitFrame() {
     ArtMethod method = GetMethod();
+    if (method.IsRuntimeMethod())
+        return true;
+
     std::unique_ptr<JavaFrame> frame = std::make_unique<JavaFrame>(method,
                                                                    cur_quick_frame_,
                                                                    cur_shadow_frame_);
     java_frames_.push_back(std::move(frame));
-    return false;
+    return true;
 }
 
 void StackVisitor::WalkStack() {
     for (ManagedStack current_fragment = GetThread()->GetTlsPtr().managed_stack();
             current_fragment.Ptr(); current_fragment = current_fragment.link()) {
         try {
+            LOGD("  ManagedStack* 0x%lx\n", current_fragment.Ptr());
             cur_shadow_frame_ = current_fragment.GetTopShadowFrame();
             cur_quick_frame_ = current_fragment.GetTopQuickFrame();
             cur_quick_frame_pc_ = 0;
@@ -117,6 +121,9 @@ void StackVisitor::WalkStack() {
                     }
 
                     QuickMethodFrameInfo frame_info = GetCurrentQuickFrameInfo();
+                    uint32_t frame_size = frame_info.FrameSizeInBytes();
+                    uint64_t return_pc_addr = frame_info.GetReturnPcAddr(cur_quick_frame_.Ptr());
+                    //TODO
 
                     method = 0x0;
                 }

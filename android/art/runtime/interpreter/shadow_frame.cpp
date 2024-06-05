@@ -23,7 +23,7 @@ struct ShadowFrame_SizeTable __ShadowFrame_size__;
 namespace art {
 
 void ShadowFrame::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ShadowFrame_offset__ = {
             .link_ = 0,
             .method_ = 8,

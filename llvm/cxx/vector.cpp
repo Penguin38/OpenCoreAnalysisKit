@@ -23,7 +23,7 @@ struct cxx_vector_SizeTable __cxx_vector_size__;
 namespace cxx {
 
 void vector::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __cxx_vector_offset__ = {
         .__begin_ = 0,
         .__end_ = 8 / cap,

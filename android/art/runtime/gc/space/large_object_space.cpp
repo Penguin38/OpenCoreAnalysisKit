@@ -37,7 +37,7 @@ namespace gc {
 namespace space {
 
 void LargeObjectSpace::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectSpace_offset__ = {
             .num_bytes_allocated_ = 64,
             .num_objects_allocated_ = 72,
@@ -56,7 +56,7 @@ void LargeObjectSpace::Init26() {
 }
 
 void LargeObjectSpace::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectSpace_offset__ = {
             .num_bytes_allocated_ = 104,
             .num_objects_allocated_ = 112,
@@ -75,7 +75,7 @@ void LargeObjectSpace::Init29() {
 }
 
 void LargeObjectSpace::Init30() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectSpace_offset__ = {
             .lock_ = 304,
             .num_bytes_allocated_ = 344,
@@ -107,7 +107,7 @@ void LargeObjectSpace::Init30() {
 }
 
 void LargeObjectMapSpace::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 176,
         };
@@ -121,7 +121,7 @@ void LargeObjectMapSpace::Init26() {
 }
 
 void LargeObjectMapSpace::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 168,
         };
@@ -135,7 +135,7 @@ void LargeObjectMapSpace::Init28() {
 }
 
 void LargeObjectMapSpace::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 152,
         };
@@ -149,7 +149,7 @@ void LargeObjectMapSpace::Init29() {
 }
 
 void LargeObjectMapSpace::Init30() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 392,
         };
@@ -169,7 +169,7 @@ void LargeObjectMapSpace::Init30() {
 }
 
 void LargeObjectMapSpace::LargeObject::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObject_offset__ = {
             .mem_map = 0,
             .is_zygote = 72,
@@ -183,7 +183,7 @@ void LargeObjectMapSpace::LargeObject::Init() {
 }
 
 void LargeObjectMapSpace::LargeObjectsPair::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __LargeObjectsPair_offset__ = {
             .first = 0,
             .second = 8,
@@ -208,7 +208,7 @@ void AllocationInfo::Init() {
 }
 
 void FreeListSpace::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __FreeListSpace_offset__ = {
             .mem_map_ = 392,
             .allocation_info_map_ = 464,

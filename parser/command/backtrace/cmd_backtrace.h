@@ -36,6 +36,7 @@ public:
     bool prepare(int argc, char* const argv[]) {
 #if defined(__AOSP_PARSER__)
         Android::Prepare();
+        Android::OatPrepare();
 #endif
         return true;
     }
@@ -81,6 +82,7 @@ public:
     ThreadRecord* findRecord(int pid);
     void DumpTrace();
     void DumpJavaStack(void *thread);
+    static std::string FormatJavaFrame(const char* prefix, uint64_t size);
 private:
     bool dump_all = false;
     std::vector<std::unique_ptr<ThreadRecord>> threads;

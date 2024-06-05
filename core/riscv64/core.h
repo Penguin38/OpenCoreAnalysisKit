@@ -33,7 +33,8 @@ private:
     void unload();
     const char* getMachineName() { return "riscv64"; }
     int getMachine() { return EM_RISCV; }
-    int getPointSize() { return 64; }
+    int bits() { return 64; }
+    int getPointSize() { return 8; }
     uint64_t getVabitsMask() { return 0x7FFFFFFFFFULL; }
     void loadLinkMap() { loadLinkMap64(this); }
     void exec(uint64_t phdr, const char* file) { exec64(this, phdr, file); }

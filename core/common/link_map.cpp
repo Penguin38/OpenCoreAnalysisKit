@@ -22,7 +22,7 @@ struct LinkMap_OffsetTable __LinkMap_offset__;
 struct LinkMap_SizeTable __LinkMap_size__;
 
 void LinkMap::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __LinkMap_offset__ = {
         .l_addr = 0,
         .l_name = 8 / cap,

@@ -113,6 +113,7 @@ add_library(android STATIC
 
             android/art/runtime/jni/java_vm_ext.cpp
             android/art/runtime/oat/oat_file.cpp
+            android/art/runtime/oat/stack_map.cpp
             android/art/runtime/interpreter/shadow_frame.cpp
             android/art/runtime/entrypoints/quick/callee_save_frame.cpp
 
@@ -129,6 +130,12 @@ add_library(android STATIC
             android/art/base/mem_map.cpp
 
             android/art/dexdump/dexdump.cpp
+
+            android/art/runtime/arch/arm/registers_arm.cpp
+            android/art/runtime/arch/arm64/registers_arm64.cpp
+            android/art/runtime/arch/x86/registers_x86.cpp
+            android/art/runtime/arch/x86_64/registers_x86_64.cpp
+            android/art/runtime/arch/riscv64/registers_riscv64.cpp
 
             # jdk
             android/jdk/java/lang/Object.cpp

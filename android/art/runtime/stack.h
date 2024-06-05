@@ -89,6 +89,8 @@ public:
         JavaFrame(ArtMethod& m, api::MemoryRef& qf, ShadowFrame& sf)
             : method(m), quick_frame(qf), shadow_frame(sf) {}
         ArtMethod& GetMethod() { return method; }
+        ShadowFrame& GetShadowFrame() { return shadow_frame; }
+        api::MemoryRef& GetQuickFrame() { return quick_frame; }
     private:
         ArtMethod method;
         ShadowFrame shadow_frame = 0x0;

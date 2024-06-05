@@ -43,7 +43,7 @@ void ArtMethod::Init26() {
         .ptr_sized_fields_ = 24,
     };
 
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ArtMethod_size__ = {
             .THIS = 48,
         };
@@ -67,7 +67,7 @@ void ArtMethod::Init28() {
         .ptr_sized_fields_ = 24,
     };
 
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ArtMethod_size__ = {
             .THIS = 40,
         };
@@ -90,7 +90,7 @@ void ArtMethod::Init31() {
         .ptr_sized_fields_ = 16,
     };
 
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ArtMethod_size__ = {
             .THIS = 32,
         };
@@ -102,7 +102,7 @@ void ArtMethod::Init31() {
 }
 
 void ArtMethod::PtrSizedFields::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __PtrSizedFields_offset__ = {
             .data_ = 8,
             .entry_point_from_quick_compiled_code_ = 16,
@@ -116,7 +116,7 @@ void ArtMethod::PtrSizedFields::Init26() {
 }
 
 void ArtMethod::PtrSizedFields::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __PtrSizedFields_offset__ = {
             .data_ = 0,
             .entry_point_from_quick_compiled_code_ = 8,
@@ -224,6 +224,19 @@ std::string ArtMethod::PrettyMethod() {
     return GetRuntimeMethodName();
 }
 
+std::string ArtMethod::PrettyMethodOnlyNP() {
+    std::string result;
+    uint32_t dex_method_idx = GetDexMethodIndex();
+    if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
+        result.append(GetDeclaringClass().PrettyDescriptor());
+        result.append(".");
+        result.append(GetName());
+        result.append(PrettyParameters());
+        return result;
+    }
+    return GetRuntimeMethodName();
+}
+
 bool ArtMethod::HasCodeItem() {
     uint32_t access_flags = GetAccessFlags();
     bool status_flag = !IsNative(access_flags) &&
@@ -265,7 +278,7 @@ dex::CodeItem ArtMethod::GetCodeItem() {
 }
 
 uint64_t ArtMethod::GetEntryPointFromQuickCompiledCode() {
-    return GetEntryPointFromQuickCompiledCodePtrSize(CoreApi::GetPointSize() / 8);
+    return GetEntryPointFromQuickCompiledCodePtrSize(CoreApi::GetPointSize());
 }
 
 uint64_t ArtMethod::GetEntryPointFromQuickCompiledCodePtrSize(uint32_t pointer_size) {

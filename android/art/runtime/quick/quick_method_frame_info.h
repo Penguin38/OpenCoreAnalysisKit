@@ -50,8 +50,12 @@ class PACKED(4) QuickMethodFrameInfo {
     return fp_spill_mask_;
   }
 
-  uint64_t GetReturnPcOffset() const {
-    return FrameSizeInBytes() - CoreApi::GetPointSize() / 8;
+  uint32_t GetReturnPcOffset() const {
+    return FrameSizeInBytes() - CoreApi::GetPointSize();
+  }
+
+  uint64_t GetReturnPcAddr(uint64_t sp) const {
+    return sp + GetReturnPcOffset();
   }
 
  private:

@@ -59,14 +59,16 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
     int option_index = 0;
     int current_sdk = Android::UPSIDE_DOWN_CAKE;
     int current_pid = Env::CurrentPid();
+    int current_oat = 0;
     optind = 0; // reset
     static struct option long_options[] = {
         {"pid",     required_argument, 0, 'p'},
         {"sdk",     required_argument, 0,  0 },
+        {"oat",     required_argument, 0,  1 },
         {0,         0,                 0,  0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "p:0:",
+    while ((opt = getopt_long(argc, argv, "p:0:1:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'p':
@@ -77,6 +79,10 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
             case 0:
                 current_sdk = atoi(optarg);
                 Android::OnSdkChanged(current_sdk);
+                break;
+            case 1:
+                current_oat = atoi(optarg);
+                Android::OnOatChanged(current_oat);
                 break;
         }
     }
@@ -142,6 +148,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
                     runtime.CleanCache();
                     runtime = 0x0;
                 }
+                Android::ResetOatVersion();
                 return 0;
         }
     }
@@ -255,6 +262,7 @@ void EnvCommand::usage() {
     LOGI("Usage: env config <option> ..\n");
     LOGI("Option:\n");
     LOGI("   --sdk: <VERSION>\n");
+    LOGI("   --oat: <VERSION>\n");
     LOGI("   --pid|-p <PID>\n");
     LOGI("\n");
     LOGI("Usage: env logger <option>\n");

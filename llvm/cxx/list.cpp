@@ -23,7 +23,7 @@ struct cxx_list_SizeTable __cxx_list_size__;
 namespace cxx {
 
 void list::Init() {
-    uint32_t cap = 64 / CoreApi::GetPointSize();
+    uint32_t cap = 64 / CoreApi::Bits();
     __cxx_list_offset__ = {
         .__prev_ = 0,
         .__next_ = 8 / cap,

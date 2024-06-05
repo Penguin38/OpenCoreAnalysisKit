@@ -26,7 +26,7 @@ struct DexFile_SizeTable __DexFile_size__;
 namespace art {
 
 void DexFile::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __DexFile_offset__ = {
             .begin_ = 8,
             .size_ = 16,
@@ -79,7 +79,7 @@ void DexFile::Init26() {
 }
 
 void DexFile::Init28() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __DexFile_offset__ = {
             .begin_ = 8,
             .size_ = 16,
@@ -183,7 +183,7 @@ void DexFile::Init28() {
 
 void DexFile::Init29() {
     // 29 ~ 33
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __DexFile_offset__ = {
             .begin_ = 8,
             .size_ = 16,
@@ -286,7 +286,7 @@ void DexFile::Init29() {
 
 void DexFile::Init34() {
     // 34 ~ x
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __DexFile_offset__.is_compact_dex_ = 192;
 
         __DexFile_size__.THIS = 200;

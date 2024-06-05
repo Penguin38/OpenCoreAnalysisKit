@@ -163,11 +163,28 @@ void BacktraceCommand::DumpJavaStack(void *th) {
     art::Thread* thread = reinterpret_cast<art::Thread*>(th);
     art::StackVisitor visitor(thread, art::StackVisitor::StackWalkKind::kSkipInlinedFrames);
     visitor.WalkStack();
+
+    std::string format = FormatJavaFrame("  ", visitor.GetJavaFrames().size());
     uint32_t frameid = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
-        LOGI("  Java: #%d %s\n", frameid, java_frame->GetMethod().PrettyMethod().c_str());
+        LOGI(format.c_str(), frameid, java_frame->GetMethod().PrettyMethodOnlyNP().c_str());
         ++frameid;
     }
+}
+
+std::string BacktraceCommand::FormatJavaFrame(const char* prefix, uint64_t size) {
+    std::string format;
+    format.append(prefix);
+    format.append("Java: #%0");
+    int num = 0;
+    uint64_t current = size;
+    do {
+        current = current / 9;
+        ++num;
+    } while(current != 0);
+    format.append(std::to_string(num));
+    format.append("d %s\n");
+    return format;
 }
 
 void BacktraceCommand::usage() {

@@ -21,6 +21,11 @@
 #include "runtime/runtime_globals.h"
 #include "runtime/base/callee_save_type.h"
 #include "runtime/entrypoints/quick/callee_save_frame.h"
+#include "runtime/arch/arm64/callee_save_frame_arm64.h"
+#include "runtime/arch/arm/callee_save_frame_arm.h"
+#include "runtime/arch/x86_64/callee_save_frame_x86_64.h"
+#include "runtime/arch/x86/callee_save_frame_x86.h"
+#include "runtime/arch/riscv64/callee_save_frame_riscv64.h"
 #include "base/globals.h"
 #include "common/bit.h"
 
@@ -32,25 +37,35 @@ static uint64_t NterpGetFrameEntrySize() {
     uint32_t fp_spills = 0;
     switch (machine) {
         case EM_386:
+            core_spills = x86::X86CalleeSaveFrame::GetCoreSpills(CalleeSaveType::kSaveAllCalleeSaves);
+            fp_spills = x86::X86CalleeSaveFrame::GetFpSpills(CalleeSaveType::kSaveAllCalleeSaves);
             break;
         case EM_X86_64:
+            core_spills = x86_64::X86_64CalleeSaveFrame::GetCoreSpills(CalleeSaveType::kSaveAllCalleeSaves);
+            fp_spills = x86_64::X86_64CalleeSaveFrame::GetFpSpills(CalleeSaveType::kSaveAllCalleeSaves);
             break;
         case EM_ARM:
+            core_spills = arm::ArmCalleeSaveFrame::GetCoreSpills(CalleeSaveType::kSaveAllCalleeSaves);
+            fp_spills = arm::ArmCalleeSaveFrame::GetFpSpills(CalleeSaveType::kSaveAllCalleeSaves);
             break;
         case EM_AARCH64:
+            core_spills = arm64::Arm64CalleeSaveFrame::GetCoreSpills(CalleeSaveType::kSaveAllCalleeSaves);
+            fp_spills = arm64::Arm64CalleeSaveFrame::GetFpSpills(CalleeSaveType::kSaveAllCalleeSaves);
             break;
         case EM_RISCV:
+            core_spills = riscv64::Riscv64CalleeSaveFrame::GetCoreSpills(CalleeSaveType::kSaveAllCalleeSaves);
+            fp_spills = riscv64::Riscv64CalleeSaveFrame::GetFpSpills(CalleeSaveType::kSaveAllCalleeSaves);
             break;
     }
     return (__builtin_popcount(core_spills) + __builtin_popcount(fp_spills))
-           * (CoreApi::GetPointSize() / 8);
+           * (CoreApi::GetPointSize());
 }
 
 static uint64_t NterpGetFrameSizeWithoutPadding(ArtMethod& method) {
     art::dex::CodeItem item = method.GetCodeItem();
     const uint16_t num_regs = item.num_regs_;
     const uint16_t out_regs = item.out_regs_;
-    uint32_t pointer_size = CoreApi::GetPointSize() / 8;
+    uint32_t pointer_size = CoreApi::GetPointSize();
 
     uint64_t frame_size =
             NterpGetFrameEntrySize() +

@@ -33,7 +33,8 @@ private:
     void unload();
     const char* getMachineName() { return "arm"; }
     int getMachine() { return EM_ARM; }
-    int getPointSize() { return 32; }
+    int bits() { return 32; }
+    int getPointSize() { return 4; }
     uint64_t getVabitsMask() { return 0xFFFFFFFFULL; }
     void loadLinkMap() { loadLinkMap32(this); }
     void exec(uint64_t phdr, const char* file) { exec32(this, phdr, file); }

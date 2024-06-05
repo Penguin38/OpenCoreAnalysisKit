@@ -33,7 +33,7 @@ namespace gc {
 namespace space {
 
 void Space::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Space_offset__ = {
             .vtbl = 0,
             .vtbl_GetType = 16,
@@ -49,7 +49,7 @@ void Space::Init() {
 }
 
 void ContinuousSpace::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __ContinuousSpace_offset__ = {
             .begin_ = 40,
             .end_ = 48,

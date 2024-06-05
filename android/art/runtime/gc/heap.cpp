@@ -31,7 +31,7 @@ namespace art {
 namespace gc {
 
 void Heap::Init() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Heap_offset__ = {
             .continuous_spaces_ = 0,
             .discontinuous_spaces_ = 24,
@@ -48,14 +48,14 @@ cxx::vector& Heap::GetContinuousSpacesCache() {
     if (!continuous_spaces_cache.Ptr()) {
         continuous_spaces_cache = continuous_spaces();
         continuous_spaces_cache.copyRef(this);
-        continuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize() / 8);
+        continuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize());
 
 #if defined(__PARSER_DEBUG__)
         if (!(continuous_spaces_cache.size() > 2 && continuous_spaces_cache.size() < 64)) {
             LOGE("ERROR: continuous_spaces_ invalid, do analysis ...\n");
             bool found = false;
             int count = 0;
-            uint64_t point_size = CoreApi::GetPointSize() / 8;
+            uint64_t point_size = CoreApi::GetPointSize();
             uint64_t endloop = RoundUp(continuous_spaces_cache.Ptr(), 0x2000) - SIZEOF(cxx_vector);
             int loopcount = (endloop - continuous_spaces_cache.Ptr()) / point_size;
             do {
@@ -77,14 +77,14 @@ cxx::vector& Heap::GetDiscontinuousSpacesCache() {
     if (!discontinuous_spaces_cache.Ptr()) {
         discontinuous_spaces_cache = discontinuous_spaces();
         discontinuous_spaces_cache.copyRef(this);
-        discontinuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize() / 8);
+        discontinuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize());
 
 #if defined(__PARSER_DEBUG__)
         if (!(discontinuous_spaces_cache.size() < 8)) {
             LOGE("ERROR: discontinuous_spaces_ invalid, do analysis ...\n");
             bool found = false;
             int count = 0;
-            uint64_t point_size = CoreApi::GetPointSize() / 8;
+            uint64_t point_size = CoreApi::GetPointSize();
             uint64_t endloop = RoundUp(discontinuous_spaces_cache.Ptr(), 0x2000) - SIZEOF(cxx_vector);
             int loopcount = (endloop - discontinuous_spaces_cache.Ptr()) / point_size;
             do {

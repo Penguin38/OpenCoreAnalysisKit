@@ -83,8 +83,12 @@ public:
     }
     inline void MovePtr(int64_t length) {
         Prepare(true);
-        if (block && block->virtualContains(vaddr + length))
+        if (block && block->virtualContains(vaddr + length)) {
             vaddr = vaddr + length;
+        } else {
+            vaddr = vaddr + length;
+            block = nullptr;
+        }
     }
     inline bool IsValid() {
         Prepare(false);

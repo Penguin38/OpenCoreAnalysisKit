@@ -21,6 +21,7 @@
 #include "runtime/quick/quick_method_frame_info.h"
 
 struct OatQuickMethodHeader_OffsetTable {
+    uint32_t code_info_offset_;
     uint32_t data_;
     uint32_t vmap_table_offset_;
     uint32_t method_info_offset_;
@@ -50,6 +51,7 @@ public:
     static void Init26();
     static void Init29();
     static void Init31();
+    inline uint32_t code_info_offset() { return value32Of(OFFSET(OatQuickMethodHeader, code_info_offset_)); }
     inline uint32_t data() { return value32Of(OFFSET(OatQuickMethodHeader, data_)); }
     inline uint32_t vmap_table_offset() { return value32Of(OFFSET(OatQuickMethodHeader, vmap_table_offset_)); }
     inline uint32_t method_info_offset() { return value32Of(OFFSET(OatQuickMethodHeader, method_info_offset_)); }
@@ -59,10 +61,13 @@ public:
 
     static constexpr uint32_t kShouldDeoptimizeMask = 0x80000000;
 
-    // 31 ~
-    static void OatInit();
-    static void OatInit195();
-    static void OatInit238();
+    static void OatInit124(); // 8.0.0_r1 Base
+    static void OatInit156(); // Remove frame info from OatQuickMethodHeader.
+    static void OatInit158(); // Move MethodInfo to CodeInfo.
+    static void OatInit192(); // Move code size from OatQuickMethodHeader to CodeInfo.
+    static void OatInit238(); // Move HasShouldDeoptimizeFlag from method header to CodeInfo.
+    static void OatInit239(); // Refactor OatQuickMethodHeader for assembly stubs.
+
     static uint32_t kIsCodeInfoMask;
     static uint32_t kCodeInfoMask;
     static uint32_t kCodeSizeMask;
@@ -79,6 +84,8 @@ public:
     bool IsOptimized();
     uint32_t GetCodeSize();
     QuickMethodFrameInfo GetFrameInfo();
+    uint32_t GetCodeInfoOffset();
+    uint64_t GetOptimizedCodeInfoPtr() { return code() - GetCodeInfoOffset(); }
 private:
     // quick memoryref cache
 };

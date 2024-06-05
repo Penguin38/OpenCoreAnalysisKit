@@ -45,7 +45,7 @@ void IrtEntry::Init33() {
 }
 
 void IndirectReferenceTable::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
             .table_mem_map_ = 8,
@@ -61,7 +61,7 @@ void IndirectReferenceTable::Init26() {
 }
 
 void IndirectReferenceTable::Init29() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
             .table_mem_map_ = 8,
@@ -77,7 +77,7 @@ void IndirectReferenceTable::Init29() {
 }
 
 void IndirectReferenceTable::Init34() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __IndirectReferenceTable_offset__ = {
             .table_mem_map_ = 0,
             .table_ = 72,

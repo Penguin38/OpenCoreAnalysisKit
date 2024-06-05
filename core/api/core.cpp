@@ -112,8 +112,8 @@ int CoreApi::GetPointSize() {
 }
 
 uint64_t CoreApi::GetPointMask() {
-    uint64_t point_size = GetPointSize();
-    return ((1ULL << (point_size - 1)) - 1) | (1ULL << (point_size - 1));
+    uint64_t bits = Bits();
+    return ((1ULL << (bits - 1)) - 1) | (1ULL << (bits - 1));
 }
 
 uint64_t CoreApi::GetVabitsMask() {
@@ -201,6 +201,7 @@ void CoreApi::removeAllLinkMap() {
 void CoreApi::Dump() {
     LOGI("Core env: %s\n", GetName());
     LOGI("  * Machine: %s\n", GetMachineName());
+    LOGI("  * Bits: %d\n", Bits());
     LOGI("  * PointSize: %d\n", GetPointSize());
     LOGI("  * PointMask: 0x%lx\n", GetPointMask());
     LOGI("  * VabitsMask: 0x%lx\n", GetVabitsMask());

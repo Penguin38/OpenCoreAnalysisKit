@@ -18,14 +18,24 @@
 #define PARSER_COMMAND_BACKTRACE_CMD_FRAME_H_
 
 #include "command/command.h"
+#include "android.h"
 
 class FrameCommand : public Command {
 public:
     FrameCommand() : Command("frame", "f") {}
     ~FrameCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) { return true; }
+    bool prepare(int argc, char* const argv[]) {
+#if defined(__AOSP_PARSER__)
+        Android::Prepare();
+        Android::OatPrepare();
+#endif
+        return true;
+    }
     void usage();
+    void ShowJavaFrameInfo(int number);
+private:
+    bool java;
 };
 
 #endif // PARSER_COMMAND_BACKTRACE_CMD_FRAME_H_

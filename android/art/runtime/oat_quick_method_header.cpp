@@ -19,6 +19,7 @@
 #include "android.h"
 #include "runtime/oat.h"
 #include "runtime/oat_quick_method_header.h"
+#include "runtime/oat/stack_map.h"
 
 struct OatQuickMethodHeader_OffsetTable __OatQuickMethodHeader_offset__;
 struct OatQuickMethodHeader_SizeTable __OatQuickMethodHeader_size__;
@@ -66,20 +67,77 @@ void OatQuickMethodHeader::Init31() {
     };
 }
 
-void OatQuickMethodHeader::OatInit() {
+void OatQuickMethodHeader::OatInit124() {
     kCodeSizeMask   = ~kShouldDeoptimizeMask;
+
+    __OatQuickMethodHeader_offset__ = {
+        .vmap_table_offset_ = 0,
+        .method_info_offset_ = 4,
+        .frame_info_ = 8,
+        .code_size_ = 20,
+        .code_ = 24,
+    };
+
+    __OatQuickMethodHeader_size__ = {
+        .THIS = 24,
+    };
 }
 
-void OatQuickMethodHeader::OatInit195() {
+void OatQuickMethodHeader::OatInit156() {
+    __OatQuickMethodHeader_offset__ = {
+        .vmap_table_offset_ = 0,
+        .method_info_offset_ = 4,
+        .code_size_ = 8,
+        .code_ = 12,
+    };
+
+    __OatQuickMethodHeader_size__ = {
+        .THIS = 12,
+    };
+}
+
+void OatQuickMethodHeader::OatInit158() {
+    __OatQuickMethodHeader_offset__ = {
+        .vmap_table_offset_ = 0,
+        .code_size_ = 4,
+        .code_ = 8,
+    };
+
+    __OatQuickMethodHeader_size__ = {
+        .THIS = 8,
+    };
+}
+
+void OatQuickMethodHeader::OatInit192() {
     kIsCodeInfoMask = 0x40000000;
     kCodeInfoMask   = 0x3FFFFFFF;
     kCodeSizeMask   = 0x3FFFFFFF;
+
+    __OatQuickMethodHeader_offset__ = {
+        .data_ = 0,
+        .code_ = 4,
+    };
+
+    __OatQuickMethodHeader_size__ = {
+        .THIS = 4,
+    };
 }
 
 void OatQuickMethodHeader::OatInit238() {
     kIsCodeInfoMask = 0x80000000;
     kCodeInfoMask   = 0x7FFFFFFF;
     kCodeSizeMask   = 0x7FFFFFFF;
+}
+
+void OatQuickMethodHeader::OatInit239() {
+    __OatQuickMethodHeader_offset__ = {
+        .code_info_offset_ = 0,
+        .code_ = 4,
+    };
+
+    __OatQuickMethodHeader_size__ = {
+        .THIS = 4,
+    };
 }
 
 bool OatQuickMethodHeader::Contains(uint64_t pc) {
@@ -93,13 +151,20 @@ bool OatQuickMethodHeader::Contains(uint64_t pc) {
 }
 
 bool OatQuickMethodHeader::IsOptimized() {
-    return (data() & kIsCodeInfoMask) != 0;
+    if (OatHeader::OatVersion() >= 192) {
+        return (data() & kIsCodeInfoMask) != 0;
+    } else {
+        return GetCodeSize() != 0 && vmap_table_offset() != 0;
+    }
 }
 
 uint32_t OatQuickMethodHeader::GetCodeSize() {
-    if (OatHeader::OatVersion() >= 195) {
+    if (OatHeader::OatVersion() > 238) {
+        //TODO
+        return CodeInfo::DecodeCodeSize(GetOptimizedCodeInfoPtr());
+    } else if (OatHeader::OatVersion() >= 192) {
         if (IsOptimized()) {
-            return 0x0;
+            return CodeInfo::DecodeCodeSize(GetOptimizedCodeInfoPtr());
         } else {
             return (data() & kCodeSizeMask);
         }
@@ -108,9 +173,21 @@ uint32_t OatQuickMethodHeader::GetCodeSize() {
     }
 }
 
+uint32_t OatQuickMethodHeader::GetCodeInfoOffset() {
+    if (OatHeader::OatVersion() < 239) {
+        return data() & kCodeInfoMask;
+    } else {
+        return code_info_offset();
+    }
+}
+
 QuickMethodFrameInfo OatQuickMethodHeader::GetFrameInfo() {
-    QuickMethodFrameInfo frame_info(0, 0, 0);
-    return frame_info;
+    if (OatHeader::OatVersion() >= 192) {
+        return CodeInfo::DecodeFrameInfo(GetOptimizedCodeInfoPtr());
+    } else {
+        api::MemoryRef ref(frame_info(), this);
+        return QuickMethodFrameInfo(ref.value32Of(), ref.value32Of(4), ref.value32Of(8));
+    }
 }
 
 } //namespace art

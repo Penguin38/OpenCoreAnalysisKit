@@ -97,7 +97,7 @@ void Thread::tls_32bit_sized_values::Init31() {
 }
 
 void Thread::tls_ptr_sized_values::Init26() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
@@ -115,7 +115,7 @@ void Thread::tls_ptr_sized_values::Init26() {
 }
 
 void Thread::tls_ptr_sized_values::Init30() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
@@ -143,7 +143,7 @@ void Thread::tls_ptr_sized_values::Init30() {
 }
 
 void Thread::tls_ptr_sized_values::Init34() {
-    if (CoreApi::GetPointSize() == 64) {
+    if (CoreApi::Bits() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,

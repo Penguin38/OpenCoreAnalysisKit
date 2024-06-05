@@ -79,7 +79,8 @@ public:
     static void Clean();
     static void Dump();
     static int Sdk() { return INSTANCE->sdk; }
-    static int Oat() { return GetOatHeader().kOatVersion; }
+    static int Oat() { return INSTANCE->oat; }
+    static void ResetOatVersion() { INSTANCE->oat = 0; GetOatHeader().kOatVersion = 0; }
     static const char* Id() { return INSTANCE->id.c_str(); }
     static const char* Name() { return INSTANCE->name.c_str(); }
     static const char* Model() { return INSTANCE->model.c_str(); }
@@ -98,6 +99,7 @@ public:
 
     // Configure
     static void OnSdkChanged(int sdk);
+    static void OnOatChanged(int oat);
 
     class SdkListener {
     public:
@@ -112,8 +114,22 @@ public:
     };
     static void RegisterSdkListener(int minisdk, std::function<void ()> fn);
 
+    class OatListener {
+    public:
+        OatListener(int oat, std::function<void ()> fn) : minioat(oat) { init = fn; }
+        int minioat;
+        std::function<void ()> init;
+        void execute(int oat) {
+            if (oat >= minioat) {
+                init();
+            }
+        }
+    };
+    static void RegisterOatListener(int minioat, std::function<void ()> fn);
+
     // API
     static void Prepare();
+    static void OatPrepare();
     static void ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     static void ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     static void ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn);
@@ -137,12 +153,15 @@ public:
 private:
     void init();
     void onSdkChanged(int sdk);
+    void onOatChanged(int oat);
     void preLoad();
     void preLoadLater();
+    void oatPreLoadLater();
     inline art::Runtime& current() { return instance_; }
     inline art::OatHeader& oat_header() { return oat_header_; }
 
     int sdk;
+    int oat;
     std::string id;
     std::string name;
     std::string model;
@@ -164,6 +183,7 @@ private:
     art::OatHeader oat_header_;
 protected:
     std::vector<std::unique_ptr<SdkListener>> mSdkListeners;
+    std::vector<std::unique_ptr<OatListener>> mOatListeners;
 };
 
 #endif // ANDROID_ANDROID_H_
