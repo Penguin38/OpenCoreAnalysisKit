@@ -18,6 +18,7 @@
 #define ANDROID_ART_RUNTIME_MANAGED_STACK_H_
 
 #include "api/memory_ref.h"
+#include "runtime/interpreter/quick_frame.h"
 #include "runtime/interpreter/shadow_frame.h"
 
 struct ManagedStack_OffsetTable {
@@ -66,11 +67,12 @@ public:
 
     TaggedTopQuickFrame& GetTaggedTopQuickFrame();
     ShadowFrame& GetTopShadowFrame();
-    inline uint64_t GetTopQuickFrame() { return GetTaggedTopQuickFrame().GetSp(); }
+    QuickFrame& GetTopQuickFrame();
     inline bool GetTopQuickFrameGenericJniTag() { return GetTaggedTopQuickFrame().GetGenericJniTag(); }
     inline bool GetTopQuickFrameJitJniTag() { return GetTaggedTopQuickFrame().GetJitJniTag(); }
 private:
     TaggedTopQuickFrame tagged_top_quick_frame_cache = 0x0;
+    QuickFrame top_quick_frame_cache = 0x0;
     ShadowFrame top_shadow_frame_cache = 0x0;
 };
 

@@ -71,6 +71,8 @@ public:
     inline static const char* LIBART32_LV28 = "/system/lib/libart.so";
     inline static const char* ART_RUNTIME_INSTANCE = "_ZN3art7Runtime9instance_E";
     inline static const char* ART_OAT_HEADER_VERSION = "_ZN3art9OatHeader11kOatVersionE";
+    inline static const char* NTERP_METHOD_HEADER = "_ZN3art20OatQuickMethodHeader17NterpMethodHeaderE";
+    inline static const char* EXECUTE_NTERP_IMPL = "ExecuteNterpImpl";
 
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }

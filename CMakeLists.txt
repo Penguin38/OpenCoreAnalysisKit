@@ -114,6 +114,7 @@ add_library(android STATIC
             android/art/runtime/jni/java_vm_ext.cpp
             android/art/runtime/oat/oat_file.cpp
             android/art/runtime/oat/stack_map.cpp
+            android/art/runtime/interpreter/quick_frame.cpp
             android/art/runtime/interpreter/shadow_frame.cpp
             android/art/runtime/entrypoints/quick/callee_save_frame.cpp
 

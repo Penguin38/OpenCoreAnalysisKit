@@ -48,6 +48,9 @@ public:
     template<typename U> OatQuickMethodHeader(U *v) : api::MemoryRef(v) {}
     template<typename U> OatQuickMethodHeader(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    inline bool operator==(OatQuickMethodHeader& ref) { return Ptr() == ref.Ptr(); }
+    inline bool operator!=(OatQuickMethodHeader& ref) { return Ptr() != ref.Ptr(); }
+
     static void Init26();
     static void Init29();
     static void Init31();
@@ -86,8 +89,11 @@ public:
     QuickMethodFrameInfo GetFrameInfo();
     uint32_t GetCodeInfoOffset();
     uint64_t GetOptimizedCodeInfoPtr() { return code() - GetCodeInfoOffset(); }
+    static bool IsNterpPc(uint64_t pc);
+    static OatQuickMethodHeader GetNterpMethodHeader();
 private:
     // quick memoryref cache
+
 };
 
 } //namespace art

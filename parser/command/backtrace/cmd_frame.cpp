@@ -94,7 +94,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
         if (number == frameid) {
             art::ArtMethod& method = java_frame->GetMethod();
             art::ShadowFrame& shadow_frame = java_frame->GetShadowFrame();
-            api::MemoryRef& quick_frame = java_frame->GetQuickFrame();
+            art::QuickFrame& quick_frame = java_frame->GetQuickFrame();
             art::DexFile& dex_file = method.GetDexFile();
             LOGI(format.c_str(), frameid, method.PrettyMethodOnlyNP().c_str());
             LOGI("  {\n");
@@ -102,9 +102,20 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             LOGI("      shadow_frame: 0x%lx\n", shadow_frame.Ptr());
             LOGI("      quick_frame: 0x%lx\n", quick_frame.Ptr());
             if (shadow_frame.Ptr() && shadow_frame.GetDexPcPtr()) {
-                LOGI("\n");
+                LOGI("\n      DEX CODE:\n");
+                art::dex::CodeItem item = method.GetCodeItem();
+                api::MemoryRef startref = item.Ptr() + item.code_offset_;
                 api::MemoryRef coderef = shadow_frame.GetDexPcPtr();
-                LOGI("      %s\n", art::Dexdump::PrettyDexInst(coderef, dex_file).c_str());
+                startref.copyRef(item);
+
+                while (startref.Ptr() <= (coderef.Ptr() - 0xc)) {
+                    startref.MovePtr(art::Dexdump::GetDexInstSize(startref));
+                }
+
+                while (startref <= coderef) {
+                    LOGI("      %s\n", art::Dexdump::PrettyDexInst(startref, dex_file).c_str());
+                    startref.MovePtr(art::Dexdump::GetDexInstSize(startref));
+                }
                 ShowJavaFrameRegister("      ", shadow_frame.GetVRegs());
             }
             LOGI("  }\n");
@@ -119,11 +130,13 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix, std::vector<uint32_
     uint32_t vregs_mod = vregs_size % 4;
     if (vregs_size) {
         LOGI("%s{\n", prefix);
+        uint32_t start_vreg = 0;
+        if (Android::Sdk() < Android::R) start_vreg = 1;
         for (int i = 0; i < vregs_line; i++) {
             char value[256];
             sprintf(value, "%s    v%d = 0x%08x    v%d = 0x%08x    v%d = 0x%08x    v%d = 0x%08x",
-                    prefix, 4 * i, vregs[4 * i], 4 * i + 1, vregs[4 * i + 1],
-                    4 * i + 2, vregs[4 * i + 2], 4 * i + 3, vregs[4 * i + 3]);
+                    prefix, 4 * i + start_vreg, vregs[4 * i], 4 * i + 1 + start_vreg, vregs[4 * i + 1],
+                    4 * i + 2 + start_vreg, vregs[4 * i + 2], 4 * i + 3 + start_vreg, vregs[4 * i + 3]);
             LOGI("%s\n", value);
         }
 
@@ -131,7 +144,7 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix, std::vector<uint32_
             LOGI("%s", prefix);
             for (int i = 0; i < vregs_mod; i++) {
                 char value[32];
-                sprintf(value, "    v%d = 0x%08x", 4 * vregs_line + i, vregs[4 * vregs_line + i]);
+                sprintf(value, "    v%d = 0x%08x", 4 * vregs_line + i + start_vreg, vregs[4 * vregs_line + i]);
                 LOGI("%s", value);
             }
             LOGI("\n");

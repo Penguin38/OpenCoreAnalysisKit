@@ -190,4 +190,24 @@ QuickMethodFrameInfo OatQuickMethodHeader::GetFrameInfo() {
     }
 }
 
+bool OatQuickMethodHeader::IsNterpPc(uint64_t pc) {
+    OatQuickMethodHeader NterpMethodHeader = GetNterpMethodHeader();
+    return NterpMethodHeader.Ptr() && NterpMethodHeader.Contains(pc);
+}
+
+OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
+    OatQuickMethodHeader header = 0x0;
+    try {
+        api::MemoryRef value = Android::SearchSymbol(Android::NTERP_METHOD_HEADER);
+        header = value.valueOf();
+    } catch(InvalidAddressException e) {
+    }
+
+    if (header.Ptr()) return header;
+
+    uint64_t entry_point = Android::SearchSymbol(Android::EXECUTE_NTERP_IMPL);
+    header = OatQuickMethodHeader::FromEntryPoint(entry_point);
+    return header;
+}
+
 } //namespace art

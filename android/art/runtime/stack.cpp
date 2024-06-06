@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "android.h"
 #include "common/exception.h"
 #include "runtime/runtime.h"
 #include "runtime/stack.h"
@@ -28,10 +29,14 @@ namespace art {
 
 QuickMethodFrameInfo StackVisitor::GetCurrentQuickFrameInfo() {
     if (cur_oat_quick_method_header_.Ptr()) {
-        if (cur_oat_quick_method_header_.IsOptimized()) {
-            return cur_oat_quick_method_header_.GetFrameInfo();
+        if(Android::Sdk() > Android::Q) {
+            if (cur_oat_quick_method_header_.IsOptimized()) {
+                return cur_oat_quick_method_header_.GetFrameInfo();
+            } else {
+                return NterpFrameInfo(cur_quick_frame_);
+            }
         } else {
-            return NterpFrameInfo(cur_quick_frame_);
+            return cur_oat_quick_method_header_.GetFrameInfo();
         }
     }
 
@@ -57,7 +62,7 @@ ArtMethod StackVisitor::GetMethod() {
     if (cur_shadow_frame_.Ptr()) {
         return cur_shadow_frame_.GetMethod();
     } else if (cur_quick_frame_.Ptr()) {
-        return cur_quick_frame_.valueOf();
+        return cur_quick_frame_.GetMethod();
     }
     return 0x0;
 }
@@ -67,9 +72,10 @@ bool StackVisitor::VisitFrame() {
     if (method.IsRuntimeMethod())
         return true;
 
-    std::unique_ptr<JavaFrame> frame = std::make_unique<JavaFrame>(method,
-                                                                   cur_quick_frame_,
-                                                                   cur_shadow_frame_);
+    std::unique_ptr<JavaFrame> frame =
+            std::make_unique<JavaFrame>(method,
+                                        cur_quick_frame_,
+                                        cur_shadow_frame_);
     java_frames_.push_back(std::move(frame));
     return true;
 }
@@ -122,11 +128,14 @@ void StackVisitor::WalkStack() {
 
                     QuickMethodFrameInfo frame_info = GetCurrentQuickFrameInfo();
                     uint32_t frame_size = frame_info.FrameSizeInBytes();
-                    uint64_t return_pc_addr = frame_info.GetReturnPcAddr(cur_quick_frame_.Ptr());
-                    //TODO
+                    api::MemoryRef return_pc_addr = frame_info.GetReturnPcAddr(cur_quick_frame_.Ptr());
 
-                    method = 0x0;
+                    cur_quick_frame_pc_ = return_pc_addr.valueOf();
+                    QuickFrame next_frame(cur_quick_frame_.Ptr() + frame_size, cur_quick_frame_);
+
+                    method = next_frame.GetMethod();
                 }
+                cur_oat_quick_method_header_ = 0x0;
             } else if (cur_shadow_frame_.Ptr()) {
                 do {
                     bool should_continue = VisitFrame();

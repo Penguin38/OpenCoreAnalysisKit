@@ -50,4 +50,11 @@ ShadowFrame& ManagedStack::GetTopShadowFrame() {
     return top_shadow_frame_cache;
 }
 
+QuickFrame& ManagedStack::GetTopQuickFrame() {
+    if (!top_quick_frame_cache.Ptr()) {
+        top_quick_frame_cache = GetTaggedTopQuickFrame().GetSp();
+    }
+    return top_quick_frame_cache;
+}
+
 } //namespace art

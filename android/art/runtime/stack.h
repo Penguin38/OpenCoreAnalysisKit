@@ -86,15 +86,15 @@ public:
 
     class JavaFrame {
     public:
-        JavaFrame(ArtMethod& m, api::MemoryRef& qf, ShadowFrame& sf)
+        JavaFrame(ArtMethod& m, QuickFrame& qf, ShadowFrame& sf)
             : method(m), quick_frame(qf), shadow_frame(sf) {}
         ArtMethod& GetMethod() { return method; }
         ShadowFrame& GetShadowFrame() { return shadow_frame; }
-        api::MemoryRef& GetQuickFrame() { return quick_frame; }
+        QuickFrame& GetQuickFrame() { return quick_frame; }
     private:
         ArtMethod method;
         ShadowFrame shadow_frame = 0x0;
-        api::MemoryRef quick_frame = 0x0;
+        QuickFrame quick_frame = 0x0;
     };
 
     StackVisitor(Thread* thread, StackWalkKind kind) : thread_(thread), walk_kind_(kind) {}
@@ -110,7 +110,7 @@ private:
     Thread* thread_;
     const StackWalkKind walk_kind_;
     ShadowFrame cur_shadow_frame_ = 0x0;
-    api::MemoryRef cur_quick_frame_ = 0x0;
+    QuickFrame cur_quick_frame_ = 0x0;
     uint64_t cur_quick_frame_pc_;
     OatQuickMethodHeader cur_oat_quick_method_header_ = 0x0;
 };

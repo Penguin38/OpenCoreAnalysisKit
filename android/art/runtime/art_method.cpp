@@ -324,6 +324,12 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
         }
     }
 
+    if (Android::Sdk() > Android::Q) {
+        if (OatQuickMethodHeader::IsNterpPc(pc)) {
+            return OatQuickMethodHeader::GetNterpMethodHeader();
+        }
+    }
+
     return method_header;
 }
 
