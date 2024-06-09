@@ -51,7 +51,6 @@ void Env::reset() {
 
 void Env::Clean() {
     if (INSTANCE) {
-        INSTANCE->reset();
         delete INSTANCE;
         INSTANCE = nullptr;
     }

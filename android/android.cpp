@@ -131,11 +131,13 @@ void Android::Init() {
 
 void Android::Clean() {
     if (INSTANCE) {
+        ResetOatVersion();
         if (INSTANCE->instance_.Ptr()) {
             INSTANCE->instance_.CleanCache();
             INSTANCE->instance_ = 0x0;
+            INSTANCE->mSdkListeners.clear();
+            INSTANCE->mOatListeners.clear();
         }
-        ResetOatVersion();
         delete INSTANCE;
         INSTANCE = nullptr;
     }
@@ -160,6 +162,7 @@ void Android::init() {
     time = android::Property::Get("ro.build.date.utc", INVALID_VALUE);
     debuggable = android::Property::Get("ro.debuggable", INVALID_VALUE);
     preLoadLater();
+    CoreApi::RegisterSysRootListener(OnLibartLoad);
 }
 
 void Android::preLoad() {
@@ -551,6 +554,9 @@ void Android::Prepare() {
 
 void Android::OatPrepare() {
     OnOatChanged(art::OatHeader::OatVersion());
+}
+
+void Android::onLibartLoad(LinkMap *map) {
 }
 
 void Android::Dump() {

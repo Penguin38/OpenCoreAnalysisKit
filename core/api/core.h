@@ -144,6 +144,9 @@ public:
     static uint64_t SearchSymbol(const char* path, const char* symbol);
     static void ForeachThread(std::function<bool (ThreadApi *)> callback);
     static bool NewLoadBlock(uint64_t begin, uint64_t size);
+    static void RegisterSysRootListener(std::function<void (LinkMap *)> fn) {
+        INSTANCE->mSysRootCallback = fn;
+    }
 
     CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map) {
@@ -187,8 +190,8 @@ private:
     virtual int getPointSize() = 0;
     virtual uint64_t getVabitsMask() = 0;
     virtual void loadLinkMap() = 0;
-    virtual void exec(uint64_t phdr, const char* file) = 0;
-    virtual void sysroot(LinkMap* handle, const char* file, const char* subfile) = 0;
+    virtual bool exec(uint64_t phdr, const char* file) = 0;
+    virtual bool sysroot(LinkMap* handle, const char* file, const char* subfile) = 0;
     virtual uint64_t dlsym(LinkMap* handle, const char* symbol) = 0;
     virtual uint64_t r_debug_ptr() { return 0x0; }
 
@@ -196,6 +199,7 @@ private:
     std::vector<std::shared_ptr<LoadBlock>> mLoad;
     std::vector<std::unique_ptr<NoteBlock>> mNote;
     std::vector<std::unique_ptr<LinkMap>> mLinkMap;
+    std::function<void (LinkMap *)> mSysRootCallback;
 };
 
 #endif // CORE_API_CORE_H_

@@ -278,7 +278,10 @@ void CoreApi::SysRoot(const char* path) {
                 break;
         }
         if (filepath.length() > 0) {
-            INSTANCE->sysroot(map, filepath.c_str(), sub_file);
+            if (INSTANCE->sysroot(map, filepath.c_str(), sub_file)) {
+                if (INSTANCE->mSysRootCallback)
+                    INSTANCE->mSysRootCallback(map);
+            }
         }
         return false;
     };

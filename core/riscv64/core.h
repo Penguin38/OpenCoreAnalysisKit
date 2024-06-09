@@ -37,8 +37,8 @@ private:
     int getPointSize() { return 8; }
     uint64_t getVabitsMask() { return 0x7FFFFFFFFFULL; }
     void loadLinkMap() { loadLinkMap64(this); }
-    void exec(uint64_t phdr, const char* file) { exec64(this, phdr, file); }
-    void sysroot(LinkMap* handle, const char* file, const char* subfile) { dlopen64(this, handle, file, subfile); }
+    bool exec(uint64_t phdr, const char* file) { return exec64(this, phdr, file); }
+    bool sysroot(LinkMap* handle, const char* file, const char* subfile) { return dlopen64(this, handle, file, subfile); }
     uint64_t dlsym(LinkMap* handle, const char* symbol);
     uint64_t r_debug_ptr() { return GetDebug().Ptr(); }
 };

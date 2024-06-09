@@ -141,6 +141,7 @@ public:
     static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn);
     static inline std::string& GetRealLibart() { return INSTANCE->realLibart; }
     static inline art::OatHeader& GetOatHeader() { return INSTANCE->oat_header(); }
+    static void OnLibartLoad(LinkMap* map) { if (INSTANCE) INSTANCE->onLibartLoad(map); }
 
     static constexpr int EACH_APP_OBJECTS = 1 << 0;
     static constexpr int EACH_ZYGOTE_OBJECTS = 1 << 1;
@@ -161,6 +162,7 @@ private:
     void oatPreLoadLater();
     inline art::Runtime& current() { return instance_; }
     inline art::OatHeader& oat_header() { return oat_header_; }
+    void onLibartLoad(LinkMap* map);
 
     int sdk;
     int oat;
