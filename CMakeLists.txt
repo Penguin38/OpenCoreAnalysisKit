@@ -129,6 +129,7 @@ add_library(android STATIC
 
             android/art/base/length_prefixed_array.cpp
             android/art/base/mem_map.cpp
+            android/art/base/bit_memory_region.cpp
 
             android/art/dexdump/dexdump.cpp
 

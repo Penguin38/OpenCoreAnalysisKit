@@ -91,10 +91,13 @@ public:
         ArtMethod& GetMethod() { return method; }
         ShadowFrame& GetShadowFrame() { return shadow_frame; }
         QuickFrame& GetQuickFrame() { return quick_frame; }
+        void SetFramePc(uint64_t pc) { frame_pc = pc; }
+        uint64_t GetFramePc() { return frame_pc; }
     private:
         ArtMethod method;
         ShadowFrame shadow_frame = 0x0;
         QuickFrame quick_frame = 0x0;
+        uint64_t frame_pc;
     };
 
     StackVisitor(Thread* thread, StackWalkKind kind) : thread_(thread), walk_kind_(kind) {}

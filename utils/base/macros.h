@@ -17,8 +17,6 @@
 #ifndef UTILS_BASE_MACROS_H_
 #define UTILS_BASE_MACROS_H_
 
-#include <stdint.h>
-
 #define LIKELY(X) __builtin_expect(!!(X), 1)
 #define UNLIKELY(X) __builtin_expect(!!(X), 0)
 #define ALWAYS_INLINE  __attribute__ ((always_inline))
@@ -30,11 +28,5 @@
 #define UNREACHABLE  __builtin_unreachable
 #define HIDDEN __attribute__((visibility("hidden")))
 #define EXPORT __attribute__((visibility("default")))
-
-// Return the number of 1-bits in `x`.
-template<typename T>
-constexpr int POPCOUNT(T x) {
-    return (sizeof(T) == sizeof(uint32_t)) ? __builtin_popcount(x) : __builtin_popcountll(x);
-}
 
 #endif // UTILS_BASE_MACROS_H_

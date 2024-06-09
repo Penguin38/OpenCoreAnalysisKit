@@ -96,7 +96,8 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             art::ShadowFrame& shadow_frame = java_frame->GetShadowFrame();
             art::QuickFrame& quick_frame = java_frame->GetQuickFrame();
             art::DexFile& dex_file = method.GetDexFile();
-            LOGI(format.c_str(), frameid, method.PrettyMethodOnlyNP().c_str());
+            uint64_t current_pc = java_frame->GetFramePc();
+            LOGI(format.c_str(), frameid, current_pc, method.PrettyMethodOnlyNP().c_str());
             LOGI("  {\n");
             LOGI("      art::ArtMethod: 0x%lx\n", method.Ptr());
             LOGI("      shadow_frame: 0x%lx\n", shadow_frame.Ptr());

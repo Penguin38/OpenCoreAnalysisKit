@@ -167,7 +167,11 @@ void BacktraceCommand::DumpJavaStack(void *th) {
     std::string format = FormatJavaFrame("  ", visitor.GetJavaFrames().size());
     uint32_t frameid = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
-        LOGI(format.c_str(), frameid, java_frame->GetMethod().PrettyMethodOnlyNP().c_str());
+        std::string sb;
+        sb.append(java_frame->GetMethod().GetDeclaringClass().PrettyDescriptor());
+        sb.append(".");
+        sb.append(java_frame->GetMethod().GetName());
+        LOGI(format.c_str(), frameid, java_frame->GetFramePc(), sb.c_str());
         ++frameid;
     }
 }
@@ -183,7 +187,10 @@ std::string BacktraceCommand::FormatJavaFrame(const char* prefix, uint64_t size)
         ++num;
     } while(current != 0);
     format.append(std::to_string(num));
-    format.append("d %s\n");
+    format.append("d  %0");
+    num = CoreApi::Bits() / 4;
+    format.append(std::to_string(num));
+    format.append("lx  %s\n");
     return format;
 }
 

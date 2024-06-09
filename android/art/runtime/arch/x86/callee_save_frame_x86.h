@@ -18,7 +18,7 @@
 #define ART_RUNTIME_ARCH_X86_CALLEE_SAVE_FRAME_X86_H_
 
 #include "common/bit.h"
-#include "base/macros.h"
+#include "base/bit_utils.h"
 #include "runtime/base/callee_save_type.h"
 #include "runtime/quick/quick_method_frame_info.h"
 #include "runtime/arch/x86/registers_x86.h"

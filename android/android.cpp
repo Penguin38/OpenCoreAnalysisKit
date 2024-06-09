@@ -40,6 +40,7 @@
 #include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/jni/java_vm_ext.h"
 #include "runtime/oat/oat_file.h"
+#include "runtime/oat/stack_map.h"
 #include "runtime/interpreter/shadow_frame.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
@@ -179,6 +180,7 @@ void Android::preLoad() {
     art::ShadowFrame::Init();
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();
+    art::CodeInfo::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -269,6 +271,7 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::JavaVMExt::Init31);
     RegisterSdkListener(S, art::ArtMethod::Init31);
     RegisterSdkListener(S, art::OatQuickMethodHeader::Init31);
+    RegisterSdkListener(S, art::CodeInfo::Init31);
 
     // 33
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);

@@ -18,7 +18,7 @@
 #define ART_RUNTIME_ARCH_RISCV64_CALLEE_SAVE_FRAME_RISCV64_H_
 
 #include "common/bit.h"
-#include "base/macros.h"
+#include "base/bit_utils.h"
 #include "runtime/base/callee_save_type.h"
 #include "runtime/quick/quick_method_frame_info.h"
 #include "runtime/arch/riscv64/registers_riscv64.h"

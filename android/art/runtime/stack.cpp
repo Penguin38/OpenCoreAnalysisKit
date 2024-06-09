@@ -76,6 +76,7 @@ bool StackVisitor::VisitFrame() {
             std::make_unique<JavaFrame>(method,
                                         cur_quick_frame_,
                                         cur_shadow_frame_);
+    if (cur_quick_frame_.Ptr()) frame->SetFramePc(cur_quick_frame_pc_);
     java_frames_.push_back(std::move(frame));
     return true;
 }
@@ -132,6 +133,7 @@ void StackVisitor::WalkStack() {
 
                     cur_quick_frame_pc_ = return_pc_addr.valueOf();
                     QuickFrame next_frame(cur_quick_frame_.Ptr() + frame_size, cur_quick_frame_);
+                    cur_quick_frame_ = next_frame;
 
                     method = next_frame.GetMethod();
                 }

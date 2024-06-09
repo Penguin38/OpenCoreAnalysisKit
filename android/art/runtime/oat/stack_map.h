@@ -27,6 +27,9 @@ public:
     static uint32_t DecodeCodeSize(uint64_t code_info_data);
     static QuickMethodFrameInfo DecodeFrameInfo(uint64_t code_info_data);
 
+    static void Init();
+    static void Init31();
+    static uint32_t kNumHeaders;
 private:
     uint32_t flags_ = 0;
     uint32_t code_size_ = 0;  // The size of native PC range in bytes.

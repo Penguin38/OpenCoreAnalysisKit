@@ -159,7 +159,7 @@ bool OatQuickMethodHeader::IsOptimized() {
 }
 
 uint32_t OatQuickMethodHeader::GetCodeSize() {
-    if (OatHeader::OatVersion() > 238) {
+    if (OatHeader::OatVersion() >= 239) {
         //TODO
         return CodeInfo::DecodeCodeSize(GetOptimizedCodeInfoPtr());
     } else if (OatHeader::OatVersion() >= 192) {
@@ -174,10 +174,10 @@ uint32_t OatQuickMethodHeader::GetCodeSize() {
 }
 
 uint32_t OatQuickMethodHeader::GetCodeInfoOffset() {
-    if (OatHeader::OatVersion() < 239) {
-        return data() & kCodeInfoMask;
-    } else {
+    if (OatHeader::OatVersion() >= 239) {
         return code_info_offset();
+    } else {
+        return data() & kCodeInfoMask;
     }
 }
 
