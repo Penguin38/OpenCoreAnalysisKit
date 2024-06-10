@@ -139,6 +139,10 @@ add_library(android STATIC
             android/art/runtime/arch/x86_64/registers_x86_64.cpp
             android/art/runtime/arch/riscv64/registers_riscv64.cpp
 
+            android/art/runtime/jit/jit.cpp
+            android/art/runtime/jit/jit_code_cache.cpp
+            android/art/runtime/jit/jit_memory_region.cpp
+
             # jdk
             android/jdk/java/lang/Object.cpp
             android/jdk/java/lang/String.cpp

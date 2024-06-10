@@ -42,6 +42,9 @@
 #include "runtime/oat/oat_file.h"
 #include "runtime/oat/stack_map.h"
 #include "runtime/interpreter/shadow_frame.h"
+#include "runtime/jit/jit.h"
+#include "runtime/jit/jit_code_cache.h"
+#include "runtime/jit/jit_memory_region.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "dex/standard_dex_file.h"
@@ -225,6 +228,8 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::ArtMethod::PtrSizedFields::Init26);
     RegisterSdkListener(O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
     RegisterSdkListener(O, art::OatQuickMethodHeader::Init26);
+    RegisterSdkListener(O, art::jit::Jit::Init26);
+    RegisterSdkListener(O, art::jit::JitCodeCache::Init26);
 
     // 28
     RegisterSdkListener(P, art::DexFile::Init28);
@@ -238,6 +243,9 @@ void Android::preLoad() {
     RegisterSdkListener(P, art::ClassLinker::DexCacheData::Init28);
     RegisterSdkListener(P, art::ArtMethod::Init28);
     RegisterSdkListener(P, art::ArtMethod::PtrSizedFields::Init28);
+    RegisterSdkListener(P, art::jit::JitCodeCache::Init28);
+    RegisterSdkListener(P, art::jit::JitCodeCache::JniStubData::Init28);
+    RegisterSdkListener(P, art::jit::JitCodeCache::JniStubsMapPair::Init28);
 
     // 29
     RegisterSdkListener(Q, art::DexFile::Init29);
@@ -252,6 +260,8 @@ void Android::preLoad() {
     RegisterSdkListener(Q, art::IndirectReferenceTable::Init29);
     RegisterSdkListener(Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
     RegisterSdkListener(Q, art::OatQuickMethodHeader::Init29);
+    RegisterSdkListener(Q, art::jit::Jit::Init29);
+    RegisterSdkListener(Q, art::jit::JitCodeCache::Init29);
 
     // 30 base
     RegisterSdkListener(R, art::Runtime::Init30);
@@ -261,6 +271,9 @@ void Android::preLoad() {
     RegisterSdkListener(R, art::gc::space::RegionSpace::Init30);
     RegisterSdkListener(R, art::gc::space::LargeObjectSpace::Init30);
     RegisterSdkListener(R, art::gc::space::LargeObjectMapSpace::Init30);
+    RegisterSdkListener(R, art::jit::JitCodeCache::Init30);
+    RegisterSdkListener(R, art::jit::JitMemoryRegion::Init30);
+    RegisterSdkListener(R, art::jit::ZygoteMap::Init30);
 
     // 31
     RegisterSdkListener(S, art::Runtime::Init31);
@@ -272,6 +285,7 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::ArtMethod::Init31);
     RegisterSdkListener(S, art::OatQuickMethodHeader::Init31);
     RegisterSdkListener(S, art::CodeInfo::Init31);
+    RegisterSdkListener(S, art::jit::JitCodeCache::Init31);
 
     // 33
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);

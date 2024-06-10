@@ -181,6 +181,10 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
         LOGI("  *     globals_: 0x%lx\n", runtime.GetJavaVM().GetGlobalsTable().Ptr());
         LOGI("  *     weak_globals_: 0x%lx\n", runtime.GetJavaVM().GetWeakGlobalsTable().Ptr());
     }
+    LOGI("  * art::jit::Jit: 0x%lx\n", runtime.GetJit().Ptr());
+    if (runtime.GetJit().Ptr()) {
+        LOGI("  *     code_cache_: 0x%lx\n", runtime.GetJit().GetCodeCache().Ptr());
+    }
     return 0;
 }
 

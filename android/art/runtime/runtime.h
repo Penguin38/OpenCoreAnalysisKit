@@ -26,6 +26,7 @@
 #include "runtime/jni/java_vm_ext.h"
 #include "runtime/base/callee_save_type.h"
 #include "runtime/quick/quick_method_frame_info.h"
+#include "runtime/jit/jit.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
@@ -36,6 +37,7 @@ struct Runtime_OffsetTable {
     uint32_t thread_list_;
     uint32_t class_linker_;
     uint32_t java_vm_;
+    uint32_t jit_;
 };
 
 struct Runtime_SizeTable {
@@ -76,12 +78,14 @@ public:
     inline uint64_t thread_list() { return VALUEOF(Runtime, thread_list_); }
     inline uint64_t class_linker() { return VALUEOF(Runtime, class_linker_); }
     inline uint64_t java_vm() { return VALUEOF(Runtime, java_vm_); }
+    inline uint64_t jit() { return VALUEOF(Runtime, jit_); }
 
     static Runtime& Current();
     gc::Heap& GetHeap();
     ThreadList& GetThreadList();
     ClassLinker& GetClassLinker();
     JavaVMExt& GetJavaVM();
+    jit::Jit& GetJit();
     ArtMethod& GetResolutionMethod();
     ArtMethod& GetImtConflictMethod();
     ArtMethod& GetImtUnimplementedMethod();
@@ -105,6 +109,7 @@ private:
     ThreadList thread_list_cache = 0x0;
     ClassLinker class_linker_cache = 0x0;
     JavaVMExt java_vm_cache = 0x0;
+    jit::Jit jit_cache = 0x0;
 };
 
 } // namespace art

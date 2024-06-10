@@ -330,6 +330,17 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
         }
     }
 
+    jit::Jit& jit = runtime.GetJit();
+    if (jit.Ptr()) {
+        jit::JitCodeCache& code_cache = jit.GetCodeCache();
+        method_header = code_cache.LookupMethodHeader(pc, this);
+
+        if (method_header.Ptr()
+                /* && method_header.Contains(pc)*/) {
+            return method_header;
+        }
+    }
+
     return method_header;
 }
 

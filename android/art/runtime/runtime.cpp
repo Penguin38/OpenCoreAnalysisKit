@@ -37,6 +37,7 @@ void Runtime::Init26() {
             .thread_list_ = 448,
             .class_linker_ = 464,
             .java_vm_ = 504,
+            .jit_ = 512,
         };
     } else {
         //TODO
@@ -54,6 +55,7 @@ void Runtime::Init28() {
             .thread_list_ = 512,
             .class_linker_ = 528,
             .java_vm_ = 576,
+            .jit_ = 584,
         };
     } else {
         //TODO
@@ -71,6 +73,7 @@ void Runtime::Init29() {
             .thread_list_ = 464,
             .class_linker_ = 480,
             .java_vm_ = 496,
+            .jit_ = 504,
         };
     } else {
         //TODO
@@ -88,6 +91,7 @@ void Runtime::Init30() {
             .thread_list_ = 456,
             .class_linker_ = 472,
             .java_vm_ = 496,
+            .jit_ = 504,
         };
     } else {
         __Runtime_offset__ = {
@@ -99,6 +103,7 @@ void Runtime::Init30() {
             .thread_list_ = 268,
             .class_linker_ = 276,
             .java_vm_ = 288,
+            .jit_ = 292,
         };
     }
 }
@@ -114,6 +119,7 @@ void Runtime::Init31() {
             .thread_list_ = 480,
             .class_linker_ = 496,
             .java_vm_ = 520,
+            .jit_ = 528,
         };
     } else {
         __Runtime_offset__ = {
@@ -125,6 +131,7 @@ void Runtime::Init31() {
             .thread_list_ = 280,
             .class_linker_ = 288,
             .java_vm_ = 300,
+            .jit_ = 304,
         };
     }
 }
@@ -140,6 +147,7 @@ void Runtime::Init33() {
             .thread_list_ = 576,
             .class_linker_ = 592,
             .java_vm_ = 624,
+            .jit_ = 632,
         };
     } else {
         __Runtime_offset__ = {
@@ -151,6 +159,7 @@ void Runtime::Init33() {
             .thread_list_ = 328,
             .class_linker_ = 336,
             .java_vm_ = 352,
+            .jit_ = 356,
         };
     }
 }
@@ -166,6 +175,7 @@ void Runtime::Init34() {
             .thread_list_ = 584,
             .class_linker_ = 600,
             .java_vm_ = 632,
+            .jit_ = 640,
         };
     } else {
         __Runtime_offset__ = {
@@ -177,6 +187,7 @@ void Runtime::Init34() {
             .thread_list_ = 332,
             .class_linker_ = 340,
             .java_vm_ = 356,
+            .jit_ = 360,
         };
     }
 }
@@ -291,6 +302,15 @@ JavaVMExt& Runtime::GetJavaVM() {
         java_vm_cache.Prepare(false);
     }
     return java_vm_cache;
+}
+
+jit::Jit& Runtime::GetJit() {
+    if (!jit_cache.Ptr()) {
+        jit_cache = jit();
+        jit_cache.copyRef(this);
+        jit_cache.Prepare(false);
+    }
+    return jit_cache;
 }
 
 ArtMethod& Runtime::GetResolutionMethod() {

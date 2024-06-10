@@ -49,6 +49,9 @@ public:
     inline uint64_t size() { return VALUEOF(MemMap, size_); }
 
     const char* GetName();
+    bool HasAddress(uint64_t addr) {
+        return begin() <= addr && addr < begin() + size();
+    }
 private:
     // quick memoryref cache
     cxx::string name_cache = 0x0;
