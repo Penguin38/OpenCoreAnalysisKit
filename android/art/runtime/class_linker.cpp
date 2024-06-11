@@ -16,6 +16,7 @@
 
 #include "runtime/class_linker.h"
 #include "runtime/runtime.h"
+#include "runtime/entrypoints/runtime_asm_entrypoints.h"
 #include "android.h"
 
 struct ClassLinker_OffsetTable __ClassLinker_offset__;
@@ -150,15 +151,15 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
 }
 
 bool ClassLinker::IsQuickGenericJniStub(uint64_t entry_point) {
-    return false;
+    return entry_point && (entry_point == GetQuickGenericJniStub());
 }
 
 bool ClassLinker::IsQuickResolutionStub(uint64_t entry_point) {
-    return false;
+    return entry_point && (entry_point == GetQuickResolutionStub());
 }
 
 bool ClassLinker::IsQuickToInterpreterBridge(uint64_t entry_point) {
-    return false;
+    return entry_point && (entry_point == GetQuickToInterpreterBridge());
 }
 
 } //namespace art

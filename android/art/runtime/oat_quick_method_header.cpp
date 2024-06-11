@@ -20,6 +20,7 @@
 #include "runtime/oat.h"
 #include "runtime/oat_quick_method_header.h"
 #include "runtime/oat/stack_map.h"
+#include "runtime/entrypoints/runtime_asm_entrypoints.h"
 
 struct OatQuickMethodHeader_OffsetTable __OatQuickMethodHeader_offset__;
 struct OatQuickMethodHeader_SizeTable __OatQuickMethodHeader_size__;
@@ -196,17 +197,18 @@ bool OatQuickMethodHeader::IsNterpPc(uint64_t pc) {
 }
 
 OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
+    uint64_t entry_point = GetExecuteNterpImplEntryPoint();
+    if (entry_point) {
+        OatQuickMethodHeader::FromEntryPoint(entry_point);
+        return OatQuickMethodHeader::FromEntryPoint(entry_point);
+    }
+
     OatQuickMethodHeader header = 0x0;
     try {
         api::MemoryRef value = Android::SearchSymbol(Android::NTERP_METHOD_HEADER);
         header = value.valueOf();
     } catch(InvalidAddressException e) {
     }
-
-    if (header.Ptr()) return header;
-
-    uint64_t entry_point = Android::SearchSymbol(Android::EXECUTE_NTERP_IMPL);
-    if (entry_point) header = OatQuickMethodHeader::FromEntryPoint(entry_point);
     return header;
 }
 

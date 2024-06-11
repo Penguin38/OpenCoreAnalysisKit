@@ -117,6 +117,7 @@ add_library(android STATIC
             android/art/runtime/interpreter/quick_frame.cpp
             android/art/runtime/interpreter/shadow_frame.cpp
             android/art/runtime/entrypoints/quick/callee_save_frame.cpp
+            android/art/runtime/entrypoints/runtime_asm_entrypoints.cpp
 
             android/art/dex/primitive.cpp
             android/art/dex/modifiers.cpp

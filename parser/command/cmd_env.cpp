@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "android.h"
+#include "runtime/entrypoints/runtime_asm_entrypoints.h"
 #include "command/cmd_env.h"
 #include "command/env.h"
 #include "api/core.h"
@@ -138,9 +139,10 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"clean-cache",   no_argument, 0, 'c'},
+        {"entry-points", no_argument, 0, 'e'},
     };
 
-    while ((opt = getopt_long(argc, argv, "c",
+    while ((opt = getopt_long(argc, argv, "ce",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
@@ -149,6 +151,9 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
                     runtime = 0x0;
                 }
                 Android::ResetOatVersion();
+                return 0;
+            case 'e':
+                art::EntryPoints::Dump();
                 return 0;
         }
     }
@@ -276,6 +281,7 @@ void EnvCommand::usage() {
     LOGI("Usage: env art [option] ...\n");
     LOGI("Option:\n");
     LOGI("   --clean-cache|-c: clean art::Runtime cache\n");
+    LOGI("   --entry-points|-e: show art quick entry points\n");
     LOGI("\n");
     LOGI("Usage: env core [option]...\n");
     LOGI("Option:\n");

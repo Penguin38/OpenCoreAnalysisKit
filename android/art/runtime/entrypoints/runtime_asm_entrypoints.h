@@ -19,52 +19,66 @@
 
 #include <stdint.h>
 
-// very few
-static uint64_t INVALID_ENTRY_POINTER = 0xFFFFFFFFFFFFFFFFUL;
-static uint64_t art_jni_dlsym_lookup_stub = INVALID_ENTRY_POINTER;
-static uint64_t art_jni_dlsym_lookup_critical_stub = INVALID_ENTRY_POINTER;
-static uint64_t art_quick_imt_conflict_trampoline = INVALID_ENTRY_POINTER;
-static uint64_t art_quick_to_interpreter_bridge = INVALID_ENTRY_POINTER;
-static uint64_t art_invoke_obsolete_method_stub = INVALID_ENTRY_POINTER;
-static uint64_t art_quick_generic_jni_trampoline = INVALID_ENTRY_POINTER;
-static uint64_t art_quick_proxy_invoke_handler = INVALID_ENTRY_POINTER;
-static uint64_t art_quick_resolution_trampoline = INVALID_ENTRY_POINTER;
-static uint64_t art_quick_deoptimize = INVALID_ENTRY_POINTER;
+namespace art {
+
+class EntryPoints {
+public:
+    static constexpr uint64_t INVALID_ENTRY_POINTER = 0;
+    static uint64_t art_jni_dlsym_lookup_stub;
+    static uint64_t art_jni_dlsym_lookup_critical_stub;
+    static uint64_t art_quick_imt_conflict_trampoline;
+    static uint64_t art_quick_to_interpreter_bridge;
+    static uint64_t art_invoke_obsolete_method_stub;
+    static uint64_t art_quick_generic_jni_trampoline;
+    static uint64_t art_quick_proxy_invoke_handler;
+    static uint64_t art_quick_resolution_trampoline;
+    static uint64_t art_quick_deoptimize;
+    static uint64_t ExecuteNterpImpl;
+
+    static void Init();
+    static void Dump();
+};
 
 static inline uint64_t GetJniDlsymLookupStub() {
-    return art_jni_dlsym_lookup_stub;
+    return EntryPoints::art_jni_dlsym_lookup_stub;
 }
 
 static inline uint64_t GetJniDlsymLookupCriticalStub() {
-    return art_jni_dlsym_lookup_critical_stub;
+    return EntryPoints::art_jni_dlsym_lookup_critical_stub;
 }
 
 static inline uint64_t GetQuickImtConflictStub() {
-    return art_quick_imt_conflict_trampoline;
+    return EntryPoints::art_quick_imt_conflict_trampoline;
 }
 
 static inline uint64_t GetQuickToInterpreterBridge() {
-    return art_quick_to_interpreter_bridge;
+    return EntryPoints::art_quick_to_interpreter_bridge;
 }
 
 static inline uint64_t GetInvokeObsoleteMethodStub() {
-    return art_invoke_obsolete_method_stub;
+    return EntryPoints::art_invoke_obsolete_method_stub;
 }
 
 static inline uint64_t GetQuickGenericJniStub() {
-    return art_quick_generic_jni_trampoline;
+    return EntryPoints::art_quick_generic_jni_trampoline;
 }
 
 static inline uint64_t GetQuickProxyInvokeHandler() {
-    return art_quick_proxy_invoke_handler;
+    return EntryPoints::art_quick_proxy_invoke_handler;
 }
 
 static inline uint64_t GetQuickResolutionStub() {
-    return art_quick_resolution_trampoline;
+    return EntryPoints::art_quick_resolution_trampoline;
 }
 
 static inline uint64_t GetQuickDeoptimizationEntryPoint() {
-    return art_quick_deoptimize;
+    return EntryPoints::art_quick_deoptimize;
 }
+
+static inline uint64_t GetExecuteNterpImplEntryPoint() {
+    return EntryPoints::ExecuteNterpImpl;
+}
+
+} // namespace art
 
 #endif // ANDROID_ART_RUNTIME_ENTRYPOINTS_RUNTIME_ASM_ENTRYPOINTS_H_

@@ -45,6 +45,7 @@
 #include "runtime/jit/jit.h"
 #include "runtime/jit/jit_code_cache.h"
 #include "runtime/jit/jit_memory_region.h"
+#include "runtime/entrypoints/runtime_asm_entrypoints.h"
 #include "dex/dex_file.h"
 #include "dex/dex_file_structs.h"
 #include "dex/standard_dex_file.h"
@@ -592,6 +593,9 @@ void Android::OatPrepare() {
 }
 
 void Android::onLibartLoad(LinkMap *map) {
+    if (realLibart == map->name()) {
+        art::EntryPoints::Init();
+    }
 }
 
 void Android::Dump() {

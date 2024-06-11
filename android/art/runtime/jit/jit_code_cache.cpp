@@ -230,6 +230,20 @@ bool JitCodeCache::ContainsPc(uint64_t pc) {
     }
 }
 
+uint64_t JitCodeCache::GetJniStubCode(ArtMethod& method) {
+    for (const auto& value : GetJniStubsMap()) {
+        JniStubsMapPair pair = value;
+        JniStubData data = pair.second();
+        cxx::vector methods_(data.methods(), data);
+        for (const auto& m : methods_) {
+            if (m == method.Ptr()) {
+                return data.code();
+            }
+        }
+    }
+    return 0x0;
+}
+
 uint64_t ZygoteMap::GetCodeFor(ArtMethod* method, uint64_t pc) {
     if (!size()) {
         return 0x0;
@@ -296,20 +310,16 @@ OatQuickMethodHeader JitCodeCache::LookupMethodHeader(uint64_t pc, ArtMethod* me
 
     // SafeMap<JniStubKey, JniStubData> jni_stubs_map_ GUARDED_BY(lock_);
     // SafeMap<const void*, ArtMethod*> method_code_map_ GUARDED_BY(lock_);
+    ArtMethod alias_method(method->Ptr(), method);
     if (Android::Sdk() >= Android::P) {
         if (method != nullptr && method->IsNative()) {
-            for (const auto& value : GetJniStubsMap()) {
-                JniStubsMapPair pair = value;
-                JniStubData data = pair.second();
-                cxx::vector methods_(data.methods(), data);
-                for (const auto& m : methods_) {
-                    if (m == method->Ptr()) {
-                        method_header = OatQuickMethodHeader::FromCodePointer(data.code());
-                        if (!method_header.Contains(pc)) {
-                            return 0x0;
-                        }
-                    }
-                }
+            uint64_t entry_point = GetJniStubCode(alias_method);
+            if (!entry_point)
+                return 0x0;
+
+            method_header = OatQuickMethodHeader::FromCodePointer(entry_point);
+            if (!method_header.Contains(pc)) {
+                return 0x0;
             }
         } else {
             if (Android::Sdk() >= Android::R) {

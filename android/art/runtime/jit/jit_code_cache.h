@@ -110,6 +110,7 @@ public:
     OatQuickMethodHeader LookupMethodCodeMap(uint64_t pc, ArtMethod* method);
     bool PrivateRegionContainsPc(uint64_t pc);
     bool ContainsPc(uint64_t pc);
+    uint64_t GetJniStubCode(ArtMethod& method);
 
     class JniStubKey : public api::MemoryRef {
     public:

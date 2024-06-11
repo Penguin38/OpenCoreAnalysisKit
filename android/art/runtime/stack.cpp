@@ -109,7 +109,11 @@ void StackVisitor::WalkStack() {
                     if (current_fragment.GetTopQuickFrameGenericJniTag()) {
                         cur_oat_quick_method_header_ = 0x0;
                     } else if (current_fragment.GetTopQuickFrameJitJniTag()) {
-                        // JIT TODO
+                        Runtime& runtime = Runtime::Current();
+                        jit::Jit& jit = runtime.GetJit();
+                        jit::JitCodeCache& code_cache = jit.GetCodeCache();
+                        uint64_t code = code_cache.GetJniStubCode(method);
+                        cur_oat_quick_method_header_ = OatQuickMethodHeader::FromCodePointer(code);
                     } else {
                         uint64_t existing_entry_point = method.GetEntryPointFromQuickCompiledCode();
                         Runtime& runtime = Runtime::Current();
