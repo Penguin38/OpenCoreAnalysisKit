@@ -42,8 +42,6 @@ public:
     ImageSpace(const MemMapSpace& ref) : MemMapSpace(ref) {}
     ImageSpace(uint64_t v, MemMapSpace& ref) : MemMapSpace(v, ref) {}
     ImageSpace(uint64_t v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
-    template<typename U> ImageSpace(U *v) : MemMapSpace(v) {}
-    template<typename U> ImageSpace(U *v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
 
     static void Init();
 

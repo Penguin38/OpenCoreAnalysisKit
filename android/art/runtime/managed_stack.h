@@ -42,8 +42,6 @@ public:
     ManagedStack(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ManagedStack(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ManagedStack(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ManagedStack(U *v) : api::MemoryRef(v) {}
-    template<typename U> ManagedStack(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     class TaggedTopQuickFrame : public api::MemoryRef {
     public:
@@ -51,8 +49,6 @@ public:
         TaggedTopQuickFrame(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         TaggedTopQuickFrame(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         TaggedTopQuickFrame(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-        template<typename U> TaggedTopQuickFrame(U *v) : api::MemoryRef(v) {}
-        template<typename U> TaggedTopQuickFrame(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         inline uint64_t tagged_sp() { return valueOf(); }
         inline uint64_t GetSp() { return tagged_sp() & (~static_cast<uint64_t>(3u) & PointMask()); }

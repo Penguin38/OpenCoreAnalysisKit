@@ -46,8 +46,6 @@ public:
     PropInfo(uint64_t v) : api::MemoryRef(v) {}
     PropInfo(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     PropInfo(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> PropInfo(U *v) : api::MemoryRef(v) {}
-    template<typename U> PropInfo(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     constexpr static uint32_t kLongFlag = 1 << 16;
     constexpr static uint32_t kLongLegacyErrorBufferSize = 56;

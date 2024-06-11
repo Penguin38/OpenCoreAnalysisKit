@@ -60,8 +60,6 @@ public:
     ArtMethod(api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ArtMethod(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ArtMethod(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ArtMethod(U *v) : api::MemoryRef(v) {}
-    template<typename U> ArtMethod(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(ArtMethod& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ArtMethod& ref) { return Ptr() != ref.Ptr(); }
@@ -84,8 +82,6 @@ public:
         PtrSizedFields(api::MemoryRef& ref) : api::MemoryRef(ref) {}
         PtrSizedFields(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         PtrSizedFields(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-        template<typename U> PtrSizedFields(U *v) : api::MemoryRef(v) {}
-        template<typename U> PtrSizedFields(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         static void Init26();
         static void Init28();

@@ -29,8 +29,6 @@ public:
     QuickFrame(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     QuickFrame(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     QuickFrame(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> QuickFrame(U *v) : api::MemoryRef(v) {}
-    template<typename U> QuickFrame(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     void init(OatQuickMethodHeader& mh, uint64_t pc) {
         method_header = mh;

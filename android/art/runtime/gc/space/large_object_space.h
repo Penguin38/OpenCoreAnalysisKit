@@ -111,8 +111,6 @@ public:
     LargeObjectSpace(const DiscontinuousSpace& ref) : DiscontinuousSpace(ref) {}
     LargeObjectSpace(uint64_t v, DiscontinuousSpace& ref) : DiscontinuousSpace(v, ref) {}
     LargeObjectSpace(uint64_t v, DiscontinuousSpace* ref) : DiscontinuousSpace(v, ref) {}
-    template<typename U> LargeObjectSpace(U *v) : DiscontinuousSpace(v) {}
-    template<typename U> LargeObjectSpace(U *v, DiscontinuousSpace* ref) : DiscontinuousSpace(v, ref) {}
 
     static void Init26();
     static void Init29();
@@ -136,8 +134,6 @@ public:
     LargeObjectMapSpace(const LargeObjectSpace& ref) : LargeObjectSpace(ref) {}
     LargeObjectMapSpace(uint64_t v, LargeObjectSpace& ref) : LargeObjectSpace(v, ref) {}
     LargeObjectMapSpace(uint64_t v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
-    template<typename U> LargeObjectMapSpace(U *v) : LargeObjectSpace(v) {}
-    template<typename U> LargeObjectMapSpace(U *v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
     static void Init26();
     static void Init28();
@@ -155,8 +151,6 @@ public:
         LargeObject(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         LargeObject(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
         LargeObject(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
-        template<typename U> LargeObject(U *v) : api::MemoryRef(v) {}
-        template<typename U> LargeObject(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         static void Init();
     };
@@ -167,8 +161,6 @@ public:
         LargeObjectsPair(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         LargeObjectsPair(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
         LargeObjectsPair(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
-        template<typename U> LargeObjectsPair(U *v) : api::MemoryRef(v) {}
-        template<typename U> LargeObjectsPair(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         static void Init();
         inline uint64_t first() { return VALUEOF(LargeObjectsPair, first); }
@@ -186,8 +178,6 @@ public:
     AllocationInfo(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     AllocationInfo(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     AllocationInfo(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
-    template<typename U> AllocationInfo(U *v) : api::MemoryRef(v) {}
-    template<typename U> AllocationInfo(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
     inline uint32_t prev_free() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(AllocationInfo, prev_free_)); }
@@ -210,8 +200,6 @@ public:
     FreeListSpace(const LargeObjectSpace& ref) : LargeObjectSpace(ref) {}
     FreeListSpace(uint64_t v, LargeObjectSpace& ref) : LargeObjectSpace(v, ref) {}
     FreeListSpace(uint64_t v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
-    template<typename U> FreeListSpace(U *v) : LargeObjectSpace(v) {}
-    template<typename U> FreeListSpace(U *v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
     static void Init();
     inline uint64_t free_end() { return VALUEOF(FreeListSpace, free_end_); }

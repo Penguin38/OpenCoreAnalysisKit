@@ -38,8 +38,6 @@ public:
     LengthPrefixedArray(uint64_t v) : api::MemoryRef(v) {}
     LengthPrefixedArray(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     LengthPrefixedArray(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> LengthPrefixedArray(U *v) : api::MemoryRef(v) {}
-    template<typename U> LengthPrefixedArray(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(LengthPrefixedArray& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(LengthPrefixedArray& ref) { return Ptr() != ref.Ptr(); }

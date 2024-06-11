@@ -82,8 +82,6 @@ public:
     DexFile(uint64_t v) : api::MemoryRef(v) {}
     DexFile(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     DexFile(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> DexFile(U *v) : api::MemoryRef(v) {}
-    template<typename U> DexFile(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(DexFile& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(DexFile& ref) { return Ptr() != ref.Ptr(); }
@@ -102,7 +100,7 @@ public:
     inline uint64_t proto_ids() { return VALUEOF(DexFile, proto_ids_); }
     inline uint8_t is_compact_dex() { return value8Of(OFFSET(DexFile, is_compact_dex_)); }
 
-    uint8_t* DataBegin();
+    inline uint64_t DataBegin() { return data_begin(); }
     cxx::string GetLocation();
     dex::TypeId GetTypeId(dex::TypeIndex idx);
     dex::MethodId GetMethodId(uint32_t idx);

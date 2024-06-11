@@ -43,16 +43,12 @@ public:
     CompactDexFile(uint64_t v) : DexFile(v) {}
     CompactDexFile(const DexFile& ref) : DexFile(ref) {}
     CompactDexFile(uint64_t v, DexFile* ref) : DexFile(v, ref) {}
-    template<typename U> CompactDexFile(U *v) : DexFile(v) {}
-    template<typename U> CompactDexFile(U *v, DexFile* ref) : DexFile(v, ref) {}
 
     class CodeItem : public dex::CodeItem {
     public:
         CodeItem(uint64_t v) : dex::CodeItem(v) {}
         CodeItem(const dex::CodeItem& ref) : dex::CodeItem(ref) {}
         CodeItem(uint64_t v, dex::CodeItem* ref) : dex::CodeItem(v, ref) {}
-        template<typename U> CodeItem(U *v) : dex::CodeItem(v) {}
-        template<typename U> CodeItem(U *v, dex::CodeItem* ref) : dex::CodeItem(v, ref) {}
 
         static constexpr uint64_t kRegistersSizeShift = 12;
         static constexpr uint64_t kInsSizeShift = 8;

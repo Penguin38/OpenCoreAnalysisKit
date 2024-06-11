@@ -46,8 +46,6 @@ public:
     ArtField(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ArtField(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ArtField(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ArtField(U *v) : api::MemoryRef(v) {}
-    template<typename U> ArtField(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(ArtField& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ArtField& ref) { return Ptr() != ref.Ptr(); }

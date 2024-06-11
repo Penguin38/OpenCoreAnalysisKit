@@ -57,8 +57,6 @@ public:
     map(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     map(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     map(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> map(U *v) : api::MemoryRef(v) {}
-    template<typename U> map(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(map& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(map& ref) { return Ptr() != ref.Ptr(); }
@@ -75,8 +73,6 @@ public:
         pair(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         pair(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         pair(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-        template<typename U> pair(U *v) : api::MemoryRef(v) {}
-        template<typename U> pair(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         inline bool operator==(pair& ref) const { return Ptr() == ref.Ptr(); }
         inline bool operator!=(pair& ref) const { return Ptr() != ref.Ptr(); }

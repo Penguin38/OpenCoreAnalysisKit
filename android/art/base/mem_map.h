@@ -40,8 +40,6 @@ public:
     MemMap(uint64_t v) : api::MemoryRef(v) {}
     MemMap(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     MemMap(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> MemMap(U *v) : api::MemoryRef(v) {}
-    template<typename U> MemMap(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
     inline uint64_t name() { return Ptr() + OFFSET(MemMap, name_); }

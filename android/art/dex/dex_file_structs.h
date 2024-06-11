@@ -113,8 +113,6 @@ public:
     CodeItem(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     CodeItem(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     CodeItem(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> CodeItem(U *v) : api::MemoryRef(v) {}
-    template<typename U> CodeItem(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     uint16_t num_regs_;
     uint16_t out_regs_;
@@ -130,8 +128,6 @@ public:
     TypeId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     TypeId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     TypeId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> TypeId(U *v) : api::MemoryRef(v) {}
-    template<typename U> TypeId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(TypeId& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(TypeId& ref) { return Ptr() != ref.Ptr(); }
@@ -146,8 +142,6 @@ public:
     StringId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     StringId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     StringId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> StringId(U *v) : api::MemoryRef(v) {}
-    template<typename U> StringId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(StringId& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(StringId& ref) { return Ptr() != ref.Ptr(); }
@@ -162,8 +156,6 @@ public:
     FieldId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     FieldId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     FieldId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> FieldId(U *v) : api::MemoryRef(v) {}
-    template<typename U> FieldId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(FieldId& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(FieldId& ref) { return Ptr() != ref.Ptr(); }
@@ -180,8 +172,6 @@ public:
     MethodId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     MethodId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     MethodId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> MethodId(U *v) : api::MemoryRef(v) {}
-    template<typename U> MethodId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(MethodId& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(MethodId& ref) { return Ptr() != ref.Ptr(); }
@@ -198,8 +188,6 @@ public:
     ProtoId(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ProtoId(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ProtoId(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ProtoId(U *v) : api::MemoryRef(v) {}
-    template<typename U> ProtoId(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(ProtoId& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ProtoId& ref) { return Ptr() != ref.Ptr(); }
@@ -217,8 +205,6 @@ public:
     TypeList(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     TypeList(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     TypeList(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> TypeList(U *v) : api::MemoryRef(v) {}
-    template<typename U> TypeList(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(TypeList& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(TypeList& ref) { return Ptr() != ref.Ptr(); }
@@ -234,8 +220,6 @@ public:
     TypeItem(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     TypeItem(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     TypeItem(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> TypeItem(U *v) : api::MemoryRef(v) {}
-    template<typename U> TypeItem(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(TypeItem& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(TypeItem& ref) { return Ptr() != ref.Ptr(); }

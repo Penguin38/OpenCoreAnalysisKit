@@ -42,8 +42,6 @@ public:
     ZygoteSpace(const ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(ref) {}
     ZygoteSpace(uint64_t v, ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(v, ref) {}
     ZygoteSpace(uint64_t v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
-    template<typename U> ZygoteSpace(U *v) : ContinuousMemMapAllocSpace(v) {}
-    template<typename U> ZygoteSpace(U *v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
     static void Init();
 

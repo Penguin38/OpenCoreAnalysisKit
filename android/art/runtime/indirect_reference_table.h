@@ -64,8 +64,6 @@ public:
     IrtEntry(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     IrtEntry(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     IrtEntry(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> IrtEntry(U *v) : api::MemoryRef(v) {}
-    template<typename U> IrtEntry(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init26();
     static void Init33();
@@ -79,8 +77,6 @@ public:
     IndirectReferenceTable(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     IndirectReferenceTable(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     IndirectReferenceTable(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> IndirectReferenceTable(U *v) : api::MemoryRef(v) {}
-    template<typename U> IndirectReferenceTable(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init26();
     static void Init29();

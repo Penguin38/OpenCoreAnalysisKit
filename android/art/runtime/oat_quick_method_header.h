@@ -45,8 +45,6 @@ public:
     OatQuickMethodHeader(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     OatQuickMethodHeader(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     OatQuickMethodHeader(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> OatQuickMethodHeader(U *v) : api::MemoryRef(v) {}
-    template<typename U> OatQuickMethodHeader(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(OatQuickMethodHeader& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(OatQuickMethodHeader& ref) { return Ptr() != ref.Ptr(); }

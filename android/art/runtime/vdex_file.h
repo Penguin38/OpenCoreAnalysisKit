@@ -33,8 +33,6 @@ public:
     VdexFile(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     VdexFile(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     VdexFile(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> VdexFile(U *v) : api::MemoryRef(v) {}
-    template<typename U> VdexFile(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
     inline uint64_t mmap() { return Ptr() + OFFSET(VdexFile, mmap_); }

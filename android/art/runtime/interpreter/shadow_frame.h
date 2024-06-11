@@ -51,8 +51,6 @@ public:
     ShadowFrame(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ShadowFrame(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ShadowFrame(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ShadowFrame(U *v) : api::MemoryRef(v) {}
-    template<typename U> ShadowFrame(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
     inline uint64_t link() { return VALUEOF(ShadowFrame, link_); }

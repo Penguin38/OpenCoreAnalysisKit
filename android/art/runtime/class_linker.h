@@ -57,8 +57,6 @@ public:
     ClassLinker(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ClassLinker(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ClassLinker(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ClassLinker(U *v) : api::MemoryRef(v) {}
-    template<typename U> ClassLinker(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init26();
     static void Init28();
@@ -70,8 +68,6 @@ public:
         DexCacheData(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         DexCacheData(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         DexCacheData(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-        template<typename U> DexCacheData(U *v) : api::MemoryRef(v) {}
-        template<typename U> DexCacheData(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         static void Init26();
         static void Init28();

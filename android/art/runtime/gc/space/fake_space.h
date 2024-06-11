@@ -38,8 +38,6 @@ public:
     FakeSpace(const ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(ref) {}
     FakeSpace(uint64_t v, ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(v, ref) {}
     FakeSpace(uint64_t v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
-    template<typename U> FakeSpace(U *v) : ContinuousMemMapAllocSpace(v) {}
-    template<typename U> FakeSpace(U *v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
     static bool Create();
     SpaceType GetType() { return kSpaceTypeFakeSpace; }

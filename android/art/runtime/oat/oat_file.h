@@ -50,8 +50,6 @@ public:
     OatFile(uint64_t v) : api::MemoryRef(v) {}
     OatFile(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     OatFile(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> OatFile(U *v) : api::MemoryRef(v) {}
-    template<typename U> OatFile(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
     inline uint64_t vdex() { return VALUEOF(OatFile, vdex_); }
@@ -111,8 +109,6 @@ public:
     OatDexFile(uint64_t v) : api::MemoryRef(v) {}
     OatDexFile(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     OatDexFile(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> OatDexFile(U *v) : api::MemoryRef(v) {}
-    template<typename U> OatDexFile(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
     static void Init31();

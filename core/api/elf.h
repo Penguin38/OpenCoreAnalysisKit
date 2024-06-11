@@ -99,8 +99,6 @@ public:
     Elfx_Ehdr(const MemoryRef& ref) : MemoryRef(ref) {}
     Elfx_Ehdr(uint64_t v, MemoryRef& ref) : MemoryRef(v, ref) {}
     Elfx_Ehdr(uint64_t v, MemoryRef* ref) : MemoryRef(v, ref) {}
-    template<typename U> Elfx_Ehdr(U *v) : MemoryRef(v) {}
-    template<typename U> Elfx_Ehdr(U *v, MemoryRef* ref) : MemoryRef(v, ref) {}
 
     inline bool operator==(Elfx_Ehdr& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Elfx_Ehdr& ref) { return Ptr() != ref.Ptr(); }
@@ -116,8 +114,6 @@ public:
     Elfx_Phdr(const MemoryRef& ref) : MemoryRef(ref) {}
     Elfx_Phdr(uint64_t v, MemoryRef& ref) : MemoryRef(v, ref) {}
     Elfx_Phdr(uint64_t v, MemoryRef* ref) : MemoryRef(v, ref) {}
-    template<typename U> Elfx_Phdr(U *v) : MemoryRef(v) {}
-    template<typename U> Elfx_Phdr(U *v, MemoryRef* ref) : MemoryRef(v, ref) {}
 
     inline bool operator==(Elfx_Phdr& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Elfx_Phdr& ref) { return Ptr() != ref.Ptr(); }
@@ -135,8 +131,6 @@ public:
     Elfx_Dynamic(const MemoryRef& ref) : MemoryRef(ref) {}
     Elfx_Dynamic(uint64_t v, MemoryRef& ref) : MemoryRef(v, ref) {}
     Elfx_Dynamic(uint64_t v, MemoryRef* ref) : MemoryRef(v, ref) {}
-    template<typename U> Elfx_Dynamic(U *v) : MemoryRef(v) {}
-    template<typename U> Elfx_Dynamic(U *v, MemoryRef* ref) : MemoryRef(v, ref) {}
 
     inline bool operator==(Elfx_Dynamic& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Elfx_Dynamic& ref) { return Ptr() != ref.Ptr(); }
@@ -152,8 +146,6 @@ public:
     Elfx_Sym(const MemoryRef& ref) : MemoryRef(ref) {}
     Elfx_Sym(uint64_t v, MemoryRef& ref) : MemoryRef(v, ref) {}
     Elfx_Sym(uint64_t v, MemoryRef* ref) : MemoryRef(v, ref) {}
-    template<typename U> Elfx_Sym(U *v) : MemoryRef(v) {}
-    template<typename U> Elfx_Sym(U *v, MemoryRef* ref) : MemoryRef(v, ref) {}
 
     inline bool operator==(Elfx_Sym& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Elfx_Sym& ref) { return Ptr() != ref.Ptr(); }

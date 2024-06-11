@@ -45,12 +45,6 @@ public:
     MemoryRef(uint64_t v, MemoryRef& ref) : vaddr(v) { copyRef(ref); }
     MemoryRef(uint64_t v, MemoryRef* ref) : vaddr(v) { copyRef(ref); }
 
-    template<typename U> MemoryRef(U *v) { init(v); }
-    template<typename U> MemoryRef(U *v, LoadBlock* b) { init(v); checkCopyBlock(b); }
-    template<typename U> MemoryRef(U *v, MemoryRef& ref) { init(v); copyRef(ref); }
-    template<typename U> MemoryRef(U *v, MemoryRef* ref) { init(v); copyRef(ref); }
-
-    template<typename U> void init(U* other) { vaddr = reinterpret_cast<uint64_t>(other); block = nullptr; }
     inline void checkCopyBlock(LoadBlock* b) { if (b && b->virtualContains(vaddr)) block = b; }
     inline void copyRef(MemoryRef& ref) { checkCopyBlock(ref.block); }
     inline void copyRef(MemoryRef* ref) { checkCopyBlock(ref->block); }

@@ -46,8 +46,6 @@ public:
     ThreadList(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ThreadList(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ThreadList(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ThreadList(U *v) : api::MemoryRef(v) {}
-    template<typename U> ThreadList(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
     inline uint64_t list() { return Ptr() + OFFSET(ThreadList, list_); }

@@ -41,8 +41,6 @@ public:
     vector(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     vector(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     vector(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> vector(U *v) : api::MemoryRef(v) {}
-    template<typename U> vector(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(vector& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(vector& ref) { return Ptr() != ref.Ptr(); }

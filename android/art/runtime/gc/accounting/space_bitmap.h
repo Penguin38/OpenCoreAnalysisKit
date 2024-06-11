@@ -42,8 +42,6 @@ public:
     ContinuousSpaceBitmap(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ContinuousSpaceBitmap(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ContinuousSpaceBitmap(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ContinuousSpaceBitmap(U *v) : api::MemoryRef(v) {}
-    template<typename U> ContinuousSpaceBitmap(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init26();
     static void Init29();

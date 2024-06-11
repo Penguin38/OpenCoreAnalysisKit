@@ -54,8 +54,6 @@ public:
     ImageHeader(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     ImageHeader(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ImageHeader(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> ImageHeader(U *v) : api::MemoryRef(v) {}
-    template<typename U> ImageHeader(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(ImageHeader& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ImageHeader& ref) { return Ptr() != ref.Ptr(); }

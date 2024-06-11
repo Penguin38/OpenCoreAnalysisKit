@@ -40,9 +40,8 @@ int32_t Array::GetLength() {
     return length();   
 }
 
-void* Array::GetRawData(size_t component_size, int32_t index) {
-    uint32_t data = Ptr() + RoundUp(OFFSET(Array, first_element_), component_size) + (index * component_size);
-    return reinterpret_cast<void*>(data);
+uint64_t Array::GetRawData(size_t component_size, int32_t index) {
+    return Ptr() + RoundUp(OFFSET(Array, first_element_), component_size) + (index * component_size);
 }
 
 uint64_t Array::SizeOf() {

@@ -64,7 +64,7 @@ void android::Propbt::Init() {
     };
 }
 
-void* android::PropArea::toPropObj(uint32_t off) {
+uint64_t android::PropArea::toPropObj(uint32_t off) {
     return data() + off;
 }
 

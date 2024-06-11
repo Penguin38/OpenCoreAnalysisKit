@@ -47,8 +47,6 @@ public:
     Heap(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     Heap(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Heap(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> Heap(U *v) : api::MemoryRef(v) {}
-    template<typename U> Heap(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(Heap& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Heap& ref) { return Ptr() != ref.Ptr(); }

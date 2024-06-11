@@ -53,8 +53,6 @@ public:
     unordered_map(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     unordered_map(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     unordered_map(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> unordered_map(U *v) : api::MemoryRef(v) {}
-    template<typename U> unordered_map(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(unordered_map& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(unordered_map& ref) { return Ptr() != ref.Ptr(); }
@@ -72,8 +70,6 @@ public:
         pair(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         pair(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         pair(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-        template<typename U> pair(U *v) : api::MemoryRef(v) {}
-        template<typename U> pair(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         inline bool operator==(pair& ref) const { return Ptr() == ref.Ptr(); }
         inline bool operator!=(pair& ref) const { return Ptr() != ref.Ptr(); }

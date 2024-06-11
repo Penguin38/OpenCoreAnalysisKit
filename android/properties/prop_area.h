@@ -71,8 +71,6 @@ public:
     Propbt(uint64_t v) : api::MemoryRef(v) {}
     Propbt(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     Propbt(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> Propbt(U *v) : api::MemoryRef(v) {}
-    template<typename U> Propbt(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
     static void Init();
 
     inline uint32_t namelen() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(Propbt, namelen)); }
@@ -88,7 +86,6 @@ public:
     PropArea(uint64_t v) : api::MemoryRef(v) {}
     PropArea(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     PropArea(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
-    template<typename U> PropArea(U *v) : api::MemoryRef(v) {}
 
     constexpr static uint32_t PA_SIZE = 128 * 1024;
     constexpr static uint32_t PROP_AREA_MAGIC = 0x504f5250;
@@ -97,9 +94,9 @@ public:
     static void Init();
     inline uint32_t magic() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(PropArea, magic_)); }
     inline uint32_t version() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(PropArea, version_)); }
-    inline char* data() { return reinterpret_cast<char*>(Ptr() + OFFSET(PropArea, data_)); }
+    inline uint64_t data() { return Ptr() + OFFSET(PropArea, data_); }
 
-    void* toPropObj(uint32_t off);
+    uint64_t toPropObj(uint32_t off);
     Propbt toPropbt(uint32_t off);
     PropInfo toPropInfo(uint32_t off);
     Propbt rootNode();

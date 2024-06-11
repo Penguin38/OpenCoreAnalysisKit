@@ -69,8 +69,6 @@ public:
     RegionSpace(const ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(ref) {}
     RegionSpace(uint64_t v, ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(v, ref) {}
     RegionSpace(uint64_t v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
-    template<typename U> RegionSpace(U *v) : ContinuousMemMapAllocSpace(v) {}
-    template<typename U> RegionSpace(U *v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
     static void Init26();
     static void Init28();
@@ -109,8 +107,6 @@ public:
         Region(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         Region(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         Region(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-        template<typename U> Region(U *v) : api::MemoryRef(v) {}
-        template<typename U> Region(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         static void Init26();
         static void Init29();

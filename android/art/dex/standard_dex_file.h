@@ -50,16 +50,12 @@ public:
     StandardDexFile(uint64_t v) : DexFile(v) {}
     StandardDexFile(const DexFile& ref) : DexFile(ref) {}
     StandardDexFile(uint64_t v, DexFile* ref) : DexFile(v, ref) {}
-    template<typename U> StandardDexFile(U *v) : DexFile(v) {}
-    template<typename U> StandardDexFile(U *v, DexFile* ref) : DexFile(v, ref) {}
 
     class CodeItem : public dex::CodeItem {
     public:
         CodeItem(uint64_t v) : dex::CodeItem(v) {}
         CodeItem(const dex::CodeItem& ref) : dex::CodeItem(ref) {}
         CodeItem(uint64_t v, dex::CodeItem* ref) : dex::CodeItem(v, ref) {}
-        template<typename U> CodeItem(U *v) : dex::CodeItem(v) {}
-        template<typename U> CodeItem(U *v, dex::CodeItem* ref) : dex::CodeItem(v, ref) {}
 
         static void Init();
         inline uint16_t registers_size() { return value16Of(OFFSET(StandardDexFile_CodeItem, registers_size_)); }

@@ -299,10 +299,6 @@ void DexFile::Init34() {
     }
 }
 
-uint8_t* DexFile::DataBegin() {
-    return reinterpret_cast<uint8_t *>(data_begin());
-}
-
 cxx::string DexFile::GetLocation() {
     cxx::string location_(location(), this);
     return location_;

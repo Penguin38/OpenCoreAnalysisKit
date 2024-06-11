@@ -57,8 +57,6 @@ public:
     Runtime(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     Runtime(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Runtime(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> Runtime(U *v) : api::MemoryRef(v) {}
-    template<typename U> Runtime(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(Runtime& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Runtime& ref) { return Ptr() != ref.Ptr(); }

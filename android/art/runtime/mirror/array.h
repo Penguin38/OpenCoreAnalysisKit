@@ -53,7 +53,7 @@ public:
     inline uint32_t first_element() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Array, first_element_)); }
 
     int32_t GetLength();
-    void *GetRawData(size_t component_size, int32_t index);
+    uint64_t GetRawData(size_t component_size, int32_t index);
     uint64_t SizeOf();
 };
 

@@ -78,8 +78,6 @@ public:
     Space(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     Space(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Space(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-    template<typename U> Space(U *v) : api::MemoryRef(v) {}
-    template<typename U> Space(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     inline bool operator==(Space& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Space& ref) { return Ptr() != ref.Ptr(); }
@@ -114,8 +112,6 @@ public:
     ContinuousSpace(const Space& ref) : Space(ref) {}
     ContinuousSpace(uint64_t v, Space& ref) : Space(v, ref) {}
     ContinuousSpace(uint64_t v, Space* ref) : Space(v, ref) {}
-    template<typename U> ContinuousSpace(U *v) : Space(v) {}
-    template<typename U> ContinuousSpace(U *v, Space* ref) : Space(v, ref) {}
 
     static void Init();
     inline uint64_t begin() { return VALUEOF(ContinuousSpace, begin_); }
@@ -137,8 +133,6 @@ public:
     DiscontinuousSpace(const Space& ref) : Space(ref) {}
     DiscontinuousSpace(uint64_t v, Space& ref) : Space(v, ref) {}
     DiscontinuousSpace(uint64_t v, Space* ref) : Space(v, ref) {}
-    template<typename U> DiscontinuousSpace(U *v) : Space(v) {}
-    template<typename U> DiscontinuousSpace(U *v, Space* ref) : Space(v, ref) {}
 };
 
 class MemMapSpace : public ContinuousSpace {
@@ -149,8 +143,6 @@ public:
     MemMapSpace(const ContinuousSpace& ref) : ContinuousSpace(ref) {}
     MemMapSpace(uint64_t v, ContinuousSpace& ref) : ContinuousSpace(v, ref) {}
     MemMapSpace(uint64_t v, ContinuousSpace* ref) : ContinuousSpace(v, ref) {}
-    template<typename U> MemMapSpace(U *v) : ContinuousSpace(v) {}
-    template<typename U> MemMapSpace(U *v, ContinuousSpace* ref) : ContinuousSpace(v, ref) {}
 };
 
 class AllocSpace {};
@@ -163,8 +155,6 @@ public:
     ContinuousMemMapAllocSpace(const MemMapSpace& ref) : MemMapSpace(ref) {}
     ContinuousMemMapAllocSpace(uint64_t v, MemMapSpace& ref) : MemMapSpace(v, ref) {}
     ContinuousMemMapAllocSpace(uint64_t v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
-    template<typename U> ContinuousMemMapAllocSpace(U *v) : MemMapSpace(v) {}
-    template<typename U> ContinuousMemMapAllocSpace(U *v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
 };
 
 } // namespace space
