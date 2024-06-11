@@ -17,12 +17,14 @@
 #ifndef ANDROID_ART_RUNTIME_NTERP_HELPERS_H_
 #define ANDROID_ART_RUNTIME_NTERP_HELPERS_H_
 
-#include "api/memory_ref.h"
+#include "runtime/interpreter/quick_frame.h"
 #include "runtime/quick/quick_method_frame_info.h"
 
 namespace art {
 
-QuickMethodFrameInfo NterpFrameInfo(api::MemoryRef& frame);
+QuickMethodFrameInfo NterpFrameInfo(QuickFrame& frame);
+uint64_t NterpGetFrameDexPcPtr(QuickFrame& frame);
+void NterpGetFrameVRegs(QuickFrame& frame);
 
 } // namespace art
 

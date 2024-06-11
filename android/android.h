@@ -135,6 +135,7 @@ public:
     static void ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     static void ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn);
     static void ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn);
+    static void ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn);
     inline static art::Runtime& GetRuntime() { return INSTANCE->current(); }
     static void SysRoot(const char* path);
     inline static uint64_t SearchSymbol(const char* symbol) { return CoreApi::SearchSymbol(INSTANCE->realLibart.c_str(), symbol); }

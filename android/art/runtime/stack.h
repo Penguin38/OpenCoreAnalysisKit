@@ -22,6 +22,8 @@
 #include "runtime/art_method.h"
 #include "runtime/oat_quick_method_header.h"
 #include "runtime/quick/quick_method_frame_info.h"
+#include "runtime/interpreter/quick_frame.h"
+#include "runtime/interpreter/shadow_frame.h"
 #include <vector>
 #include <memory>
 
@@ -91,13 +93,22 @@ public:
         ArtMethod& GetMethod() { return method; }
         ShadowFrame& GetShadowFrame() { return shadow_frame; }
         QuickFrame& GetQuickFrame() { return quick_frame; }
-        void SetFramePc(uint64_t pc) { frame_pc = pc; }
-        uint64_t GetFramePc() { return frame_pc; }
+        OatQuickMethodHeader& GetMethodHeader() { return quick_frame.GetMethodHeader(); }
+        uint64_t GetFramePc() { return quick_frame.Ptr() ? quick_frame.GetFramePc() : 0x0; }
+        uint64_t GetDexPcPtr();
+        std::vector<uint32_t>& GetVRegs() {
+            if (shadow_frame.Ptr()) {
+                return shadow_frame.GetVRegs();
+            } else if (quick_frame.Ptr()) {
+                return quick_frame.GetVRegs();
+            }
+            return empty_vregs;
+        }
     private:
         ArtMethod method;
         ShadowFrame shadow_frame = 0x0;
         QuickFrame quick_frame = 0x0;
-        uint64_t frame_pc;
+        std::vector<uint32_t> empty_vregs;
     };
 
     StackVisitor(Thread* thread, StackWalkKind kind) : thread_(thread), walk_kind_(kind) {}

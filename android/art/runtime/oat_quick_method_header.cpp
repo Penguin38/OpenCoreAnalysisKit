@@ -182,7 +182,7 @@ uint32_t OatQuickMethodHeader::GetCodeInfoOffset() {
 }
 
 QuickMethodFrameInfo OatQuickMethodHeader::GetFrameInfo() {
-    if (OatHeader::OatVersion() >= 192) {
+    if (OatHeader::OatVersion() >= 156) {
         return CodeInfo::DecodeFrameInfo(GetOptimizedCodeInfoPtr());
     } else {
         api::MemoryRef ref(frame_info(), this);
@@ -206,8 +206,13 @@ OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
     if (header.Ptr()) return header;
 
     uint64_t entry_point = Android::SearchSymbol(Android::EXECUTE_NTERP_IMPL);
-    header = OatQuickMethodHeader::FromEntryPoint(entry_point);
+    if (entry_point) header = OatQuickMethodHeader::FromEntryPoint(entry_point);
     return header;
+}
+
+uint64_t OatQuickMethodHeader::NativePc2DexPc(uint64_t pc) {
+    CodeInfo code_info = CodeInfo::DecodeHeaderOnly(GetOptimizedCodeInfoPtr());
+    return 0x0;
 }
 
 } //namespace art

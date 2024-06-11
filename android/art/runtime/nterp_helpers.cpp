@@ -82,13 +82,48 @@ static inline uint64_t NterpGetFrameSize(ArtMethod& method) {
     return RoundUp(NterpGetFrameSizeWithoutPadding(method), kStackAlignment);
 }
 
-QuickMethodFrameInfo NterpFrameInfo(api::MemoryRef& frame) {
-    ArtMethod method = frame.valueOf();
+QuickMethodFrameInfo NterpFrameInfo(QuickFrame& frame) {
+    ArtMethod& method = frame.GetMethod();
     uint32_t core_spills =
         RuntimeCalleeSaveFrame::GetCoreSpills(CalleeSaveType::kSaveAllCalleeSaves);
     uint32_t fp_spills =
         RuntimeCalleeSaveFrame::GetFpSpills(CalleeSaveType::kSaveAllCalleeSaves);
     return QuickMethodFrameInfo(NterpGetFrameSize(method), core_spills, fp_spills);
+}
+
+uint64_t NterpGetFrameDexPcPtr(QuickFrame& frame) {
+    ArtMethod& method = frame.GetMethod();
+    art::dex::CodeItem item = method.GetCodeItem();
+    const uint16_t num_regs = item.num_regs_;
+    const uint16_t out_regs = item.out_regs_;
+    uint32_t pointer_size = CoreApi::GetPointSize();
+
+    api::MemoryRef dex_pc_ptr(frame.Ptr() +
+                              pointer_size +
+                              RoundUp(out_regs * kVRegSize, pointer_size),
+                              frame);
+    return dex_pc_ptr.valueOf();
+}
+
+void NterpGetFrameVRegs(QuickFrame& frame) {
+    std::vector<uint32_t>& vregs = frame.GetVRegsCache();
+    ArtMethod& method = frame.GetMethod();
+    art::dex::CodeItem item = method.GetCodeItem();
+    const uint16_t num_regs = item.num_regs_;
+    const uint16_t out_regs = item.out_regs_;
+    uint32_t pointer_size = CoreApi::GetPointSize();
+
+    api::MemoryRef dex_vregs_ptr(frame.Ptr() +
+                                 pointer_size +
+                                 RoundUp(out_regs * kVRegSize, pointer_size) +
+                                 pointer_size +
+                                 pointer_size +
+                                 (num_regs * kVRegSize),
+                                 frame);
+
+    for (int i = 0; i < num_regs; ++i) {
+        vregs.push_back(dex_vregs_ptr.value32Of(i * sizeof(uint32_t)));
+    }
 }
 
 } // namespace art

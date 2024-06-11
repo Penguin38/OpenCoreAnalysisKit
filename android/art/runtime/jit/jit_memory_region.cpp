@@ -35,10 +35,9 @@ void JitMemoryRegion::Init30() {
 }
 
 MemMap& JitMemoryRegion::GetExecPages() {
-    if (exec_pages_cache.Ptr()) {
+    if (!exec_pages_cache.Ptr()) {
         exec_pages_cache = exec_pages();
         exec_pages_cache.copyRef(this);
-        exec_pages_cache.Prepare(false);
     }
     return exec_pages_cache;
 }

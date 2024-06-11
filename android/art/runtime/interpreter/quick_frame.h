@@ -32,10 +32,26 @@ public:
     template<typename U> QuickFrame(U *v) : api::MemoryRef(v) {}
     template<typename U> QuickFrame(U *v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    inline ArtMethod GetMethod() { return valueOf(); }
+    void init(OatQuickMethodHeader& mh, uint64_t pc) {
+        method_header = mh;
+        frame_pc = pc;
+    }
+
+    inline ArtMethod& GetMethod() {
+        if (!method.Ptr()) {
+            method = valueOf();
+        }
+        return method;
+    }
+    inline OatQuickMethodHeader& GetMethodHeader() { return method_header; }
+    uint64_t GetFramePc() { return frame_pc; }
     uint64_t GetDexPcPtr();
     std::vector<uint32_t>& GetVRegs();
+    std::vector<uint32_t>& GetVRegsCache() { return vregs_cache; }
 private:
+    ArtMethod method = 0x0;
+    OatQuickMethodHeader method_header = 0x0;
+    uint64_t frame_pc;
     std::vector<uint32_t> vregs_cache;
 };
 

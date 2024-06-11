@@ -14,16 +14,40 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "api/core.h"
+#include "runtime/nterp_helpers.h"
 #include "runtime/interpreter/quick_frame.h"
 
 namespace art {
 
 uint64_t QuickFrame::GetDexPcPtr() {
+    if (GetMethod().IsNative()) {
+        return 0x0;
+    } else if (method_header.Ptr()) {
+        if (method_header.IsOptimized()) {
+            return method_header.NativePc2DexPc(frame_pc);
+        } else {
+            return NterpGetFrameDexPcPtr(*this);
+        }
+    }
     return 0x0;
 }
 
 std::vector<uint32_t>& QuickFrame::GetVRegs() {
+    if (vregs_cache.size()) {
+        return vregs_cache;
+    }
+
+    if (GetMethod().IsNative()) {
+        // do nothing
+    } else if (method_header.Ptr()) {
+        if (method_header.IsOptimized()) {
+            // do nothing
+        } else {
+            NterpGetFrameVRegs(*this);
+        }
+    }
     return vregs_cache;
 }
 

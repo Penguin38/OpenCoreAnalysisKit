@@ -91,6 +91,7 @@ public:
     uint64_t GetOptimizedCodeInfoPtr() { return code() - GetCodeInfoOffset(); }
     static bool IsNterpPc(uint64_t pc);
     static OatQuickMethodHeader GetNterpMethodHeader();
+    uint64_t NativePc2DexPc(uint64_t pc);
 private:
     // quick memoryref cache
 

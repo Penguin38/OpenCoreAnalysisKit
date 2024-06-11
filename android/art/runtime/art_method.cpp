@@ -21,6 +21,7 @@
 #include "runtime/runtime.h"
 #include "runtime/art_method.h"
 #include "runtime/entrypoints/runtime_asm_entrypoints.h"
+#include "runtime/oat/oat_file.h"
 #include "dex/descriptors_names.h"
 #include "dex/standard_dex_file.h"
 #include "dex/compact_dex_file.h"
@@ -299,6 +300,42 @@ uint64_t ArtMethod::GetNativePointer(uint32_t offset, uint32_t pointer_size) {
     }
 }
 
+static const OatFile::OatMethod FindOatMethodFromDexFileFor(ArtMethod* method, bool* found) {
+    return OatFile::OatMethod::Invalid();
+}
+
+static const OatFile::OatMethod FindOatMethodFor(ArtMethod* method,
+                                                 uint32_t pointer_size,
+                                                 bool* found) {
+    if (method->IsObsolete()) {
+        return FindOatMethodFromDexFileFor(method, found);
+    }
+
+    mirror::Class& declaring_class = method->GetDeclaringClass();
+    uint16_t oat_method_index;
+    if (method->IsStatic() || method->IsDirect()) {
+        oat_method_index = method->GetMethodIndex();
+    } else {
+        oat_method_index = declaring_class.NumDirectMethods();
+        auto visit_virtual_methods = [&](art::ArtMethod& art_method) -> bool {
+            if (method->GetDexMethodIndex() == art_method.GetDexMethodIndex()) {
+                return true;
+            }
+            oat_method_index++;
+            return false;
+        };
+    }
+
+    OatFile::OatClass oat_class = OatFile::FindOatClass(declaring_class.GetDexFile(),
+                                                        declaring_class.GetDexClassDefIndex(),
+                                                        found);
+
+    if (!(*found)) {
+        return OatFile::OatMethod::Invalid();
+    }
+    return oat_class.GetOatMethod(oat_method_index);
+}
+
 OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     OatQuickMethodHeader method_header = 0x0;
     if (IsRuntimeMethod()) {
@@ -340,6 +377,19 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
             return method_header;
         }
     }
+
+    bool found = false;
+    OatFile::OatMethod oat_method = FindOatMethodFor(this, CoreApi::GetPointSize(), &found);
+    if (!found)
+        return 0x0;
+
+    uint64_t oat_entry_point = oat_method.GetQuickCode();
+    if (!oat_entry_point || class_linker.IsQuickGenericJniStub(oat_entry_point))
+        return 0x0;
+
+    method_header = OatQuickMethodHeader::FromEntryPoint(oat_entry_point);
+    if (IsNative() && !method_header.Contains(pc))
+        return 0x0;
 
     return method_header;
 }

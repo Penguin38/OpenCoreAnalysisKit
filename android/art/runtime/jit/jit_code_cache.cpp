@@ -86,7 +86,7 @@ void JitCodeCache::Init29() {
 void JitCodeCache::Init30() {
     if (CoreApi::Bits() == 64) {
         __JitCodeCache_offset__ = {
-            .shared_region_ = 304,
+            .shared_region_ = 32,
             .private_region_ = 392,
             .jni_stubs_map_ = 752,
             .method_code_map_ = 776,
@@ -94,7 +94,7 @@ void JitCodeCache::Init30() {
         };
     } else {
         __JitCodeCache_offset__ = {
-            .shared_region_ = 128,
+            .shared_region_ = 20,
             .private_region_ = 216,
             .jni_stubs_map_ = 412,
             .method_code_map_ = 424,
@@ -106,7 +106,7 @@ void JitCodeCache::Init30() {
 void JitCodeCache::Init31() {
     if (CoreApi::Bits() == 64) {
         __JitCodeCache_offset__ = {
-            .shared_region_ = 304,
+            .shared_region_ = 32,
             .private_region_ = 392,
             .jni_stubs_map_ = 752,
             .method_code_map_ = 776,
@@ -114,7 +114,7 @@ void JitCodeCache::Init31() {
         };
     } else {
         __JitCodeCache_offset__ = {
-            .shared_region_ = 128,
+            .shared_region_ = 20,
             .private_region_ = 216,
             .jni_stubs_map_ = 412,
             .method_code_map_ = 424,

@@ -286,6 +286,7 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::OatQuickMethodHeader::Init31);
     RegisterSdkListener(S, art::CodeInfo::Init31);
     RegisterSdkListener(S, art::jit::JitCodeCache::Init31);
+    RegisterSdkListener(S, art::OatDexFile::Init31);
 
     // 33
     RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
@@ -417,6 +418,23 @@ void Android::ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (a
     if (!size) return;
     art::ArtMethod method(clazz.GetMethods(), clazz);
     int i = 0;
+    do {
+        if (fn(method)) break;
+        i++;
+        if (i < size) {
+            method.MovePtr(SIZEOF(ArtMethod));
+        } else {
+            break;
+        }
+    } while(true);
+}
+
+void Android::ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
+    uint32_t size = clazz.NumMethods();
+    uint32_t virtual_offset = clazz.NumDirectMethods();
+    if (!(size - virtual_offset)) return;
+    art::ArtMethod method(clazz.GetMethods(), clazz);
+    int i = virtual_offset;
     do {
         if (fn(method)) break;
         i++;

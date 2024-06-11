@@ -184,6 +184,9 @@ public:
     IfTable& GetIfTable();
     uint32_t NumMethods();
     uint64_t GetMethods();
+    inline uint32_t NumDirectMethods() { return GetVirtualMethodsStartOffset(); }
+    inline uint32_t GetVirtualMethodsStartOffset() { return virtual_methods_offset(); }
+    inline uint16_t GetDexClassDefIndex() { return dex_class_def_idx(); }
 
 private:
     // quick memoryref cache

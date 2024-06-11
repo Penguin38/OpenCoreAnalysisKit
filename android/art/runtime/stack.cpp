@@ -24,12 +24,22 @@
 #include "runtime/art_method.h"
 #include "runtime/base/callee_save_type.h"
 #include "runtime/entrypoints/quick/callee_save_frame.h"
+#include "runtime/oat/stack_map.h"
 
 namespace art {
 
+uint64_t StackVisitor::JavaFrame::GetDexPcPtr() {
+    if (shadow_frame.Ptr()) {
+        return shadow_frame.GetDexPcPtr();
+    } else if (quick_frame.Ptr()) {
+        return quick_frame.GetDexPcPtr();
+    }
+    return 0x0;
+}
+
 QuickMethodFrameInfo StackVisitor::GetCurrentQuickFrameInfo() {
     if (cur_oat_quick_method_header_.Ptr()) {
-        if(Android::Sdk() > Android::Q) {
+        if(Android::Sdk() >= Android::R) {
             if (cur_oat_quick_method_header_.IsOptimized()) {
                 return cur_oat_quick_method_header_.GetFrameInfo();
             } else {
@@ -76,7 +86,9 @@ bool StackVisitor::VisitFrame() {
             std::make_unique<JavaFrame>(method,
                                         cur_quick_frame_,
                                         cur_shadow_frame_);
-    if (cur_quick_frame_.Ptr()) frame->SetFramePc(cur_quick_frame_pc_);
+    if (frame->GetQuickFrame().Ptr()) {
+        frame->GetQuickFrame().init(cur_oat_quick_method_header_, cur_quick_frame_pc_);
+    }
     java_frames_.push_back(std::move(frame));
     return true;
 }

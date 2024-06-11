@@ -102,11 +102,17 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             LOGI("      art::ArtMethod: 0x%lx\n", method.Ptr());
             LOGI("      shadow_frame: 0x%lx\n", shadow_frame.Ptr());
             LOGI("      quick_frame: 0x%lx\n", quick_frame.Ptr());
-            if (shadow_frame.Ptr() && shadow_frame.GetDexPcPtr()) {
+            LOGI("      dex_pc_ptr: 0x%lx\n", java_frame->GetDexPcPtr());
+            if (quick_frame.Ptr()) {
+                art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
+                LOGI("      method_header: 0x%lx\n", method_header.Ptr());
+            }
+
+            if (java_frame->GetDexPcPtr()) {
                 LOGI("\n      DEX CODE:\n");
                 art::dex::CodeItem item = method.GetCodeItem();
                 api::MemoryRef startref = item.Ptr() + item.code_offset_;
-                api::MemoryRef coderef = shadow_frame.GetDexPcPtr();
+                api::MemoryRef coderef = java_frame->GetDexPcPtr();
                 startref.copyRef(item);
 
                 while (startref.Ptr() <= (coderef.Ptr() - 0xc)) {
@@ -117,7 +123,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
                     LOGI("      %s\n", art::Dexdump::PrettyDexInst(startref, dex_file).c_str());
                     startref.MovePtr(art::Dexdump::GetDexInstSize(startref));
                 }
-                ShowJavaFrameRegister("      ", shadow_frame.GetVRegs());
+                ShowJavaFrameRegister("      ", java_frame->GetVRegs());
             }
             LOGI("  }\n");
         }
