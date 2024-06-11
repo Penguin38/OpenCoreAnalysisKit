@@ -28,7 +28,7 @@ uint32_t Dexdump::GetDexInstSize(api::MemoryRef& ref) {
         return 0x2;
 
     switch (op) {
-        case DEXOP::NOP: return 0x2;
+        case DEXOP::NOP: return !ref.value16Of() ? 0x2 : 0xA;
         case DEXOP::MOVE: return 0x2;
         case DEXOP::MOVE_FROM16: return 0x4;
         case DEXOP::MOVE_16: return 0x6;
@@ -708,7 +708,20 @@ void Dexdump::AppendCodecArgsvAAvBBCC(const char* op, api::MemoryRef& ref, std::
 }
 
 void Dexdump::AppendCodecNop(api::MemoryRef& ref, std::string& sb) {
-    AppendCodecNoArgs("nop", ref, sb);
+    char codec[32];
+    uint16_t code0 = ref.value16Of();
+    if (!code0) {
+        snprintf(codec, sizeof(codec), "%04x                     | ", code0);
+        sb.append(codec);
+    } else {
+        uint16_t code1 = ref.value16Of(2);
+        uint16_t code2 = ref.value16Of(4);
+        uint16_t code3 = ref.value16Of(6);
+        uint16_t code4 = ref.value16Of(8);
+        snprintf(codec, sizeof(codec), "%04x %04x %04x %04x %04x | ", code0, code1, code2, code3, code4);
+        sb.append(codec);
+    }
+    sb.append("nop");
 }
 
 void Dexdump::AppendCodecMove(api::MemoryRef& ref, std::string& sb) {
