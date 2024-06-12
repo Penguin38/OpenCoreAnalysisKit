@@ -22,7 +22,10 @@
 
 namespace art {
 
-QuickMethodFrameInfo NterpFrameInfo(QuickFrame& frame);
+QuickMethodFrameInfo NterpFrameInfo(ArtMethod& method);
+inline QuickMethodFrameInfo NterpFrameInfo(QuickFrame& frame) {
+    return NterpFrameInfo(frame.GetMethod());
+}
 uint64_t NterpGetFrameDexPcPtr(QuickFrame& frame);
 void NterpGetFrameVRegs(QuickFrame& frame);
 

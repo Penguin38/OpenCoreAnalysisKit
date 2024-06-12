@@ -337,9 +337,8 @@ static const OatFile::OatMethod FindOatMethodFor(ArtMethod& method,
 }
 
 OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
-    OatQuickMethodHeader method_header = 0x0;
     if (IsRuntimeMethod()) {
-        return method_header;
+        return 0x0;
     }
 
     Runtime& runtime = Runtime::Current();
@@ -347,15 +346,14 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     ClassLinker& class_linker = runtime.GetClassLinker();
 
     if (existing_entry_point == GetQuickProxyInvokeHandler()) {
-        return method_header;
+        return 0x0;
     }
 
     if (!class_linker.IsQuickGenericJniStub(existing_entry_point) &&
         !class_linker.IsQuickResolutionStub(existing_entry_point) &&
         !class_linker.IsQuickToInterpreterBridge(existing_entry_point) &&
         existing_entry_point != GetInvokeObsoleteMethodStub()) {
-        method_header = OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
-
+        OatQuickMethodHeader method_header = OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
         if (method_header.Contains(pc)) {
             return method_header;
         }
@@ -370,8 +368,7 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     jit::Jit& jit = runtime.GetJit();
     if (jit.Ptr()) {
         jit::JitCodeCache& code_cache = jit.GetCodeCache();
-        method_header = code_cache.LookupMethodHeader(pc, *this);
-
+        OatQuickMethodHeader method_header = code_cache.LookupMethodHeader(pc, *this);
         if (method_header.Ptr()
                 /* && method_header.Contains(pc)*/) {
             return method_header;
@@ -387,7 +384,7 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     if (!oat_entry_point || class_linker.IsQuickGenericJniStub(oat_entry_point))
         return 0x0;
 
-    method_header = OatQuickMethodHeader::FromEntryPoint(oat_entry_point);
+    OatQuickMethodHeader method_header = OatQuickMethodHeader::FromEntryPoint(oat_entry_point);
     if (IsNative() && !method_header.Contains(pc))
         return 0x0;
 

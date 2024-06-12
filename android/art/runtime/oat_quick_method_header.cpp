@@ -142,12 +142,7 @@ void OatQuickMethodHeader::OatInit239() {
 }
 
 bool OatQuickMethodHeader::Contains(uint64_t pc) {
-    uint64_t code_start = code();
-    if (CoreApi::GetMachine() == EM_AARCH64) {
-        code_start &= ((1ULL << 56) - 1);
-    } else if (CoreApi::GetMachine() == EM_ARM) {
-        code_start++;
-    }
+    uint64_t code_start = GetCodeStart();
     return code_start <= pc && pc <= (code_start + GetCodeSize());
 }
 
@@ -157,6 +152,16 @@ bool OatQuickMethodHeader::IsOptimized() {
     } else {
         return GetCodeSize() != 0 && vmap_table_offset() != 0;
     }
+}
+
+uint64_t OatQuickMethodHeader::GetCodeStart() {
+    uint64_t code_start = code();
+    if (CoreApi::GetMachine() == EM_AARCH64) {
+        code_start &= ((1ULL << 56) - 1);
+    } else if (CoreApi::GetMachine() == EM_ARM) {
+        code_start++;
+    }
+    return code_start;
 }
 
 uint32_t OatQuickMethodHeader::GetCodeSize() {
@@ -215,6 +220,12 @@ OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
 uint64_t OatQuickMethodHeader::NativePc2DexPc(uint64_t pc) {
     CodeInfo code_info = CodeInfo::DecodeHeaderOnly(GetOptimizedCodeInfoPtr());
     return 0x0;
+}
+
+void OatQuickMethodHeader::Dump(const char* prefix) {
+    LOGI("%sOatQuickMethodHeader(0x%lx)\n", prefix, Ptr());
+    LOGI("%s  code_offset: 0x%lx\n", prefix, GetCodeStart());
+    LOGI("%s  code_size: 0x%x\n", prefix, GetCodeSize());
 }
 
 } //namespace art

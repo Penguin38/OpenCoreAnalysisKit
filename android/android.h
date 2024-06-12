@@ -77,6 +77,7 @@ public:
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
     static bool IsSdkReady() { return IsReady() && Sdk() >= O; }
+    static bool IsOatReady() { return IsReady() && Oat() > 0; }
     static void Init();
     static void Clean();
     static void Dump();

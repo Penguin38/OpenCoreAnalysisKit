@@ -27,17 +27,21 @@ public:
     static uint32_t DecodeCodeSize(uint64_t code_info_data);
     static QuickMethodFrameInfo DecodeFrameInfo(uint64_t code_info_data);
 
-    static void Init();
-    static void Init31();
-    static uint32_t kNumHeaders;
+    static void OatInit124(); // 8.0.0_r1 Base
+    static void OatInit150(); // Add method frame info to CodeInfo.
+    static void OatInit171(); // Optimize stack maps: add fast path for no inline info.
+    static void OatInit172(); // Stack maps: Handle special cases using flags.
+    static void OatInit191(); // Add code size to CodeInfo.
+    void Dump(const char* prefix);
 private:
-    uint32_t flags_ = 0;
-    uint32_t code_size_ = 0;  // The size of native PC range in bytes.
-    uint32_t packed_frame_size_ = 0;  // Frame size in kStackAlignment units.
-    uint32_t core_spill_mask_ = 0;
-    uint32_t fp_spill_mask_ = 0;
-    uint32_t number_of_dex_registers_ = 0;
-    uint32_t bit_table_flags_ = 0;
+    static uint32_t kNumHeaders;
+    uint32_t flags_ = 0;                    // 171+
+    uint32_t code_size_ = 0;                // 191+, The size of native PC range in bytes.
+    uint32_t packed_frame_size_ = 0;        // 150+, Frame size in kStackAlignment units.
+    uint32_t core_spill_mask_ = 0;          // 150+
+    uint32_t fp_spill_mask_ = 0;            // 150+
+    uint32_t number_of_dex_registers_ = 0;  // 150+
+    uint32_t bit_table_flags_ = 0;          // 172+
 };
 
 } // namespace art

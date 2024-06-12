@@ -31,10 +31,7 @@ public:
     MethodCommand() : Command("method") {}
     ~MethodCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        // Android::Prepare();
-        return true;
-    }
+    bool prepare(int argc, char* const argv[]);
     void Dexdump();
     void Oatdump();
     void Binarydump();

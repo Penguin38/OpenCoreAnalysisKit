@@ -184,7 +184,6 @@ void Android::preLoad() {
     art::ShadowFrame::Init();
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();
-    art::CodeInfo::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -285,7 +284,6 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::JavaVMExt::Init31);
     RegisterSdkListener(S, art::ArtMethod::Init31);
     RegisterSdkListener(S, art::OatQuickMethodHeader::Init31);
-    RegisterSdkListener(S, art::CodeInfo::Init31);
     RegisterSdkListener(S, art::jit::JitCodeCache::Init31);
     RegisterSdkListener(S, art::OatDexFile::Init31);
 
@@ -307,8 +305,13 @@ void Android::preLoad() {
 
     // OAT
     RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);
+    RegisterOatListener(124, art::CodeInfo::OatInit124);
+    RegisterOatListener(150, art::CodeInfo::OatInit150);
     RegisterOatListener(156, art::OatQuickMethodHeader::OatInit156);
     RegisterOatListener(158, art::OatQuickMethodHeader::OatInit158);
+    RegisterOatListener(171, art::CodeInfo::OatInit171);
+    RegisterOatListener(172, art::CodeInfo::OatInit172);
+    RegisterOatListener(191, art::CodeInfo::OatInit191);
     RegisterOatListener(192, art::OatQuickMethodHeader::OatInit192);
     RegisterOatListener(238, art::OatQuickMethodHeader::OatInit238);
     RegisterOatListener(239, art::OatQuickMethodHeader::OatInit239);

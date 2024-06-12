@@ -83,6 +83,7 @@ public:
 
     bool Contains(uint64_t pc);
     bool IsOptimized();
+    uint64_t GetCodeStart();
     uint32_t GetCodeSize();
     QuickMethodFrameInfo GetFrameInfo();
     uint32_t GetCodeInfoOffset();
@@ -90,6 +91,7 @@ public:
     static bool IsNterpPc(uint64_t pc);
     static OatQuickMethodHeader GetNterpMethodHeader();
     uint64_t NativePc2DexPc(uint64_t pc);
+    void Dump(const char* prefix);
 private:
     // quick memoryref cache
 

@@ -82,8 +82,7 @@ static inline uint64_t NterpGetFrameSize(ArtMethod& method) {
     return RoundUp(NterpGetFrameSizeWithoutPadding(method), kStackAlignment);
 }
 
-QuickMethodFrameInfo NterpFrameInfo(QuickFrame& frame) {
-    ArtMethod& method = frame.GetMethod();
+QuickMethodFrameInfo NterpFrameInfo(ArtMethod& method) {
     uint32_t core_spills =
         RuntimeCalleeSaveFrame::GetCoreSpills(CalleeSaveType::kSaveAllCalleeSaves);
     uint32_t fp_spills =

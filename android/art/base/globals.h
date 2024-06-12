@@ -17,22 +17,23 @@
 #ifndef ANDROID_ART_BASE_GLOBALS_H_
 #define ANDROID_ART_BASE_GLOBALS_H_
 
+#include <stdint.h>
 #include <sys/types.h>
 
 namespace art {
 
-static constexpr size_t KB = 1024;
-static constexpr size_t MB = KB * KB;
-static constexpr size_t GB = KB * KB * KB;
+static constexpr uint32_t KB = 1024;
+static constexpr uint32_t MB = KB * KB;
+static constexpr uint32_t GB = KB * KB * KB;
 
 // Runtime sizes.
-static constexpr size_t kBitsPerByte = 8;
-static constexpr size_t kBitsPerByteLog2 = 3;
+static constexpr uint32_t kBitsPerByte = 8;
+static constexpr uint32_t kBitsPerByteLog2 = 3;
 
 // Required stack alignment
-static constexpr size_t kStackAlignment = 16;
+static constexpr uint32_t kStackAlignment = 16;
 
-static constexpr size_t kPageSize = 0x1000;
+static constexpr uint32_t kPageSize = 0x1000;
 
 } // namespace art
 

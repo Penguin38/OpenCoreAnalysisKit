@@ -21,10 +21,50 @@
 #include "base/utils.h"
 #include "dalvik_vm_bytecode.h"
 #include "dexdump/dexdump.h"
+#include "runtime/oat.h"
+#include "runtime/oat/stack_map.h"
+#include "runtime/nterp_helpers.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <iomanip>
 #include <stdlib.h>
+
+bool MethodCommand::prepare(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady()
+            || !Android::IsSdkReady()
+            || !(argc > 1))
+        return false;
+
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"dex-dump",    no_argument,       0,  0 },
+        {"oat-dump",    no_argument,       0,  1 },
+        {"inst",        required_argument, 0, 'i'},
+        {"num",         required_argument, 0, 'n'},
+        {"verbose",     no_argument,       0, 'v'},
+        {"binary",      no_argument,       0, 'b'},
+        {0,               0,               0,  0 }
+    };
+
+    while ((opt = getopt_long(argc, argv, "i:n:01bv",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 0:
+                dump_opt |= METHOD_DUMP_DEXCODE;
+                break;
+            case 1:
+                dump_opt |= METHOD_DUMP_OATCODE;
+                break;
+        }
+    }
+
+    if (dump_opt & METHOD_DUMP_OATCODE) {
+        Android::OatPrepare();
+    }
+    return true;
+}
 
 int MethodCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
@@ -33,7 +73,6 @@ int MethodCommand::main(int argc, char* const argv[]) {
         return 0;
 
     int opt;
-    method = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
     dump_opt = METHOD_DUMP_NAME;
     verbose = false;
     count = 0;
@@ -74,6 +113,12 @@ int MethodCommand::main(int argc, char* const argv[]) {
         }
     }
 
+    if (optind >= argc) {
+        usage();
+        return 0;
+    }
+
+    method = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
     uint32_t dex_method_idx = method.GetDexMethodIndex();
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
         LOGI("%s%s [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
@@ -136,7 +181,21 @@ void MethodCommand::Dexdump() {
 }
 
 void MethodCommand::Oatdump() {
-
+    art::OatQuickMethodHeader method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ 0x0);
+    if (method_header.Ptr()) {
+        if (verbose) {
+            method_header.Dump("");
+            art::CodeInfo code_info = art::CodeInfo::DecodeHeaderOnly(method_header.GetOptimizedCodeInfoPtr());
+            code_info.Dump("  ");
+            art::QuickMethodFrameInfo frame = method_header.GetFrameInfo();
+            LOGI("  QuickMethodFrameInfo\n");
+            LOGI("    frame_size_in_bytes: 0x%x\n", frame.FrameSizeInBytes());
+            LOGI("    core_spill_mask: 0x%x\n", frame.CoreSpillMask());
+            LOGI("    fp_spill_mask: 0x%x\n", frame.FpSpillMask());
+        }
+        LOGI("OAT CODE:\n");
+        LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
+    }
 }
 
 void MethodCommand::Binarydump() {
