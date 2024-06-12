@@ -244,13 +244,13 @@ uint64_t JitCodeCache::GetJniStubCode(ArtMethod& method) {
     return 0x0;
 }
 
-uint64_t ZygoteMap::GetCodeFor(ArtMethod* method, uint64_t pc) {
+uint64_t ZygoteMap::GetCodeFor(ArtMethod& method, uint64_t pc) {
     if (!size()) {
         return 0x0;
     }
 
     std::hash<uint64_t> hf;
-    uint64_t index = hf(method->Ptr()) & (size() - 1u);
+    uint64_t index = hf(method.Ptr()) & (size() - 1u);
 
     uint32_t point_size = CoreApi::GetPointSize();
     api::MemoryRef array_ = array();
@@ -260,7 +260,7 @@ uint64_t ZygoteMap::GetCodeFor(ArtMethod* method, uint64_t pc) {
         if (!m.Ptr()) {
             return 0x0;
         }
-        if (m.Ptr() == method->Ptr()) {
+        if (m == method) {
             if (!code_ptr) {
                 return 0x0;
             }
@@ -275,7 +275,7 @@ uint64_t ZygoteMap::GetCodeFor(ArtMethod* method, uint64_t pc) {
     return 0x0;
 }
 
-OatQuickMethodHeader JitCodeCache::LookupMethodCodeMap(uint64_t pc, ArtMethod* /*method*/) {
+OatQuickMethodHeader JitCodeCache::LookupMethodCodeMap(uint64_t pc, ArtMethod& /*method*/) {
     if (!GetMethodCodeMap().size()) {
         return 0x0;
     }
@@ -298,7 +298,7 @@ OatQuickMethodHeader JitCodeCache::LookupMethodCodeMap(uint64_t pc, ArtMethod* /
     return OatQuickMethodHeader::FromCodePointer(code_ptr);
 }
 
-OatQuickMethodHeader JitCodeCache::LookupMethodHeader(uint64_t pc, ArtMethod* method) {
+OatQuickMethodHeader JitCodeCache::LookupMethodHeader(uint64_t pc, ArtMethod& method) {
     OatQuickMethodHeader method_header = 0x0;
     if (CoreApi::GetMachine() == EM_ARM) {
         --pc;
@@ -310,10 +310,9 @@ OatQuickMethodHeader JitCodeCache::LookupMethodHeader(uint64_t pc, ArtMethod* me
 
     // SafeMap<JniStubKey, JniStubData> jni_stubs_map_ GUARDED_BY(lock_);
     // SafeMap<const void*, ArtMethod*> method_code_map_ GUARDED_BY(lock_);
-    ArtMethod alias_method(method->Ptr(), method);
     if (Android::Sdk() >= Android::P) {
-        if (method != nullptr && method->IsNative()) {
-            uint64_t entry_point = GetJniStubCode(alias_method);
+        if (method.Ptr() && method.IsNative()) {
+            uint64_t entry_point = GetJniStubCode(method);
             if (!entry_point)
                 return 0x0;
 

@@ -300,25 +300,25 @@ uint64_t ArtMethod::GetNativePointer(uint32_t offset, uint32_t pointer_size) {
     }
 }
 
-static const OatFile::OatMethod FindOatMethodFromDexFileFor(ArtMethod* method, bool* found) {
+static const OatFile::OatMethod FindOatMethodFromDexFileFor(ArtMethod& method, bool* found) {
     return OatFile::OatMethod::Invalid();
 }
 
-static const OatFile::OatMethod FindOatMethodFor(ArtMethod* method,
+static const OatFile::OatMethod FindOatMethodFor(ArtMethod& method,
                                                  uint32_t pointer_size,
                                                  bool* found) {
-    if (method->IsObsolete()) {
+    if (method.IsObsolete()) {
         return FindOatMethodFromDexFileFor(method, found);
     }
 
-    mirror::Class& declaring_class = method->GetDeclaringClass();
+    mirror::Class& declaring_class = method.GetDeclaringClass();
     uint16_t oat_method_index;
-    if (method->IsStatic() || method->IsDirect()) {
-        oat_method_index = method->GetMethodIndex();
+    if (method.IsStatic() || method.IsDirect()) {
+        oat_method_index = method.GetMethodIndex();
     } else {
         oat_method_index = declaring_class.NumDirectMethods();
         auto visit_virtual_methods = [&](art::ArtMethod& art_method) -> bool {
-            if (method->GetDexMethodIndex() == art_method.GetDexMethodIndex()) {
+            if (method.GetDexMethodIndex() == art_method.GetDexMethodIndex()) {
                 return true;
             }
             oat_method_index++;
@@ -370,7 +370,7 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     jit::Jit& jit = runtime.GetJit();
     if (jit.Ptr()) {
         jit::JitCodeCache& code_cache = jit.GetCodeCache();
-        method_header = code_cache.LookupMethodHeader(pc, this);
+        method_header = code_cache.LookupMethodHeader(pc, *this);
 
         if (method_header.Ptr()
                 /* && method_header.Contains(pc)*/) {
@@ -379,7 +379,7 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     }
 
     bool found = false;
-    OatFile::OatMethod oat_method = FindOatMethodFor(this, CoreApi::GetPointSize(), &found);
+    OatFile::OatMethod oat_method = FindOatMethodFor(*this, CoreApi::GetPointSize(), &found);
     if (!found)
         return 0x0;
 

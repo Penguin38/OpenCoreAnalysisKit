@@ -73,7 +73,7 @@ public:
     inline uint64_t array() { return VALUEOF(ZygoteMap, array_); }
     inline uint64_t size() { return VALUEOF(ZygoteMap, size_); }
 
-    uint64_t GetCodeFor(ArtMethod* method, uint64_t pc);
+    uint64_t GetCodeFor(ArtMethod& method, uint64_t pc);
 };
 
 class JitCodeCache : public api::MemoryRef {
@@ -106,8 +106,8 @@ public:
     MemMap& GetZygoteExecPages();
     ZygoteMap& GetZygoteMap();
 
-    OatQuickMethodHeader LookupMethodHeader(uint64_t pc, ArtMethod* method);
-    OatQuickMethodHeader LookupMethodCodeMap(uint64_t pc, ArtMethod* method);
+    OatQuickMethodHeader LookupMethodHeader(uint64_t pc, ArtMethod& method);
+    OatQuickMethodHeader LookupMethodCodeMap(uint64_t pc, ArtMethod& method);
     bool PrivateRegionContainsPc(uint64_t pc);
     bool ContainsPc(uint64_t pc);
     uint64_t GetJniStubCode(ArtMethod& method);
