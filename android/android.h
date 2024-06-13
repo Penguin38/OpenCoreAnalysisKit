@@ -72,7 +72,12 @@ public:
     inline static const char* ART_RUNTIME_INSTANCE = "_ZN3art7Runtime9instance_E";
     inline static const char* ART_OAT_HEADER_VERSION = "_ZN3art9OatHeader11kOatVersionE";
     inline static const char* NTERP_METHOD_HEADER = "_ZN3art20OatQuickMethodHeader17NterpMethodHeaderE";
+    inline static const char* NTERP_WITH_CLINT_IMPL = "_ZN3art20OatQuickMethodHeader19NterpWithClinitImplE";
+    inline static const char* NTERP_IMPL = "_ZN3art20OatQuickMethodHeader9NterpImplE";
     inline static const char* EXECUTE_NTERP_IMPL = "ExecuteNterpImpl";
+    inline static const char* END_EXECUTE_NTERP_IMPL = "EndExecuteNterpImpl";
+    inline static const char* EXECUTE_NTERP_WITH_CLINIT_IMPL = "ExecuteNterpWithClinitImpl";
+    inline static const char* END_EXECUTE_NTERP_WITH_CLINIT_IMPL = "EndExecuteNterpWithClinitImpl";
 
     static Android* INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }

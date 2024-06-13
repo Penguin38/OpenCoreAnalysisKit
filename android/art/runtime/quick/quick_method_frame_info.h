@@ -17,9 +17,9 @@
 #ifndef ART_RUNTIME_QUICK_QUICK_METHOD_FRAME_INFO_H_
 #define ART_RUNTIME_QUICK_QUICK_METHOD_FRAME_INFO_H_
 
-#include <stdint.h>
-#include "api/core.h"
 #include "base/macros.h"
+#include <stdint.h>
+#include <string>
 
 namespace art {
 
@@ -50,13 +50,14 @@ class PACKED(4) QuickMethodFrameInfo {
     return fp_spill_mask_;
   }
 
-  uint32_t GetReturnPcOffset() const {
-    return FrameSizeInBytes() - CoreApi::GetPointSize();
-  }
+  uint32_t GetReturnPcOffset() const;
 
   uint64_t GetReturnPcAddr(uint64_t sp) const {
     return sp + GetReturnPcOffset();
   }
+
+  void DumpCoreSpill(const char* prefix, uint64_t sp);
+  static std::string PrettySpillMask(uint32_t mask);
 
  private:
   uint32_t frame_size_in_bytes_;

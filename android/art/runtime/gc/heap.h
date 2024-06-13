@@ -52,6 +52,7 @@ public:
     inline bool operator!=(Heap& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    static void Init35();
     inline uint64_t continuous_spaces() { return Ptr() + OFFSET(Heap, continuous_spaces_); }
     inline uint64_t discontinuous_spaces() { return Ptr() + OFFSET(Heap, discontinuous_spaces_); }
 

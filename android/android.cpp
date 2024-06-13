@@ -37,6 +37,7 @@
 #include "runtime/gc/space/image_space.h"
 #include "runtime/gc/space/zygote_space.h"
 #include "runtime/gc/space/large_object_space.h"
+#include "runtime/gc/space/bump_pointer_space.h"
 #include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/jni/java_vm_ext.h"
 #include "runtime/oat/oat_file.h"
@@ -205,6 +206,7 @@ void Android::preLoad() {
     art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
     art::gc::space::AllocationInfo::Init();
     art::gc::space::FreeListSpace::Init();
+    art::gc::space::BumpPointerSpace::Init();
 
     // preLoadLater listener
     // 26
@@ -227,7 +229,6 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::ArtMethod::Init26);
     RegisterSdkListener(O, art::ArtMethod::PtrSizedFields::Init26);
     RegisterSdkListener(O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
-    RegisterSdkListener(O, art::OatQuickMethodHeader::Init26);
     RegisterSdkListener(O, art::jit::Jit::Init26);
     RegisterSdkListener(O, art::jit::JitCodeCache::Init26);
 
@@ -259,7 +260,6 @@ void Android::preLoad() {
     RegisterSdkListener(Q, art::JavaVMExt::Init29);
     RegisterSdkListener(Q, art::IndirectReferenceTable::Init29);
     RegisterSdkListener(Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
-    RegisterSdkListener(Q, art::OatQuickMethodHeader::Init29);
     RegisterSdkListener(Q, art::jit::Jit::Init29);
     RegisterSdkListener(Q, art::jit::JitCodeCache::Init29);
 
@@ -283,7 +283,6 @@ void Android::preLoad() {
     RegisterSdkListener(S, art::gc::space::RegionSpace::Init31);
     RegisterSdkListener(S, art::JavaVMExt::Init31);
     RegisterSdkListener(S, art::ArtMethod::Init31);
-    RegisterSdkListener(S, art::OatQuickMethodHeader::Init31);
     RegisterSdkListener(S, art::jit::JitCodeCache::Init31);
     RegisterSdkListener(S, art::OatDexFile::Init31);
 
@@ -302,6 +301,17 @@ void Android::preLoad() {
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::tls_ptr_sized_values::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::JavaVMExt::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::IndirectReferenceTable::Init34);
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::gc::space::BumpPointerSpace::Init34);
+
+    // 35 For test
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::gc::Heap::Init35);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::Runtime::Init34);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::DexFile::Init34);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::ImageHeader::Init34);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::Init35);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::tls_ptr_sized_values::Init34);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::JavaVMExt::Init34);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::IndirectReferenceTable::Init34);
 
     // OAT
     RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);

@@ -31,43 +31,6 @@ uint32_t OatQuickMethodHeader::kIsCodeInfoMask = 0x40000000;
 uint32_t OatQuickMethodHeader::kCodeInfoMask = 0x3FFFFFFF;
 uint32_t OatQuickMethodHeader::kCodeSizeMask = 0x3FFFFFFF;
 
-void OatQuickMethodHeader::Init26() {
-    __OatQuickMethodHeader_offset__ = {
-        .vmap_table_offset_ = 0,
-        .method_info_offset_ = 4,
-        .frame_info_ = 8,
-        .code_size_ = 20,
-        .code_ = 24,
-    };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 24,
-    };
-}
-
-void OatQuickMethodHeader::Init29() {
-    __OatQuickMethodHeader_offset__ = {
-        .vmap_table_offset_ = 0,
-        .code_size_ = 4,
-        .code_ = 8,
-    };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 8,
-    };
-}
-
-void OatQuickMethodHeader::Init31() {
-    __OatQuickMethodHeader_offset__ = {
-        .data_ = 0,
-        .code_ = 4,
-    };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 4,
-    };
-}
-
 void OatQuickMethodHeader::OatInit124() {
     kCodeSizeMask   = ~kShouldDeoptimizeMask;
 
@@ -147,7 +110,12 @@ bool OatQuickMethodHeader::Contains(uint64_t pc) {
 }
 
 bool OatQuickMethodHeader::IsOptimized() {
-    if (OatHeader::OatVersion() >= 192) {
+    if (OatHeader::OatVersion() >= 239) {
+        if (code() == GetNterpWithClinitImpl().valueOf() || code() == GetNterpImpl().valueOf()) {
+            return false;
+        }
+        return true;
+    } if (OatHeader::OatVersion() >= 192) {
         return (data() & kIsCodeInfoMask) != 0;
     } else {
         return GetCodeSize() != 0 && vmap_table_offset() != 0;
@@ -166,7 +134,12 @@ uint64_t OatQuickMethodHeader::GetCodeStart() {
 
 uint32_t OatQuickMethodHeader::GetCodeSize() {
     if (OatHeader::OatVersion() >= 239) {
-        //TODO
+        if (code() == GetNterpWithClinitImpl().valueOf()) {
+            return GetNterpWithClinitImpl().valueOf(CoreApi::GetPointSize());
+        }
+        if (code() == GetNterpImpl().valueOf()) {
+            return GetNterpImpl().valueOf(CoreApi::GetPointSize());
+        }
         return CodeInfo::DecodeCodeSize(GetOptimizedCodeInfoPtr());
     } else if (OatHeader::OatVersion() >= 192) {
         if (IsOptimized()) {
@@ -220,6 +193,14 @@ OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
 uint64_t OatQuickMethodHeader::NativePc2DexPc(uint64_t pc) {
     CodeInfo code_info = CodeInfo::DecodeHeaderOnly(GetOptimizedCodeInfoPtr());
     return 0x0;
+}
+
+api::MemoryRef OatQuickMethodHeader::GetNterpWithClinitImpl() {
+    return Android::SearchSymbol(Android::NTERP_WITH_CLINT_IMPL);
+}
+
+api::MemoryRef OatQuickMethodHeader::GetNterpImpl() {
+    return Android::SearchSymbol(Android::NTERP_IMPL);
 }
 
 void OatQuickMethodHeader::Dump(const char* prefix) {

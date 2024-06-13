@@ -53,7 +53,7 @@ enum Register {
   kNoRegister = -1,
 };
 std::ostream& operator<<(std::ostream& os, const Register& rhs);
-
+const char* RegisterName(const Register& rhs);
 
 // Values for single-precision floating point registers.
 enum SRegister {

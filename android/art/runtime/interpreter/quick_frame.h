@@ -19,6 +19,7 @@
 
 #include "api/memory_ref.h"
 #include "runtime/art_method.h"
+#include "runtime/quick/quick_method_frame_info.h"
 #include <vector>
 
 namespace art {
@@ -30,11 +31,6 @@ public:
     QuickFrame(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     QuickFrame(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    void init(OatQuickMethodHeader& mh, uint64_t pc) {
-        method_header = mh;
-        frame_pc = pc;
-    }
-
     inline ArtMethod& GetMethod() {
         if (!method.Ptr()) {
             method = valueOf();
@@ -42,14 +38,16 @@ public:
         return method;
     }
     inline OatQuickMethodHeader& GetMethodHeader() { return method_header; }
-    uint64_t GetFramePc() { return frame_pc; }
+    inline void SetFramePc(uint64_t pc) { frame_pc = pc; }
+    inline uint64_t GetFramePc() { return frame_pc; }
     uint64_t GetDexPcPtr();
     std::vector<uint32_t>& GetVRegs();
     std::vector<uint32_t>& GetVRegsCache() { return vregs_cache; }
+    QuickMethodFrameInfo GetFrameInfo();
 private:
     ArtMethod method = 0x0;
     OatQuickMethodHeader method_header = 0x0;
-    uint64_t frame_pc;
+    uint64_t frame_pc = 0x0;
     std::vector<uint32_t> vregs_cache;
 };
 

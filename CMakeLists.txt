@@ -109,6 +109,7 @@ add_library(android STATIC
             android/art/runtime/gc/space/image_space.cpp
             android/art/runtime/gc/space/zygote_space.cpp
             android/art/runtime/gc/space/large_object_space.cpp
+            android/art/runtime/gc/space/bump_pointer_space.cpp
             android/art/runtime/gc/accounting/space_bitmap.cpp
 
             android/art/runtime/jni/java_vm_ext.cpp
@@ -134,11 +135,17 @@ add_library(android STATIC
 
             android/art/dexdump/dexdump.cpp
 
+            android/art/runtime/quick/quick_method_frame_info.cpp
             android/art/runtime/arch/arm/registers_arm.cpp
+            android/art/runtime/arch/arm/quick_method_frame_info_arm.cpp
             android/art/runtime/arch/arm64/registers_arm64.cpp
+            android/art/runtime/arch/arm64/quick_method_frame_info_arm64.cpp
             android/art/runtime/arch/x86/registers_x86.cpp
+            android/art/runtime/arch/x86/quick_method_frame_info_x86.cpp
             android/art/runtime/arch/x86_64/registers_x86_64.cpp
+            android/art/runtime/arch/x86_64/quick_method_frame_info_x86_64.cpp
             android/art/runtime/arch/riscv64/registers_riscv64.cpp
+            android/art/runtime/arch/riscv64/quick_method_frame_info_riscv64.cpp
 
             android/art/runtime/jit/jit.cpp
             android/art/runtime/jit/jit_code_cache.cpp

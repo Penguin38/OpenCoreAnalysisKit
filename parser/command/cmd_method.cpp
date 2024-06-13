@@ -190,8 +190,10 @@ void MethodCommand::Oatdump() {
             art::QuickMethodFrameInfo frame = method_header.GetFrameInfo();
             LOGI("  QuickMethodFrameInfo\n");
             LOGI("    frame_size_in_bytes: 0x%x\n", frame.FrameSizeInBytes());
-            LOGI("    core_spill_mask: 0x%x\n", frame.CoreSpillMask());
-            LOGI("    fp_spill_mask: 0x%x\n", frame.FpSpillMask());
+            LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(),
+                                                   art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
+            LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(),
+                                                 art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
         }
         LOGI("OAT CODE:\n");
         LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());

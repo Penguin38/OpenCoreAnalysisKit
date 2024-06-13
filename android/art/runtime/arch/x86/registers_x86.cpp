@@ -24,6 +24,14 @@ namespace x86 {
 static const char* kRegisterNames[] = {
   "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi",
 };
+
+const char* RegisterName(const Register& rhs) {
+  if (rhs >= EAX && rhs <= EDI) {
+    return kRegisterNames[rhs];
+  }
+  return "";
+}
+
 std::ostream& operator<<(std::ostream& os, const Register& rhs) {
   if (rhs >= EAX && rhs <= EDI) {
     os << kRegisterNames[rhs];

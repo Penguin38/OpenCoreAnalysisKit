@@ -25,6 +25,14 @@ static const char* kRegisterNames[] = {
   "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10",
   "fp", "ip", "sp", "lr", "pc"
 };
+
+const char* RegisterName(const Register& rhs) {
+  if (rhs >= R0 && rhs <= PC) {
+    return kRegisterNames[rhs];
+  }
+  return "";
+}
+
 std::ostream& operator<<(std::ostream& os, const Register& rhs) {
   if (rhs >= R0 && rhs <= PC) {
     os << kRegisterNames[rhs];

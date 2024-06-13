@@ -71,6 +71,7 @@ enum XRegister {
   kNoRegister = -1,
 };
 std::ostream& operator<<(std::ostream& os, const XRegister& rhs);
+const char* XRegisterName(const XRegister& rhs);
 
 // Values for GP WRegisters - 32bit registers.
 enum WRegister {

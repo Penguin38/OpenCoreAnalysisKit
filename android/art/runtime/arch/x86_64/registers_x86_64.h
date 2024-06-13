@@ -46,6 +46,7 @@ enum Register {
   kNoRegister = -1  // Signals an illegal register.
 };
 std::ostream& operator<<(std::ostream& os, const Register& rhs);
+const char* RegisterName(const Register& rhs);
 
 enum FloatRegister {
   XMM0 = 0,

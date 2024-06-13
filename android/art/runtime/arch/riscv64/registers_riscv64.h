@@ -73,6 +73,7 @@ enum XRegister {
 };
 
 std::ostream& operator<<(std::ostream& os, const XRegister& rhs);
+const char* XRegisterName(const XRegister& rhs);
 
 enum FRegister {
   FT0 = 0,  // F0, temporary 0

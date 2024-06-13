@@ -16,8 +16,12 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "android.h"
 #include "runtime/nterp_helpers.h"
 #include "runtime/interpreter/quick_frame.h"
+#include "runtime/runtime.h"
+#include "runtime/base/callee_save_type.h"
+#include "runtime/entrypoints/quick/callee_save_frame.h"
 
 namespace art {
 
@@ -49,6 +53,37 @@ std::vector<uint32_t>& QuickFrame::GetVRegs() {
         }
     }
     return vregs_cache;
+}
+
+QuickMethodFrameInfo QuickFrame::GetFrameInfo() {
+    if (GetMethodHeader().Ptr()) {
+        if(Android::Sdk() >= Android::R) {
+            if (GetMethodHeader().IsOptimized()) {
+                return GetMethodHeader().GetFrameInfo();
+            } else {
+                return NterpFrameInfo(*this);
+            }
+        } else {
+            return GetMethodHeader().GetFrameInfo();
+        }
+    }
+
+    ArtMethod method = GetMethod();
+    Runtime& runtime = Runtime::Current();
+
+    if (method.IsAbstract()) {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsAndArgs);
+    }
+
+    if (method.IsRuntimeMethod()) {
+        return runtime.GetRuntimeMethodFrameInfo(method);
+    }
+
+    if (method.IsProxyMethod()) {
+        return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsAndArgs);
+    }
+
+    return RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType::kSaveRefsAndArgs);
 }
 
 } //namespace art

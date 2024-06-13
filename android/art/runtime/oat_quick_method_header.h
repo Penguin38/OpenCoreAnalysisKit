@@ -49,9 +49,6 @@ public:
     inline bool operator==(OatQuickMethodHeader& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(OatQuickMethodHeader& ref) { return Ptr() != ref.Ptr(); }
 
-    static void Init26();
-    static void Init29();
-    static void Init31();
     inline uint32_t code_info_offset() { return value32Of(OFFSET(OatQuickMethodHeader, code_info_offset_)); }
     inline uint32_t data() { return value32Of(OFFSET(OatQuickMethodHeader, data_)); }
     inline uint32_t vmap_table_offset() { return value32Of(OFFSET(OatQuickMethodHeader, vmap_table_offset_)); }
@@ -90,11 +87,12 @@ public:
     uint64_t GetOptimizedCodeInfoPtr() { return code() - GetCodeInfoOffset(); }
     static bool IsNterpPc(uint64_t pc);
     static OatQuickMethodHeader GetNterpMethodHeader();
+    static api::MemoryRef GetNterpWithClinitImpl();
+    static api::MemoryRef GetNterpImpl();
     uint64_t NativePc2DexPc(uint64_t pc);
     void Dump(const char* prefix);
 private:
     // quick memoryref cache
-
 };
 
 } //namespace art

@@ -93,6 +93,7 @@ public:
         ArtMethod& GetMethod() { return method; }
         ShadowFrame& GetShadowFrame() { return shadow_frame; }
         QuickFrame& GetQuickFrame() { return quick_frame; }
+        QuickFrame& GetPrevQuickFrame() { return prev_quick_frame; }
         OatQuickMethodHeader& GetMethodHeader() { return quick_frame.GetMethodHeader(); }
         uint64_t GetFramePc() { return quick_frame.Ptr() ? quick_frame.GetFramePc() : 0x0; }
         uint64_t GetDexPcPtr();
@@ -104,10 +105,12 @@ public:
             }
             return empty_vregs;
         }
+        void SetPrevQuickFrame(QuickFrame& qf) { prev_quick_frame = qf; }
     private:
         ArtMethod method;
         ShadowFrame shadow_frame = 0x0;
         QuickFrame quick_frame = 0x0;
+        QuickFrame prev_quick_frame = 0x0;
         std::vector<uint32_t> empty_vregs;
     };
 
@@ -117,7 +120,7 @@ public:
     void WalkStack();
     bool VisitFrame();
     ArtMethod GetMethod();
-    QuickMethodFrameInfo GetCurrentQuickFrameInfo();
+    QuickMethodFrameInfo GetQuickFrameInfo(QuickFrame& quick_frame);
     ~StackVisitor() { java_frames_.clear(); }
 private:
     std::vector<std::unique_ptr<JavaFrame>> java_frames_;
@@ -125,8 +128,7 @@ private:
     const StackWalkKind walk_kind_;
     ShadowFrame cur_shadow_frame_ = 0x0;
     QuickFrame cur_quick_frame_ = 0x0;
-    uint64_t cur_quick_frame_pc_;
-    OatQuickMethodHeader cur_oat_quick_method_header_ = 0x0;
+    QuickFrame prev_quick_frame_ = 0x0;
 };
 
 } // namespace art

@@ -23,6 +23,7 @@
 #include "runtime/gc/space/zygote_space.h"
 #include "runtime/gc/space/large_object_space.h"
 #include "runtime/gc/space/fake_space.h"
+#include "runtime/gc/space/bump_pointer_space.h"
 
 struct Heap_OffsetTable __Heap_offset__;
 struct Heap_SizeTable __Heap_size__;
@@ -40,6 +41,20 @@ void Heap::Init() {
         __Heap_offset__ = {
             .continuous_spaces_ = 0,
             .discontinuous_spaces_ = 12,
+        };
+    }
+}
+
+void Heap::Init35() {
+    if (CoreApi::Bits() == 64) {
+        __Heap_offset__ = {
+            .continuous_spaces_ = 8,
+            .discontinuous_spaces_ = 32,
+        };
+    } else {
+        __Heap_offset__ = {
+            .continuous_spaces_ = 4,
+            .discontinuous_spaces_ = 16,
         };
     }
 }
@@ -116,6 +131,9 @@ std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces(
             } else if (space->IsZygoteSpace()) {
                 std::unique_ptr<space::ZygoteSpace> zygote_space = std::make_unique<space::ZygoteSpace>(space->Ptr(), space->Block());
                 continuous_spaces_second_cache.push_back(std::move(zygote_space));
+            } else if (space->IsBumpPointerSpace()) {
+                std::unique_ptr<space::BumpPointerSpace> bump_pointer_space = std::make_unique<space::BumpPointerSpace>(space->Ptr(), space->Block());
+                continuous_spaces_second_cache.push_back(std::move(bump_pointer_space));
             } else {
                 continuous_spaces_second_cache.push_back(std::move(space));
             }

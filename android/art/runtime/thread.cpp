@@ -78,6 +78,13 @@ void Thread::Init34() {
     };
 }
 
+void Thread::Init35() {
+    __Thread_offset__ = {
+        .tls32_ = 0,
+        .tlsPtr_ = 144,
+    };
+}
+
 void Thread::tls_32bit_sized_values::Init26() {
     __Thread_tls_32bit_sized_values_offset__ = {
         .state_and_flags = 0,

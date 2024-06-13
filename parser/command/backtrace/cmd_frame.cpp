@@ -96,23 +96,24 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             art::ShadowFrame& shadow_frame = java_frame->GetShadowFrame();
             art::QuickFrame& quick_frame = java_frame->GetQuickFrame();
             art::DexFile& dex_file = method.GetDexFile();
-            uint64_t current_pc = java_frame->GetFramePc();
-            LOGI(format.c_str(), frameid, current_pc, method.PrettyMethodOnlyNP().c_str());
+            uint64_t dex_pc_ptr = java_frame->GetDexPcPtr();
+            LOGI(format.c_str(), frameid, dex_pc_ptr, method.PrettyMethodOnlyNP().c_str());
             LOGI("  {\n");
             LOGI("      art::ArtMethod: 0x%lx\n", method.Ptr());
             LOGI("      shadow_frame: 0x%lx\n", shadow_frame.Ptr());
             LOGI("      quick_frame: 0x%lx\n", quick_frame.Ptr());
-            LOGI("      dex_pc_ptr: 0x%lx\n", java_frame->GetDexPcPtr());
+            LOGI("      dex_pc_ptr: 0x%lx\n", dex_pc_ptr);
             if (quick_frame.Ptr()) {
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
+                LOGI("      frame_pc: 0x%lx\n", java_frame->GetFramePc());
                 LOGI("      method_header: 0x%lx\n", method_header.Ptr());
             }
 
-            if (java_frame->GetDexPcPtr()) {
+            if (dex_pc_ptr) {
                 LOGI("\n      DEX CODE:\n");
                 art::dex::CodeItem item = method.GetCodeItem();
                 api::MemoryRef startref = item.Ptr() + item.code_offset_;
-                api::MemoryRef coderef = java_frame->GetDexPcPtr();
+                api::MemoryRef coderef = dex_pc_ptr;
                 startref.copyRef(item);
 
                 while (startref.Ptr() <= (coderef.Ptr() - 0xc)) {
@@ -125,6 +126,13 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
                 }
                 ShowJavaFrameRegister("      ", java_frame->GetVRegs());
             }
+
+            art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
+            if (prev_quick_frame.Ptr()) {
+                art::QuickMethodFrameInfo frame = prev_quick_frame.GetFrameInfo();
+                frame.DumpCoreSpill("      ", prev_quick_frame.Ptr());
+            }
+
             LOGI("  }\n");
         }
         ++frameid;

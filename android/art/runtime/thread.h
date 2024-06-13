@@ -85,6 +85,7 @@ public:
     static void Init31();
     static void Init33();
     static void Init34();
+    static void Init35();
     inline uint64_t tls32() { return Ptr() + OFFSET(Thread, tls32_); }
     inline uint64_t tlsPtr() { return Ptr() + OFFSET(Thread, tlsPtr_); }
 

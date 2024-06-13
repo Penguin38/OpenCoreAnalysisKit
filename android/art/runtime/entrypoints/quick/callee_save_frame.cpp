@@ -28,11 +28,11 @@ namespace art {
 QuickMethodFrameInfo RuntimeCalleeSaveFrame::GetMethodFrameInfo(CalleeSaveType type) {
     int machine = CoreApi::GetMachine();
     switch (machine) {
-        case EM_386: return x86_64::X86_64CalleeSaveFrame::GetMethodFrameInfo(type);
+        case EM_386: return x86::X86CalleeSaveFrame::GetMethodFrameInfo(type);
         case EM_X86_64: return x86_64::X86_64CalleeSaveFrame::GetMethodFrameInfo(type);
-        case EM_ARM: return x86_64::X86_64CalleeSaveFrame::GetMethodFrameInfo(type);
+        case EM_ARM: return arm::ArmCalleeSaveFrame::GetMethodFrameInfo(type);
         case EM_AARCH64: return arm64::Arm64CalleeSaveFrame::GetMethodFrameInfo(type);
-        case EM_RISCV: return x86_64::X86_64CalleeSaveFrame::GetMethodFrameInfo(type);
+        case EM_RISCV: return riscv64::Riscv64CalleeSaveFrame::GetMethodFrameInfo(type);
     }
     return QuickMethodFrameInfo(0, 0, 0);
 }
