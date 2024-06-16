@@ -24,9 +24,12 @@
 namespace art {
 
 uint32_t CodeInfo::kNumHeaders = 0;
+uint32_t CodeInfo::kNumBitTables = 8;
+uint32_t CodeInfo::StackMap::kNumStackMaps = 6;
 
 void CodeInfo::OatInit124() {
     kNumHeaders = 0;
+    kNumBitTables = 8;
 }
 
 void CodeInfo::OatInit150() {
@@ -45,6 +48,14 @@ void CodeInfo::OatInit191() {
     kNumHeaders = 7;
 }
 
+void CodeInfo::StackMap::OatInit124() {
+    kNumStackMaps = 6;
+}
+
+void CodeInfo::StackMap::OatInit170() {
+    kNumStackMaps = 8;
+}
+
 uint32_t CodeInfo::DecodeCodeSize(uint64_t code_info_data) {
     return DecodeHeaderOnly(code_info_data).code_size_;
 }
@@ -57,8 +68,8 @@ QuickMethodFrameInfo CodeInfo::DecodeFrameInfo(uint64_t code_info_data) {
 }
 
 CodeInfo CodeInfo::DecodeHeaderOnly(uint64_t code_info_data) {
-    CodeInfo code_info;
-    BitMemoryReader reader(code_info_data);
+    CodeInfo code_info(code_info_data);
+    BitMemoryReader& reader = code_info.GetMemoryReader();
     std::vector<uint32_t> header;
     if (OatHeader::OatVersion() >= 191) {
         reader.ReadInterleavedVarints(kNumHeaders, header);
@@ -94,13 +105,54 @@ CodeInfo CodeInfo::DecodeHeaderOnly(uint64_t code_info_data) {
     return code_info;
 }
 
+CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
+    CodeInfo code_info = DecodeHeaderOnly(code_info_data);
+    BitMemoryReader& reader = code_info.GetMemoryReader();
+
+    if (code_info.HasBitTable(0)) {
+        code_info.GetStackMap().Decode(reader);
+    }
+
+    return code_info;
+}
+
+void CodeInfo::StackMap::Decode(BitMemoryReader& reader) {
+    std::vector<uint32_t> header;
+    DecodeOnly(reader, header);
+    if (OatHeader::OatVersion() >= 170) {
+        kind = header[1];
+        packed_native_pc = header[2];
+        dex_pc = header[3];
+        register_mask_index = header[4];
+        stack_mask_index = header[5];
+        inline_info_index = header[6];
+        dex_register_mask_index = header[7];
+        dex_register_map_index = header[8];
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
 void CodeInfo::Dump(const char* prefix) {
+    std::string sub_prefix(prefix);
+    sub_prefix.append("  ");
     if (OatHeader::OatVersion() >= 191) {
         LOGI("%sCodeInfo CodeSize:0x%x FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
                 prefix, code_size_, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
+        GetStackMap().Dump(sub_prefix.c_str());
     } else if (OatHeader::OatVersion() >= 150) {
         LOGI("%sCodeInfo FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
                 prefix, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
+        GetStackMap().Dump(sub_prefix.c_str());
+    }
+}
+
+void CodeInfo::StackMap::Dump(const char* prefix) {
+    if (OatHeader::OatVersion() >= 170) {
+        LOGI("%sStackMap Rows=%d Bits={Kind=%d PackedNativePc=0x%x DexPc=0x%x RegisterMaskIndex=%d StackMaskIndex=%d InlineInfoIndex=%d DexRegisterMaskIndex=%d DexRegisterMapIndex=%d}\n",
+                prefix, NumRows(), kind, packed_native_pc, dex_pc, register_mask_index, stack_mask_index, inline_info_index, dex_register_mask_index, dex_register_map_index);
+    } else if (OatHeader::OatVersion() >= 124) {
+
     }
 }
 
