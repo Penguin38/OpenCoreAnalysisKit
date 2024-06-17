@@ -108,6 +108,31 @@ public:
         uint32_t mask;
     };
 
+    class InlineInfo : public BitTable {
+    public:
+        static void OatInit124();
+        static void OatInit170();
+
+        uint32_t NumColumns() { return kNumInlineInfos; }
+        void Decode(BitMemoryReader& reader);
+        void Dump(const char* prefix);
+
+        static uint32_t kNumInlineInfos;
+        static uint32_t kColNumIsLast;
+        static uint32_t kColNumDexPc;
+        static uint32_t kColNumMethodInfoIndex;
+        static uint32_t kColNumArtMethodHi;
+        static uint32_t kColNumArtMethodLo;
+        static uint32_t kColNumNumberOfDexRegisters;
+    private:
+        uint32_t is_last;
+        uint32_t dex_pc;
+        uint32_t method_info_index;
+        uint32_t art_method_hi;
+        uint32_t art_method_lo;
+        uint32_t number_of_dex_registers;
+    };
+
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit150(); // Add method frame info to CodeInfo.
     static void OatInit171(); // Optimize stack maps: add fast path for no inline info.
@@ -122,6 +147,7 @@ public:
     StackMap& GetStackMap() { return stack_map_; }
     RegisterMask& GetRegisterMask() { return register_mask_; }
     StackMask& GetStackMask() { return stack_mask_; }
+    InlineInfo& GetInlineInfo() { return inline_info_; }
 
     uint32_t NativePc2DexPc(uint32_t native_pc);
 
@@ -143,6 +169,7 @@ private:
     StackMap stack_map_;
     RegisterMask register_mask_;
     StackMask stack_mask_;
+    InlineInfo inline_info_;
 };
 
 } // namespace art
