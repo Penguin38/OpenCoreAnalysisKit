@@ -42,6 +42,9 @@ uint32_t CodeInfo::RegisterMask::kNumRegisterMasks = 2;
 uint32_t CodeInfo::RegisterMask::kColNumValue = 0;
 uint32_t CodeInfo::RegisterMask::kColNumShift = 1;
 
+uint32_t CodeInfo::StackMask::kNumStackMasks = 1;
+uint32_t CodeInfo::StackMask::kColNumMask = 0;
+
 void CodeInfo::OatInit124() {
     kNumHeaders = 0;
     kNumBitTables = 8;
@@ -80,13 +83,22 @@ void CodeInfo::StackMap::OatInit170() {
 }
 
 void CodeInfo::RegisterMask::OatInit124() {
-    kNumRegisterMasks = 6;
+    kNumRegisterMasks = 2;
 }
 
 void CodeInfo::RegisterMask::OatInit170() {
     kNumRegisterMasks = 2;
     kColNumValue = 0;
     kColNumShift = 1;
+}
+
+void CodeInfo::StackMask::OatInit124() {
+    kNumStackMasks = 1;
+}
+
+void CodeInfo::StackMask::OatInit170() {
+    kNumStackMasks = 1;
+    kColNumMask = 0;
 }
 
 uint32_t CodeInfo::DecodeCodeSize(uint64_t code_info_data) {
@@ -160,6 +172,7 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
 
     DECODE_BITTABLE(code_info, reader, 0, StackMap);
     DECODE_BITTABLE(code_info, reader, 1, RegisterMask);
+    DECODE_BITTABLE(code_info, reader, 2, StackMask);
 
     return code_info;
 }
@@ -187,6 +200,16 @@ void CodeInfo::RegisterMask::Decode(BitMemoryReader& reader) {
     if (OatHeader::OatVersion() >= 170) {
         value = header[1];
         shift = header[2];
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::StackMask::Decode(BitMemoryReader& reader) {
+    std::vector<uint32_t> header;
+    DecodeOnly(reader, header);
+    if (OatHeader::OatVersion() >= 170) {
+        mask = header[1];
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -229,11 +252,13 @@ void CodeInfo::Dump(const char* prefix) {
                 prefix, code_size_, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
         GetStackMap().Dump(sub_prefix.c_str());
         GetRegisterMask().Dump(sub_prefix.c_str());
+        GetStackMask().Dump(sub_prefix.c_str());
     } else if (OatHeader::OatVersion() >= 150) {
         LOGI("%sCodeInfo FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
                 prefix, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
         GetStackMap().Dump(sub_prefix.c_str());
         GetRegisterMask().Dump(sub_prefix.c_str());
+        GetStackMask().Dump(sub_prefix.c_str());
     }
 }
 
@@ -249,6 +274,14 @@ void CodeInfo::StackMap::Dump(const char* prefix) {
 void CodeInfo::RegisterMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sRegisterMask Rows=%d Bits={Value=%d Shift=%d}\n", prefix, NumRows(), value, shift);
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::StackMask::Dump(const char* prefix) {
+    if (OatHeader::OatVersion() >= 170) {
+        LOGI("%sStackMask Rows=%d Bits={Mask=%d}\n", prefix, NumRows(), mask);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }

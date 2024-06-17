@@ -93,6 +93,21 @@ public:
         uint32_t shift;
     };
 
+    class StackMask : public BitTable {
+    public:
+        static void OatInit124();
+        static void OatInit170();
+
+        uint32_t NumColumns() { return kNumStackMasks; }
+        void Decode(BitMemoryReader& reader);
+        void Dump(const char* prefix);
+
+        static uint32_t kNumStackMasks;
+        static uint32_t kColNumMask;
+    private:
+        uint32_t mask;
+    };
+
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit150(); // Add method frame info to CodeInfo.
     static void OatInit171(); // Optimize stack maps: add fast path for no inline info.
@@ -106,6 +121,7 @@ public:
     BitMemoryReader& GetMemoryReader() { return reader; }
     StackMap& GetStackMap() { return stack_map_; }
     RegisterMask& GetRegisterMask() { return register_mask_; }
+    StackMask& GetStackMask() { return stack_mask_; }
 
     uint32_t NativePc2DexPc(uint32_t native_pc);
 
@@ -126,6 +142,7 @@ private:
     // Bit tables
     StackMap stack_map_;
     RegisterMask register_mask_;
+    StackMask stack_mask_;
 };
 
 } // namespace art
