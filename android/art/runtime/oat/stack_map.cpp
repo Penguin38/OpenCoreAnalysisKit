@@ -53,6 +53,11 @@ uint32_t CodeInfo::InlineInfo::kColNumArtMethodHi = 3;
 uint32_t CodeInfo::InlineInfo::kColNumArtMethodLo = 4;
 uint32_t CodeInfo::InlineInfo::kColNumNumberOfDexRegisters = 5;
 
+uint32_t CodeInfo::MethodInfo::kNumMethodInfos = 1;
+uint32_t CodeInfo::MethodInfo::kColNumMethodIndex = 0;
+uint32_t CodeInfo::MethodInfo::kColNumDexFileIndexKind = 1;
+uint32_t CodeInfo::MethodInfo::kColNumDexFileIndex = 2;
+
 void CodeInfo::OatInit124() {
     kNumHeaders = 0;
     kNumBitTables = 8;
@@ -121,6 +126,22 @@ void CodeInfo::InlineInfo::OatInit170() {
     kColNumArtMethodHi = 3;
     kColNumArtMethodLo = 4;
     kColNumNumberOfDexRegisters = 5;
+}
+
+void CodeInfo::MethodInfo::OatInit124() {
+    kNumMethodInfos = 1;
+}
+
+void CodeInfo::MethodInfo::OatInit170() {
+    kNumMethodInfos = 1;
+    kColNumMethodIndex = 0;
+}
+
+void CodeInfo::MethodInfo::OatInit225() {
+    kNumMethodInfos = 3;
+    kColNumMethodIndex = 0;
+    kColNumDexFileIndexKind = 1;
+    kColNumDexFileIndex = 2;
 }
 
 uint32_t CodeInfo::DecodeCodeSize(uint64_t code_info_data) {
@@ -196,6 +217,7 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
     DECODE_BITTABLE(code_info, reader, 1, RegisterMask);
     DECODE_BITTABLE(code_info, reader, 2, StackMask);
     DECODE_BITTABLE(code_info, reader, 3, InlineInfo);
+    DECODE_BITTABLE(code_info, reader, 4, MethodInfo);
 
     return code_info;
 }
@@ -253,6 +275,20 @@ void CodeInfo::InlineInfo::Decode(BitMemoryReader& reader) {
     }
 }
 
+void CodeInfo::MethodInfo::Decode(BitMemoryReader& reader) {
+    std::vector<uint32_t> header;
+    DecodeOnly(reader, header);
+    if (OatHeader::OatVersion() >= 225) {
+        method_index = header[1];
+        dex_file_index_kind = header[2];
+        dex_file_index = header[3];
+    } else if (OatHeader::OatVersion() >= 170) {
+        method_index = header[1];
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
 uint32_t CodeInfo::StackMap::UnpackNativePc(uint32_t packed_native_pc) {
     int machine = CoreApi::GetMachine();
     switch (machine) {
@@ -292,6 +328,7 @@ void CodeInfo::Dump(const char* prefix) {
         GetRegisterMask().Dump(sub_prefix.c_str());
         GetStackMask().Dump(sub_prefix.c_str());
         GetInlineInfo().Dump(sub_prefix.c_str());
+        GetMethodInfo().Dump(sub_prefix.c_str());
     } else if (OatHeader::OatVersion() >= 150) {
         LOGI("%sCodeInfo FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
                 prefix, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
@@ -299,6 +336,7 @@ void CodeInfo::Dump(const char* prefix) {
         GetRegisterMask().Dump(sub_prefix.c_str());
         GetStackMask().Dump(sub_prefix.c_str());
         GetInlineInfo().Dump(sub_prefix.c_str());
+        GetMethodInfo().Dump(sub_prefix.c_str());
     }
 }
 
@@ -331,6 +369,17 @@ void CodeInfo::InlineInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sInlineInfo Rows=%d Bits={IsLast=%d DexPc=%d MethodInfoIndex=%d ArtMethodHi=%d ArtMethodLo=%d NumberOfDexRegisters=%d}\n",
                 prefix, NumRows(), is_last, dex_pc, method_info_index, art_method_hi, art_method_lo, number_of_dex_registers);
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::MethodInfo::Dump(const char* prefix) {
+    if (OatHeader::OatVersion() >= 225) {
+        LOGI("%sMethodInfo Rows=%d Bits={MethodIndex=%d DexFileIndexKind=%d DexFileIndex=%d}\n",
+                prefix, NumRows(), method_index, dex_file_index_kind, dex_file_index);
+    } else if (OatHeader::OatVersion() >= 170) {
+        LOGI("%sMethodInfo Rows=%d Bits={MethodIndex=%d}\n", prefix, NumRows(), method_index);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
