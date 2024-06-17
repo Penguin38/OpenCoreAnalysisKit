@@ -58,6 +58,16 @@ uint32_t CodeInfo::MethodInfo::kColNumMethodIndex = 0;
 uint32_t CodeInfo::MethodInfo::kColNumDexFileIndexKind = 1;
 uint32_t CodeInfo::MethodInfo::kColNumDexFileIndex = 2;
 
+uint32_t CodeInfo::DexRegisterMask::kNumDexRegisterMasks = 1;
+uint32_t CodeInfo::DexRegisterMask::kColNumMask = 0;
+
+uint32_t CodeInfo::DexRegisterMap::kNumDexRegisterMaps = 1;
+uint32_t CodeInfo::DexRegisterMap::kColNumCatalogueIndex = 0;
+
+uint32_t CodeInfo::DexRegisterInfo::kNumDexRegisterInfos = 2;
+uint32_t CodeInfo::DexRegisterInfo::kColNumKind = 0;
+uint32_t CodeInfo::DexRegisterInfo::kColNumPackedValue = 1;
+
 void CodeInfo::OatInit124() {
     kNumHeaders = 0;
     kNumBitTables = 8;
@@ -144,6 +154,34 @@ void CodeInfo::MethodInfo::OatInit225() {
     kColNumDexFileIndex = 2;
 }
 
+void CodeInfo::DexRegisterMask::OatInit124() {
+    kNumDexRegisterMasks = 1;
+}
+
+void CodeInfo::DexRegisterMask::OatInit170() {
+    kNumDexRegisterMasks = 1;
+    kColNumMask = 0;
+}
+
+void CodeInfo::DexRegisterMap::OatInit124() {
+    kNumDexRegisterMaps = 1;
+}
+
+void CodeInfo::DexRegisterMap::OatInit170() {
+    kNumDexRegisterMaps = 1;
+    kColNumCatalogueIndex = 0;
+}
+
+void CodeInfo::DexRegisterInfo::OatInit124() {
+    kNumDexRegisterInfos = 2;
+}
+
+void CodeInfo::DexRegisterInfo::OatInit170() {
+    kNumDexRegisterInfos = 2;
+    kColNumKind = 0;
+    kColNumPackedValue = 1;
+}
+
 uint32_t CodeInfo::DecodeCodeSize(uint64_t code_info_data) {
     return DecodeHeaderOnly(code_info_data).code_size_;
 }
@@ -218,6 +256,9 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
     DECODE_BITTABLE(code_info, reader, 2, StackMask);
     DECODE_BITTABLE(code_info, reader, 3, InlineInfo);
     DECODE_BITTABLE(code_info, reader, 4, MethodInfo);
+    DECODE_BITTABLE(code_info, reader, 5, DexRegisterMask);
+    DECODE_BITTABLE(code_info, reader, 6, DexRegisterMap);
+    DECODE_BITTABLE(code_info, reader, 7, DexRegisterInfo);
 
     return code_info;
 }
@@ -289,6 +330,37 @@ void CodeInfo::MethodInfo::Decode(BitMemoryReader& reader) {
     }
 }
 
+void CodeInfo::DexRegisterMask::Decode(BitMemoryReader& reader) {
+    std::vector<uint32_t> header;
+    DecodeOnly(reader, header);
+    if (OatHeader::OatVersion() >= 170) {
+        mask = header[1];
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::DexRegisterMap::Decode(BitMemoryReader& reader) {
+    std::vector<uint32_t> header;
+    DecodeOnly(reader, header);
+    if (OatHeader::OatVersion() >= 170) {
+        catalogue_index = header[1];
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::DexRegisterInfo::Decode(BitMemoryReader& reader) {
+    std::vector<uint32_t> header;
+    DecodeOnly(reader, header);
+    if (OatHeader::OatVersion() >= 170) {
+        kind = header[1];
+        packed_value = header[2];
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
 uint32_t CodeInfo::StackMap::UnpackNativePc(uint32_t packed_native_pc) {
     int machine = CoreApi::GetMachine();
     switch (machine) {
@@ -329,6 +401,9 @@ void CodeInfo::Dump(const char* prefix) {
         GetStackMask().Dump(sub_prefix.c_str());
         GetInlineInfo().Dump(sub_prefix.c_str());
         GetMethodInfo().Dump(sub_prefix.c_str());
+        GetDexRegisterMask().Dump(sub_prefix.c_str());
+        GetDexRegisterMap().Dump(sub_prefix.c_str());
+        GetDexRegisterInfo().Dump(sub_prefix.c_str());
     } else if (OatHeader::OatVersion() >= 150) {
         LOGI("%sCodeInfo FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
                 prefix, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
@@ -337,6 +412,9 @@ void CodeInfo::Dump(const char* prefix) {
         GetStackMask().Dump(sub_prefix.c_str());
         GetInlineInfo().Dump(sub_prefix.c_str());
         GetMethodInfo().Dump(sub_prefix.c_str());
+        GetDexRegisterMask().Dump(sub_prefix.c_str());
+        GetDexRegisterMap().Dump(sub_prefix.c_str());
+        GetDexRegisterInfo().Dump(sub_prefix.c_str());
     }
 }
 
@@ -380,6 +458,30 @@ void CodeInfo::MethodInfo::Dump(const char* prefix) {
                 prefix, NumRows(), method_index, dex_file_index_kind, dex_file_index);
     } else if (OatHeader::OatVersion() >= 170) {
         LOGI("%sMethodInfo Rows=%d Bits={MethodIndex=%d}\n", prefix, NumRows(), method_index);
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::DexRegisterMask::Dump(const char* prefix) {
+    if (OatHeader::OatVersion() >= 170) {
+        LOGI("%sDexRegisterMask Rows=%d Bits={Mask=%d}\n", prefix, NumRows(), mask);
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::DexRegisterMap::Dump(const char* prefix) {
+    if (OatHeader::OatVersion() >= 170) {
+        LOGI("%sDexRegisterMap Rows=%d Bits={CatalogueIndex=%d}\n", prefix, NumRows(), catalogue_index);
+    } else if (OatHeader::OatVersion() >= 124) {
+
+    }
+}
+
+void CodeInfo::DexRegisterInfo::Dump(const char* prefix) {
+    if (OatHeader::OatVersion() >= 170) {
+        LOGI("%sDexRegisterInfo Rows=%d Bits={Kind=%d PackedValue=%d}\n", prefix, NumRows(), kind, packed_value);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }

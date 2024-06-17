@@ -153,6 +153,53 @@ public:
         uint32_t dex_file_index;
     };
 
+    class DexRegisterMask : public BitTable {
+    public:
+        static void OatInit124();
+        static void OatInit170();
+
+        uint32_t NumColumns() { return kNumDexRegisterMasks; }
+        void Decode(BitMemoryReader& reader);
+        void Dump(const char* prefix);
+
+        static uint32_t kNumDexRegisterMasks;
+        static uint32_t kColNumMask;
+    private:
+        uint32_t mask;
+    };
+
+    class DexRegisterMap : public BitTable {
+    public:
+        static void OatInit124();
+        static void OatInit170();
+
+        uint32_t NumColumns() { return kNumDexRegisterMaps; }
+        void Decode(BitMemoryReader& reader);
+        void Dump(const char* prefix);
+
+        static uint32_t kNumDexRegisterMaps;
+        static uint32_t kColNumCatalogueIndex;
+    private:
+        uint32_t catalogue_index;
+    };
+
+    class DexRegisterInfo : public BitTable {
+    public:
+        static void OatInit124();
+        static void OatInit170();
+
+        uint32_t NumColumns() { return kNumDexRegisterInfos; }
+        void Decode(BitMemoryReader& reader);
+        void Dump(const char* prefix);
+
+        static uint32_t kNumDexRegisterInfos;
+        static uint32_t kColNumKind;
+        static uint32_t kColNumPackedValue;
+    private:
+        uint32_t kind;
+        uint32_t packed_value;
+    };
+
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit150(); // Add method frame info to CodeInfo.
     static void OatInit171(); // Optimize stack maps: add fast path for no inline info.
@@ -169,6 +216,9 @@ public:
     StackMask& GetStackMask() { return stack_mask_; }
     InlineInfo& GetInlineInfo() { return inline_info_; }
     MethodInfo& GetMethodInfo() { return method_info_; }
+    DexRegisterMask& GetDexRegisterMask() { return dex_register_mask_; }
+    DexRegisterMap& GetDexRegisterMap() { return dex_register_map_; }
+    DexRegisterInfo& GetDexRegisterInfo() { return dex_register_info_; }
 
     uint32_t NativePc2DexPc(uint32_t native_pc);
 
@@ -192,6 +242,9 @@ private:
     StackMask stack_mask_;
     InlineInfo inline_info_;
     MethodInfo method_info_;
+    DexRegisterMask dex_register_mask_;
+    DexRegisterMap dex_register_map_;
+    DexRegisterInfo dex_register_info_;
 };
 
 } // namespace art

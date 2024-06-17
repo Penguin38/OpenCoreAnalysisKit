@@ -321,6 +321,9 @@ void Android::preLoad() {
     RegisterOatListener(124, art::CodeInfo::StackMask::OatInit124);
     RegisterOatListener(124, art::CodeInfo::InlineInfo::OatInit124);
     RegisterOatListener(124, art::CodeInfo::MethodInfo::OatInit124);
+    RegisterOatListener(124, art::CodeInfo::DexRegisterMask::OatInit124);
+    RegisterOatListener(124, art::CodeInfo::DexRegisterMap::OatInit124);
+    RegisterOatListener(124, art::CodeInfo::DexRegisterInfo::OatInit124);
     RegisterOatListener(150, art::CodeInfo::OatInit150);
     RegisterOatListener(156, art::OatQuickMethodHeader::OatInit156);
     RegisterOatListener(158, art::OatQuickMethodHeader::OatInit158);
@@ -329,6 +332,9 @@ void Android::preLoad() {
     RegisterOatListener(170, art::CodeInfo::StackMask::OatInit170);
     RegisterOatListener(170, art::CodeInfo::InlineInfo::OatInit170);
     RegisterOatListener(170, art::CodeInfo::MethodInfo::OatInit170);
+    RegisterOatListener(170, art::CodeInfo::DexRegisterMask::OatInit170);
+    RegisterOatListener(170, art::CodeInfo::DexRegisterMap::OatInit170);
+    RegisterOatListener(170, art::CodeInfo::DexRegisterInfo::OatInit170);
     RegisterOatListener(171, art::CodeInfo::OatInit171);
     RegisterOatListener(172, art::CodeInfo::OatInit172);
     RegisterOatListener(191, art::CodeInfo::OatInit191);
