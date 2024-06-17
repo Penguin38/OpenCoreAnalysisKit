@@ -26,6 +26,7 @@
 #include "runtime/arch/x86_64/callee_save_frame_x86_64.h"
 #include "runtime/arch/x86/callee_save_frame_x86.h"
 #include "runtime/arch/riscv64/callee_save_frame_riscv64.h"
+#include "runtime/oat/stack_map.h"
 #include "base/globals.h"
 #include "common/bit.h"
 
@@ -105,7 +106,7 @@ uint64_t NterpGetFrameDexPcPtr(QuickFrame& frame) {
 }
 
 void NterpGetFrameVRegs(QuickFrame& frame) {
-    std::vector<uint32_t>& vregs = frame.GetVRegsCache();
+    std::map<uint32_t, CodeInfo::DexRegisterInfo>& vregs = frame.GetVRegsCache();
     ArtMethod& method = frame.GetMethod();
     art::dex::CodeItem item = method.GetCodeItem();
     const uint16_t num_regs = item.num_regs_;
@@ -121,7 +122,9 @@ void NterpGetFrameVRegs(QuickFrame& frame) {
                                  frame);
 
     for (int i = 0; i < num_regs; ++i) {
-        vregs.push_back(dex_vregs_ptr.value32Of(i * sizeof(uint32_t)));
+        CodeInfo::DexRegisterInfo info(CodeInfo::DexRegisterInfo::Kind::kConstant,
+                                       dex_vregs_ptr.value32Of(i * sizeof(uint32_t)));
+        vregs[i] = info;
     }
 }
 

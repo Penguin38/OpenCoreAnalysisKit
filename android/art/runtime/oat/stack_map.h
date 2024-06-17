@@ -20,8 +20,11 @@
 #include "runtime/quick/quick_method_frame_info.h"
 #include "base/bit_memory_region.h"
 #include "base/bit_table.h"
+#include <map>
 
 namespace art {
+
+static constexpr uint32_t kFrameSlotSize = 4;
 
 class CodeInfo {
 public:
@@ -185,6 +188,24 @@ public:
 
     class DexRegisterInfo : public BitTable {
     public:
+
+        enum class Kind : int32_t {
+            kInvalid = -2,       // only used internally during register map decoding.
+            kNone = -1,          // vreg has not been set.
+            kInStack,            // vreg is on the stack, value holds the stack offset.
+            kConstant,           // vreg is a constant value.
+            kInRegister,         // vreg is in low 32 bits of a core physical register.
+            kInRegisterHigh,     // vreg is in high 32 bits of a core physical register.
+            kInFpuRegister,      // vreg is in low 32 bits of an FPU register.
+            kInFpuRegisterHigh,  // vreg is in high 32 bits of an FPU register.
+        };
+
+        DexRegisterInfo() {}
+        DexRegisterInfo(uint32_t k, uint32_t v)
+            : kind(k), packed_value(v) {}
+        DexRegisterInfo(Kind k, uint32_t v)
+            : kind(static_cast<uint32_t>(k)), packed_value(v) {}
+
         static void OatInit124();
         static void OatInit170();
 
@@ -195,6 +216,9 @@ public:
         static uint32_t kNumDexRegisterInfos;
         static uint32_t kColNumKind;
         static uint32_t kColNumPackedValue;
+
+        inline uint32_t Kind() const { return kind; }
+        inline uint32_t PackedValue() const { return packed_value; }
     private:
         uint32_t kind;
         uint32_t packed_value;
@@ -221,6 +245,7 @@ public:
     DexRegisterInfo& GetDexRegisterInfo() { return dex_register_info_; }
 
     uint32_t NativePc2DexPc(uint32_t native_pc);
+    void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
 
     void Dump(const char* prefix);
 

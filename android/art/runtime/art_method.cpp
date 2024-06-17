@@ -313,17 +313,23 @@ static const OatFile::OatMethod FindOatMethodFor(ArtMethod& method,
 
     mirror::Class& declaring_class = method.GetDeclaringClass();
     uint16_t oat_method_index;
+    bool found_virtual = false;
     if (method.IsStatic() || method.IsDirect()) {
         oat_method_index = method.GetMethodIndex();
     } else {
         oat_method_index = declaring_class.NumDirectMethods();
         auto visit_virtual_methods = [&](art::ArtMethod& art_method) -> bool {
             if (method.GetDexMethodIndex() == art_method.GetDexMethodIndex()) {
+                found_virtual = true;
                 return true;
             }
             oat_method_index++;
             return false;
         };
+        Android::ForeachVirtualArtMethods(declaring_class, visit_virtual_methods);
+        if (!found_virtual) {
+            return OatFile::OatMethod::Invalid();
+        }
     }
 
     OatFile::OatClass oat_class = OatFile::FindOatClass(declaring_class.GetDexFile(),

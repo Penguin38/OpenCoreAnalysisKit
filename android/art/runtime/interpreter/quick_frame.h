@@ -20,7 +20,7 @@
 #include "api/memory_ref.h"
 #include "runtime/art_method.h"
 #include "runtime/quick/quick_method_frame_info.h"
-#include <vector>
+#include "runtime/oat/stack_map.h"
 
 namespace art {
 
@@ -41,14 +41,14 @@ public:
     inline void SetFramePc(uint64_t pc) { frame_pc = pc; }
     inline uint64_t GetFramePc() { return frame_pc; }
     uint64_t GetDexPcPtr();
-    std::vector<uint32_t>& GetVRegs();
-    std::vector<uint32_t>& GetVRegsCache() { return vregs_cache; }
+    std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegs();
+    std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegsCache() { return vregs_cache; }
     QuickMethodFrameInfo GetFrameInfo();
 private:
     ArtMethod method = 0x0;
     OatQuickMethodHeader method_header = 0x0;
     uint64_t frame_pc = 0x0;
-    std::vector<uint32_t> vregs_cache;
+    std::map<uint32_t, CodeInfo::DexRegisterInfo> vregs_cache;
 };
 
 } //namespace art

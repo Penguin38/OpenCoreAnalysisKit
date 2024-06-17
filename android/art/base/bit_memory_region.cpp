@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "base/bit_utils.h"
 #include "base/bit_memory_region.h"
 
 namespace art {
@@ -31,6 +32,20 @@ uint64_t BitMemoryRegion::LoadBits(uint64_t bit_offset, uint64_t bit_length) {
     uint64_t extra = data_.valueOf((index + (shift + (bit_length - 1)) / width) * point_size);
     uint64_t clear = (std::numeric_limits<uint64_t>::max() << 1) << (bit_length - 1);
     return (value | (extra << ((width - shift) & (width - 1)))) & ~clear;
+}
+
+uint64_t BitMemoryRegion::PopCount(uint64_t bit_offset, uint64_t bit_length) {
+    return Subregion(bit_offset, bit_length).PopCount();
+}
+uint64_t BitMemoryRegion::PopCount() {
+    uint64_t result = 0u;
+    VisitChunks([&](uint64_t /*offset*/,
+                    uint64_t /*num_bits*/,
+                    uint64_t value) {
+                        result += POPCOUNT(value);
+                        return true;
+                    });
+    return result;
 }
 
 template <typename VisitorType>

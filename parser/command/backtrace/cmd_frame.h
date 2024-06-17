@@ -18,6 +18,7 @@
 #define PARSER_COMMAND_BACKTRACE_CMD_FRAME_H_
 
 #include "command/command.h"
+#include "runtime/oat/stack_map.h"
 #include "android.h"
 #include <vector>
 
@@ -35,7 +36,9 @@ public:
     }
     void usage();
     void ShowJavaFrameInfo(int number);
-    void ShowJavaFrameRegister(const char* prefix, std::vector<uint32_t>& vregs);
+    void ShowJavaFrameRegister(const char* prefix,
+                               std::map<uint32_t, art::CodeInfo::DexRegisterInfo>& vregs,
+                               api::MemoryRef& frame);
 private:
     bool java;
 };

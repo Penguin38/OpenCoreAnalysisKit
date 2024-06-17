@@ -20,7 +20,6 @@
 #include "api/memory_ref.h"
 #include "common/bit.h"
 #include "base/globals.h"
-#include "base/bit_utils.h"
 #include <vector>
 #include <array>
 
@@ -29,7 +28,7 @@ namespace art {
 class BitMemoryRegion {
 public:
     BitMemoryRegion() = default;
-    BitMemoryRegion(uint64_t data, uint64_t bit_start, uint64_t bit_size) {
+    BitMemoryRegion(uint64_t data, int64_t bit_start, uint64_t bit_size) {
         data_ = RoundDown(data + (bit_start >> kBitsPerByteLog2), kPageSize);
         bit_start_ = bit_start + kBitsPerByte * (data - data_.Ptr());
         bit_size_ = bit_size;
@@ -52,19 +51,8 @@ public:
         return result;
     }
     uint64_t LoadBits(uint64_t bit_offset, uint64_t bit_length);
-    uint64_t PopCount(uint64_t bit_offset, uint64_t bit_length) {
-        return Subregion(bit_offset, bit_length).PopCount();
-    }
-    uint64_t PopCount() {
-        uint64_t result = 0u;
-        VisitChunks([&](uint64_t /*offset*/,
-                        uint64_t /*num_bits*/,
-                        uint64_t value) {
-                            result += POPCOUNT(value);
-                            return true;
-                        });
-        return result;
-    }
+    uint64_t PopCount(uint64_t bit_offset, uint64_t bit_length);
+    uint64_t PopCount();
     template <typename VisitorType> bool VisitChunks(VisitorType&& visitor);
 private:
     api::MemoryRef data_;
@@ -77,7 +65,7 @@ constexpr uint32_t kVarintMax = 11;
 
 class BitMemoryReader {
 public:
-    BitMemoryReader(uint64_t data, uint64_t bit_offset = 0)
+    BitMemoryReader(uint64_t data, int64_t bit_offset = 0)
         : finished_region_(data, bit_offset, 0) {}
     BitMemoryRegion ReadRegion(uint64_t bit_length) {
         uint64_t bit_offset = finished_region_.size_in_bits();

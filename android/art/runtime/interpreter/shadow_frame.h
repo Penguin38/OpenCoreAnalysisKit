@@ -19,7 +19,7 @@
 
 #include "api/memory_ref.h"
 #include "runtime/art_method.h"
-#include <vector>
+#include "runtime/oat/stack_map.h"
 
 struct ShadowFrame_OffsetTable {
     uint32_t link_;
@@ -62,9 +62,9 @@ public:
 
     inline ArtMethod GetMethod() { return method(); }
     uint64_t GetDexPcPtr();
-    std::vector<uint32_t>& GetVRegs();
+    std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegs();
 private:
-    std::vector<uint32_t> vregs_cache;
+    std::map<uint32_t, CodeInfo::DexRegisterInfo> vregs_cache;
 };
 
 } //namespace art

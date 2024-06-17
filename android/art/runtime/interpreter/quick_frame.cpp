@@ -42,7 +42,7 @@ uint64_t QuickFrame::GetDexPcPtr() {
     return 0x0;
 }
 
-std::vector<uint32_t>& QuickFrame::GetVRegs() {
+std::map<uint32_t, CodeInfo::DexRegisterInfo>& QuickFrame::GetVRegs() {
     if (vregs_cache.size()) {
         return vregs_cache;
     }
@@ -51,7 +51,8 @@ std::vector<uint32_t>& QuickFrame::GetVRegs() {
         // do nothing
     } else if (method_header.Ptr()) {
         if (method_header.IsOptimized()) {
-            // do nothing
+            uint32_t native_pc = static_cast<uint32_t>(frame_pc - method_header.GetCodeStart());
+            method_header.NativePc2VRegs(native_pc, vregs_cache);
         } else {
             NterpGetFrameVRegs(*this);
         }

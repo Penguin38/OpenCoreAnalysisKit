@@ -466,6 +466,7 @@ void Android::ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<
     if (!(size - virtual_offset)) return;
     art::ArtMethod method(clazz.GetMethods(), clazz);
     int i = virtual_offset;
+    method.MovePtr(i * SIZEOF(ArtMethod));
     do {
         if (fn(method)) break;
         i++;

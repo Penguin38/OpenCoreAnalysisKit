@@ -20,6 +20,7 @@
 #include "logger/log.h"
 #include "base/bit_memory_region.h"
 #include <numeric>
+#include <limits>
 
 namespace art {
 

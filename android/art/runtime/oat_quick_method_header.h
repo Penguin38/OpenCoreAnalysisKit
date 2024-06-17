@@ -19,6 +19,8 @@
 
 #include "api/memory_ref.h"
 #include "runtime/quick/quick_method_frame_info.h"
+#include "runtime/oat/stack_map.h"
+#include <map>
 
 struct OatQuickMethodHeader_OffsetTable {
     uint32_t code_info_offset_;
@@ -90,6 +92,7 @@ public:
     static api::MemoryRef GetNterpWithClinitImpl();
     static api::MemoryRef GetNterpImpl();
     uint32_t NativePc2DexPc(uint32_t native_pc);
+    void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, CodeInfo::DexRegisterInfo>& vregs);
     void Dump(const char* prefix);
 private:
     // quick memoryref cache

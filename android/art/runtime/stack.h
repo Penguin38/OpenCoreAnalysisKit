@@ -24,6 +24,7 @@
 #include "runtime/quick/quick_method_frame_info.h"
 #include "runtime/interpreter/quick_frame.h"
 #include "runtime/interpreter/shadow_frame.h"
+#include "runtime/oat/stack_map.h"
 #include <vector>
 #include <memory>
 
@@ -97,7 +98,7 @@ public:
         OatQuickMethodHeader& GetMethodHeader() { return quick_frame.GetMethodHeader(); }
         uint64_t GetFramePc() { return quick_frame.Ptr() ? quick_frame.GetFramePc() : 0x0; }
         uint64_t GetDexPcPtr();
-        std::vector<uint32_t>& GetVRegs() {
+        std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegs() {
             if (shadow_frame.Ptr()) {
                 return shadow_frame.GetVRegs();
             } else if (quick_frame.Ptr()) {
@@ -111,7 +112,7 @@ public:
         ShadowFrame shadow_frame = 0x0;
         QuickFrame quick_frame = 0x0;
         QuickFrame prev_quick_frame = 0x0;
-        std::vector<uint32_t> empty_vregs;
+        std::map<uint32_t, CodeInfo::DexRegisterInfo> empty_vregs;
     };
 
     StackVisitor(Thread* thread, StackWalkKind kind) : thread_(thread), walk_kind_(kind) {}

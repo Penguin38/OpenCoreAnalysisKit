@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/interpreter/shadow_frame.h"
 
 struct ShadowFrame_OffsetTable __ShadowFrame_offset__;
@@ -73,11 +74,17 @@ uint64_t ShadowFrame::GetDexPcPtr() {
     return dex_pc_ptr();
 }
 
-std::vector<uint32_t>& ShadowFrame::GetVRegs() {
+std::map<uint32_t, CodeInfo::DexRegisterInfo>& ShadowFrame::GetVRegs() {
     if (!vregs_cache.size()) {
         api::MemoryRef ref = vregs();
         for (int i = 0; i < number_of_vregs(); i++) {
-            vregs_cache.push_back(ref.value32Of(i * sizeof(uint32_t)));
+            CodeInfo::DexRegisterInfo info(CodeInfo::DexRegisterInfo::Kind::kConstant,
+                                           ref.value32Of(i * sizeof(uint32_t)));
+            if (Android::Sdk() >= Android::R) {
+                vregs_cache[i] = info;
+            } else {
+                vregs_cache[i + 1]  = info;
+            }
         }
     }
     return vregs_cache;

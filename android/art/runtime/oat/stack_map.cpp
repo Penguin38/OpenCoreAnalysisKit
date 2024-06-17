@@ -22,6 +22,7 @@
 #include "base/globals.h"
 #include "base/bit_memory_region.h"
 #include "android.h"
+#include <string>
 
 namespace art {
 
@@ -235,7 +236,7 @@ CodeInfo CodeInfo::DecodeHeaderOnly(uint64_t code_info_data) {
     do { \
         if (CODEINFO.HasBitTable(NUM)) { \
             if (CODEINFO.IsBitTableDeduped(NUM)) { \
-                uint64_t bit_offset = READER.NumberOfReadBits() - READER.ReadVarint(); \
+                int64_t bit_offset = READER.NumberOfReadBits() - READER.ReadVarint(); \
                 BitMemoryReader reader2(READER.data(), bit_offset); \
                 code_info.Get##NAME().Decode(reader2); \
             } else { \
@@ -388,6 +389,76 @@ uint32_t CodeInfo::NativePc2DexPc(uint32_t native_pc) {
         dex_pc = map.Get(row, CodeInfo::StackMap::kColNumDexPc);
     }
     return dex_pc;
+}
+
+void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vreg_map) {
+    StackMap& map = GetStackMap();
+    if (!map.IsValid()) return;
+
+    uint32_t current_row = BitTable::kNoValue;
+    uint32_t dex_register_map_index = BitTable::kNoValue;
+    for (int row = 0; row < map.NumRows(); row++) {
+        uint32_t packed_native_pc = map.Get(row, CodeInfo::StackMap::kColNumPackedNativePc);
+        uint32_t current_native_pc = CodeInfo::StackMap::UnpackNativePc(packed_native_pc);
+        if (current_native_pc > native_pc)
+            break;
+        current_row = row;
+        dex_register_map_index = map.Get(row, CodeInfo::StackMap::kColNumDexRegisterMapIndex);
+    }
+
+    if (dex_register_map_index == BitTable::kNoValue) return;
+    DexRegisterMap& dex_map = GetDexRegisterMap();
+    if (!dex_map.IsValid()) return;
+
+    DexRegisterMask& dex_mask = GetDexRegisterMask();
+    if (!dex_mask.IsValid()) return;
+
+    DexRegisterInfo& dex_info = GetDexRegisterInfo();
+    if (!dex_info.IsValid()) return;
+
+    std::map<uint32_t, uint32_t> bits_set;
+    uint32_t remaining_registers = number_of_dex_registers_;
+    for (int row = current_row; row >= 0 && remaining_registers != 0; row--) {
+        uint32_t dex_register_mask_index = map.Get(row, CodeInfo::StackMap::kColNumDexRegisterMaskIndex);
+        if (dex_register_mask_index == BitTable::kNoValue)
+            continue;
+
+        if (dex_register_mask_index < dex_mask.NumRows()) {
+            BitMemoryRegion mask = dex_mask.GetBitMemoryRegion(dex_register_mask_index, CodeInfo::DexRegisterMask::kColNumMask);
+            if (mask.size_in_bits() <= 0)
+                continue;
+
+            uint32_t map_index = map.Get(row, CodeInfo::StackMap::kColNumDexRegisterMapIndex);
+            map_index += mask.PopCount(0, 0);
+            mask = mask.Subregion(0, mask.size_in_bits() - 0);
+            uint32_t end = std::min<uint32_t>(number_of_dex_registers_, mask.size_in_bits());
+            uint32_t kNumBits = std::numeric_limits<std::make_unsigned_t<uint32_t>>::digits;
+
+            for (uint32_t reg = 0; reg < end; reg += kNumBits) {
+                uint32_t bits = mask.LoadBits(reg, std::min<uint32_t>(end - reg, kNumBits));
+                while (bits != 0) {
+                    uint32_t bit = __builtin_ctz(bits);
+                    uint32_t catalogue_index = dex_map.Get(map_index, CodeInfo::DexRegisterMap::kColNumCatalogueIndex);
+                    if (catalogue_index == BitTable::kNoValue) {
+                        map_index++;
+                        bits ^= 1u << bit;
+                        continue;
+                    }
+                    uint32_t kind = dex_info.Get(catalogue_index, CodeInfo::DexRegisterInfo::kColNumKind);
+                    uint32_t value = dex_info.Get(catalogue_index, CodeInfo::DexRegisterInfo::kColNumPackedValue);
+
+                    if (!bits_set[reg + bit]) {
+                        DexRegisterInfo info(kind, value);
+                        vreg_map[reg + bit] = info;
+                        remaining_registers--;
+                        bits_set[reg + bit] = 1;
+                    }
+                    map_index++;
+                    bits ^= 1u << bit;
+                }
+            }
+        }
+    }
 }
 
 void CodeInfo::Dump(const char* prefix) {

@@ -371,3 +371,48 @@ core-parser> file
 [4004f000, 40093000)  00000000  [anon:dalvik-large object space allocation]
 ...
 ```
+
+```
+core-parser> thread 3962
+Current thread is 3962
+
+core-parser> bt
+"HeapTaskDaemon" tid=9 WaitingForTaskProcessor
+  | group="system" daemon=1 prio=5 target=0x701b1058
+  | sysTid=3962 sCount=0 flags=0 obj=0x12c11530 self=0x70ef11c6b140
+  | stack=0x70ed38d4c000-0x70ed38d4e000 stackSize=0x102cf0 handle=0x70ed38e4ecf0
+  | held mutexes=
+  rax 0xfffffffffffffdfc  rbx 0x000070ee11c58da0  rcx 0x000070f053bd3dc8  rdx 0x000000000000000a
+  r8  0x0000000000000000  r9  0xb4e7000000000000  r10 0x000070ed38e4e770  r11 0x0000000000000246
+  r12 0x000070ed38e4e770  r13 0x000000000000000a  r14 0x000070ef11c6b140  r15 0x0000000000000000
+  rdi 0x000070ee11c58db0  rsi 0x0000000000000080
+  rbp 0x000070ee11c58db0  rsp 0x000070ed38e4e748  rip 0x000070f053bd3dc8  flags 0x0000000000000246
+  ds 0x00000000  es 0x00000000  fs 0x00000000  gs 0x00000000  cs 0x00000033  ss 0x0000002b
+  Java: #0  0000000000000000  dalvik.system.VMRuntime.runHeapTasks()
+  Java: #1  000070ed9f07bea6  java.lang.Daemons$HeapTaskDaemon.runInternal()
+  Java: #2  000070ed9f07b4f2  java.lang.Daemons$Daemon.run()
+  Java: #3  000070ed9f1d1740  java.lang.Thread.run()
+
+core-parser> f 3
+  Java: #3  000070ed9f1d1740  java.lang.Thread.run()
+  {
+      art::ArtMethod: 0x7011b230
+      shadow_frame: 0x0
+      quick_frame: 0x70ed38e4e9f0
+      dex_pc_ptr: 0x70ed9f1d1740
+      frame_pc: 0x70ed9f96a7e6
+      method_header: 0x70ed9f96038c
+
+      DEX CODE:
+      0x70ed9f1d1738: 1054 05fd                | iget-object v0, v1, Ljava/lang/Thread;.target:Ljava/lang/Runnable; // field@1533
+      0x70ed9f1d173c: 0038 0005                | if-eqz v0, 0x70ed9f1d1746 //+5
+      0x70ed9f1d1740: 1072 0c2d 0000           | invoke-interface {v0}, void java.lang.Runnable.run() // method@3117
+      {
+          v0 = 0x701b1058    v1 = 0x12c11530
+      }
+      {
+          rbx = 0x000070ed38e4ea98    rbp = 0x000070ed9f1d1740    r12 = 0x000070ed38e4ea18    r13 = 0x000070ed9f960a80
+          r14 = 0x000070ed38e4ea10    r15 = 0x000070ed9f96a7e6
+      }
+  }
+```

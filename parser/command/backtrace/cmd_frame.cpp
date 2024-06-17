@@ -124,11 +124,12 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
                     LOGI("      %s\n", art::Dexdump::PrettyDexInst(startref, dex_file).c_str());
                     startref.MovePtr(art::Dexdump::GetDexInstSize(startref));
                 }
-                ShowJavaFrameRegister("      ", java_frame->GetVRegs());
+                ShowJavaFrameRegister("      ", java_frame->GetVRegs(), quick_frame);
             }
 
             art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
             if (prev_quick_frame.Ptr()) {
+                LOGI("\n      OAT CODE:\n");
                 art::QuickMethodFrameInfo frame = prev_quick_frame.GetFrameInfo();
                 frame.DumpCoreSpill("      ", prev_quick_frame.Ptr());
             }
@@ -139,34 +140,78 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
     }
 }
 
-void FrameCommand::ShowJavaFrameRegister(const char* prefix, std::vector<uint32_t>& vregs) {
+void FrameCommand::ShowJavaFrameRegister(const char* prefix,
+                                         std::map<uint32_t, art::CodeInfo::DexRegisterInfo>& vregs,
+                                         api::MemoryRef& frame) {
     uint32_t vregs_size = vregs.size();
-    uint32_t vregs_line = vregs_size / 4;
-    uint32_t vregs_mod = vregs_size % 4;
     if (vregs_size) {
-        LOGI("%s{\n", prefix);
-        uint32_t start_vreg = 0;
-        if (Android::Sdk() < Android::R) start_vreg = 1;
-        for (int i = 0; i < vregs_line; i++) {
-            char value[256];
-            sprintf(value, "%s    v%d = 0x%08x    v%d = 0x%08x    v%d = 0x%08x    v%d = 0x%08x",
-                    prefix, 4 * i + start_vreg, vregs[4 * i], 4 * i + 1 + start_vreg, vregs[4 * i + 1],
-                    4 * i + 2 + start_vreg, vregs[4 * i + 2], 4 * i + 3 + start_vreg, vregs[4 * i + 3]);
-            LOGI("%s\n", value);
+        std::string sb;
+        sb.append(prefix).append("{\n");
+        int num = 0;
+        for (const auto& vreg : vregs) {
+            uint32_t kind = vreg.second.Kind();
+            uint32_t value = vreg.second.PackedValue();
+
+            if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInvalid)
+                    || kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kNone)) {
+                vregs_size--;
+                continue;
+            }
+
+            if (!(num % 4))
+                sb.append(prefix).append("    ");
+
+            sb.append("v");
+            sb.append(std::to_string(vreg.first));
+            sb.append(" = ");
+
+            char valuehex[11];
+            if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kConstant)) {
+                sprintf(valuehex, "0x%08x", value);
+                sb.append(valuehex);
+            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInRegister)) {
+                sb.append("r");
+                sb.append(std::to_string(value));
+            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInRegisterHigh)) {
+                sb.append("r");
+                sb.append(std::to_string(value));
+                sb.append("/hi");
+            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInFpuRegister)) {
+                sb.append("f");
+                sb.append(std::to_string(value));
+            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInFpuRegisterHigh)) {
+                sb.append("f");
+                sb.append(std::to_string(value));
+                sb.append("/hi");
+            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInStack)) {
+                value *= art::kFrameSlotSize;
+                if (frame.Ptr()) {
+                    sprintf(valuehex, "0x%08x", frame.value32Of(value));
+                    sb.append(valuehex);
+                } else {
+                    sb.append("[sp+#");
+                    sb.append(std::to_string(value));
+                    sb.append("]");
+                }
+            }
+            if (num < vregs_size - 1) {
+                sb.append("    ");
+            }
+            num++;
+            if (!(num % 4))
+                sb.append("\n");
         }
 
-        if (vregs_mod) {
-            LOGI("%s", prefix);
-            for (int i = 0; i < vregs_mod; i++) {
-                char value[32];
-                sprintf(value, "    v%d = 0x%08x", 4 * vregs_line + i + start_vreg, vregs[4 * vregs_line + i]);
-                LOGI("%s", value);
-            }
-            LOGI("\n");
-        }
-        LOGI("%s}\n", prefix);
+        if (vregs_size && (vregs_size % 4))
+            sb.append("\n");
+        sb.append(prefix).append("}\n");
+        LOGI("%s", sb.c_str());
     }
 }
 
 void FrameCommand::usage() {
+    LOGI("Usage: frame|r <NUM> [option..]\n");
+    LOGI("Option:\n");
+    LOGI("    --java|-j: show java frame info. (Default)\n");
+    LOGI("    --native|-n: show native frame info.\n");
 }

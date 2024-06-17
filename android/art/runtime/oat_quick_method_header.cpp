@@ -19,7 +19,6 @@
 #include "android.h"
 #include "runtime/oat.h"
 #include "runtime/oat_quick_method_header.h"
-#include "runtime/oat/stack_map.h"
 #include "runtime/entrypoints/runtime_asm_entrypoints.h"
 
 struct OatQuickMethodHeader_OffsetTable __OatQuickMethodHeader_offset__;
@@ -193,6 +192,11 @@ OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
 uint32_t OatQuickMethodHeader::NativePc2DexPc(uint32_t native_pc) {
     CodeInfo code_info = CodeInfo::Decode(GetOptimizedCodeInfoPtr());
     return code_info.NativePc2DexPc(native_pc);
+}
+
+void OatQuickMethodHeader::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, CodeInfo::DexRegisterInfo>& vregs) {
+    CodeInfo code_info = CodeInfo::Decode(GetOptimizedCodeInfoPtr());
+    code_info.NativePc2VRegs(native_pc, vregs);
 }
 
 api::MemoryRef OatQuickMethodHeader::GetNterpWithClinitImpl() {
