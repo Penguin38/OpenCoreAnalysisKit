@@ -38,7 +38,7 @@ public:
         kHasInlineInfo = 1 << 0,
     };
 
-    class StackMap : BitTable {
+    class StackMap : public BitTable {
     public:
         enum Kind {
             Default = -1,
@@ -50,12 +50,22 @@ public:
         static void OatInit124();
         static void OatInit170();
 
+        static uint32_t UnpackNativePc(uint32_t packed_native_pc);
+
         uint32_t NumColumns() { return kNumStackMaps; }
         void Decode(BitMemoryReader& reader);
         void Dump(const char* prefix);
 
-    private:
         static uint32_t kNumStackMaps;
+        static uint32_t kColNumKind;
+        static uint32_t kColNumPackedNativePc;
+        static uint32_t kColNumDexPc;
+        static uint32_t kColNumRegisterMaskIndex;
+        static uint32_t kColNumStackMaskIndex;
+        static uint32_t kColNumInlineInfoIndex;
+        static uint32_t kColNumDexRegisterMaskIndex;
+        static uint32_t kColNumDexRegisterMapIndex;
+    private:
         uint32_t kind;
         uint32_t packed_native_pc;
         uint32_t dex_pc;
@@ -79,10 +89,13 @@ public:
     BitMemoryReader& GetMemoryReader() { return reader; }
     StackMap& GetStackMap() { return stack_map_; }
 
+    uint32_t NativePc2DexPc(uint32_t native_pc);
+
     void Dump(const char* prefix);
-private:
+
     static uint32_t kNumHeaders;
     static uint32_t kNumBitTables;
+private:
     BitMemoryReader reader = 0;
     uint32_t flags_ = 0;                    // 171+
     uint32_t code_size_ = 0;                // 191+, The size of native PC range in bytes.

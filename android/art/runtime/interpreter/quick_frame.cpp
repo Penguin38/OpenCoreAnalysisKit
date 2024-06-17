@@ -30,7 +30,11 @@ uint64_t QuickFrame::GetDexPcPtr() {
         return 0x0;
     } else if (method_header.Ptr()) {
         if (method_header.IsOptimized()) {
-            return method_header.NativePc2DexPc(frame_pc);
+            uint32_t native_pc = static_cast<uint32_t>(frame_pc - method_header.GetCodeStart());
+            uint32_t dex_pc = method_header.NativePc2DexPc(native_pc);
+            ArtMethod method = GetMethod();
+            art::dex::CodeItem item = method.GetCodeItem();
+            return item.Ptr() ? item.Ptr() + item.code_offset_ + 0x2 * dex_pc : 0x0;
         } else {
             return NterpGetFrameDexPcPtr(*this);
         }

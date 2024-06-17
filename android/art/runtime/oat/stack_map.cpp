@@ -15,6 +15,8 @@
  */
 
 #include "logger/log.h"
+#include "api/core.h"
+#include "common/elf.h"
 #include "runtime/oat.h"
 #include "runtime/oat/stack_map.h"
 #include "base/globals.h"
@@ -26,6 +28,14 @@ namespace art {
 uint32_t CodeInfo::kNumHeaders = 0;
 uint32_t CodeInfo::kNumBitTables = 8;
 uint32_t CodeInfo::StackMap::kNumStackMaps = 6;
+uint32_t CodeInfo::StackMap::kColNumKind = 0;
+uint32_t CodeInfo::StackMap::kColNumPackedNativePc = 1;
+uint32_t CodeInfo::StackMap::kColNumDexPc = 2;
+uint32_t CodeInfo::StackMap::kColNumRegisterMaskIndex = 3;
+uint32_t CodeInfo::StackMap::kColNumStackMaskIndex = 4;
+uint32_t CodeInfo::StackMap::kColNumInlineInfoIndex = 5;
+uint32_t CodeInfo::StackMap::kColNumDexRegisterMaskIndex = 6;
+uint32_t CodeInfo::StackMap::kColNumDexRegisterMapIndex = 7;
 
 void CodeInfo::OatInit124() {
     kNumHeaders = 0;
@@ -54,6 +64,14 @@ void CodeInfo::StackMap::OatInit124() {
 
 void CodeInfo::StackMap::OatInit170() {
     kNumStackMaps = 8;
+    kColNumKind = 0;
+    kColNumPackedNativePc = 1;
+    kColNumDexPc = 2;
+    kColNumRegisterMaskIndex = 3;
+    kColNumStackMaskIndex = 4;
+    kColNumInlineInfoIndex = 5;
+    kColNumDexRegisterMaskIndex = 6;
+    kColNumDexRegisterMapIndex = 7;
 }
 
 uint32_t CodeInfo::DecodeCodeSize(uint64_t code_info_data) {
@@ -105,13 +123,27 @@ CodeInfo CodeInfo::DecodeHeaderOnly(uint64_t code_info_data) {
     return code_info;
 }
 
+#define DECODE_BITTABLE(CODEINFO, READER, NUM, NAME) { \
+    do { \
+        if (CODEINFO.HasBitTable(NUM)) { \
+            if (CODEINFO.IsBitTableDeduped(NUM)) { \
+                uint64_t bit_offset = READER.NumberOfReadBits() - READER.ReadVarint(); \
+                BitMemoryReader reader2(READER.data(), bit_offset); \
+                code_info.Get##NAME().Decode(reader2); \
+            } else { \
+                uint64_t bit_offset = reader.NumberOfReadBits(); \
+                code_info.Get##NAME().Decode(reader); \
+                READER.GetReadRegion().Subregion(bit_offset); \
+            } \
+        } \
+    } while (0); \
+}
+
 CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
     CodeInfo code_info = DecodeHeaderOnly(code_info_data);
     BitMemoryReader& reader = code_info.GetMemoryReader();
 
-    if (code_info.HasBitTable(0)) {
-        code_info.GetStackMap().Decode(reader);
-    }
+    DECODE_BITTABLE(code_info, reader, 0, StackMap);
 
     return code_info;
 }
@@ -131,6 +163,35 @@ void CodeInfo::StackMap::Decode(BitMemoryReader& reader) {
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
+}
+
+uint32_t CodeInfo::StackMap::UnpackNativePc(uint32_t packed_native_pc) {
+    int machine = CoreApi::GetMachine();
+    switch (machine) {
+        case EM_386: return packed_native_pc;
+        case EM_X86_64: return packed_native_pc;
+        case EM_ARM: return packed_native_pc * 2;
+        case EM_AARCH64: return packed_native_pc * 4;
+        case EM_RISCV: return packed_native_pc * 2;
+    }
+    return packed_native_pc;
+}
+
+uint32_t CodeInfo::NativePc2DexPc(uint32_t native_pc) {
+    StackMap& map = GetStackMap();
+    if (!map.IsValid()) {
+        return 0;
+    }
+
+    uint32_t dex_pc = 0x0;
+    for (int row = 0; row < map.NumRows(); row++) {
+        uint32_t packed_native_pc = map.Get(row, CodeInfo::StackMap::kColNumPackedNativePc);
+        uint32_t current_native_pc = CodeInfo::StackMap::UnpackNativePc(packed_native_pc);
+        if (current_native_pc > native_pc)
+            break;
+        dex_pc = map.Get(row, CodeInfo::StackMap::kColNumDexPc);
+    }
+    return dex_pc;
 }
 
 void CodeInfo::Dump(const char* prefix) {

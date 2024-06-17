@@ -190,9 +190,9 @@ OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
     return header;
 }
 
-uint64_t OatQuickMethodHeader::NativePc2DexPc(uint64_t pc) {
-    CodeInfo code_info = CodeInfo::DecodeHeaderOnly(GetOptimizedCodeInfoPtr());
-    return 0x0;
+uint32_t OatQuickMethodHeader::NativePc2DexPc(uint32_t native_pc) {
+    CodeInfo code_info = CodeInfo::Decode(GetOptimizedCodeInfoPtr());
+    return code_info.NativePc2DexPc(native_pc);
 }
 
 api::MemoryRef OatQuickMethodHeader::GetNterpWithClinitImpl() {

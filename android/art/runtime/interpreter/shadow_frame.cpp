@@ -68,7 +68,6 @@ uint64_t ShadowFrame::GetDexPcPtr() {
     if (!dex_pc_ptr()) {
         ArtMethod method = GetMethod();
         art::dex::CodeItem item = method.GetCodeItem();
-        art::DexFile& dex_file = method.GetDexFile();
         if (item.Ptr()) return (item.Ptr() + item.code_offset_ + 0x2 * dex_pc());
     }
     return dex_pc_ptr();

@@ -89,7 +89,7 @@ public:
     static OatQuickMethodHeader GetNterpMethodHeader();
     static api::MemoryRef GetNterpWithClinitImpl();
     static api::MemoryRef GetNterpImpl();
-    uint64_t NativePc2DexPc(uint64_t pc);
+    uint32_t NativePc2DexPc(uint32_t native_pc);
     void Dump(const char* prefix);
 private:
     // quick memoryref cache
