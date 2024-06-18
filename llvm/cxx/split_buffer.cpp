@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-#include "llvm.h"
-#include "cxx/string.h"
-#include "cxx/vector.h"
-#include "cxx/map.h"
-#include "cxx/list.h"
-#include "cxx/unordered_map.h"
-#include "cxx/deque.h"
+#include "api/core.h"
 #include "cxx/split_buffer.h"
 
-void LLVM::Init() {
-    cxx::string::Init();
-    cxx::vector::Init();
-    cxx::map::Init();
-    cxx::map::pair::Init();
-    cxx::list::Init();
-    cxx::unordered_map::Init();
-    cxx::deque::Init();
-    cxx::split_buffer::Init();
+struct cxx_split_buffer_OffsetTable __cxx_split_buffer_offset__;
+struct cxx_split_buffer_SizeTable __cxx_split_buffer_size__;
+
+namespace cxx {
+
+void split_buffer::Init() {
+    uint32_t cap = 64 / CoreApi::Bits();
+    __cxx_split_buffer_offset__ = {
+        .__first_ = 0,
+        .__begin_ = 8 / cap,
+        .__end_ = 16 / cap,
+        .__end_cap_ = 24 / cap,
+    };
+
+    __cxx_split_buffer_size__ = {
+        .THIS = 32 / cap,
+    };
 }
+
+} // namespace cxx

@@ -69,6 +69,20 @@ void OatDexFile::Init31() {
     }
 }
 
+void OatDexFile::Init35() {
+    if (CoreApi::Bits() == 64) {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 168,
+        };
+    } else {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 96,
+        };
+    }
+}
+
 VdexFile& OatFile::GetVdexFile() {
     if (!vdex_cache.Ptr()) {
         vdex_cache = vdex();

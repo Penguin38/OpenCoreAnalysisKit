@@ -112,6 +112,7 @@ public:
 
     static void Init();
     static void Init31();
+    static void Init35();
     inline uint64_t oat_file() { return VALUEOF(OatDexFile, oat_file_); }
     inline uint64_t oat_class_offsets_pointer() { return VALUEOF(OatDexFile, oat_class_offsets_pointer_); }
 

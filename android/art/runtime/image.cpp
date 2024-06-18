@@ -72,6 +72,16 @@ void ImageHeader::Init34() {
     };
 }
 
+void ImageHeader::Init35() {
+    __ImageHeader_offset__ = {
+        .image_methods_ = 176,
+    };
+
+    __ImageHeader_size__ = {
+        .THIS = 264,
+    };
+}
+
 uint32_t ImageHeader::GetImageMethodsCount() {
     if (Android::Sdk() >= Android::P) {
         // 28~..

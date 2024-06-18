@@ -305,13 +305,9 @@ void Android::preLoad() {
 
     // 35 For test
     RegisterSdkListener(VANILLA_ICE_CREAM, art::gc::Heap::Init35);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::Runtime::Init34);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::DexFile::Init34);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::ImageHeader::Init34);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::ImageHeader::Init35);
     RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::Init35);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::tls_ptr_sized_values::Init34);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::JavaVMExt::Init34);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::IndirectReferenceTable::Init34);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::OatDexFile::Init35);
 
     // OAT
     RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);
@@ -500,7 +496,7 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
             if (flag & EACH_IMAGE_OBJECTS) walkfn(space.get());
         } else if (space->IsZygoteSpace()) {
             if (flag & EACH_ZYGOTE_OBJECTS) walkfn(space.get());
-        } else if (space->IsRegionSpace()) {
+        } else if (space->IsRegionSpace() || space->IsBumpPointerSpace()) {
             if (flag & EACH_APP_OBJECTS) walkfn(space.get());
         } else if (space->IsFakeSpace()) {
             if (flag & EACH_FAKE_OBJECTS) walkfn(space.get());

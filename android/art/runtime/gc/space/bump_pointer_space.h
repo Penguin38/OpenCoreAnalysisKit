@@ -18,6 +18,7 @@
 #define ANDROID_ART_RUNTIME_GC_SPACE_BUMP_POINTER_SPACE_H_
 
 #include "runtime/gc/space/space.h"
+#include "cxx/deque.h"
 #include <functional>
 
 struct BumpPointerSpace_OffsetTable {
@@ -49,6 +50,11 @@ public:
 
     SpaceType GetType() { return kSpaceTypeBumpPointerSpace; }
     void Walk(std::function<bool (mirror::Object& object)> fn);
+
+    cxx::deque& GetBlockSizes();
+private:
+    // quick memoryref cache
+    cxx::deque block_sizes_cache = 0x0;
 };
 
 } // namespace space

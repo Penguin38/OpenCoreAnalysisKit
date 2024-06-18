@@ -63,6 +63,7 @@ public:
     static void Init29();
     static void Init31();
     static void Init34();
+    static void Init35();
     inline uint64_t image_methods() { return Real() + OFFSET(ImageHeader, image_methods_); }
 
     uint32_t GetImageMethodsCount();
