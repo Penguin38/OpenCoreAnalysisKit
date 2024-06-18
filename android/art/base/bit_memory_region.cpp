@@ -15,10 +15,17 @@
  */
 
 #include "api/core.h"
+#include "base/globals.h"
 #include "base/bit_utils.h"
 #include "base/bit_memory_region.h"
 
 namespace art {
+
+bool BitMemoryRegion::LoadBit(uint64_t bit_offset) {
+    uint64_t index = (bit_start_ + bit_offset) / kBitsPerByte;
+    uint64_t shift = (bit_start_ + bit_offset) % kBitsPerByte;
+    return ((data_.value8Of(index) >> shift) & 1) != 0;
+}
 
 uint64_t BitMemoryRegion::LoadBits(uint64_t bit_offset, uint64_t bit_length) {
     if (bit_length == 0) {

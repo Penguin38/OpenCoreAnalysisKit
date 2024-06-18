@@ -50,6 +50,7 @@ public:
         result.bit_size_ -= bit_offset;
         return result;
     }
+    bool LoadBit(uint64_t bit_offset);
     uint64_t LoadBits(uint64_t bit_offset, uint64_t bit_length);
     uint64_t LoadBits64(uint64_t bit_offset, uint64_t bit_length);
     uint64_t PopCount(uint64_t bit_offset, uint64_t bit_length);
@@ -72,6 +73,9 @@ public:
         uint64_t bit_offset = finished_region_.size_in_bits();
         finished_region_.Resize(bit_offset + bit_length);
         return finished_region_.Subregion(bit_offset, bit_length);
+    }
+    bool ReadBit() {
+        return ReadRegion(/* bit_length */ 1).LoadBit(/* bit_offset */ 0);
     }
     uint64_t ReadBits(uint64_t bit_length) {
         return ReadRegion(bit_length).LoadBits(/* bit_offset */ 0, bit_length);

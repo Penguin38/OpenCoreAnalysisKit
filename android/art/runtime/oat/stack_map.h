@@ -233,6 +233,7 @@ public:
     bool HasBitTable(uint32_t i ) { return ((bit_table_flags_ >> i) & 1) != 0; }
     bool IsBitTableDeduped(uint32_t i) { return ((bit_table_flags_ >> (kNumBitTables + i)) & 1) != 0; }
     bool HasDedupedBitTables() { return (bit_table_flags_ >> kNumBitTables) != 0u; }
+    inline uint64_t DataBitSize() { return reader.NumberOfReadBits(); }
 
     BitMemoryReader& GetMemoryReader() { return reader; }
     StackMap& GetStackMap() { return stack_map_; }

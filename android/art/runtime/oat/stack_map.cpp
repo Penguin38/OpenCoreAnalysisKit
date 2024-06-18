@@ -223,27 +223,39 @@ CodeInfo CodeInfo::DecodeHeaderOnly(uint64_t code_info_data) {
         code_info.fp_spill_mask_ = header[3];
         code_info.number_of_dex_registers_ = header[4];
     } else if (OatHeader::OatVersion() >= 150) {
-        reader.ReadInterleavedVarints(kNumHeaders, header);
-        code_info.packed_frame_size_ = header[0];
-        code_info.core_spill_mask_ = header[1];
-        code_info.fp_spill_mask_ = header[2];
-        code_info.number_of_dex_registers_ = header[3];
+        code_info.packed_frame_size_ = reader.ReadVarint();
+        code_info.core_spill_mask_ = reader.ReadVarint();
+        code_info.fp_spill_mask_ = reader.ReadVarint();
+        code_info.number_of_dex_registers_ = reader.ReadVarint();
     }
     return code_info;
 }
 
-#define DECODE_BITTABLE(CODEINFO, READER, NUM, NAME) { \
+#define DECODE_BIT_TABLE_171(CODEINFO, READER, NUM, NAME) { \
     do { \
         if (CODEINFO.HasBitTable(NUM)) { \
             if (CODEINFO.IsBitTableDeduped(NUM)) { \
                 int64_t bit_offset = READER.NumberOfReadBits() - READER.ReadVarint(); \
                 BitMemoryReader reader2(READER.data(), bit_offset); \
-                code_info.Get##NAME().Decode(reader2); \
+                CODEINFO.Get##NAME().Decode(reader2); \
             } else { \
                 uint64_t bit_offset = reader.NumberOfReadBits(); \
-                code_info.Get##NAME().Decode(reader); \
+                CODEINFO.Get##NAME().Decode(reader); \
                 READER.GetReadRegion().Subregion(bit_offset); \
             } \
+        } \
+    } while (0); \
+}
+
+#define DECODE_BIT_TABLE_170(CODEINFO, READER, NUM, NAME) { \
+    do { \
+        bool is_deduped = READER.ReadBit(); \
+        if (is_deduped) { \
+            int64_t bit_offset = READER.NumberOfReadBits() - READER.ReadVarint(); \
+            BitMemoryReader reader2(READER.data(), bit_offset); \
+            CODEINFO.Get##NAME().Decode(reader2); \
+        } else { \
+            CODEINFO.Get##NAME().Decode(reader); \
         } \
     } while (0); \
 }
@@ -252,14 +264,25 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
     CodeInfo code_info = DecodeHeaderOnly(code_info_data);
     BitMemoryReader& reader = code_info.GetMemoryReader();
 
-    DECODE_BITTABLE(code_info, reader, 0, StackMap);
-    DECODE_BITTABLE(code_info, reader, 1, RegisterMask);
-    DECODE_BITTABLE(code_info, reader, 2, StackMask);
-    DECODE_BITTABLE(code_info, reader, 3, InlineInfo);
-    DECODE_BITTABLE(code_info, reader, 4, MethodInfo);
-    DECODE_BITTABLE(code_info, reader, 5, DexRegisterMask);
-    DECODE_BITTABLE(code_info, reader, 6, DexRegisterMap);
-    DECODE_BITTABLE(code_info, reader, 7, DexRegisterInfo);
+    if (OatHeader::OatVersion() >= 171) {
+        DECODE_BIT_TABLE_171(code_info, reader, 0, StackMap);
+        DECODE_BIT_TABLE_171(code_info, reader, 1, RegisterMask);
+        DECODE_BIT_TABLE_171(code_info, reader, 2, StackMask);
+        DECODE_BIT_TABLE_171(code_info, reader, 3, InlineInfo);
+        DECODE_BIT_TABLE_171(code_info, reader, 4, MethodInfo);
+        DECODE_BIT_TABLE_171(code_info, reader, 5, DexRegisterMask);
+        DECODE_BIT_TABLE_171(code_info, reader, 6, DexRegisterMap);
+        DECODE_BIT_TABLE_171(code_info, reader, 7, DexRegisterInfo);
+    } else if (OatHeader::OatVersion() >= 170) {
+        DECODE_BIT_TABLE_170(code_info, reader, 0, StackMap);
+        DECODE_BIT_TABLE_170(code_info, reader, 1, RegisterMask);
+        DECODE_BIT_TABLE_170(code_info, reader, 2, StackMask);
+        DECODE_BIT_TABLE_170(code_info, reader, 3, InlineInfo);
+        DECODE_BIT_TABLE_170(code_info, reader, 4, MethodInfo);
+        DECODE_BIT_TABLE_170(code_info, reader, 5, DexRegisterMask);
+        DECODE_BIT_TABLE_170(code_info, reader, 6, DexRegisterMap);
+        DECODE_BIT_TABLE_170(code_info, reader, 7, DexRegisterInfo);
+    }
 
     return code_info;
 }
@@ -465,8 +488,8 @@ void CodeInfo::Dump(const char* prefix) {
     std::string sub_prefix(prefix);
     sub_prefix.append("  ");
     if (OatHeader::OatVersion() >= 191) {
-        LOGI("%sCodeInfo CodeSize:0x%x FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
-                prefix, code_size_, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
+        LOGI("%sCodeInfo BitSize=%ld CodeSize:0x%x FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
+                prefix, DataBitSize(), code_size_, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
         GetStackMap().Dump(sub_prefix.c_str());
         GetRegisterMask().Dump(sub_prefix.c_str());
         GetStackMask().Dump(sub_prefix.c_str());
@@ -476,8 +499,8 @@ void CodeInfo::Dump(const char* prefix) {
         GetDexRegisterMap().Dump(sub_prefix.c_str());
         GetDexRegisterInfo().Dump(sub_prefix.c_str());
     } else if (OatHeader::OatVersion() >= 150) {
-        LOGI("%sCodeInfo FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
-                prefix, packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
+        LOGI("%sCodeInfo BitSize=%ld FrameSize:0x%x CoreSpillMask:0x%x FpSpillMask:0x%x NumberOfDexRegisters:%d\n",
+                prefix, DataBitSize(), packed_frame_size_ * kStackAlignment, core_spill_mask_, fp_spill_mask_, number_of_dex_registers_);
         GetStackMap().Dump(sub_prefix.c_str());
         GetRegisterMask().Dump(sub_prefix.c_str());
         GetStackMask().Dump(sub_prefix.c_str());
@@ -491,8 +514,8 @@ void CodeInfo::Dump(const char* prefix) {
 
 void CodeInfo::StackMap::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sStackMap Rows=%d Bits={Kind=%d PackedNativePc=0x%x DexPc=0x%x RegisterMaskIndex=%d StackMaskIndex=%d InlineInfoIndex=%d DexRegisterMaskIndex=%d DexRegisterMapIndex=%d}\n",
-                prefix, NumRows(), kind, packed_native_pc, dex_pc, register_mask_index, stack_mask_index, inline_info_index, dex_register_mask_index, dex_register_map_index);
+        LOGI("%sStackMap BitSize=%ld Rows=%d Bits={Kind=%d PackedNativePc=0x%x DexPc=0x%x RegisterMaskIndex=%d StackMaskIndex=%d InlineInfoIndex=%d DexRegisterMaskIndex=%d DexRegisterMapIndex=%d}\n",
+                prefix, DataBitSize(), NumRows(), kind, packed_native_pc, dex_pc, register_mask_index, stack_mask_index, inline_info_index, dex_register_mask_index, dex_register_map_index);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -500,7 +523,7 @@ void CodeInfo::StackMap::Dump(const char* prefix) {
 
 void CodeInfo::RegisterMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sRegisterMask Rows=%d Bits={Value=%d Shift=%d}\n", prefix, NumRows(), value, shift);
+        LOGI("%sRegisterMask BitSize=%ld Rows=%d Bits={Value=%d Shift=%d}\n", prefix, DataBitSize(), NumRows(), value, shift);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -508,7 +531,7 @@ void CodeInfo::RegisterMask::Dump(const char* prefix) {
 
 void CodeInfo::StackMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sStackMask Rows=%d Bits={Mask=%d}\n", prefix, NumRows(), mask);
+        LOGI("%sStackMask BitSize=%ld Rows=%d Bits={Mask=%d}\n", prefix, DataBitSize(), NumRows(), mask);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -516,8 +539,8 @@ void CodeInfo::StackMask::Dump(const char* prefix) {
 
 void CodeInfo::InlineInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sInlineInfo Rows=%d Bits={IsLast=%d DexPc=%d MethodInfoIndex=%d ArtMethodHi=%d ArtMethodLo=%d NumberOfDexRegisters=%d}\n",
-                prefix, NumRows(), is_last, dex_pc, method_info_index, art_method_hi, art_method_lo, number_of_dex_registers);
+        LOGI("%sInlineInfo BitSize=%ld Rows=%d Bits={IsLast=%d DexPc=%d MethodInfoIndex=%d ArtMethodHi=%d ArtMethodLo=%d NumberOfDexRegisters=%d}\n",
+                prefix, DataBitSize(), NumRows(), is_last, dex_pc, method_info_index, art_method_hi, art_method_lo, number_of_dex_registers);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -525,10 +548,10 @@ void CodeInfo::InlineInfo::Dump(const char* prefix) {
 
 void CodeInfo::MethodInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 225) {
-        LOGI("%sMethodInfo Rows=%d Bits={MethodIndex=%d DexFileIndexKind=%d DexFileIndex=%d}\n",
-                prefix, NumRows(), method_index, dex_file_index_kind, dex_file_index);
+        LOGI("%sMethodInfo BitSize=%ld Rows=%d Bits={MethodIndex=%d DexFileIndexKind=%d DexFileIndex=%d}\n",
+                prefix, DataBitSize(), NumRows(), method_index, dex_file_index_kind, dex_file_index);
     } else if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sMethodInfo Rows=%d Bits={MethodIndex=%d}\n", prefix, NumRows(), method_index);
+        LOGI("%sMethodInfo BitSize=%ld Rows=%d Bits={MethodIndex=%d}\n", prefix, DataBitSize(), NumRows(), method_index);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -536,7 +559,7 @@ void CodeInfo::MethodInfo::Dump(const char* prefix) {
 
 void CodeInfo::DexRegisterMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sDexRegisterMask Rows=%d Bits={Mask=%d}\n", prefix, NumRows(), mask);
+        LOGI("%sDexRegisterMask BitSize=%ld Rows=%d Bits={Mask=%d}\n", prefix, DataBitSize(), NumRows(), mask);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -544,7 +567,7 @@ void CodeInfo::DexRegisterMask::Dump(const char* prefix) {
 
 void CodeInfo::DexRegisterMap::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sDexRegisterMap Rows=%d Bits={CatalogueIndex=%d}\n", prefix, NumRows(), catalogue_index);
+        LOGI("%sDexRegisterMap BitSize=%ld Rows=%d Bits={CatalogueIndex=%d}\n", prefix, DataBitSize(), NumRows(), catalogue_index);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }
@@ -552,7 +575,7 @@ void CodeInfo::DexRegisterMap::Dump(const char* prefix) {
 
 void CodeInfo::DexRegisterInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
-        LOGI("%sDexRegisterInfo Rows=%d Bits={Kind=%d PackedValue=%d}\n", prefix, NumRows(), kind, packed_value);
+        LOGI("%sDexRegisterInfo BitSize=%ld Rows=%d Bits={Kind=%d PackedValue=%d}\n", prefix, DataBitSize(), NumRows(), kind, packed_value);
     } else if (OatHeader::OatVersion() >= 124) {
 
     }

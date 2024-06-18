@@ -17,7 +17,6 @@
 #ifndef ANDROID_ART_BASE_BIT_TABLE_H_
 #define ANDROID_ART_BASE_BIT_TABLE_H_
 
-#include "logger/log.h"
 #include "base/bit_memory_region.h"
 #include <numeric>
 #include <limits>
@@ -53,18 +52,7 @@ public:
     }
 
     inline bool IsValid() { return num_rows_ > 0; }
-    inline void DecodeOnly(BitMemoryReader& reader, std::vector<uint32_t>& header) {
-        uint32_t kNumColumns = NumColumns();
-        reader.ReadInterleavedVarints(kNumColumns + 1, header);
-        num_rows_ = header[0];
-        column_offset_.resize(kNumColumns + 1, 0);
-        column_offset_[0] = 0;
-        for (uint32_t i = 0; i < kNumColumns; ++i) {
-            uint32_t column_end = column_offset_[i] + header[i + 1];
-            column_offset_[i + 1] = static_cast<uint16_t>(column_end);
-        }
-        table_data_ = reader.ReadRegion(num_rows_ * NumRowBits());
-    }
+    void DecodeOnly(BitMemoryReader& reader, std::vector<uint32_t>& header);
 
 private:
     BitMemoryRegion table_data_;
