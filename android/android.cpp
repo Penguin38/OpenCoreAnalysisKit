@@ -178,7 +178,6 @@ void Android::preLoad() {
     art::LengthPrefixedArray::Init();
     art::ThreadList::Init();
     art::OatFile::Init();
-    art::OatDexFile::Init();
     art::VdexFile::Init();
     art::MemMap::Init();
     art::ManagedStack::Init();
@@ -199,19 +198,18 @@ void Android::preLoad() {
     art::dex::TypeList::Init();
     art::dex::TypeItem::Init();
 
-    art::gc::Heap::Init();
     art::gc::space::Space::Init();
     art::gc::space::ContinuousSpace::Init();
     art::gc::space::LargeObjectMapSpace::LargeObject::Init();
     art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
     art::gc::space::AllocationInfo::Init();
     art::gc::space::FreeListSpace::Init();
-    art::gc::space::BumpPointerSpace::Init();
 
     // preLoadLater listener
     // 26
     RegisterSdkListener(O, art::DexFile::Init26);
     RegisterSdkListener(O, art::Runtime::Init26);
+    RegisterSdkListener(O, art::gc::Heap::Init26);
     RegisterSdkListener(O, art::Thread::Init26);
     RegisterSdkListener(O, art::Thread::tls_ptr_sized_values::Init26);
     RegisterSdkListener(O, art::Thread::tls_32bit_sized_values::Init26);
@@ -221,6 +219,7 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::gc::space::RegionSpace::Region::Init26);
     RegisterSdkListener(O, art::gc::space::LargeObjectSpace::Init26);
     RegisterSdkListener(O, art::gc::space::LargeObjectMapSpace::Init26);
+    RegisterSdkListener(O, art::gc::space::BumpPointerSpace::Init26);
     RegisterSdkListener(O, art::JavaVMExt::Init28);
     RegisterSdkListener(O, art::IndirectReferenceTable::Init26);
     RegisterSdkListener(O, art::ClassLinker::Init26);
@@ -231,6 +230,7 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
     RegisterSdkListener(O, art::jit::Jit::Init26);
     RegisterSdkListener(O, art::jit::JitCodeCache::Init26);
+    RegisterSdkListener(O, art::OatDexFile::Init26);
 
     // 28
     RegisterSdkListener(P, art::DexFile::Init28);

@@ -34,6 +34,20 @@ uint64_t BitMemoryRegion::LoadBits(uint64_t bit_offset, uint64_t bit_length) {
     return (value | (extra << ((width - shift) & (width - 1)))) & ~clear;
 }
 
+uint64_t BitMemoryRegion::LoadBits64(uint64_t bit_offset, uint64_t bit_length) {
+    if (bit_length == 0) {
+        return 0;
+    }
+    uint32_t point_size = 8;
+    uint64_t width = 64;
+    uint64_t index = (bit_start_ + bit_offset) / width;
+    uint64_t shift = (bit_start_ + bit_offset) % width;
+    uint64_t value = data_.value64Of(index * point_size) >> shift;
+    uint64_t extra = data_.value64Of((index + (shift + (bit_length - 1)) / width) * point_size);
+    uint64_t clear = (std::numeric_limits<uint64_t>::max() << 1) << (bit_length - 1);
+    return (value | (extra << ((width - shift) & (width - 1)))) & ~clear;
+}
+
 uint64_t BitMemoryRegion::PopCount(uint64_t bit_offset, uint64_t bit_length) {
     return Subregion(bit_offset, bit_length).PopCount();
 }
@@ -94,7 +108,7 @@ bool BitMemoryRegion::VisitChunks(VisitorType&& visitor) {
 }
 
 void BitMemoryReader::ReadInterleavedVarints(uint32_t num, std::vector<uint32_t>& values) {
-    uint64_t data = ReadBits(num * kVarintBits);
+    uint64_t data = ReadBits64(num * kVarintBits);
     for (uint32_t i = 0; i < num; i++) {
         values.push_back(BitFieldExtract(data, i * kVarintBits, kVarintBits));
     }

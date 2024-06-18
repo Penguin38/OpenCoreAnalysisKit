@@ -31,7 +31,7 @@ struct Heap_SizeTable __Heap_size__;
 namespace art {
 namespace gc {
 
-void Heap::Init() {
+void Heap::Init26() {
     if (CoreApi::Bits() == 64) {
         __Heap_offset__ = {
             .continuous_spaces_ = 0,

@@ -42,7 +42,7 @@ public:
     BumpPointerSpace(uint64_t v, ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(v, ref) {}
     BumpPointerSpace(uint64_t v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
-    static void Init();
+    static void Init26();
     static void Init34();
     inline uint64_t main_block_size() { return VALUEOF(BumpPointerSpace, main_block_size_); }
     inline uint64_t num_blocks() { return VALUEOF(BumpPointerSpace, num_blocks_); }

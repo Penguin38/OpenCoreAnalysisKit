@@ -51,6 +51,7 @@ public:
         return result;
     }
     uint64_t LoadBits(uint64_t bit_offset, uint64_t bit_length);
+    uint64_t LoadBits64(uint64_t bit_offset, uint64_t bit_length);
     uint64_t PopCount(uint64_t bit_offset, uint64_t bit_length);
     uint64_t PopCount();
     template <typename VisitorType> bool VisitChunks(VisitorType&& visitor);
@@ -74,6 +75,9 @@ public:
     }
     uint64_t ReadBits(uint64_t bit_length) {
         return ReadRegion(bit_length).LoadBits(/* bit_offset */ 0, bit_length);
+    }
+    uint64_t ReadBits64(uint64_t bit_length) {
+        return ReadRegion(bit_length).LoadBits64(/* bit_offset */ 0, bit_length);
     }
     uint64_t data() { return finished_region_.data(); }
     BitMemoryRegion GetReadRegion() { return finished_region_; }

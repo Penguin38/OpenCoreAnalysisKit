@@ -41,7 +41,7 @@ void OatFile::Init() {
     }
 }
 
-void OatDexFile::Init() {
+void OatDexFile::Init26() {
     if (CoreApi::Bits() == 64) {
         __OatDexFile_offset__ = {
             .oat_file_ = 0,
@@ -147,6 +147,10 @@ OatFile& OatDexFile::GetOatFile() {
 }
 
 OatFile::OatClass OatDexFile::GetOatClass(uint16_t class_def_index) {
+    if (IsBackedByVdexOnly()) {
+        return OatFile::OatClass::Invalid();
+    }
+
     api::MemoryRef oat_class_offsets_pointer_ = oat_class_offsets_pointer();
     uint32_t oat_class_offset = oat_class_offsets_pointer_.value32Of(class_def_index * sizeof(uint32_t));
 
@@ -163,18 +167,30 @@ OatFile::OatClass OatDexFile::GetOatClass(uint16_t class_def_index) {
     OatClassType type = static_cast<OatClassType>(type_value);
 
     uint32_t num_methods = 0;
+    uint32_t bitmap_size = 0;
     uint64_t bitmap_pointer = 0x0;
     uint64_t methods_pointer = 0x0;
 
     if (type != OatClassType::kNoneCompiled) {
-        num_methods = current_pointer.value32Of();
-        current_pointer.MovePtr(sizeof(uint32_t));
-        if (type == OatClassType::kSomeCompiled) {
-            uint32_t bitmap_size = BitVector::BitsToWords(num_methods) * BitVector::kWordBytes;
-            bitmap_pointer = current_pointer.Ptr();
-            current_pointer.MovePtr(bitmap_size);
+        if (Android::Sdk() >= Android::S) {
+            num_methods = current_pointer.value32Of();
+            current_pointer.MovePtr(sizeof(uint32_t));
+            if (type == OatClassType::kSomeCompiled) {
+                uint32_t bitmap_size = BitVector::BitsToWords(num_methods) * BitVector::kWordBytes;
+                bitmap_pointer = current_pointer.Ptr();
+                current_pointer.MovePtr(bitmap_size);
+            }
+            methods_pointer = current_pointer.Ptr();
+        } else {
+            if (type == OatClassType::kSomeCompiled) {
+                bitmap_size = current_pointer.value32Of();
+                bitmap_pointer = current_pointer.Ptr() + sizeof(bitmap_size);
+                methods_pointer = bitmap_pointer + bitmap_size;
+            } else {
+                methods_pointer = current_pointer.Ptr();
+            }
+            num_methods = bitmap_size;
         }
-        methods_pointer = current_pointer.Ptr();
     }
 
     return OatFile::OatClass(oat_file_.Ptr(), status, type, num_methods, bitmap_pointer, methods_pointer);

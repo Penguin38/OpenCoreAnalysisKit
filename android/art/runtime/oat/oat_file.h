@@ -110,7 +110,7 @@ public:
     OatDexFile(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     OatDexFile(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    static void Init();
+    static void Init26();
     static void Init31();
     static void Init35();
     inline uint64_t oat_file() { return VALUEOF(OatDexFile, oat_file_); }
@@ -118,6 +118,7 @@ public:
 
     OatFile& GetOatFile();
     OatFile::OatClass GetOatClass(uint16_t class_def_index);
+    inline bool IsBackedByVdexOnly() { return oat_class_offsets_pointer() == 0x0; }
 private:
     // quick memoryref cache
     OatFile oat_file_cache = 0x0;

@@ -25,7 +25,7 @@ namespace art {
 namespace gc {
 namespace space {
 
-void BumpPointerSpace::Init() {
+void BumpPointerSpace::Init26() {
     if (CoreApi::Bits() == 64) {
         __BumpPointerSpace_offset__ = {
             .main_block_size_ = 584,
