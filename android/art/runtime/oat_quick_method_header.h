@@ -89,12 +89,21 @@ public:
     uint64_t GetOptimizedCodeInfoPtr() { return code() - GetCodeInfoOffset(); }
     static bool IsNterpPc(uint64_t pc);
     static OatQuickMethodHeader GetNterpMethodHeader();
-    static api::MemoryRef GetNterpWithClinitImpl();
-    static api::MemoryRef GetNterpImpl();
+    static api::MemoryRef& GetNterpWithClinitImpl();
+    static api::MemoryRef& GetNterpImpl();
     uint32_t NativePc2DexPc(uint32_t native_pc);
     void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, CodeInfo::DexRegisterInfo>& vregs);
     void Dump(const char* prefix);
+    static void NterpDump();
+    static void CleanCache() {
+        NterpMethodHeader = 0x0;
+        NterpWithClinitImpl = 0x0;
+        NterpImpl = 0x0;
+    }
 private:
+    static api::MemoryRef NterpMethodHeader;
+    static api::MemoryRef NterpWithClinitImpl;
+    static api::MemoryRef NterpImpl;
     // quick memoryref cache
 };
 

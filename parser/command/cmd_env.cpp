@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "android.h"
 #include "runtime/entrypoints/runtime_asm_entrypoints.h"
+#include "runtime/oat_quick_method_header.h"
 #include "command/cmd_env.h"
 #include "command/env.h"
 #include "api/core.h"
@@ -139,13 +140,15 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"clean-cache",   no_argument, 0, 'c'},
-        {"entry-points", no_argument, 0, 'e'},
+        {"entry-points",  no_argument, 0, 'e'},
+        {"nterp",         no_argument, 0, 'n'},
     };
 
-    while ((opt = getopt_long(argc, argv, "ce",
+    while ((opt = getopt_long(argc, argv, "cen",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
+                art::OatQuickMethodHeader::CleanCache();
                 if (runtime.Ptr()) {
                     runtime.CleanCache();
                     runtime = 0x0;
@@ -154,6 +157,9 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
                 return 0;
             case 'e':
                 art::EntryPoints::Dump();
+                return 0;
+            case 'n':
+                art::OatQuickMethodHeader::NterpDump();
                 return 0;
         }
     }

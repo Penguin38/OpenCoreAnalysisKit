@@ -30,6 +30,10 @@ uint32_t OatQuickMethodHeader::kIsCodeInfoMask = 0x40000000;
 uint32_t OatQuickMethodHeader::kCodeInfoMask = 0x3FFFFFFF;
 uint32_t OatQuickMethodHeader::kCodeSizeMask = 0x3FFFFFFF;
 
+api::MemoryRef OatQuickMethodHeader::NterpMethodHeader = 0x0;
+api::MemoryRef OatQuickMethodHeader::NterpWithClinitImpl = 0x0;
+api::MemoryRef OatQuickMethodHeader::NterpImpl = 0x0;
+
 void OatQuickMethodHeader::OatInit124() {
     kCodeSizeMask   = ~kShouldDeoptimizeMask;
 
@@ -110,7 +114,8 @@ bool OatQuickMethodHeader::Contains(uint64_t pc) {
 
 bool OatQuickMethodHeader::IsOptimized() {
     if (OatHeader::OatVersion() >= 239) {
-        if (code() == GetNterpWithClinitImpl().valueOf() || code() == GetNterpImpl().valueOf()) {
+        if ((GetNterpWithClinitImpl().Ptr() && code() == GetNterpWithClinitImpl().valueOf())
+                || (GetNterpImpl().Ptr() && code() == GetNterpImpl().valueOf())) {
             return false;
         }
         return true;
@@ -169,24 +174,34 @@ QuickMethodFrameInfo OatQuickMethodHeader::GetFrameInfo() {
 }
 
 bool OatQuickMethodHeader::IsNterpPc(uint64_t pc) {
-    OatQuickMethodHeader NterpMethodHeader = GetNterpMethodHeader();
-    return NterpMethodHeader.Ptr() && NterpMethodHeader.Contains(pc);
+    OatQuickMethodHeader header = GetNterpMethodHeader();
+    return header.Ptr() && header.Contains(pc);
 }
 
 OatQuickMethodHeader OatQuickMethodHeader::GetNterpMethodHeader() {
+    if (NterpMethodHeader.Ptr())
+        return NterpMethodHeader;
+
     uint64_t entry_point = GetExecuteNterpImplEntryPoint();
     if (entry_point) {
         OatQuickMethodHeader::FromEntryPoint(entry_point);
-        return OatQuickMethodHeader::FromEntryPoint(entry_point);
+        NterpMethodHeader = OatQuickMethodHeader::FromEntryPoint(entry_point);
+        return NterpMethodHeader;
     }
 
-    OatQuickMethodHeader header = 0x0;
     try {
         api::MemoryRef value = Android::SearchSymbol(Android::NTERP_METHOD_HEADER);
-        header = value.valueOf();
+        NterpMethodHeader = value.valueOf();
     } catch(InvalidAddressException e) {
     }
-    return header;
+
+    if (!NterpMethodHeader.Ptr()) {
+        if (OatHeader::OatVersion() >= 239) {
+            NterpMethodHeader = GetNterpImpl().Ptr() ? FromCodePointer(GetNterpImpl().valueOf()) : 0x0;
+        }
+    }
+
+    return NterpMethodHeader;
 }
 
 uint32_t OatQuickMethodHeader::NativePc2DexPc(uint32_t native_pc) {
@@ -199,18 +214,31 @@ void OatQuickMethodHeader::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t,
     code_info.NativePc2VRegs(native_pc, vregs);
 }
 
-api::MemoryRef OatQuickMethodHeader::GetNterpWithClinitImpl() {
-    return Android::SearchSymbol(Android::NTERP_WITH_CLINT_IMPL);
+api::MemoryRef& OatQuickMethodHeader::GetNterpWithClinitImpl() {
+    if (!NterpWithClinitImpl.Ptr()) {
+        NterpWithClinitImpl = Android::SearchSymbol(Android::NTERP_WITH_CLINT_IMPL);
+    }
+    return NterpWithClinitImpl;
 }
 
-api::MemoryRef OatQuickMethodHeader::GetNterpImpl() {
-    return Android::SearchSymbol(Android::NTERP_IMPL);
+api::MemoryRef& OatQuickMethodHeader::GetNterpImpl() {
+    if (!NterpImpl.Ptr()) {
+        NterpImpl = Android::SearchSymbol(Android::NTERP_IMPL);
+    }
+    return NterpImpl;
 }
 
 void OatQuickMethodHeader::Dump(const char* prefix) {
     LOGI("%sOatQuickMethodHeader(0x%lx)\n", prefix, Ptr());
     LOGI("%s  code_offset: 0x%lx\n", prefix, GetCodeStart());
     LOGI("%s  code_size: 0x%x\n", prefix, GetCodeSize());
+}
+
+void OatQuickMethodHeader::NterpDump() {
+    Android::OatPrepare();
+    LOGI("  * art::OatQuickMethodHeader::NterpWithClinitImpl: %lx\n", GetNterpWithClinitImpl().Ptr());
+    LOGI("  * art::OatQuickMethodHeader::NterpImpl: 0x%lx\n", GetNterpImpl().Ptr());
+    LOGI("  * art::OatQuickMethodHeader::NterpMethodHeader: %lx\n", GetNterpMethodHeader().Ptr());
 }
 
 } //namespace art
