@@ -199,6 +199,7 @@ add_library(parser STATIC
             parser/command/cmd_method.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
+            parser/command/cmd_plugin.cpp
             parser/command/remote/cmd_remote.cpp
             parser/command/fake/cmd_fake.cpp
             parser/command/fake/core/fake_core.cpp
@@ -214,6 +215,11 @@ add_executable(core-parser
                parser/work/work_thread.cpp
                parser/core_parser.cpp)
 target_link_libraries(core-parser parser)
+
+add_library(plugin-logcat SHARED
+            parser/plugin/logcat/logcat_main.cpp)
+target_link_libraries(plugin-logcat parser)
+set_target_properties(plugin-logcat PROPERTIES PREFIX "")
 
 add_executable(test tests/test.cpp)
 target_link_libraries(test parser)

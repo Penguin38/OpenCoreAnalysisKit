@@ -83,6 +83,8 @@ void CommandManager::Init() {
     // other
     CommandManager::PushInlineCommand(new EnvCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
+    INSTANCE->plugin = new PluginCommand();
+    CommandManager::PushInlineCommand(INSTANCE->plugin);
     CommandManager::PushInlineCommand(new Help());
     CommandManager::PushInlineCommand(new RemoteCommand());
     CommandManager::PushInlineCommand(new FakeCommand());
@@ -178,11 +180,37 @@ void CommandManager::pushInlineCommand(Command* command) {
     inline_commands.push_back(std::move(ref));
 }
 
-void CommandManager::PushExtendCommand(Command* command) {
-    INSTANCE->pushExtendCommand(command);
+int CommandManager::PushExtendCommand(Command* command) {
+    return INSTANCE->pushExtendCommand(command);
 }
 
-void CommandManager::pushExtendCommand(Command* command) {
+int CommandManager::pushExtendCommand(Command* command) {
+    if (!command)
+        return 0;
+
     std::unique_ptr<Command> ref(command);
+    Command* tmp = FindCommand(command->get().c_str());
+    if (tmp) {
+        LOGW("WARN: plugin \"%s\" exist.\n", command->get().c_str());
+        return 0;
+    }
+
     extend_commands.push_back(std::move(ref));
+    plugin->GetPlugins()[plugin->GetPlugins().size() - 1]->HookCommand(command);
+    return 1;
+}
+
+int CommandManager::PopExtendCommand(Command* command) {
+    return INSTANCE->popExtendCommand(command);
+}
+
+int CommandManager::popExtendCommand(Command* command) {
+    std::vector<std::unique_ptr<Command>>::iterator iter;
+    for (iter = extend_commands.begin(); iter != extend_commands.end(); iter++) {
+        if (iter->get() == command) {
+            extend_commands.erase(iter);
+            return 1;
+        }
+    }
+    return 0;
 }

@@ -17,6 +17,7 @@
 #ifndef PARSER_COMMAND_COMMAND_MANAGER_H_
 #define PARSER_COMMAND_COMMAND_MANAGER_H_
 
+#include "command/cmd_plugin.h"
 #include "command/command.h"
 #include <vector>
 #include <memory>
@@ -27,7 +28,8 @@ class CommandManager {
 public:
     static int Execute(const char* cmd, int argc, char* const argv[]);
     static void PushInlineCommand(Command* command);
-    static void PushExtendCommand(Command* command);
+    static int PushExtendCommand(Command* command);
+    static int PopExtendCommand(Command* command);
     static void ForeachCommand(std::function<bool (Command *)> callback);
     static Command* FindCommand(const char* cmd);
     static void Init();
@@ -37,12 +39,14 @@ public:
     }
 private:
     void pushInlineCommand(Command* command);
-    void pushExtendCommand(Command* command);
+    int pushExtendCommand(Command* command);
+    int popExtendCommand(Command* command);
     void foreachInlineCommand(std::function<bool (Command *)> callback);
     void foreachExtendCommand(std::function<bool (Command *)> callback);
     static CommandManager* INSTANCE;
     std::vector<std::unique_ptr<Command>> inline_commands;
     std::vector<std::unique_ptr<Command>> extend_commands;
+    PluginCommand *plugin = nullptr;
 };
 
 #endif // PARSER_COMMAND_COMMAND_MANAGER_H_
