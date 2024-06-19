@@ -86,6 +86,8 @@ public:
     static void Init();
     static void Clean();
     static void Dump();
+    static int Sdk2Trunk(int sdk);
+    static int Trunk() { return INSTANCE->trunk; }
     static int Sdk() { return INSTANCE->sdk; }
     static int Oat() { return INSTANCE->oat; }
     static void ResetOatVersion() { INSTANCE->oat = 0; GetOatHeader().kOatVersion = 0; }
@@ -171,6 +173,7 @@ private:
     inline art::OatHeader& oat_header() { return oat_header_; }
     void onLibartLoad(LinkMap* map);
 
+    int trunk;
     int sdk;
     int oat;
     std::string id;

@@ -16,8 +16,7 @@
 
 #include "logger/log.h"
 #include "android.h"
-#include "runtime/entrypoints/runtime_asm_entrypoints.h"
-#include "runtime/oat_quick_method_header.h"
+#include "runtime/cache_helpers.h"
 #include "command/cmd_env.h"
 #include "command/env.h"
 #include "api/core.h"
@@ -148,7 +147,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
-                art::OatQuickMethodHeader::CleanCache();
+                art::CacheHelper::Clean();
                 if (runtime.Ptr()) {
                     runtime.CleanCache();
                     runtime = 0x0;
@@ -156,10 +155,10 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
                 Android::ResetOatVersion();
                 return 0;
             case 'e':
-                art::EntryPoints::Dump();
+                art::CacheHelper::EntryPointDump();
                 return 0;
             case 'n':
-                art::OatQuickMethodHeader::NterpDump();
+                art::CacheHelper::NterpDump();
                 return 0;
         }
     }
@@ -288,6 +287,7 @@ void EnvCommand::usage() {
     LOGI("Option:\n");
     LOGI("   --clean-cache|-c: clean art::Runtime cache\n");
     LOGI("   --entry-points|-e: show art quick entry points\n");
+    LOGI("   --nterp|-n: show art nterp cache\n");
     LOGI("\n");
     LOGI("Usage: env core [option]...\n");
     LOGI("Option:\n");

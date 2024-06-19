@@ -149,9 +149,34 @@ void Android::Clean() {
     }
 }
 
+static int kTrunkData[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 8, 8, 9, 10,
+    11,12,12,13,14,15,
+};
+
+int Android::Sdk2Trunk(int sdk) {
+    if (sdk > sizeof(kTrunkData) / sizeof(kTrunkData[0])) {
+        return 0;
+    }
+    return kTrunkData[sdk];
+}
+
 void Android::init() {
     preLoad();
+    trunk = android::Property::GetInt32("ro.build.version.trunk");
     sdk = android::Property::GetInt32("ro.build.version.sdk");
+    if (trunk > Sdk2Trunk(sdk)) {
+        LOGW("WARN: current trunk(%d) no match sdk(%d).\n", trunk, sdk);
+        int trunk_size = sizeof(kTrunkData) / sizeof(kTrunkData[0]);
+        for (int cur = sdk + 1; cur < trunk_size; ++cur) {
+            if (trunk == kTrunkData[cur]) {
+                sdk = cur;
+                break;
+            }
+        }
+    }
     id = android::Property::Get("ro.build.id", INVALID_VALUE);
     name = android::Property::Get("ro.product.name", INVALID_VALUE);
     model = android::Property::Get("ro.product.model", INVALID_VALUE);
@@ -620,9 +645,7 @@ void Android::OatPrepare() {
 }
 
 void Android::onLibartLoad(LinkMap *map) {
-    if (realLibart == map->name()) {
-        art::EntryPoints::Init();
-    }
+    // do nothing
 }
 
 void Android::Dump() {
@@ -642,5 +665,6 @@ void Android::Dump() {
     LOGI("  * Fingerprint: %s\n", Fingerprint());
     LOGI("  * Time: %s\n", Time());
     LOGI("  * Debuggable: %s\n", Debuggable());
+    LOGI("  * Trunk: %d\n", Trunk());
     LOGI("  * Sdk: %d\n", Sdk());
 }

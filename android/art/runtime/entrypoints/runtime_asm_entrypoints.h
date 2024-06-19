@@ -17,66 +17,49 @@
 #ifndef ANDROID_ART_RUNTIME_ENTRYPOINTS_RUNTIME_ASM_ENTRYPOINTS_H_
 #define ANDROID_ART_RUNTIME_ENTRYPOINTS_RUNTIME_ASM_ENTRYPOINTS_H_
 
+#include "runtime/cache_helpers.h"
 #include <stdint.h>
 
 namespace art {
 
-class EntryPoints {
-public:
-    static constexpr uint64_t INVALID_ENTRY_POINTER = 0;
-    static uint64_t art_jni_dlsym_lookup_stub;
-    static uint64_t art_jni_dlsym_lookup_critical_stub;
-    static uint64_t art_quick_imt_conflict_trampoline;
-    static uint64_t art_quick_to_interpreter_bridge;
-    static uint64_t art_invoke_obsolete_method_stub;
-    static uint64_t art_quick_generic_jni_trampoline;
-    static uint64_t art_quick_proxy_invoke_handler;
-    static uint64_t art_quick_resolution_trampoline;
-    static uint64_t art_quick_deoptimize;
-    static uint64_t ExecuteNterpImpl;
-
-    static void Init();
-    static void Dump();
-};
-
 static inline uint64_t GetJniDlsymLookupStub() {
-    return EntryPoints::art_jni_dlsym_lookup_stub;
+    return CacheHelper::JniDlsymLookupStub();
 }
 
 static inline uint64_t GetJniDlsymLookupCriticalStub() {
-    return EntryPoints::art_jni_dlsym_lookup_critical_stub;
+    return CacheHelper::JniDlsymLookupCriticalStub();
 }
 
 static inline uint64_t GetQuickImtConflictStub() {
-    return EntryPoints::art_quick_imt_conflict_trampoline;
+    return CacheHelper::QuickImtConflictStub();
 }
 
 static inline uint64_t GetQuickToInterpreterBridge() {
-    return EntryPoints::art_quick_to_interpreter_bridge;
+    return CacheHelper::QuickToInterpreterBridge();
 }
 
 static inline uint64_t GetInvokeObsoleteMethodStub() {
-    return EntryPoints::art_invoke_obsolete_method_stub;
+    return CacheHelper::InvokeObsoleteMethodStub();
 }
 
 static inline uint64_t GetQuickGenericJniStub() {
-    return EntryPoints::art_quick_generic_jni_trampoline;
+    return CacheHelper::QuickGenericJniStub();
 }
 
 static inline uint64_t GetQuickProxyInvokeHandler() {
-    return EntryPoints::art_quick_proxy_invoke_handler;
+    return CacheHelper::QuickProxyInvokeHandler();
 }
 
 static inline uint64_t GetQuickResolutionStub() {
-    return EntryPoints::art_quick_resolution_trampoline;
+    return CacheHelper::QuickResolutionStub();
 }
 
 static inline uint64_t GetQuickDeoptimizationEntryPoint() {
-    return EntryPoints::art_quick_deoptimize;
+    return CacheHelper::QuickDeoptimizationEntryPoint();
 }
 
 static inline uint64_t GetExecuteNterpImplEntryPoint() {
-    return EntryPoints::ExecuteNterpImpl;
+    return CacheHelper::ExecuteNterpImplEntryPoint();
 }
 
 } // namespace art
