@@ -201,6 +201,7 @@ add_library(parser STATIC
             parser/command/cmd_shell.cpp
             parser/command/cmd_plugin.cpp
             parser/command/remote/cmd_remote.cpp
+            parser/command/remote/opencore/opencore.cpp
             parser/command/fake/cmd_fake.cpp
             parser/command/fake/core/fake_core.cpp
             parser/command/fake/core/lp64/restore.cpp
