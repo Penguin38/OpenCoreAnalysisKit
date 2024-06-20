@@ -204,7 +204,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         if (!cur_max_thiz.Ptr())
             break;
 
-        LOGI("0x%8lx       %8ld      %11ld       %11ld     %s\n",
+        LOGI("0x%08lx       %8ld      %11ld       %11ld     %s\n",
              cur_max_thiz.Ptr(), cur_max_pair.alloc_count,
              cur_max_pair.shallow_size, cur_max_pair.native_size,
              show ? cur_max_thiz.PrettyDescriptor().c_str() : "");

@@ -28,7 +28,7 @@ struct FakeOption {
     bool onbg;
 };
 
-FakeOption fake_option[] = {
+static FakeOption fake_option[] = {
     { "core", FakeCore::OptionCore, true },
     { "map", FakeLinkMap::OptionMap, false },
 };

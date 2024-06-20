@@ -58,7 +58,7 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
         };
         CoreApi::ForeachThread(callback);
 #if defined(__AOSP_PARSER__)
-        if (Android::IsSdkReady()) {
+        if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
             art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
                 int tid = thread->GetTid();
@@ -75,7 +75,7 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
             addThread(pid);
         }
 #if defined(__AOSP_PARSER__)
-        if (Android::IsSdkReady()) {
+        if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
             art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
                 int tid = thread->GetTid();

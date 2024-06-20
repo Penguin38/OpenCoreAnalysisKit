@@ -30,7 +30,7 @@ struct EnvOption {
     EnvCall call;
 };
 
-EnvOption env_option[] = {
+static EnvOption env_option[] = {
     { "config", EnvCommand::onConfigChanged },
     { "logger", EnvCommand::onLoggerChanged },
     { "art", EnvCommand::showArtEnv },

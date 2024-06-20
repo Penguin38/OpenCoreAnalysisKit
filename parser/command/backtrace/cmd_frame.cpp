@@ -68,7 +68,7 @@ int FrameCommand::main(int argc, char* const argv[]) {
 void FrameCommand::ShowJavaFrameInfo(int number) {
     art::Thread* current = nullptr;
     int pid = Env::CurrentPid();
-    if (Android::IsSdkReady()) {
+    if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
         art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
         for (const auto& thread : thread_list.GetList()) {
             int tid = thread->GetTid();
