@@ -17,6 +17,7 @@
 #ifndef PARSER_COMMAND_REMOTE_OPENCORE_OPENCORE_H_
 #define PARSER_COMMAND_REMOTE_OPENCORE_OPENCORE_H_
 
+#include "common/elf.h"
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -70,9 +71,9 @@ public:
     int getExtraNoteFilesz() { return extra_note_filesz; }
     bool Coredump(const char* filename);
     virtual ~Opencore();
-    virtual bool DoCoredump(const char* filename) = 0;
-    virtual bool NeedFilterFile(const char* filename, int offset) = 0;
-    virtual int getMachine() = 0;
+    virtual bool DoCoredump(const char* filename) { return false; }
+    virtual bool NeedFilterFile(const char* filename, int offset) { return false; }
+    virtual int getMachine() { return EM_NONE; }
     bool IsFilterSegment(char* flags, int inode, std::string segment, int offset);
     void StopTheWorld(int pid);
 protected:

@@ -15,11 +15,17 @@
  */
 
 #include "logger/log.h"
+#include "base/utils.h"
+#include "common/bit.h"
 #include "command/remote/cmd_remote.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/hook.h"
 #include <unistd.h>
 #include <getopt.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <memory>
 
 typedef int (*RemoteCall)(int argc, char* const argv[]);
 struct RemoteOption {
@@ -28,8 +34,11 @@ struct RemoteOption {
 };
 
 static RemoteOption remote_option[] = {
-    { "core", Opencore::Dump },
-    { "hook", Hook::Main },
+    { "core",   Opencore::Dump },
+    { "hook",   Hook::Main },
+    { "rd",     RemoteCommand::OptionRead },
+    { "wd",     RemoteCommand::OptionWrite },
+    { "pause",  RemoteCommand::OptionPause },
 };
 
 int RemoteCommand::main(int argc, char* const argv[]) {
@@ -45,6 +54,127 @@ int RemoteCommand::main(int argc, char* const argv[]) {
         }
     }
     LOGI("unknown command (%s)\n", argv[1]);
+    return 0;
+}
+
+int RemoteCommand::OptionRead(int argc, char* const argv[]) {
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"pid",     required_argument, 0, 'p'},
+    };
+
+    int pid = 0;
+    uint64_t end = 0;
+    while ((opt = getopt_long(argc, argv, "p:e:",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'p':
+                pid = std::atoi(optarg);
+                break;
+            case 'e':
+                end = Utils::atol(optarg);
+                break;
+        }
+    }
+
+    if (optind >= argc) {
+        return 0;
+    }
+
+    std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
+    opencore->StopTheWorld(pid);
+
+    char filename[32];
+    uint64_t value[4096 / 8];
+    memset(value, 0x0, 4096);
+    snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
+    int fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+        LOGE("ERROR: open %s fail.\n", filename);
+        return 0;
+    }
+
+    uint64_t begin = Utils::atol(argv[optind]);
+    if (pread64(fd, &value, sizeof(value), begin) < 0) {
+        LOGE("ERROR: read %lx fail.\n", begin);
+        close(fd);
+        return 0;
+    }
+
+    int count = RoundUp((end - begin) / 8, 2);
+    if (begin >= end || !count) {
+        std::string ascii = Utils::ConvertAscii(*value, 8);
+        LOGI("%lx: %016lx  %s\n", begin, (*value), ascii.c_str());
+    } else {
+        for (int i = 0; i < count && i < 512; i += 2) {
+            LOGI("%lx: %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
+                    Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
+        }
+    }
+    close(fd);
+    return 0;
+}
+
+int RemoteCommand::OptionWrite(int argc, char* const argv[]) {
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"pid",     required_argument, 0, 'p'},
+        {"string",  required_argument, 0, 's'},
+        {"value",   required_argument, 0, 'v'},
+    };
+
+    int pid = 0;
+    char* buf = nullptr;
+    uint64_t value = 0x0;
+    while ((opt = getopt_long(argc, argv, "s:v:p:",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'p':
+                pid = std::atoi(optarg);
+                break;
+            case 's':
+                buf = optarg;
+                break;
+            case 'v':
+                value = Utils::atol(optarg);
+                break;
+        }
+    }
+
+    if (optind >= argc) {
+        return 0;
+    }
+
+    std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
+    opencore->StopTheWorld(pid);
+
+    char filename[32];
+    snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
+    int fd = open(filename, O_RDWR);
+    if (fd < 0) {
+        LOGE("ERROR: open %s fail.\n", filename);
+        return 0;
+    }
+
+    uint64_t begin = Utils::atol(argv[optind]);
+    if (buf) {
+        if (pwrite64(fd, buf, strlen(buf) + 1, begin) < 0) {
+            LOGE("ERROR: write %lx fail.\n", begin);
+        }
+    } else {
+        if (pwrite64(fd, &value, sizeof(uint64_t), begin) < 0) {
+            LOGE("ERROR: write %lx fail.\n", begin);
+        }
+    }
+    close(fd);
+    return 0;
+}
+
+int RemoteCommand::OptionPause(int argc, char* const argv[]) {
     return 0;
 }
 

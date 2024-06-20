@@ -376,6 +376,7 @@ OpencoreImpl::~OpencoreImpl() {
     if (auxv) free(auxv);
     if (phdr) free(phdr);
     if (file) free(file);
+    LOGI("Finish done.\n");
 }
 
 } // namespace lp64

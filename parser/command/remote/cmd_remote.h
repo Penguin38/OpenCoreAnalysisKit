@@ -27,6 +27,9 @@ public:
     int main(int argc, char* const argv[]);
     bool prepare(int argc, char* const argv[]) { return true; }
     void usage();
+    static int OptionRead(int argc, char* const argv[]);
+    static int OptionWrite(int argc, char* const argv[]);
+    static int OptionPause(int argc, char* const argv[]);
 };
 
 #endif // PARSER_COMMAND_REMOTE_CMD_REMOTE_H_
