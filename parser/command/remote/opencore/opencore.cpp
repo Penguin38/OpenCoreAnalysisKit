@@ -240,6 +240,16 @@ void Opencore::StopTheWorld(int pid) {
     }
 }
 
+void Opencore::StopTheThread(int tid) {
+    if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
+        LOGI("%s %d: %s\n", __func__ , tid, strerror(errno));
+        return;
+    }
+    pids.push_back(tid);
+    int status = 0;
+    waitpid(tid, &status, WUNTRACED);
+}
+
 void Opencore::Usage() {
     LOGI("Usage: remote core -p <PID> -m <MACHINE> [Option]...\n");
     LOGI("Option:\n");

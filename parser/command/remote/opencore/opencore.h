@@ -76,6 +76,7 @@ public:
     virtual int getMachine() { return EM_NONE; }
     bool IsFilterSegment(char* flags, int inode, std::string segment, int offset);
     void StopTheWorld(int pid);
+    void StopTheThread(int tid);
 protected:
     int extra_note_filesz;
     std::vector<int> pids;

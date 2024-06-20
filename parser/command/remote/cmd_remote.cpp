@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <memory>
 
 typedef int (*RemoteCall)(int argc, char* const argv[]);
@@ -175,15 +176,48 @@ int RemoteCommand::OptionWrite(int argc, char* const argv[]) {
 }
 
 int RemoteCommand::OptionPause(int argc, char* const argv[]) {
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"all", no_argument, 0, 'a'},
+    };
+
+    bool all = false;
+    while ((opt = getopt_long(argc, argv, "a",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'a':
+                all = true;
+                break;
+        }
+    }
+
+    if (optind >= argc) {
+        return 0;
+    }
+
+    std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
+    for (int i = optind; i < argc; ++i) {
+        int tid = std::atoi(argv[optind]);
+        all ? opencore->StopTheWorld(tid) : opencore->StopTheThread(tid);
+    }
+
+    LOGI("please enter any key cancel.\n");
+    getchar();
     return 0;
 }
 
 void RemoteCommand::usage() {
     LOGI("Usage: remote <COMMAND> [option] ...\n");
     LOGI("Command:\n");
-    LOGI("    core  hook\n");
+    LOGI("    core  hook  rd  wd\n");
+    LOGI("    pause\n");
     LOGI("\n");
     Opencore::Usage();
     LOGI("\n");
-    Hook::Usage();
+    // Hook::Usage();
+    LOGI("remote rd -p <PID> <BEGIN> -e <END>\n");
+    LOGI("remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>\n");
+    LOGI("remote pause <PID ...> [-a]\n");
 }
