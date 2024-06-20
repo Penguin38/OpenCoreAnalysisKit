@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "command/remote/cmd_remote.h"
 #include "command/remote/opencore/opencore.h"
+#include "command/remote/hook/hook.h"
 #include <unistd.h>
 #include <getopt.h>
 
@@ -28,6 +29,7 @@ struct RemoteOption {
 
 static RemoteOption remote_option[] = {
     { "core", Opencore::Dump },
+    { "hook", Hook::Main },
 };
 
 int RemoteCommand::main(int argc, char* const argv[]) {
@@ -49,7 +51,9 @@ int RemoteCommand::main(int argc, char* const argv[]) {
 void RemoteCommand::usage() {
     LOGI("Usage: remote <COMMAND> [option] ...\n");
     LOGI("Command:\n");
-    LOGI("    core\n");
+    LOGI("    core  hook\n");
     LOGI("\n");
     Opencore::Usage();
+    LOGI("\n");
+    Hook::Usage();
 }

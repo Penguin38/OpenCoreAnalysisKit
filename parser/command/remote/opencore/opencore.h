@@ -27,16 +27,6 @@
 #define ELFLINUXMAGIC "LINUX"
 #define NOTE_LINUX_NAME_SZ 6
 
-#ifndef NT_ARM_PAC_MASK
-#define NT_ARM_PAC_MASK 0x406
-#endif
-#ifndef NT_ARM_TAGGED_ADDR_CTRL
-#define NT_ARM_TAGGED_ADDR_CTRL 0x409
-#endif
-#ifndef NT_ARM_PAC_ENABLED_KEYS
-#define NT_ARM_PAC_ENABLED_KEYS 0x40A
-#endif
-
 class Opencore {
 public:
     static const int FLAG_CORE = 1 << 0;

@@ -22,6 +22,15 @@
 #include "command/remote/opencore/lp64/opencore.h"
 
 #define DEF_VA_BITS 39
+#ifndef NT_ARM_PAC_MASK
+#define NT_ARM_PAC_MASK 0x406
+#endif
+#ifndef NT_ARM_TAGGED_ADDR_CTRL
+#define NT_ARM_TAGGED_ADDR_CTRL 0x409
+#endif
+#ifndef NT_ARM_PAC_ENABLED_KEYS
+#define NT_ARM_PAC_ENABLED_KEYS 0x40A
+#endif
 
 namespace arm64 {
 
