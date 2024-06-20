@@ -18,11 +18,49 @@
 #define PARSER_COMMAND_REMOTE_OPENCORE_LP64_OPENCORE_IMPL_H_
 
 #include "command/remote/opencore/opencore.h"
+#include "lp64/core.h"
+#include <linux/elf.h>
 
 namespace lp64 {
 
 class OpencoreImpl : public Opencore {
+public:
+    OpencoreImpl() : Opencore() {}
+    ~OpencoreImpl();
+    bool DoCoredump(const char* filename);
+    bool NeedFilterFile(const char* filename, int offset);
+    void Prepare(const char* filename);
+    void ParseProcessMapsVma(int pid);
+    void ParserPhdr(int index, uint64_t start, uint64_t end, char* flags, char* filename);
+    void ParserNtFile(int index, uint64_t start, uint64_t end, int fileofs, char* filename);
+    void CreateCoreHeader();
+    void CreateCoreNoteHeader();
+    void CreateCoreAUXV(int pid);
 
+    // ELF Header
+    void WriteCoreHeader(FILE* fp);
+
+    // Program Headers
+    void WriteCoreNoteHeader(FILE* fp);
+    void WriteCoreProgramHeaders(FILE* fp);
+
+    // Segments
+    void WriteCoreAUXV(FILE* fp);
+    void WriteNtFile(FILE* fp);
+    void AlignNoteSegment(FILE* fp);
+    void WriteCoreLoadSegment(int pid, FILE* fp);
+
+    virtual void CreateCorePrStatus(int pid) = 0;
+    virtual void WriteCorePrStatus(FILE* fp) = 0;
+protected:
+    Elf64_Ehdr ehdr;
+    Elf64_Phdr *phdr;
+    int phnum;
+    Elf64_Phdr note;
+    lp64::Auxv *auxv;
+    int auxvnum;
+    lp64::File *file;
+    int fileslen;
 };
 
 } // namespace lp64

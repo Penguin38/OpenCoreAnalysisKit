@@ -185,7 +185,7 @@ MemoryRef& Elf::GetDebug() {
     int index = 0;
     while (index < phnum) {
         if (tmp.p_type() == PT_DYNAMIC) {
-            dynamic = phdr.Ptr() - phdr.p_offset() + tmp.p_vaddr();
+            dynamic = phdr.Ptr() - phdr.p_vaddr() + tmp.p_vaddr();
             break;
         }
         index++;

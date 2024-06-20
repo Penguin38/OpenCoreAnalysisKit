@@ -26,7 +26,7 @@ struct RemoteOption {
     RemoteCall call;
 };
 
-RemoteOption remote_option[] = {
+static RemoteOption remote_option[] = {
     { "core", Opencore::Dump },
 };
 

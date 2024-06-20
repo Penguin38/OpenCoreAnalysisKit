@@ -18,11 +18,49 @@
 #define PARSER_COMMAND_REMOTE_OPENCORE_LP32_OPENCORE_IMPL_H_
 
 #include "command/remote/opencore/opencore.h"
+#include "lp32/core.h"
+#include <linux/elf.h>
 
 namespace lp32 {
 
 class OpencoreImpl : public Opencore {
+public:
+    OpencoreImpl() : Opencore() {}
+    ~OpencoreImpl();
+    bool DoCoredump(const char* filename);
+    bool NeedFilterFile(const char* filename, int offset);
+    void Prepare(const char* filename);
+    void ParseProcessMapsVma(int pid);
+    void ParserPhdr(int index, uint32_t start, uint32_t end, char* flags, char* filename);
+    void ParserNtFile(int index, uint32_t start, uint32_t end, int fileofs, char* filename);
+    void CreateCoreHeader();
+    void CreateCoreNoteHeader();
+    void CreateCoreAUXV(int pid);
 
+    // ELF Header
+    void WriteCoreHeader(FILE* fp);
+
+    // Program Headers
+    void WriteCoreNoteHeader(FILE* fp);
+    void WriteCoreProgramHeaders(FILE* fp);
+
+    // Segments
+    void WriteCoreAUXV(FILE* fp);
+    void WriteNtFile(FILE* fp);
+    void AlignNoteSegment(FILE* fp);
+    void WriteCoreLoadSegment(int pid, FILE* fp);
+
+    virtual void CreateCorePrStatus(int pid) = 0;
+    virtual void WriteCorePrStatus(FILE* fp) = 0;
+protected:
+    Elf32_Ehdr ehdr;
+    Elf32_Phdr *phdr;
+    int phnum;
+    Elf32_Phdr note;
+    lp32::Auxv *auxv;
+    int auxvnum;
+    lp32::File *file;
+    int fileslen;
 };
 
 } // namespace lp32

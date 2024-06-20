@@ -20,7 +20,7 @@
 #include "arm64/core.h"
 #include "arm/core.h"
 #include "riscv64/core.h"
-#include "x64/core.h"
+#include "x86_64/core.h"
 #include "x86/core.h"
 #include "common/elf.h"
 #include "common/exception.h"
@@ -68,7 +68,7 @@ bool CoreApi::Load(const char* corefile) {
                 INSTANCE = new riscv64::Core(map);
                 break;
             case EM_X86_64:
-                INSTANCE = new x64::Core(map);
+                INSTANCE = new x86_64::Core(map);
                 break;
             case EM_386:
                 INSTANCE = new x86::Core(map);

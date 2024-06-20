@@ -17,7 +17,25 @@
 #ifndef PARSER_COMMAND_REMOTE_OPENCORE_OPENCORE_H_
 #define PARSER_COMMAND_REMOTE_OPENCORE_OPENCORE_H_
 
+#include <stdint.h>
 #include <string>
+#include <vector>
+#include <map>
+
+#define ELFCOREMAGIC "CORE"
+#define NOTE_CORE_NAME_SZ 5
+#define ELFLINUXMAGIC "LINUX"
+#define NOTE_LINUX_NAME_SZ 6
+
+#ifndef NT_ARM_PAC_MASK
+#define NT_ARM_PAC_MASK 0x406
+#endif
+#ifndef NT_ARM_TAGGED_ADDR_CTRL
+#define NT_ARM_TAGGED_ADDR_CTRL 0x409
+#endif
+#ifndef NT_ARM_PAC_ENABLED_KEYS
+#define NT_ARM_PAC_ENABLED_KEYS 0x40A
+#endif
 
 class Opencore {
 public:
@@ -52,13 +70,31 @@ public:
         extra_note_filesz = 0;
     }
 
+    void setDir(const char* d) { dir = d; }
+    void setPid(int p) { pid = p; }
+    void setFilter(int f) { filter = f; }
+    std::string& getDir() { return dir; }
+    int getFlag() { return flag; }
+    int getPid() { return pid; }
+    int getFilter() { return filter; }
+    int getExtraNoteFilesz() { return extra_note_filesz; }
+    bool Coredump(const char* filename);
+    virtual ~Opencore();
     virtual bool DoCoredump(const char* filename) = 0;
+    virtual bool NeedFilterFile(const char* filename, int offset) = 0;
+    virtual int getMachine() = 0;
+    bool IsFilterSegment(char* flags, int inode, std::string segment, int offset);
+    void StopTheWorld(int pid);
+protected:
+    int extra_note_filesz;
+    std::vector<int> pids;
+    std::vector<uint8_t> buffer;
+    std::map<uint64_t, std::string> maps;
 private:
     std::string dir;
     int flag;
     int pid;
     int filter;
-    int extra_note_filesz;
 };
 
 #endif // PARSER_COMMAND_REMOTE_OPENCORE_OPENCORE_H_

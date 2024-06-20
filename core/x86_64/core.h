@@ -21,7 +21,7 @@
 #include "lp64/core.h"
 #include "common/elf.h"
 
-namespace x64 {
+namespace x86_64 {
 
 class Core : public CoreApi, lp64::Core {
 public:
@@ -43,6 +43,6 @@ private:
     uint64_t r_debug_ptr() { return GetDebug().Ptr(); }
 };
 
-} // namespace x64
+} // namespace x86_64
 
 #endif // CORE_X64_CORE_H_

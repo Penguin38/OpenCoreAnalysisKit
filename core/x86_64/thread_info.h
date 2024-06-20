@@ -20,7 +20,7 @@
 #include "logger/log.h"
 #include "api/thread.h"
 
-namespace x64 {
+namespace x86_64 {
 
 class Register {
 public:
@@ -79,6 +79,6 @@ public:
     Register  reg;
 };
 
-} // namespace x64
+} // namespace x86_64
 
 #endif // CORE_X86_64_THREAD_INFO_H_

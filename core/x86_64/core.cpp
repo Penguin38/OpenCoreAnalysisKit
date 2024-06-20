@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "x64/core.h"
-#include "x64/thread_info.h"
+#include "x86_64/core.h"
+#include "x86_64/thread_info.h"
 #include "common/prstatus.h"
 #include <string.h>
 #include <linux/elf.h>
 
-namespace x64 {
+namespace x86_64 {
 
 bool Core::load() {
     auto callback = [](uint64_t type, uint64_t pos) -> void * {
@@ -56,4 +56,4 @@ uint64_t Core::dlsym(LinkMap* handle, const char* symbol) {
 Core::~Core() {
 }
 
-} // namespace x64
+} // namespace x86_64

@@ -17,12 +17,26 @@
 #ifndef PARSER_COMMAND_REMOTE_OPENCORE_ARM64_OPENCORE_IMPL_H_
 #define PARSER_COMMAND_REMOTE_OPENCORE_ARM64_OPENCORE_IMPL_H_
 
+#include "common/elf.h"
+#include "common/prstatus.h"
 #include "command/remote/opencore/lp64/opencore.h"
+
+#define DEF_VA_BITS 39
 
 namespace arm64 {
 
 class Opencore : public lp64::OpencoreImpl {
-
+public:
+    Opencore() : lp64::OpencoreImpl() {}
+    ~Opencore();
+    void CreateCorePrStatus(int pid);
+    void WriteCorePrStatus(FILE* fp);
+    void WriteCorePAC(int tid, FILE* fp);
+    void WriteCoreMTE(int tid, FILE* fp);
+    int getMachine() { return EM_AARCH64; }
+private:
+    int prnum = 0;
+    Elf64_prstatus *prstatus;
 };
 
 } // namespace arm64

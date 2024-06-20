@@ -51,7 +51,7 @@ add_library(core STATIC
             core/arm64/core.cpp
             core/arm/core.cpp
             core/riscv64/core.cpp
-            core/x64/core.cpp
+            core/x86_64/core.cpp
             core/x86/core.cpp
             core/common/note_block.cpp
             core/common/load_block.cpp
@@ -202,6 +202,13 @@ add_library(parser STATIC
             parser/command/cmd_plugin.cpp
             parser/command/remote/cmd_remote.cpp
             parser/command/remote/opencore/opencore.cpp
+            parser/command/remote/opencore/lp64/opencore.cpp
+            parser/command/remote/opencore/lp32/opencore.cpp
+            parser/command/remote/opencore/arm64/opencore.cpp
+            parser/command/remote/opencore/arm/opencore.cpp
+            parser/command/remote/opencore/x86_64/opencore.cpp
+            parser/command/remote/opencore/x86/opencore.cpp
+            parser/command/remote/opencore/riscv64/opencore.cpp
             parser/command/fake/cmd_fake.cpp
             parser/command/fake/core/fake_core.cpp
             parser/command/fake/core/lp64/restore.cpp
