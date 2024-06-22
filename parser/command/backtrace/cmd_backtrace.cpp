@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "api/core.h"
 #include "common/elf.h"
+#include "common/exception.h"
 #include "command/env.h"
 #include "command/backtrace/cmd_backtrace.h"
 #include <unistd.h>
@@ -138,7 +139,7 @@ void BacktraceCommand::DumpTrace() {
             art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
             thread->DumpState();
         } else {
-            LOGI("Thread(\"%d\") NotAttachJVM\n", record->pid);
+            LOGI("Thread(\"%d\") %s\n", record->pid, art::Runtime::Current().Ptr() ? "NotAttachJVM" : "");
         }
 #else
         LOGI("Thread(\"%d\")\n", record->pid);
@@ -151,7 +152,11 @@ void BacktraceCommand::DumpTrace() {
         }
 
 #if defined(__AOSP_PARSER__)
-        DumpJavaStack(record->thread);
+        try {
+            DumpJavaStack(record->thread);
+        } catch(InvalidAddressException e) {
+            LOGI("  (STACK MAYBE INCOIMPLETE)\n");
+        }
 #endif
         needEnd = true;
     }
