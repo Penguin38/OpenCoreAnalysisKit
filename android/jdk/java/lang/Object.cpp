@@ -44,97 +44,68 @@ bool Object::instanceof(const char* classname) {
     return false;
 }
 
-uint8_t Object::GetBooleanField(const char* field, const char* classname) {
-    uint8_t value = 0x0;
-    art::mirror::Class super = klass();
-    do {
-        if (classname && super.PrettyDescriptor() != classname) {
-            super = super.GetSuperClass();
-            continue;
-        }
+#define GET_INSTANCE_FIELD(TYPE, NAME) \
+TYPE Object::Get##NAME##Field(const char* field, const char* classname) { \
+    do { \
+        TYPE value = 0x0; \
+        art::mirror::Class super = klass(); \
+        do { \
+            if (classname && super.PrettyDescriptor() != classname) { \
+                super = super.GetSuperClass(); \
+                continue; \
+            } \
+            \
+            auto callback = [&](art::ArtField& f) -> bool { \
+                if (!strcmp(f.GetName(), field)) { \
+                    value = f.Get##NAME(thiz_cache); \
+                    return true; \
+                } \
+                return false; \
+            }; \
+            Android::ForeachInstanceField(super, callback); \
+            \
+            super = super.GetSuperClass(); \
+        } while (super.Ptr()); \
+        return value; \
+    } while (0) ;\
+}\
 
-        auto callback = [&](art::ArtField& f) -> bool {
-            if (!strcmp(f.GetName(), field)) {
-                value = f.GetBoolean(thiz_cache);
-                return true;
-            }
-            return false;
-        };
-        Android::ForeachInstanceField(super, callback);
+GET_INSTANCE_FIELD(uint8_t, Boolean)
+GET_INSTANCE_FIELD(int8_t, Byte)
+GET_INSTANCE_FIELD(uint16_t, Char)
+GET_INSTANCE_FIELD(int16_t, Short)
+GET_INSTANCE_FIELD(uint32_t, Object)
+GET_INSTANCE_FIELD(int32_t, Int)
+GET_INSTANCE_FIELD(int64_t, Long)
+GET_INSTANCE_FIELD(float, Float)
+GET_INSTANCE_FIELD(double, Double)
 
-        super = super.GetSuperClass();
-    } while (super.Ptr());
-    return value;
-}
+#define GET_STATIC_FIELD(TYPE, NAME) \
+TYPE Object::GetStatic##NAME##Field(const char* field) { \
+    do { \
+        TYPE value = 0x0; \
+        art::mirror::Class clazz = thiz().IsClass() ? thiz() : klass(); \
+        auto callback = [&](art::ArtField& f) -> bool { \
+            if (!strcmp(f.GetName(), field)) { \
+                value = f.Get##NAME(clazz); \
+                return true; \
+            } \
+            return false; \
+        }; \
+        Android::ForeachStaticField(clazz, callback); \
+        return value; \
+    } while (0) ;\
+}\
 
-uint32_t Object::GetObjectField(const char* field, const char* classname) {
-    uint32_t obj = 0x0;
-    art::mirror::Class super = klass();
-    do {
-        if (classname && super.PrettyDescriptor() != classname) {
-            super = super.GetSuperClass();
-            continue;
-        }
-
-        auto callback = [&](art::ArtField& f) -> bool {
-            if (!strcmp(f.GetName(), field)) {
-                obj = f.GetObj(thiz_cache);
-                return true;
-            }
-            return false;
-        };
-        Android::ForeachInstanceField(super, callback);
-
-        super = super.GetSuperClass();
-    } while (super.Ptr());
-    return obj;
-}
-
-int32_t Object::GetIntField(const char* field, const char* classname) {
-    int32_t value = 0x0;
-    art::mirror::Class super = klass();
-    do {
-        if (classname && super.PrettyDescriptor() != classname) {
-            super = super.GetSuperClass();
-            continue;
-        }
-
-        auto callback = [&](art::ArtField& f) -> bool {
-            if (!strcmp(f.GetName(), field)) {
-                value = f.GetInt(thiz_cache);
-                return true;
-            }
-            return false;
-        };
-        Android::ForeachInstanceField(super, callback);
-
-        super = super.GetSuperClass();
-    } while (super.Ptr());
-    return value;
-}
-
-int64_t Object::GetLongField(const char* field, const char* classname) {
-    int64_t value = 0x0;
-    art::mirror::Class super = klass();
-    do {
-        if (classname && super.PrettyDescriptor() != classname) {
-            super = super.GetSuperClass();
-            continue;
-        }
-
-        auto callback = [&](art::ArtField& f) -> bool {
-            if (!strcmp(f.GetName(), field)) {
-                value = f.GetLong(thiz_cache);
-                return true;
-            }
-            return false;
-        };
-        Android::ForeachInstanceField(super, callback);
-
-        super = super.GetSuperClass();
-    } while (super.Ptr());
-    return value;
-}
+GET_STATIC_FIELD(uint8_t, Boolean)
+GET_STATIC_FIELD(int8_t, Byte)
+GET_STATIC_FIELD(uint16_t, Char)
+GET_STATIC_FIELD(int16_t, Short)
+GET_STATIC_FIELD(uint32_t, Object)
+GET_STATIC_FIELD(int32_t, Int)
+GET_STATIC_FIELD(int64_t, Long)
+GET_STATIC_FIELD(float, Float)
+GET_STATIC_FIELD(double, Double)
 
 } // namespace lang
 } // namespace java

@@ -78,6 +78,7 @@ public:
     uint32_t Get32(mirror::Object& obj);
     uint64_t Get64(mirror::Object& obj);
     uint32_t GetObj(mirror::Object& obj);
+    uint32_t GetObject(mirror::Object& obj);
 
 private:
     // quick memoryref cache

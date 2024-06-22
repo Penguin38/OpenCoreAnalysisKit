@@ -137,4 +137,8 @@ uint32_t ArtField::GetObj(mirror::Object& obj) {
     return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
 }
 
+uint32_t ArtField::GetObject(mirror::Object& obj) {
+    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
+}
+
 } // namespace art

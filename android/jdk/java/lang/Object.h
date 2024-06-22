@@ -43,12 +43,32 @@ public:
 
     uint8_t GetBooleanField(const char* field) { return GetBooleanField(field, nullptr); }
     uint8_t GetBooleanField(const char* field, const char* classname);
+    int8_t GetByteField(const char* field) { return GetByteField(field, nullptr); }
+    int8_t GetByteField(const char* field, const char* classname);
+    uint16_t GetCharField(const char* field) { return GetCharField(field, nullptr); }
+    uint16_t GetCharField(const char* field, const char* classname);
+    int16_t GetShortField(const char* field) { return GetShortField(field, nullptr); }
+    int16_t GetShortField(const char* field, const char* classname);
     uint32_t GetObjectField(const char* field) { return GetObjectField(field, nullptr); }
     uint32_t GetObjectField(const char* field, const char* classname);
     int32_t GetIntField(const char* field) { return GetIntField(field, nullptr); }
     int32_t GetIntField(const char* field, const char* classname);
     int64_t GetLongField(const char* field) { return GetLongField(field, nullptr); }
     int64_t GetLongField(const char* field, const char* classname);
+    float GetFloatField(const char* field) { return GetFloatField(field, nullptr); }
+    float GetFloatField(const char* field, const char* classname);
+    double GetDoubleField(const char* field) { return GetDoubleField(field, nullptr); }
+    double GetDoubleField(const char* field, const char* classname);
+
+    uint8_t GetStaticBooleanField(const char* field);
+    int8_t GetStaticByteField(const char* field);
+    uint16_t GetStaticCharField(const char* field);
+    int16_t GetStaticShortField(const char* field);
+    uint32_t GetStaticObjectField(const char* field);
+    int32_t GetStaticIntField(const char* field);
+    int64_t GetStaticLongField(const char* field);
+    float GetStaticFloatField(const char* field);
+    double GetStaticDoubleField(const char* field);
 
     inline art::mirror::Object& thiz() { return thiz_cache; }
 private:
