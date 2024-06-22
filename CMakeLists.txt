@@ -76,6 +76,7 @@ target_link_libraries(llvm core)
 include_directories(android)
 include_directories(android/art)
 include_directories(android/jdk)
+include_directories(android/sdk)
 add_library(android STATIC
             android/android.cpp
 
@@ -160,11 +161,16 @@ add_library(android STATIC
 
             # jdk
             android/jdk/java/lang/Object.cpp
+            android/jdk/java/lang/Class.cpp
             android/jdk/java/lang/String.cpp
             android/jdk/java/lang/Thread.cpp
             android/jdk/java/lang/ThreadGroup.cpp
             android/jdk/sun/misc/Cleaner.cpp
-            android/jdk/libcore/util/NativeAllocationRegistry.cpp)
+            android/jdk/libcore/util/NativeAllocationRegistry.cpp
+
+            # sdk
+            android/sdk/android/app/ContextImpl.cpp
+            android/sdk/android/util/ArrayMap.cpp)
 target_link_libraries(android core llvm)
 
 set(LINKER_PTHREAD "")
@@ -233,6 +239,13 @@ add_library(plugin-logcat SHARED
             parser/plugin/logcat/logcat_main.cpp)
 target_link_libraries(plugin-logcat parser)
 set_target_properties(plugin-logcat PROPERTIES PREFIX "")
+
+include_directories(parser/plugin/dumpsys/services)
+add_library(plugin-dumpsys SHARED
+            parser/plugin/dumpsys/dumpsys.cpp
+            parser/plugin/dumpsys/services/com/android/server/am/ActivityManagerService.cpp)
+target_link_libraries(plugin-dumpsys parser)
+set_target_properties(plugin-dumpsys PROPERTIES PREFIX "")
 
 add_executable(test tests/test.cpp)
 target_link_libraries(test parser)
