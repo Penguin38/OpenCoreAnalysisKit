@@ -75,6 +75,7 @@ public:
     void RegisterDump(const char* prefix) { return reg.Dump(prefix); }
     Register& GetRegs() { return reg; }
     uint64_t GetFramePC() { return GetRegs().rip; }
+    uint64_t GetFrameSP() { return GetRegs().rsp; }
 
     Register  reg;
 };

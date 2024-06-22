@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_CMD_THREAD_H_
-#define PARSER_COMMAND_CMD_THREAD_H_
+#include "runtime/java_frame.h"
 
-#include "command/command.h"
+namespace art {
 
-class ThreadCommand : public Command {
-public:
-    ThreadCommand() : Command("thread", "t") {}
-    ~ThreadCommand() {}
-    int main(int argc, char* const argv[]);
-    void usage();
-};
+uint64_t JavaFrame::GetDexPcPtr() {
+    if (shadow_frame.Ptr()) {
+        return shadow_frame.GetDexPcPtr();
+    } else if (quick_frame.Ptr()) {
+        return quick_frame.GetDexPcPtr();
+    }
+    return 0x0;
+}
 
-#endif // PARSER_COMMAND_CMD_THREAD_H_
+} // namespace art

@@ -28,15 +28,6 @@
 
 namespace art {
 
-uint64_t StackVisitor::JavaFrame::GetDexPcPtr() {
-    if (shadow_frame.Ptr()) {
-        return shadow_frame.GetDexPcPtr();
-    } else if (quick_frame.Ptr()) {
-        return quick_frame.GetDexPcPtr();
-    }
-    return 0x0;
-}
-
 QuickMethodFrameInfo StackVisitor::GetQuickFrameInfo(QuickFrame& quick_frame) {
     return quick_frame.GetFrameInfo();
 }

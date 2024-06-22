@@ -17,7 +17,8 @@
 #ifndef CORE_API_THREAD_H_
 #define CORE_API_THREAD_H_
 
-#include <iostream>
+#include <vector>
+#include <memory>
 
 class ThreadApi {
 public:
@@ -27,6 +28,7 @@ public:
     virtual ~ThreadApi() {}
     virtual void RegisterDump(const char* prefix) = 0;
     virtual uint64_t GetFramePC() = 0;
+    virtual uint64_t GetFrameSP() = 0;
 private:
     int mPid;
 };

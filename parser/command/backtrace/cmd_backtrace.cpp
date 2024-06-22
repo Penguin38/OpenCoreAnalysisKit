@@ -16,17 +16,17 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "api/unwind.h"
+#include "base/utils.h"
 #include "common/elf.h"
 #include "common/exception.h"
 #include "command/env.h"
 #include "command/backtrace/cmd_backtrace.h"
-#include <unistd.h>
-#include <getopt.h>
-
-#if defined(__AOSP_PARSER__)
 #include "runtime/thread_list.h"
 #include "runtime/stack.h"
-#endif
+#include <unistd.h>
+#include <getopt.h>
+#include <memory>
 
 int BacktraceCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
@@ -144,13 +144,7 @@ void BacktraceCommand::DumpTrace() {
 #else
         LOGI("Thread(\"%d\")\n", record->pid);
 #endif
-        if (record->api) {
-            record->api->RegisterDump("  ");
-            //do native stackwalk
-        } else {
-            LOGI("  (NOT EXIST THREAD)\n");
-        }
-
+        DumpNativeStack(record->thread, record->api);
 #if defined(__AOSP_PARSER__)
         try {
             DumpJavaStack(record->thread);
@@ -159,6 +153,30 @@ void BacktraceCommand::DumpTrace() {
         }
 #endif
         needEnd = true;
+    }
+}
+
+void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
+    if (!api) {
+        LOGI("  (NOT EXIST THREAD)\n");
+        return;
+    }
+    api->RegisterDump("  ");
+    std::unique_ptr<api::UnwindStack> unwind_stack = api::UnwindStack::MakeUnwindStack(api);
+    if (unwind_stack) {
+        unwind_stack->WalkStack();
+        std::string format = FormatNativeFrame("  ", unwind_stack->GetNativeFrames().size());
+        uint32_t frameid = 0;
+        for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
+            std::string method_desc = native_frame->GetMethodName();
+            if (native_frame->GetMethodOffset()) method_desc.append("+").append(Utils::ToHex(native_frame->GetMethodOffset()));
+            LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
+            ++frameid;
+            if (frameid == unwind_stack->GetContextNum()) {
+                LOGI("  <<maybe handle signal>>\n");
+                unwind_stack->DumpContextRegister("  ");
+            }
+        }
     }
 }
 
@@ -180,11 +198,29 @@ void BacktraceCommand::DumpJavaStack(void *th) {
 std::string BacktraceCommand::FormatJavaFrame(const char* prefix, uint64_t size) {
     std::string format;
     format.append(prefix);
-    format.append("Java: #%0");
+    format.append("JavaKt: #%0");
     int num = 0;
     uint64_t current = size;
     do {
-        current = current / 9;
+        current = current / 10;
+        ++num;
+    } while(current != 0);
+    format.append(std::to_string(num));
+    format.append("d  %0");
+    num = CoreApi::Bits() / 4;
+    format.append(std::to_string(num));
+    format.append("lx  %s\n");
+    return format;
+}
+
+std::string BacktraceCommand::FormatNativeFrame(const char* prefix, uint64_t size) {
+    std::string format;
+    format.append(prefix);
+    format.append("Native: #%0");
+    int num = 0;
+    uint64_t current = size;
+    do {
+        current = current / 10;
         ++num;
     } while(current != 0);
     format.append(std::to_string(num));

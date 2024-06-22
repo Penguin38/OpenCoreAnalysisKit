@@ -15,12 +15,22 @@
  */
 
 #include "riscv64/core.h"
+#include "riscv64/thread_info.h"
+#include "common/prstatus.h"
+#include <string.h>
 #include <linux/elf.h>
 
 namespace riscv64 {
 
 bool Core::load() {
     auto callback = [](uint64_t type, uint64_t pos) -> void * {
+        switch(type) {
+            case NT_PRSTATUS:
+                Elf64_prstatus* prs = reinterpret_cast<Elf64_prstatus *>(pos);
+                ThreadInfo* thread = new ThreadInfo(prs->pr_pid);
+                memcpy(&thread->reg, &prs->pr_reg, sizeof(Register));
+                return thread;
+        }
         return nullptr;
     };
     return load64(this, callback);

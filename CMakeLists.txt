@@ -46,16 +46,19 @@ add_library(core STATIC
             core/api/core.cpp
             core/api/elf.cpp
             core/api/bridge.cpp
+            core/api/unwind.cpp
             core/lp64/core.cpp
             core/lp32/core.cpp
             core/arm64/core.cpp
+            core/arm64/unwind.cpp
             core/arm/core.cpp
             core/riscv64/core.cpp
             core/x86_64/core.cpp
             core/x86/core.cpp
             core/common/note_block.cpp
             core/common/load_block.cpp
-            core/common/link_map.cpp)
+            core/common/link_map.cpp
+            core/common/native_frame.cpp)
 target_link_libraries(core utils)
 
 include_directories(llvm)
@@ -96,6 +99,7 @@ add_library(android STATIC
             android/art/runtime/oat_quick_method_header.cpp
             android/art/runtime/oat.cpp
             android/art/runtime/nterp_helpers.cpp
+            android/art/runtime/java_frame.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp

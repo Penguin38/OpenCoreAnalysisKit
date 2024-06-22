@@ -161,8 +161,10 @@ class Elf {
 public:
     Elf() {}
     MemoryRef& GetDebug();
-    uint64_t FindDynamicEntry(Elfx_Dynamic& dynamic, uint64_t type);
-    uint64_t DynamicSymbol(LinkMap* handle, const char* symbol);
+    static uint64_t FindDynamicEntry(Elfx_Dynamic& dynamic, uint64_t type);
+    static Elfx_Dynamic FindDynamic(LinkMap* handle);
+    static uint64_t DynamicSymbol(LinkMap* handle, const char* symbol);
+    static void NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol);
 
     static void Init();
 private:

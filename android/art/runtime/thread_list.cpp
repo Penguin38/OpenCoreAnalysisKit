@@ -54,4 +54,12 @@ bool ThreadList::Contains(int tid) {
     return false;
 }
 
+Thread* ThreadList::FindThread(int tid) {
+    for (const auto& thread : GetList()) {
+        if (thread->GetTid() == tid)
+            return thread.get();
+    }
+    return nullptr;
+}
+
 } //namespace art

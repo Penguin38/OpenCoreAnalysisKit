@@ -82,7 +82,9 @@ public:
     ThreadRecord* findRecord(int pid);
     void DumpTrace();
     void DumpJavaStack(void *thread);
+    void DumpNativeStack(void *thread, ThreadApi* api);
     static std::string FormatJavaFrame(const char* prefix, uint64_t size);
+    static std::string FormatNativeFrame(const char* prefix, uint64_t size);
 private:
     bool dump_all = false;
     std::vector<std::unique_ptr<ThreadRecord>> threads;

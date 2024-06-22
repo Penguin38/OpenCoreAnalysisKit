@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_CMD_THREAD_H_
-#define PARSER_COMMAND_CMD_THREAD_H_
+#ifndef CORE_ARM64_UNWIND_H_
+#define CORE_ARM64_UNWIND_H_
 
-#include "command/command.h"
+#include "api/unwind.h"
+#include "arm64/thread_info.h"
 
-class ThreadCommand : public Command {
+namespace arm64 {
+
+class UnwindStack : public api::UnwindStack {
 public:
-    ThreadCommand() : Command("thread", "t") {}
-    ~ThreadCommand() {}
-    int main(int argc, char* const argv[]);
-    void usage();
+    UnwindStack(ThreadApi* thread) : api::UnwindStack(thread) {}
+    void WalkStack();
+    void FpBacktrace(Register& regs);
+    uint64_t GetUContext();
+    void DumpContextRegister(const char* prefix);
 };
 
-#endif // PARSER_COMMAND_CMD_THREAD_H_
+} // namespace arm64
+
+#endif // CORE_ARM64_UNWIND_H_

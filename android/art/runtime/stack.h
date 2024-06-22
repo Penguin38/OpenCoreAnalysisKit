@@ -17,15 +17,10 @@
 #ifndef ANDROID_ART_RUNTIME_STACK_H_
 #define ANDROID_ART_RUNTIME_STACK_H_
 
+#include "runtime/java_frame.h"
 #include "runtime/thread.h"
 #include "runtime/managed_stack.h"
-#include "runtime/art_method.h"
-#include "runtime/oat_quick_method_header.h"
 #include "runtime/quick/quick_method_frame_info.h"
-#include "runtime/interpreter/quick_frame.h"
-#include "runtime/interpreter/shadow_frame.h"
-#include "runtime/oat/stack_map.h"
-#include <vector>
 #include <memory>
 
 /*
@@ -85,34 +80,6 @@ public:
     enum class StackWalkKind {
         kIncludeInlinedFrames,
         kSkipInlinedFrames,
-    };
-
-    class JavaFrame {
-    public:
-        JavaFrame(ArtMethod& m, QuickFrame& qf, ShadowFrame& sf)
-            : method(m), quick_frame(qf), shadow_frame(sf) {}
-        ArtMethod& GetMethod() { return method; }
-        ShadowFrame& GetShadowFrame() { return shadow_frame; }
-        QuickFrame& GetQuickFrame() { return quick_frame; }
-        QuickFrame& GetPrevQuickFrame() { return prev_quick_frame; }
-        OatQuickMethodHeader& GetMethodHeader() { return quick_frame.GetMethodHeader(); }
-        uint64_t GetFramePc() { return quick_frame.Ptr() ? quick_frame.GetFramePc() : 0x0; }
-        uint64_t GetDexPcPtr();
-        std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegs() {
-            if (shadow_frame.Ptr()) {
-                return shadow_frame.GetVRegs();
-            } else if (quick_frame.Ptr()) {
-                return quick_frame.GetVRegs();
-            }
-            return empty_vregs;
-        }
-        void SetPrevQuickFrame(QuickFrame& qf) { prev_quick_frame = qf; }
-    private:
-        ArtMethod method;
-        ShadowFrame shadow_frame = 0x0;
-        QuickFrame quick_frame = 0x0;
-        QuickFrame prev_quick_frame = 0x0;
-        std::map<uint32_t, CodeInfo::DexRegisterInfo> empty_vregs;
     };
 
     StackVisitor(Thread* thread, StackWalkKind kind) : thread_(thread), walk_kind_(kind) {}

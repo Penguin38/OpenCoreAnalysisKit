@@ -16,6 +16,9 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "lp64/core.h"
+#include "lp32/core.h"
+#include "api/elf.h"
 #include "common/link_map.h"
 
 struct LinkMap_OffsetTable __LinkMap_offset__;
@@ -88,4 +91,19 @@ const char* LinkMap::name() {
 
 LoadBlock* LinkMap::block() {
     return GetAddrCache().Block();
+}
+
+void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
+    LoadBlock* load = block();
+    if (load) {
+        if (load->isMmapBlock()) {
+            if (CoreApi::Bits() == 64) {
+                lp64::Core::nicesym64(load->name().c_str(), pc - l_addr(), symbol);
+            } else {
+                lp32::Core::nicesym32(load->name().c_str(), pc - l_addr(), symbol);
+            }
+        } else {
+            api::Elf::NiceSymbol(this, pc, symbol);
+        }
+    }
 }

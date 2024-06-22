@@ -63,7 +63,8 @@ public:
     void loadLinkMap64(CoreApi* api);
     bool exec64(CoreApi* api, uint64_t phdr, const char* file);
     bool dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile);
-    uint64_t dlsym64(const char* path, const char* symbol);
+    static uint64_t dlsym64(const char* path, const char* symbol);
+    static void nicesym64(const char* path, uint64_t offset, ::LinkMap::NiceSymbol& symbol);
 };
 
 } // namespace lp64

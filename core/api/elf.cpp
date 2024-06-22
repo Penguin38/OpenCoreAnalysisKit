@@ -18,8 +18,11 @@
 #include "api/elf.h"
 #include "api/core.h"
 #include "common/auxv.h"
-#include <string>
 #include <linux/elf.h>
+#include <string.h>
+#include <cxxabi.h>
+#include <string>
+#include <limits>
 
 struct Elfx_Ehdr_OffsetTable __Elfx_Ehdr_offset__;
 struct Elfx_Ehdr_SizeTable __Elfx_Ehdr_size__;
@@ -210,8 +213,7 @@ uint64_t Elf::FindDynamicEntry(Elfx_Dynamic& dynamic, uint64_t type) {
     return value;
 }
 
-uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
-    if (!handle->l_addr()) return 0x0;
+Elfx_Dynamic Elf::FindDynamic(LinkMap* handle) {
     Elfx_Dynamic dynamic = 0x0;
 
     if (handle->l_ld()) {
@@ -232,6 +234,12 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
             tmp.MovePtr(SIZEOF(Elfx_Phdr));
         }
     }
+    return dynamic;
+}
+
+uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
+    if (!handle->l_addr()) return 0x0;
+    Elfx_Dynamic dynamic = FindDynamic(handle);
 
     uint64_t strtab = FindDynamicEntry(dynamic, DT_STRTAB);
     uint64_t symtab = FindDynamicEntry(dynamic, DT_SYMTAB);
@@ -256,6 +264,55 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
         symbols.MovePtr(syment);
     }
     return 0;
+}
+
+void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol) {
+    if (!handle->l_addr()) return;
+    bool vdso = !strcmp(handle->name(), "[vdso]");
+    Elfx_Dynamic dynamic = FindDynamic(handle);
+
+    uint64_t strtab = FindDynamicEntry(dynamic, DT_STRTAB);
+    uint64_t symtab = FindDynamicEntry(dynamic, DT_SYMTAB);
+    uint64_t syment = FindDynamicEntry(dynamic, DT_SYMENT);
+    uint64_t versym = FindDynamicEntry(dynamic, DT_VERSYM);
+
+    // check page fault
+    if (!syment) return;
+
+    // maybe error match
+    uint64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
+    int64_t count = symsz / syment;
+
+    api::MemoryRef tables(handle->l_addr() + strtab, handle->block());
+    Elfx_Sym symbols(handle->l_addr() + symtab, tables);
+
+    uint64_t clocaddr = addr & CoreApi::GetVabitsMask();
+    char* match = nullptr;
+    uint64_t nice = std::numeric_limits<uint64_t>::max();
+    for (int i = 0; i < count; ++i) {
+        if (symbols.st_value() > 0 && (ELF_ST_TYPE(symbols.st_info()) == STT_FUNC
+                || (vdso && ELF_ST_TYPE(symbols.st_info()) == STT_NOTYPE))) {
+            uint64_t value = symbols.st_value() + handle->l_addr();
+            if (value <= clocaddr) {
+                if (clocaddr - value <= nice) {
+                    match = reinterpret_cast<char* >(tables.Real() + symbols.st_name());
+                    nice = clocaddr - value;
+                }
+            }
+        }
+        symbols.MovePtr(syment);
+    }
+
+    if (match) {
+        int status;
+        char* demangled_name = abi::__cxa_demangle(match, nullptr, nullptr, &status);
+        if (status == 0) {
+            symbol.SetNiceMethod(demangled_name, nice);
+            std::free(demangled_name);
+        } else {
+            symbol.SetNiceMethod(match, nice);
+        }
+    }
 }
 
 } // namespace api

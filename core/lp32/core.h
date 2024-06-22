@@ -63,7 +63,8 @@ public:
     void loadLinkMap32(CoreApi* api);
     bool exec32(CoreApi* api, uint32_t phdr, const char* file);
     bool dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile);
-    uint32_t dlsym32(const char* path, const char* symbol);
+    static uint32_t dlsym32(const char* path, const char* symbol);
+    static void nicesym32(const char* path, uint32_t offset, ::LinkMap::NiceSymbol& symbol);
 };
 
 } // namespace lp32

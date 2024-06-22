@@ -48,6 +48,20 @@ public:
     const char* name();
     LoadBlock* block();
 
+    class NiceSymbol {
+    public:
+        NiceSymbol() : off(0) {}
+        void SetNiceMethod(const char* sym, uint64_t o) {
+            sym ? method = sym : "";
+            off = o;
+        }
+        std::string& GetMethod() { return method; }
+        uint64_t GetOffset() { return off; }
+    private:
+        std::string method;
+        uint64_t off;
+    };
+    void NiceMethod(uint64_t pc, NiceSymbol& symbol);
     api::MemoryRef& GetAddrCache();
     api::MemoryRef& GetNameCache();
 private:

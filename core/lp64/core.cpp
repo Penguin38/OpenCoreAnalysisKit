@@ -22,8 +22,10 @@
 #include "common/bit.h"
 #include "common/load_block.h"
 #include "common/exception.h"
+#include <cxxabi.h>
 #include <string.h>
 #include <linux/elf.h>
+#include <limits>
 
 bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback) {
     Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(api->begin());
@@ -334,4 +336,98 @@ uint64_t lp64::Core::dlsym64(const char* path, const char* symbol) {
         // scan gnu_debugdata
     }
     return 0x0;
+}
+
+void lp64::Core::nicesym64(const char* path, uint64_t offset, ::LinkMap::NiceSymbol& symbol) {
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(path));
+    if (map) {
+        // already check valid on dlopen
+        Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
+        Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
+
+        int dynsymndx = -1;
+        int dynstrndx = -1;
+        int symtabndx = -1;
+        int strtabndx = -1;
+        int gnu_debugdatandx = -1;
+
+        int sh_num = ehdr->e_shnum;
+        Elf64_Shdr* shdr = reinterpret_cast<Elf64_Shdr*>(map->data() + ehdr->e_shoff);
+        const char* shstr = reinterpret_cast<const char*>(map->data() + shdr[ehdr->e_shstrndx].sh_offset);
+        for (int i = 0; i < sh_num; ++i) {
+            if (!strcmp(shstr + shdr[i].sh_name, ".dynsym")) {
+                dynsymndx = i;
+                continue;
+            }
+
+            if (!strcmp(shstr + shdr[i].sh_name, ".dynstr")) {
+                dynstrndx = i;
+                continue;
+            }
+
+            if (!strcmp(shstr + shdr[i].sh_name, ".symtab")) {
+                symtabndx = i;
+                continue;
+            }
+
+            if (!strcmp(shstr + shdr[i].sh_name, ".strtab")) {
+                strtabndx = i;
+                continue;
+            }
+
+            if (!strcmp(shstr + shdr[i].sh_name, ".gnu_debugdata")) {
+                gnu_debugdatandx = i;
+                continue;
+            }
+        }
+
+        // scan dynsym
+        char* match = nullptr;
+        uint64_t nice = std::numeric_limits<uint64_t>::max();
+        if (dynsymndx > 0 && dynstrndx > 0) {
+            int count = shdr[dynsymndx].sh_size / shdr[dynsymndx].sh_entsize;
+            Elf64_Sym* symtab = reinterpret_cast<Elf64_Sym*>(map->data() + shdr[dynsymndx].sh_offset);
+            const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[dynstrndx].sh_offset);
+            for (int i = 0; i < count; ++i) {
+                if (symtab[i].st_value > 0 && (ELF_ST_TYPE(symtab[i].st_info) == STT_FUNC)) {
+                    if (symtab[i].st_value <= offset) {
+                        if (offset - symtab[i].st_value <= nice) {
+                            match = const_cast<char* >(strtab + symtab[i].st_name);
+                            nice = offset - symtab[i].st_value;
+                        }
+                    }
+                }
+            }
+        }
+
+        // scan symtab
+        if (symtabndx > 0 && strtabndx > 0) {
+            int count = shdr[symtabndx].sh_size / shdr[symtabndx].sh_entsize;
+            Elf64_Sym* symtab = reinterpret_cast<Elf64_Sym*>(map->data() + shdr[symtabndx].sh_offset);
+            const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[strtabndx].sh_offset);
+            for (int i = 0; i < count; ++i) {
+                if (symtab[i].st_value > 0 && (ELF_ST_TYPE(symtab[i].st_info) == STT_FUNC)) {
+                    if (symtab[i].st_value <= offset) {
+                        if (offset - symtab[i].st_value <= nice) {
+                            match = const_cast<char* >(strtab + symtab[i].st_name);
+                            nice = offset - symtab[i].st_value;
+                        }
+                    }
+                }
+            }
+        }
+
+        // scan gnu_debugdata
+
+        if (match) {
+            int status;
+            char* demangled_name = abi::__cxa_demangle(match, nullptr, nullptr, &status);
+            if (status == 0) {
+                symbol.SetNiceMethod(demangled_name, nice);
+                std::free(demangled_name);
+            } else {
+                symbol.SetNiceMethod(match, nice);
+            }
+        }
+    }
 }

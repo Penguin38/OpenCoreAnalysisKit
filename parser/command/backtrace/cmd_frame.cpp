@@ -16,18 +16,17 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "api/unwind.h"
+#include "base/utils.h"
 #include "command/env.h"
 #include "command/backtrace/cmd_frame.h"
 #include "command/backtrace/cmd_backtrace.h"
-#include <unistd.h>
-#include <getopt.h>
-
-#if defined(__AOSP_PARSER__)
 #include "runtime/thread_list.h"
 #include "runtime/stack.h"
 #include "dalvik_vm_bytecode.h"
 #include "dexdump/dexdump.h"
-#endif
+#include <unistd.h>
+#include <getopt.h>
 
 int FrameCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
@@ -41,7 +40,11 @@ int FrameCommand::main(int argc, char* const argv[]) {
         {"native",  no_argument,       0,  'n'},
     };
 
-    java = true; // default
+    java = false;
+    if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
+        if (art::Runtime::Current().GetThreadList().Contains(Env::CurrentPid()))
+            java = true;
+    }
     while ((opt = getopt_long(argc, (char* const*)argv, "jn",
                 long_options, &option_index)) != -1) {
         switch (opt) {
@@ -60,6 +63,8 @@ int FrameCommand::main(int argc, char* const argv[]) {
 #if defined(__AOSP_PARSER__)
     if (java) {
         ShowJavaFrameInfo(number);
+    } else {
+        ShowNativeFrameInfo(number);
     }
 #endif
     return 0;
@@ -69,14 +74,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
     art::Thread* current = nullptr;
     int pid = Env::CurrentPid();
     if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
-        art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
-        for (const auto& thread : thread_list.GetList()) {
-            int tid = thread->GetTid();
-            if (tid == pid) {
-                current = thread.get();
-                break;
-            }
-        }
+        current = art::Runtime::Current().GetThreadList().FindThread(pid);
     }
 
     if (!current)
@@ -209,8 +207,32 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix,
     }
 }
 
+void FrameCommand::ShowNativeFrameInfo(int number) {
+    int pid = Env::CurrentPid();
+    ThreadApi* api = CoreApi::FindThread(pid);
+    std::unique_ptr<api::UnwindStack> unwind_stack = api::UnwindStack::MakeUnwindStack(api);
+    if (unwind_stack) {
+        unwind_stack->WalkStack();
+        std::string format = BacktraceCommand::FormatNativeFrame("  ", unwind_stack->GetNativeFrames().size());
+        uint32_t frameid = 0;
+        for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
+            if (frameid == number) {
+                std::string method_desc = native_frame->GetMethodName();
+                if (native_frame->GetMethodOffset()) method_desc.append("+").append(Utils::ToHex(native_frame->GetMethodOffset()));
+                LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
+                LOGI("  {\n");
+                LOGI("      library: %s\n", native_frame->GetLibrary().c_str());
+                LOGI("      frame_fp: 0x%lx\n", native_frame->GetFrameFp());
+                LOGI("      frame_pc: 0x%lx\n", native_frame->GetFramePc());
+                LOGI("  }\n");
+            }
+            ++frameid;
+        }
+    }
+}
+
 void FrameCommand::usage() {
-    LOGI("Usage: frame|r <NUM> [option..]\n");
+    LOGI("Usage: frame|f <NUM> [option..]\n");
     LOGI("Option:\n");
     LOGI("    --java|-j: show java frame info. (Default)\n");
     LOGI("    --native|-n: show native frame info.\n");
