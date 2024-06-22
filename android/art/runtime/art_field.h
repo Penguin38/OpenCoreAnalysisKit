@@ -63,22 +63,22 @@ public:
     uint32_t GetDexFieldIndex();
     mirror::DexCache GetDexCache();
     DexFile& GetDexFile();
-    uint32_t GetOffset();
     const char* GetName();
-    uint32_t GetAccessFlags();
+    inline uint32_t GetOffset() { return offset(); }
+    inline uint32_t GetAccessFlags() { return access_flags(); }
 
-    int8_t GetByte(mirror::Object& obj);
-    uint8_t GetBoolean(mirror::Object& obj);
-    uint16_t GetChar(mirror::Object& obj);
-    int16_t GetShort(mirror::Object& obj);
-    int32_t GetInt(mirror::Object& obj);
-    int64_t GetLong(mirror::Object& obj);
-    float GetFloat(mirror::Object& obj);
-    double GetDouble(mirror::Object& obj);
-    uint32_t Get32(mirror::Object& obj);
-    uint64_t Get64(mirror::Object& obj);
-    uint32_t GetObj(mirror::Object& obj);
-    uint32_t GetObject(mirror::Object& obj);
+    inline int8_t GetByte(mirror::Object& obj) { return *reinterpret_cast<uint8_t *>(obj.Real() + offset()); }
+    inline uint8_t GetBoolean(mirror::Object& obj) { return *reinterpret_cast<uint8_t *>(obj.Real() + offset()); }
+    inline uint16_t GetChar(mirror::Object& obj) { return *reinterpret_cast<uint16_t *>(obj.Real() + offset()); }
+    inline int16_t GetShort(mirror::Object& obj) { return *reinterpret_cast<uint16_t *>(obj.Real() + offset()); }
+    inline int32_t GetInt(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
+    inline int64_t GetLong(mirror::Object& obj) { return *reinterpret_cast<uint64_t *>(obj.Real() + offset()); }
+    inline float GetFloat(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
+    inline double GetDouble(mirror::Object& obj) { return *reinterpret_cast<uint64_t *>(obj.Real() + offset()); }
+    inline uint32_t Get32(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
+    inline uint64_t Get64(mirror::Object& obj) { return *reinterpret_cast<uint64_t *>(obj.Real() + offset()); }
+    inline uint32_t GetObj(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
+    inline uint32_t GetObject(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
 
 private:
     // quick memoryref cache

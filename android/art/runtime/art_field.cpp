@@ -75,10 +75,6 @@ DexFile& ArtField::GetDexFile() {
     return dex_file_cache;
 }
 
-uint32_t ArtField::GetOffset() {
-    return offset();
-}
-
 const char* ArtField::GetName() {
     int32_t field_index = GetDexFieldIndex();
     if (IsProxyField()) {
@@ -87,58 +83,6 @@ const char* ArtField::GetName() {
     DexFile& dex_file = GetDexFile();
     dex::FieldId id = dex_file.GetFieldId(field_index);
     return dex_file.GetFieldName(id);
-}
-
-uint32_t ArtField::GetAccessFlags() {
-    return access_flags();
-}
-
-int8_t ArtField::GetByte(mirror::Object& obj) {
-    return *reinterpret_cast<uint8_t *>(obj.Real() + offset());
-}
-
-uint8_t ArtField::GetBoolean(mirror::Object& obj) {
-    return *reinterpret_cast<uint8_t *>(obj.Real() + offset());
-}
-
-uint16_t ArtField::GetChar(mirror::Object& obj) {
-    return *reinterpret_cast<uint16_t *>(obj.Real() + offset());
-}
-
-int16_t ArtField::GetShort(mirror::Object& obj) {
-    return *reinterpret_cast<uint16_t *>(obj.Real() + offset());
-}
-
-int32_t ArtField::GetInt(mirror::Object& obj) {
-    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
-}
-
-int64_t ArtField::GetLong(mirror::Object& obj) {
-    return *reinterpret_cast<uint64_t *>(obj.Real() + offset());
-}
-
-float ArtField::GetFloat(mirror::Object& obj) {
-    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
-}
-
-double ArtField::GetDouble(mirror::Object& obj) {
-    return *reinterpret_cast<uint64_t *>(obj.Real() + offset());
-}
-
-uint32_t ArtField::Get32(mirror::Object& obj) {
-    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
-}
-
-uint64_t ArtField::Get64(mirror::Object& obj) {
-    return *reinterpret_cast<uint64_t *>(obj.Real() + offset());
-}
-
-uint32_t ArtField::GetObj(mirror::Object& obj) {
-    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
-}
-
-uint32_t ArtField::GetObject(mirror::Object& obj) {
-    return *reinterpret_cast<uint32_t *>(obj.Real() + offset());
 }
 
 } // namespace art
