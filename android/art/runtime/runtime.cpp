@@ -76,7 +76,17 @@ void Runtime::Init29() {
             .jit_ = 504,
         };
     } else {
-        //TODO
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
+            .heap_ = 240,
+            .thread_list_ = 272,
+            .class_linker_ = 280,
+            .java_vm_ = 288,
+            .jit_ = 292,
+        };
     }
 }
 

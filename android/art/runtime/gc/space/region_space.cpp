@@ -62,7 +62,11 @@ void RegionSpace::Init29() {
             .mark_bitmap_ = 352,
         };
     } else {
-        //TODO
+        __RegionSpace_offset__ = {
+            .num_regions_ = 128,
+            .regions_ = 144,
+            .mark_bitmap_ = 200,
+        };
     }
 }
 

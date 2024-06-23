@@ -117,7 +117,17 @@ void Thread::tls_ptr_sized_values::Init26() {
             .pthread_self = 216,
         };
     } else {
-        //TODO
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
+            .name = 104,
+            .pthread_self = 108,
+        };
     }
 }
 

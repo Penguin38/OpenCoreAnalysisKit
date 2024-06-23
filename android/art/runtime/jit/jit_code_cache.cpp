@@ -79,7 +79,12 @@ void JitCodeCache::Init29() {
             .zygote_exec_pages_ = 1008,
         };
     } else {
-        //TODO
+        __JitCodeCache_offset__ = {
+            .exec_pages_ = 88,
+            .jni_stubs_map_ = 180,
+            .method_code_map_ = 192,
+            .zygote_exec_pages_ = 624,
+        };
     }
 }
 

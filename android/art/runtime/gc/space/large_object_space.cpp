@@ -70,7 +70,18 @@ void LargeObjectSpace::Init29() {
             .THIS = 152,
         };
     } else {
-        //TODO
+        __LargeObjectSpace_offset__ = {
+            .num_bytes_allocated_ = 64,
+            .num_objects_allocated_ = 72,
+            .total_bytes_allocated_ = 80,
+            .total_objects_allocated_ = 88,
+            .begin_ = 96,
+            .end_ = 100,
+        };
+
+        __LargeObjectSpace_size__ = {
+            .THIS = 104,
+        };
     }
 }
 
@@ -144,7 +155,13 @@ void LargeObjectMapSpace::Init29() {
             .THIS = 176,
         };
     } else {
-        //TODO
+        __LargeObjectMapSpace_offset__ = {
+            .large_objects_ = 104,
+        };
+
+        __LargeObjectMapSpace_size__ = {
+            .THIS = 116,
+        };
     }
 }
 
