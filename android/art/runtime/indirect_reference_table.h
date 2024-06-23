@@ -83,7 +83,7 @@ public:
     static void Init34();
     inline uint32_t segment_state() { return value32Of(OFFSET(IndirectReferenceTable, segment_state_)); }
     inline uint64_t table_mem_map() { return Ptr() + OFFSET(IndirectReferenceTable, table_mem_map_); }
-    inline uint64_t table_mem_map_v28() { return VALUEOF(IndirectReferenceTable, table_mem_map_); }
+    inline uint64_t table_mem_map_lv28() { return VALUEOF(IndirectReferenceTable, table_mem_map_); }
     inline uint64_t table() { return VALUEOF(IndirectReferenceTable, table_); }
     inline uint64_t top_index() { return VALUEOF(IndirectReferenceTable, top_index_); }
 

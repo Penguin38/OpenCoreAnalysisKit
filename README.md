@@ -27,7 +27,7 @@ export ANDROID_NDK=<path-to>
 |Android-8(26) |   √   |  ×   |   √    |   ×  |    √    |
 |Android-8.1(27) |   -   |  -   |   -    |   -  |    -    |
 |Android-9(28) |   √   |  ×   |   √    |   ×  |    √    |
-|Android-10(29) |   √   |  ×   |   √    |   ×  |    √    |
+|Android-10(29) |   √   |  √   |   √    |   √  |    √    |
 |Android-11(30) |   √   |  √   |   √    |   √  |    √    |
 |Android-12(31) |   √   |  √   |   √    |   √  |    √    |
 |Android-12L(32) |   √   |  √   |   √    |   √  |    √    |

@@ -50,7 +50,11 @@ void RegionSpace::Init28() {
             .mark_bitmap_ = 312,
         };
     } else {
-        //TODO
+        __RegionSpace_offset__ = {
+            .num_regions_ = 100,
+            .regions_ = 116,
+            .mark_bitmap_ = 172,
+        };
     }
 }
 
@@ -123,7 +127,24 @@ void RegionSpace::Region::Init26() {
             .THIS = 80,
         };
     } else {
-        //TODO
+        __Region_offset__ = {
+            .idx_ = 0,
+            .live_bytes_ = 28,
+            .begin_ = 4,
+            .thread_ = 36,
+            .top_ = 8,
+            .end_ = 12,
+            .objects_allocated_ = 20,
+            .alloc_time_ = 24,
+            .is_newly_allocated_ = 32,
+            .is_a_tlab_ = 33,
+            .state_ = 16,
+            .type_ = 17,
+        };
+
+        __Region_size__ = {
+            .THIS = 40,
+        };
     }
 }
 

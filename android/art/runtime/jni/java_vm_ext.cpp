@@ -34,7 +34,10 @@ void JavaVMExt::Init28() {
             .weak_globals_ = 136,
         };
     } else {
-        //TODO
+        __JavaVMExt_offset__ = {
+            .globals_ = 32,
+            .weak_globals_ = 72,
+        };
     }
 }
 
