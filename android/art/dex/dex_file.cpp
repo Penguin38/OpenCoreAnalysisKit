@@ -501,6 +501,13 @@ const char* DexFile::GetMethodReturnTypeDescriptor(dex::MethodId& method_id, con
     return GetTypeDescriptor(return_type_id);
 }
 
+const char* DexFile::GetMethodShorty(dex::MethodId& method_id, uint32_t* length) {
+    dex::ProtoIndex idx(method_id.proto_idx());
+    dex::ProtoId pid = GetProtoId(idx);
+    dex::StringIndex sidx(pid.shorty_idx());
+    return StringDataAndUtf16LengthByIdx(sidx, length);
+}
+
 void DexFile::dumpReason(uint64_t vaddr) {
     if (Logger::IsDebug()) {
         File* file = CoreApi::FindFile(vaddr);

@@ -31,6 +31,7 @@
 #include "runtime/vdex_file.h"
 #include "runtime/managed_stack.h"
 #include "runtime/oat_quick_method_header.h"
+#include "runtime/handle_scope.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -209,6 +210,7 @@ void Android::preLoad() {
     art::ShadowFrame::Init();
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();
+    art::HandleScope::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();

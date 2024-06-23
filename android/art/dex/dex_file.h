@@ -129,6 +129,7 @@ public:
     OatDexFile& GetOatDexFile();
     inline bool IsCompactDexFile() { return !!is_compact_dex(); }
     inline bool IsStandardDexFile() { return !is_compact_dex(); }
+    const char* GetMethodShorty(dex::MethodId& method_id, uint32_t* length);
     void dumpReason(uint64_t vaddr);
 private:
     // quick memoryref cache

@@ -225,4 +225,5 @@ void MethodCommand::usage() {
     LOGI("    --binary|-b: show ArtMethod memory\n");
     LOGI("    --inst|-i: show instpc byte code\n");
     LOGI("    --num|-n: maxline num\n");
+    LOGI("    --verbaose|-v: more info\n");
 }

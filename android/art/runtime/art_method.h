@@ -425,6 +425,11 @@ public:
     uint32_t EntryPointFromQuickCompiledCodeOffset(uint32_t pointer_size);
     uint64_t GetNativePointer(uint32_t offset, uint32_t pointer_size);
     OatQuickMethodHeader GetOatQuickMethodHeader(uint64_t pc);
+    inline const char* GetShorty() {
+        uint32_t unused_length;
+        return GetShorty(&unused_length);
+    }
+    const char* GetShorty(uint32_t* out_length);
 private:
     // quick memoryref cache
     mirror::Class declaring_class_cache = 0x0;

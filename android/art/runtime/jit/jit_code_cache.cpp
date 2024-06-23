@@ -73,10 +73,10 @@ void JitCodeCache::Init28() {
 void JitCodeCache::Init29() {
     if (CoreApi::Bits() == 64) {
         __JitCodeCache_offset__ = {
-            .exec_pages_ = 8,
-            .jni_stubs_map_ = 8,
-            .method_code_map_ = 8,
-            .zygote_exec_pages_ = 8,
+            .exec_pages_ = 90,
+            .jni_stubs_map_ = 312,
+            .method_code_map_ = 336,
+            .zygote_exec_pages_ = 1008,
         };
     } else {
         //TODO

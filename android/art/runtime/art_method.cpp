@@ -397,4 +397,10 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     return method_header;
 }
 
+const char* ArtMethod::GetShorty(uint32_t* out_length) {
+    DexFile& dex_file = GetDexFile();
+    dex::MethodId method_id = dex_file.GetMethodId(GetDexMethodIndex());
+    return dex_file.GetMethodShorty(method_id, out_length);
+}
+
 } //namespace art
