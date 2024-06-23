@@ -40,7 +40,17 @@ void Runtime::Init26() {
             .jit_ = 512,
         };
     } else {
-        //TODO
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 40,
+            .imt_conflict_method_ = 48,
+            .imt_unimplemented_method_ = 56,
+            .heap_ = 244,
+            .thread_list_ = 276,
+            .class_linker_ = 284,
+            .java_vm_ = 304,
+            .jit_ = 308,
+        };
     }
 }
 

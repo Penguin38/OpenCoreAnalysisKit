@@ -247,7 +247,7 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::gc::space::LargeObjectSpace::Init26);
     RegisterSdkListener(O, art::gc::space::LargeObjectMapSpace::Init26);
     RegisterSdkListener(O, art::gc::space::BumpPointerSpace::Init26);
-    RegisterSdkListener(O, art::JavaVMExt::Init28);
+    RegisterSdkListener(O, art::JavaVMExt::Init26);
     RegisterSdkListener(O, art::IndirectReferenceTable::Init26);
     RegisterSdkListener(O, art::ClassLinker::Init26);
     RegisterSdkListener(O, art::ClassLinker::DexCacheData::Init26);
@@ -266,7 +266,6 @@ void Android::preLoad() {
     RegisterSdkListener(P, art::ImageHeader::Init28);
     RegisterSdkListener(P, art::gc::space::RegionSpace::Init28);
     RegisterSdkListener(P, art::gc::space::LargeObjectMapSpace::Init28);
-    RegisterSdkListener(P, art::JavaVMExt::Init28);
     RegisterSdkListener(P, art::ClassLinker::Init28);
     RegisterSdkListener(P, art::ClassLinker::DexCacheData::Init28);
     RegisterSdkListener(P, art::ArtMethod::Init28);

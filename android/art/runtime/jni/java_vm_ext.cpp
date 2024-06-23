@@ -27,7 +27,7 @@ struct JavaVMExt_SizeTable __JavaVMExt_size__;
 
 namespace art {
 
-void JavaVMExt::Init28() {
+void JavaVMExt::Init26() {
     if (CoreApi::Bits() == 64) {
         __JavaVMExt_offset__ = {
             .globals_ = 64,
