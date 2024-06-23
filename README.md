@@ -20,6 +20,20 @@ https://github.com/android/ndk/wiki/Unsupported-Downloads
 export ANDROID_NDK=<path-to>
 ./build.sh $ANDROID_NDK
 ```
+# Compatible
+
+| sdk          | arm64 | arm  | x86_64 | x86  | riscv64 |
+|:------------:|:-----:|:----:|:------:|:----:|:-------:|
+|Android-8(26) |   √   |  ×   |   √    |   ×  |    √    |
+|Android-8.1(27) |   -   |  -   |   -    |   -  |    -    |
+|Android-9(28) |   √   |  ×   |   √    |   ×  |    √    |
+|Android-10(29) |   √   |  ×   |   √    |   ×  |    √    |
+|Android-11(30) |   √   |  √   |   √    |   √  |    √    |
+|Android-12(31) |   √   |  √   |   √    |   √  |    √    |
+|Android-12L(32) |   √   |  √   |   √    |   √  |    √    |
+|Android-13(33) |   √   |  √   |   √    |   √  |    √    |
+|Android-14(34) |   √   |  √   |   √    |   √  |    √    |
+|Android-15(35) |   √   |  -   |   √    |   -  |    √    |
 
 # Usage
 Emulator version:
@@ -78,12 +92,13 @@ core-parser>
 
 ```
 core-parser> help
-        core          exec       sysroot          mmap          auxv
-        file           map          read         write      register
-      thread       getprop         print         hprof        search
-       class           top         space           dex        method
-         env         shell          help        remote          fake
-        time       version          quit
+        core          exec       sysroot          mmap          auxv  
+        file           map          read         write      register  
+      thread     backtrace         frame       getprop         print  
+       hprof        search         class           top         space  
+         dex        method           env         shell        plugin  
+        help        remote          fake          time       version  
+        quit
 ```
 
 ```
@@ -319,8 +334,11 @@ Mmap segment [75d9a3fa8000, 75d9a4975000) /system/framework/framework.jar [11a80
 
 ```
 core-parser> help wd
-Usage: write|wd <Address> <Value>
-core-parser> wd 75d9a3fa8000 0x0
+Usage: write|wd <Address> <Option>
+Option:
+    --string|-s <STRING>:
+    --value|-v <VALUE>:
+core-parser> wd 75d9a3fa8000 -v 0x0
 New overlay [75d9a3fa8000, 75d9a4975000)
 ```
 
@@ -388,13 +406,13 @@ core-parser> bt
   rdi 0x000070ee11c58db0  rsi 0x0000000000000080
   rbp 0x000070ee11c58db0  rsp 0x000070ed38e4e748  rip 0x000070f053bd3dc8  flags 0x0000000000000246
   ds 0x00000000  es 0x00000000  fs 0x00000000  gs 0x00000000  cs 0x00000033  ss 0x0000002b
-  Java: #0  0000000000000000  dalvik.system.VMRuntime.runHeapTasks()
-  Java: #1  000070ed9f07bea6  java.lang.Daemons$HeapTaskDaemon.runInternal()
-  Java: #2  000070ed9f07b4f2  java.lang.Daemons$Daemon.run()
-  Java: #3  000070ed9f1d1740  java.lang.Thread.run()
+  JavaKt: #0  0000000000000000  dalvik.system.VMRuntime.runHeapTasks()
+  JavaKt: #1  000070ed9f07bea6  java.lang.Daemons$HeapTaskDaemon.runInternal()
+  JavaKt: #2  000070ed9f07b4f2  java.lang.Daemons$Daemon.run()
+  JavaKt: #3  000070ed9f1d1740  java.lang.Thread.run()
 
 core-parser> f 3
-  Java: #3  000070ed9f1d1740  java.lang.Thread.run()
+  JavaKt: #3  000070ed9f1d1740  java.lang.Thread.run()
   {
       art::ArtMethod: 0x7011b230
       shadow_frame: 0x0
@@ -410,9 +428,78 @@ core-parser> f 3
       {
           v0 = 0x701b1058    v1 = 0x12c11530
       }
+
+      OAT CODE:
       {
           rbx = 0x000070ed38e4ea98    rbp = 0x000070ed9f1d1740    r12 = 0x000070ed38e4ea18    r13 = 0x000070ed9f960a80
           r14 = 0x000070ed38e4ea10    r15 = 0x000070ed9f96a7e6
       }
   }
+```
+
+```
+core-parser> help remote
+Usage: remote <COMMAND> [option] ...
+Command:
+    core  hook  rd  wd
+    pause
+
+Usage: remote core -p <PID> -m <MACHINE> [Option]...
+Option:
+   --pid|-p <PID>
+   --dir|-d <DIR>
+   --machine|-m <Machine>
+Machine:
+     { arm64, arm, x86_64, x86, riscv64 }
+   --output|-o <COREFILE>
+   --filter|-f <Filter>
+Filter:
+     0x01: filter-special-vma
+     0x02: filter-file-vma
+     0x04: filter-shared-vma
+     0x08: filter-sanitizer-shadow-vma
+     0x10: filter-non-read-vma
+
+remote rd -p <PID> <BEGIN> -e <END>
+remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>
+remote pause <PID ...> [-a]
+
+core-parser> remote core -p 1 -m x86_64 -d /data -f 0x18
+Coredump /data/core.init_1_1718900269 ...
+Finish done.
+core-parser> core /data/core.init_1_1718900269
+Core load (0x7256f0c21090) /data/core.init_1_1718900269
+Core env: /data/core.init_1_1718900269
+  * Machine: x86_64
+  * Bits: 64
+  * PointSize: 8
+  * PointMask: 0xffffffffffffffff
+  * VabitsMask: 0xffffffffffffffff
+  * Thread: 1
+  ...
+```
+
+```
+core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo
+core-parser> remote rd -p 1 7fb989794000 -e 7fb989794030
+7fb989794000: 4c6e6975676e6550  0000006f47737465  PenguinLetsGo...
+7fb989794010: 00000001003e0003  0000000000068ab0  ..>.............
+7fb989794020: 0000000000000040  0000000000198c20  @...............
+```
+
+```
+core-parser> help fake
+Usage: fake <COMMAND> [option] ...
+Command:
+    core  map
+
+Usage: fake core <Option> ...
+Option:
+   --tomb|-t <TOMBSTONE>
+   --restore|-r: rebuild current environment core.
+   --output|-o <COREFILE>
+
+Usage: fake map
+
+core-parser> fake core -r -o fake.core
 ```
