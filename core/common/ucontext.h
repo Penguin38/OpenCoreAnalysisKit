@@ -54,7 +54,13 @@ struct ucontext {
     uint64_t uc_flags;
     uint64_t uc_link;
     struct lp64::stack_t  uc_stack;
-    uint64_t uc_sigmask;
+    union {
+        struct {
+            uint32_t uc_sigmask;
+            uint32_t __padding_rt_sigset;
+        };
+        uint64_t uc_sigmask64;
+    };
     uint8_t  __reserved[120];
     struct mcontext uc_mcontext;
 };
@@ -138,12 +144,43 @@ struct mcontext {
     uint64_t reserved1[8];
 };
 
+struct _libc_fpxreg {
+    uint16_t significand[4];
+    uint16_t exponent;
+    uint16_t padding[3];
+};
+
+struct _libc_xmmreg {
+    uint32_t element[4];
+};
+
+struct _libc_fpstate {
+    uint16_t cwd;
+    uint16_t swd;
+    uint16_t ftw;
+    uint16_t fop;
+    uint64_t rip;
+    uint64_t rdp;
+    uint32_t mxcsr;
+    uint32_t mxcr_mask;
+    struct _libc_fpxreg _st[8];
+    struct _libc_xmmreg xmm[16];
+    uint32_t padding[24];
+};
+
 struct ucontext {
     uint64_t uc_flags;
     uint64_t uc_link;
     struct lp64::stack_t uc_stack;
     struct mcontext uc_mcontext;
-    uint64_t uc_sigmask;
+    union {
+        struct {
+            uint32_t uc_sigmask;
+            uint32_t __padding_rt_sigset;
+        };
+        uint64_t uc_sigmask64;
+    };
+    struct _libc_fpstate __fpregs_mem;
 };
 
 } // namespace x86_64
@@ -175,12 +212,36 @@ struct mcontext {
     uint32_t cr2;
 };
 
+struct _libc_fpreg {
+    uint16_t significand[4];
+    uint16_t exponent;
+};
+
+struct _libc_fpstate {
+    uint32_t cw;
+    uint32_t sw;
+    uint32_t tag;
+    uint32_t ipoff;
+    uint32_t cssel;
+    uint32_t dataoff;
+    uint32_t datasel;
+    struct _libc_fpreg _st[8];
+    uint32_t status;
+};
+
 struct ucontext {
     uint32_t uc_flags;
     uint32_t uc_link;
     struct lp32::stack_t uc_stack;
     struct mcontext uc_mcontext;
-    uint32_t uc_sigmask;
+    union {
+        struct {
+            uint32_t uc_sigmask;
+            uint32_t __padding_rt_sigset;
+        };
+        uint64_t uc_sigmask64;
+    };
+    struct _libc_fpstate __fpregs_mem;
 };
 
 } // namespace x86
@@ -246,7 +307,13 @@ struct ucontext {
     uint64_t uc_flags;
     uint64_t uc_link;
     struct lp64::stack_t  uc_stack;
-    uint64_t uc_sigmask;
+    union {
+        struct {
+            uint32_t uc_sigmask;
+            uint32_t __padding_rt_sigset;
+        };
+        uint64_t uc_sigmask64;
+    };
     uint8_t  __reserved[120];
     struct mcontext uc_mcontext;
 };

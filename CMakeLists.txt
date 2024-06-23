@@ -52,9 +52,13 @@ add_library(core STATIC
             core/arm64/core.cpp
             core/arm64/unwind.cpp
             core/arm/core.cpp
+            core/arm/unwind.cpp
             core/riscv64/core.cpp
+            core/riscv64/unwind.cpp
             core/x86_64/core.cpp
+            core/x86_64/unwind.cpp
             core/x86/core.cpp
+            core/x86/unwind.cpp
             core/common/note_block.cpp
             core/common/load_block.cpp
             core/common/link_map.cpp

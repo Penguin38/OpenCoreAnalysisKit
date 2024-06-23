@@ -26,7 +26,8 @@ namespace api {
 
 class UnwindStack {
 public:
-    UnwindStack(ThreadApi* thread) : thread_(thread) {}
+    UnwindStack(ThreadApi* thread) : thread_(thread),
+        cur_uc_(0), cur_num_(0), uc_num_(-1) {}
     std::vector<std::unique_ptr<NativeFrame>>& GetNativeFrames() { return native_frames_; }
     ThreadApi* GetThread() { return thread_; }
     virtual ~UnwindStack() { native_frames_.clear(); }

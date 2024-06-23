@@ -17,6 +17,10 @@
 #include "api/core.h"
 #include "api/unwind.h"
 #include "arm64/unwind.h"
+#include "arm/unwind.h"
+#include "x86/unwind.h"
+#include "x86_64/unwind.h"
+#include "riscv64/unwind.h"
 #include "common/elf.h"
 
 namespace api {
@@ -35,15 +39,19 @@ std::unique_ptr<UnwindStack> UnwindStack::MakeUnwindStack(ThreadApi* thread) {
     int machine = CoreApi::GetMachine();
     switch (machine) {
         case EM_386:
+            unwind = std::make_unique<x86::UnwindStack>(thread);
             break;
         case EM_X86_64:
+            unwind = std::make_unique<x86_64::UnwindStack>(thread);
             break;
         case EM_ARM:
+            unwind = std::make_unique<arm::UnwindStack>(thread);
             break;
         case EM_AARCH64:
             unwind = std::make_unique<arm64::UnwindStack>(thread);
             break;
         case EM_RISCV:
+            unwind = std::make_unique<riscv64::UnwindStack>(thread);
             break;
     }
     return std::move(unwind);

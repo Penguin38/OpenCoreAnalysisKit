@@ -63,9 +63,6 @@ uint64_t UnwindStack::GetUContext() {
 void UnwindStack::WalkStack() {
     ThreadInfo* thread = reinterpret_cast<ThreadInfo*>(GetThread());
     Register& regs = thread->GetRegs();
-    cur_uc_ = 0x0;
-    cur_num_ = 0;
-    uc_num_ = -1;
     FpBacktrace(regs);
 
     api::MemoryRef uc = GetUContext();
