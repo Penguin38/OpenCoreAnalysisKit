@@ -270,6 +270,7 @@ void Android::preLoad() {
     RegisterSdkListener(P, art::ClassLinker::DexCacheData::Init28);
     RegisterSdkListener(P, art::ArtMethod::Init28);
     RegisterSdkListener(P, art::ArtMethod::PtrSizedFields::Init28);
+    RegisterSdkListener(P, art::jit::Jit::Init28);
     RegisterSdkListener(P, art::jit::JitCodeCache::Init28);
     RegisterSdkListener(P, art::jit::JitCodeCache::JniStubData::Init28);
     RegisterSdkListener(P, art::jit::JitCodeCache::JniStubsMapPair::Init28);

@@ -37,6 +37,7 @@ public:
     Jit(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init26();
+    static void Init28();
     static void Init29();
     inline uint64_t code_cache() { return VALUEOF(Jit, code_cache_); }
 

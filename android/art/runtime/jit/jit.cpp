@@ -34,6 +34,18 @@ void Jit::Init26() {
     }
 }
 
+void Jit::Init28() {
+    if (CoreApi::Bits() == 64) {
+        __Jit_offset__ = {
+            .code_cache_ = 352,
+        };
+    } else {
+        __Jit_offset__ = {
+            .code_cache_ = 240,
+        };
+    }
+}
+
 void Jit::Init29() {
     if (CoreApi::Bits() == 64) {
         __Jit_offset__ = {
