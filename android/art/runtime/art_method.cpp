@@ -238,6 +238,18 @@ std::string ArtMethod::PrettyMethodOnlyNP() {
     return GetRuntimeMethodName();
 }
 
+std::string ArtMethod::PrettyMethodSimple() {
+    std::string result;
+    uint32_t dex_method_idx = GetDexMethodIndex();
+    if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
+        result.append(GetDeclaringClass().PrettyDescriptor());
+        result.append(".");
+        result.append(GetName());
+        return result;
+    }
+    return GetRuntimeMethodName();
+}
+
 bool ArtMethod::HasCodeItem() {
     uint32_t access_flags = GetAccessFlags();
     bool status_flag = !IsNative(access_flags) &&

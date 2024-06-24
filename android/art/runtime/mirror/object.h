@@ -75,6 +75,8 @@ public:
     bool IsDexCache();
     uint64_t SizeOf();
     bool IsValid();
+    uint32_t GetLockWord();
+    uint32_t GetLockOwnerThreadId();
 private:
     // quick memoryref cache
     api::MemoryRef klass_cache = 0x0;

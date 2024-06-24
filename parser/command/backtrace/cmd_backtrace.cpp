@@ -24,6 +24,8 @@
 #include "command/backtrace/cmd_backtrace.h"
 #include "runtime/thread_list.h"
 #include "runtime/stack.h"
+#include "runtime/monitor.h"
+#include "android.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <memory>
@@ -34,19 +36,24 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
 
     int pid = Env::CurrentPid();
     dump_all = false;
+    dump_detail = false;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
         {"all",    no_argument,       0,  'a'},
+        {"detail", no_argument,       0,  'd'},
     };
 
-    while ((opt = getopt_long(argc, (char* const*)argv, "a",
+    while ((opt = getopt_long(argc, (char* const*)argv, "ad",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'a':
                 dump_all = true;
+                break;
+            case 'd':
+                dump_detail = true;
                 break;
         }
     }
@@ -136,8 +143,10 @@ void BacktraceCommand::DumpTrace() {
         if (needEnd) LOGI("\n");
 #if defined(__AOSP_PARSER__)
         if (record->thread) {
-            art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
-            thread->DumpState();
+            try {
+                art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
+                thread->DumpState();
+            } catch(InvalidAddressException e) {}
         } else {
             LOGI("Thread(\"%d\") %s\n", record->pid, art::Runtime::Current().Ptr() ? "NotAttachJVM" : "");
         }
@@ -180,6 +189,92 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
     }
 }
 
+static void PrintObject(art::mirror::Object& obj, const char* msg, uint32_t owner_tid) {
+    std::string msg_buf;
+    msg_buf.append(msg);
+    if (!obj.Ptr()) {
+        msg_buf.append("an unknown object");
+    } else {
+        msg_buf.append("<");
+        msg_buf.append(Utils::ToHex(obj.Ptr()));
+        msg_buf.append("> (");
+        if (obj.IsClass()) {
+            msg_buf.append("a java.lang.Class<");
+            art::mirror::Class klass = obj;
+            msg_buf.append(klass.PrettyDescriptor());
+            msg_buf.append(">");
+        } else {
+            art::mirror::Class klass = obj.GetClass();
+            msg_buf.append("a ");
+            msg_buf.append(klass.PrettyDescriptor());
+        }
+        msg_buf.append(")");
+    }
+
+    if (owner_tid != art::ThreadList::kInvalidThreadId) {
+        art::Runtime& runtime = art::Runtime::Current();
+        art::Thread* owner = runtime.GetThreadList().FindThreadByThreadId(owner_tid);
+        msg_buf.append(" held by thread ");
+        if (owner) {
+            msg_buf.append("sysTid=");
+            msg_buf.append(std::to_string(owner->GetTid()));
+        } else {
+            msg_buf.append("tid=");
+            msg_buf.append(std::to_string(owner_tid));
+        }
+    }
+    LOGI("%s\n", msg_buf.c_str());
+}
+
+static void VisitWaitingObject(art::mirror::Object& obj, art::ThreadState) {
+    PrintObject(obj, "  - waiting on ", art::ThreadList::kInvalidThreadId);
+}
+
+static void VisitSleepingObject(art::mirror::Object& obj) {
+    PrintObject(obj, "  - sleeping on ", art::ThreadList::kInvalidThreadId);
+}
+
+static void VisitBlockedOnObject(art::mirror::Object& obj, art::ThreadState state, uint32_t owner_tid) {
+    std::string msg;
+    switch (state) {
+        case art::ThreadState::kBlocked:
+            msg.append("  - waiting to lock ");
+            break;
+
+        case art::ThreadState::kWaitingForLockInflation:
+            msg.append("  - waiting for lock inflation of ");
+            break;
+        default:
+            break;
+    }
+    PrintObject(obj, msg.c_str(), owner_tid);
+}
+
+static void DumpJavaFrameState(const char* prefix, art::Thread* thread, art::JavaFrame* java_frame) {
+    if (Android::Sdk() < Android::R)
+        return;
+
+    art::mirror::Object monitor_object = 0x0;
+    uint32_t lock_owner_tid;
+    art::ThreadState state = art::Monitor::FetchState(thread, &monitor_object, &lock_owner_tid);
+    switch (state) {
+        case art::ThreadState::kWaiting:
+        case art::ThreadState::kTimedWaiting:
+            VisitWaitingObject(monitor_object, state);
+            break;
+        case art::ThreadState::kSleeping:
+            VisitSleepingObject(monitor_object);
+            break;
+
+        case art::ThreadState::kBlocked:
+        case art::ThreadState::kWaitingForLockInflation:
+            VisitBlockedOnObject(monitor_object, state, lock_owner_tid);
+            break;
+        default:
+            break;
+    }
+}
+
 void BacktraceCommand::DumpJavaStack(void *th) {
     if (!th) return;
 
@@ -190,7 +285,10 @@ void BacktraceCommand::DumpJavaStack(void *th) {
     std::string format = FormatJavaFrame("  ", visitor.GetJavaFrames().size());
     uint32_t frameid = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
-        LOGI(format.c_str(), frameid, java_frame->GetDexPcPtr(), java_frame->GetMethod().PrettyMethodOnlyNP().c_str());
+        LOGI(format.c_str(), frameid, java_frame->GetDexPcPtr(),
+             dump_detail ? java_frame->GetMethod().PrettyMethodOnlyNP().c_str()
+                         : java_frame->GetMethod().PrettyMethodSimple().c_str());
+        if (!frameid) DumpJavaFrameState("  ", thread, java_frame.get());
         ++frameid;
     }
 }
@@ -232,4 +330,8 @@ std::string BacktraceCommand::FormatNativeFrame(const char* prefix, uint64_t siz
 }
 
 void BacktraceCommand::usage() {
+    LOGI("Usage: backtrace|bt [PID..] [option..]\n");
+    LOGI("Option:\n");
+    LOGI("    --all|-a: show thread stack.\n");
+    LOGI("    --detail|-d: show more info.\n");
 }

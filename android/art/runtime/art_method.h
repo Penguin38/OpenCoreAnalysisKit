@@ -418,6 +418,7 @@ public:
     std::string PrettyParameters();
     std::string PrettyMethod();
     std::string PrettyMethodOnlyNP();
+    std::string PrettyMethodSimple();
     bool HasCodeItem();
     dex::CodeItem GetCodeItem();
     uint64_t GetEntryPointFromQuickCompiledCode();

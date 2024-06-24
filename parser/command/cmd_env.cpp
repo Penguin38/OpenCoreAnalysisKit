@@ -174,6 +174,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
         LOGI("  *     continuous_spaces_: 0x%lx\n", runtime.GetHeap().GetContinuousSpacesCache().Ptr());
         LOGI("  *     discontinuous_spaces_: 0x%lx\n", runtime.GetHeap().GetDiscontinuousSpacesCache().Ptr());
     }
+    LOGI("  * art::MonitorPool: 0x%lx\n", runtime.GetMonitorPool().Ptr());
     LOGI("  * art::ThreadList: 0x%lx\n", runtime.GetThreadList().Ptr());
     if (runtime.GetThreadList().Ptr()) {
         LOGI("  *     list_: 0x%lx\n", runtime.GetThreadList().GetListCache().Ptr());

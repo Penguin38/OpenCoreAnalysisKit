@@ -34,6 +34,7 @@ void Runtime::Init26() {
             .imt_conflict_method_ = 48,
             .imt_unimplemented_method_ = 56,
             .heap_ = 384,
+            .monitor_pool_ = 440,
             .thread_list_ = 448,
             .class_linker_ = 464,
             .java_vm_ = 504,
@@ -46,6 +47,7 @@ void Runtime::Init26() {
             .imt_conflict_method_ = 48,
             .imt_unimplemented_method_ = 56,
             .heap_ = 244,
+            .monitor_pool_ = 272,
             .thread_list_ = 276,
             .class_linker_ = 284,
             .java_vm_ = 304,
@@ -62,6 +64,7 @@ void Runtime::Init28() {
             .imt_conflict_method_ = 64,
             .imt_unimplemented_method_ = 72,
             .heap_ = 448,
+            .monitor_pool_ = 504,
             .thread_list_ = 512,
             .class_linker_ = 528,
             .java_vm_ = 576,
@@ -74,6 +77,7 @@ void Runtime::Init28() {
             .imt_conflict_method_ = 64,
             .imt_unimplemented_method_ = 72,
             .heap_ = 296,
+            .monitor_pool_ = 324,
             .thread_list_ = 328,
             .class_linker_ = 336,
             .java_vm_ = 360,
@@ -90,6 +94,7 @@ void Runtime::Init29() {
             .imt_conflict_method_ = 72,
             .imt_unimplemented_method_ = 80,
             .heap_ = 400,
+            .monitor_pool_ = 456,
             .thread_list_ = 464,
             .class_linker_ = 480,
             .java_vm_ = 496,
@@ -102,6 +107,7 @@ void Runtime::Init29() {
             .imt_conflict_method_ = 68,
             .imt_unimplemented_method_ = 72,
             .heap_ = 240,
+            .monitor_pool_ = 268,
             .thread_list_ = 272,
             .class_linker_ = 280,
             .java_vm_ = 288,
@@ -118,6 +124,7 @@ void Runtime::Init30() {
             .imt_conflict_method_ = 72,
             .imt_unimplemented_method_ = 80,
             .heap_ = 392,
+            .monitor_pool_ = 448,
             .thread_list_ = 456,
             .class_linker_ = 472,
             .java_vm_ = 496,
@@ -130,6 +137,7 @@ void Runtime::Init30() {
             .imt_conflict_method_ = 68,
             .imt_unimplemented_method_ = 72,
             .heap_ = 236,
+            .monitor_pool_ = 264,
             .thread_list_ = 268,
             .class_linker_ = 276,
             .java_vm_ = 288,
@@ -146,6 +154,7 @@ void Runtime::Init31() {
             .imt_conflict_method_ = 72,
             .imt_unimplemented_method_ = 80,
             .heap_ = 416,
+            .monitor_pool_ = 472,
             .thread_list_ = 480,
             .class_linker_ = 496,
             .java_vm_ = 520,
@@ -158,6 +167,7 @@ void Runtime::Init31() {
             .imt_conflict_method_ = 68,
             .imt_unimplemented_method_ = 72,
             .heap_ = 248,
+            .monitor_pool_ = 276,
             .thread_list_ = 280,
             .class_linker_ = 288,
             .java_vm_ = 300,
@@ -174,6 +184,7 @@ void Runtime::Init33() {
             .imt_conflict_method_ = 72,
             .imt_unimplemented_method_ = 80,
             .heap_ = 512,
+            .monitor_pool_ = 568,
             .thread_list_ = 576,
             .class_linker_ = 592,
             .java_vm_ = 624,
@@ -186,6 +197,7 @@ void Runtime::Init33() {
             .imt_conflict_method_ = 68,
             .imt_unimplemented_method_ = 72,
             .heap_ = 296,
+            .monitor_pool_ = 324,
             .thread_list_ = 328,
             .class_linker_ = 336,
             .java_vm_ = 352,
@@ -202,6 +214,7 @@ void Runtime::Init34() {
             .imt_conflict_method_ = 72,
             .imt_unimplemented_method_ = 80,
             .heap_ = 512,
+            .monitor_pool_ = 576,
             .thread_list_ = 584,
             .class_linker_ = 600,
             .java_vm_ = 632,
@@ -214,6 +227,7 @@ void Runtime::Init34() {
             .imt_conflict_method_ = 68,
             .imt_unimplemented_method_ = 72,
             .heap_ = 296,
+            .monitor_pool_ = 328,
             .thread_list_ = 332,
             .class_linker_ = 340,
             .java_vm_ = 356,
@@ -305,6 +319,15 @@ gc::Heap& Runtime::GetHeap() {
         heap_cache.Prepare(false);
     }
     return heap_cache;
+}
+
+MonitorPool& Runtime::GetMonitorPool() {
+    if (!monitor_pool_cache.Ptr()) {
+        monitor_pool_cache = monitor_pool();
+        monitor_pool_cache.copyRef(this);
+        monitor_pool_cache.Prepare(false);
+    }
+    return monitor_pool_cache;
 }
 
 ThreadList& Runtime::GetThreadList() {

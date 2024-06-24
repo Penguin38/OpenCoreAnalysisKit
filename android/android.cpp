@@ -32,6 +32,9 @@
 #include "runtime/managed_stack.h"
 #include "runtime/oat_quick_method_header.h"
 #include "runtime/handle_scope.h"
+#include "runtime/monitor.h"
+#include "runtime/monitor_pool.h"
+#include "runtime/base/mutex.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -211,6 +214,11 @@ void Android::preLoad() {
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();
     art::HandleScope::Init();
+    art::Monitor::Init();
+    art::MonitorPool::Init();
+    art::BaseMutex::Init();
+    art::Mutex::Init();
+    art::ReaderWriterMutex::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -320,6 +328,7 @@ void Android::preLoad() {
     RegisterSdkListener(TIRAMISU, art::JavaVMExt::Init33);
     RegisterSdkListener(TIRAMISU, art::ClassLinker::DexCacheData::Init33);
     RegisterSdkListener(TIRAMISU, art::IrtEntry::Init33);
+    RegisterSdkListener(TIRAMISU, art::Thread::tls_ptr_sized_values::Init33);
 
     // 34
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Runtime::Init34);

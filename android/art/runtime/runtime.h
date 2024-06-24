@@ -27,6 +27,7 @@
 #include "runtime/base/callee_save_type.h"
 #include "runtime/quick/quick_method_frame_info.h"
 #include "runtime/jit/jit.h"
+#include "runtime/monitor_pool.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
@@ -34,6 +35,7 @@ struct Runtime_OffsetTable {
     uint32_t imt_conflict_method_;
     uint32_t imt_unimplemented_method_;
     uint32_t heap_;
+    uint32_t monitor_pool_;
     uint32_t thread_list_;
     uint32_t class_linker_;
     uint32_t java_vm_;
@@ -73,6 +75,7 @@ public:
     inline uint64_t imt_conflict_method() { return VALUEOF(Runtime, imt_conflict_method_); }
     inline uint64_t imt_unimplemented_method() { return VALUEOF(Runtime, imt_unimplemented_method_); }
     inline uint64_t heap() { return VALUEOF(Runtime, heap_); }
+    inline uint64_t monitor_pool() { return VALUEOF(Runtime, monitor_pool_); }
     inline uint64_t thread_list() { return VALUEOF(Runtime, thread_list_); }
     inline uint64_t class_linker() { return VALUEOF(Runtime, class_linker_); }
     inline uint64_t java_vm() { return VALUEOF(Runtime, java_vm_); }
@@ -80,6 +83,7 @@ public:
 
     static Runtime& Current();
     gc::Heap& GetHeap();
+    MonitorPool& GetMonitorPool();
     ThreadList& GetThreadList();
     ClassLinker& GetClassLinker();
     JavaVMExt& GetJavaVM();
@@ -104,6 +108,7 @@ private:
     ArtMethod imt_conflict_method_cache = 0x0;
     ArtMethod imt_unimplemented_method_cache = 0x0;
     gc::Heap heap_cache = 0x0;
+    MonitorPool monitor_pool_cache = 0x0;
     ThreadList thread_list_cache = 0x0;
     ClassLinker class_linker_cache = 0x0;
     JavaVMExt java_vm_cache = 0x0;

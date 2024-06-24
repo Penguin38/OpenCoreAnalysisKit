@@ -19,6 +19,7 @@
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/array.h"
 #include "runtime/runtime_globals.h"
+#include "runtime/monitor.h"
 #include "common/exception.h"
 #include "base/macros.h"
 
@@ -151,6 +152,14 @@ uint64_t Object::SizeOf() {
         return GetClass().GetObjectSize();
     }
     return 0x0;
+}
+
+uint32_t Object::GetLockWord() {
+    return monitor();
+}
+
+uint32_t Object::GetLockOwnerThreadId() {
+    return Monitor::GetLockOwnerThreadId(*this);
 }
 
 bool Object::IsValid() {

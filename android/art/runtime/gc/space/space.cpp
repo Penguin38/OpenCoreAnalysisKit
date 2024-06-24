@@ -72,9 +72,9 @@ const char* Space::GetName() {
 
 /*
  *          ---------
- * vtbl -> | ~Space |
+ * vtbl -> | ------ |
  *          --------
- *         | ~Space |
+ *         | ------ |
  *          --------    --> machine inst
  *         | GetType| --|
  *          --------

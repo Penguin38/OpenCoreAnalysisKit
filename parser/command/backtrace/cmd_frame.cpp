@@ -74,7 +74,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
     art::Thread* current = nullptr;
     int pid = Env::CurrentPid();
     if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
-        current = art::Runtime::Current().GetThreadList().FindThread(pid);
+        current = art::Runtime::Current().GetThreadList().FindThreadByTid(pid);
     }
 
     if (!current)

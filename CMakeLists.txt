@@ -106,6 +106,11 @@ add_library(android STATIC
             android/art/runtime/nterp_helpers.cpp
             android/art/runtime/java_frame.cpp
             android/art/runtime/handle_scope.cpp
+            android/art/runtime/monitor.cpp
+            android/art/runtime/monitor_pool.cpp
+            android/art/runtime/lock_word.cpp
+
+            android/art/runtime/base/mutex.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp

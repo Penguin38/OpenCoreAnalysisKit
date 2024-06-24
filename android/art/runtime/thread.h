@@ -19,10 +19,13 @@
 
 #include "api/memory_ref.h"
 #include "runtime/thread_state.h"
+#include "runtime/mirror/object.h"
+#include "runtime/base/mutex.h"
 
 struct Thread_OffsetTable {
     uint32_t tls32_;
     uint32_t tlsPtr_;
+    uint32_t wait_monitor_;
 };
 
 struct Thread_SizeTable {
@@ -56,6 +59,7 @@ struct Thread_tls_ptr_sized_values_OffsetTable {
     uint32_t monitor_enter_object;
     uint32_t name;
     uint32_t pthread_self;
+    uint32_t held_mutexes;
 };
 
 struct Thread_tls_ptr_sized_values_SizeTable {
@@ -88,6 +92,7 @@ public:
     static void Init35();
     inline uint64_t tls32() { return Ptr() + OFFSET(Thread, tls32_); }
     inline uint64_t tlsPtr() { return Ptr() + OFFSET(Thread, tlsPtr_); }
+    inline uint64_t wait_monitor() { return VALUEOF(Thread, wait_monitor_); }
 
     class tls_32bit_sized_values : public api::MemoryRef {
     public:
@@ -113,6 +118,7 @@ public:
 
         static void Init26();
         static void Init30();
+        static void Init33();
         static void Init34();
         inline uint64_t stack_end() { return VALUEOF(Thread_tls_ptr_sized_values, stack_end); }
         inline uint64_t managed_stack() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, managed_stack); }
@@ -123,6 +129,7 @@ public:
         inline uint64_t monitor_enter_object() { return VALUEOF(Thread_tls_ptr_sized_values, monitor_enter_object); }
         inline uint64_t name() { return VALUEOF(Thread_tls_ptr_sized_values, name); }
         inline uint64_t pthread_self() { return VALUEOF(Thread_tls_ptr_sized_values, pthread_self); }
+        inline uint64_t held_mutexes() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, held_mutexes); }
     };
 
     tls_32bit_sized_values& GetTls32();
@@ -135,6 +142,9 @@ public:
     uint32_t GetTid();
     const char* GetName();
     void DumpState();
+    uint64_t GetWaitMonitor();
+    mirror::Object GetMonitorEnterObject();
+    BaseMutex GetHeldMutex(uint32_t level);
 private:
     // quick memoryref cache
     tls_32bit_sized_values tls32_cache = 0x0;

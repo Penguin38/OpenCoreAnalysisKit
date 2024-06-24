@@ -54,9 +54,17 @@ bool ThreadList::Contains(int tid) {
     return false;
 }
 
-Thread* ThreadList::FindThread(int tid) {
+Thread* ThreadList::FindThreadByTid(int tid) {
     for (const auto& thread : GetList()) {
         if (thread->GetTid() == tid)
+            return thread.get();
+    }
+    return nullptr;
+}
+
+Thread* ThreadList::FindThreadByThreadId(int id) {
+    for (const auto& thread : GetList()) {
+        if (thread->GetThreadId() == id)
             return thread.get();
     }
     return nullptr;

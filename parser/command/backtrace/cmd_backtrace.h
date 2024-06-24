@@ -87,6 +87,7 @@ public:
     static std::string FormatNativeFrame(const char* prefix, uint64_t size);
 private:
     bool dump_all = false;
+    bool dump_detail = false;
     std::vector<std::unique_ptr<ThreadRecord>> threads;
 };
 

@@ -19,6 +19,7 @@
 #include "cxx/string.h"
 #include "java/lang/Thread.h"
 #include "java/lang/ThreadGroup.h"
+#include <string>
 
 struct Thread_OffsetTable __Thread_offset__;
 struct Thread_SizeTable __Thread_size__;
@@ -51,37 +52,74 @@ void Thread::Init29() {
 }
 
 void Thread::Init30() {
-    __Thread_offset__ = {
-        .tls32_ = 0,
-        .tlsPtr_ = 160,
-    };
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 160,
+            .wait_monitor_ = 6752,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 160,
+            .wait_monitor_ = 3464,
+        };
+    }
 }
 
 void Thread::Init31() {
-    __Thread_offset__ = {
-        .tls32_ = 0,
-        .tlsPtr_ = 152,
-    };
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 152,
+            .wait_monitor_ = 6736,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 152,
+            .wait_monitor_ = 3448,
+        };
+    }
 }
 
 void Thread::Init33() {
-    __Thread_offset__ = {
-        .tls32_ = 0,
-        .tlsPtr_ = 144,
-    };
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 144,
+            .wait_monitor_ = 6720,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 144,
+            .wait_monitor_ = 3432,
+        };
+    }
 }
 
 void Thread::Init34() {
-    __Thread_offset__ = {
-        .tls32_ = 0,
-        .tlsPtr_ = 152,
-    };
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 152,
+            .wait_monitor_ = 6752,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 152,
+            .wait_monitor_ = 3464,
+        };
+    }
 }
 
 void Thread::Init35() {
     __Thread_offset__ = {
         .tls32_ = 0,
         .tlsPtr_ = 144,
+        .wait_monitor_ = 6752,
     };
 }
 
@@ -143,6 +181,7 @@ void Thread::tls_ptr_sized_values::Init30() {
             .monitor_enter_object = 128,
             .name = 192,
             .pthread_self = 200,
+            .held_mutexes = 1808,
         };
     } else {
         __Thread_tls_ptr_sized_values_offset__ = {
@@ -155,6 +194,37 @@ void Thread::tls_ptr_sized_values::Init30() {
             .monitor_enter_object = 64,
             .name = 96,
             .pthread_self = 100,
+            .held_mutexes = 904,
+        };
+    }
+}
+
+void Thread::tls_ptr_sized_values::Init33() {
+    if (CoreApi::Bits() == 64) {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 16,
+            .managed_stack = 24,
+            .self = 72,
+            .opeer = 80,
+            .stack_begin = 96,
+            .stack_size = 104,
+            .monitor_enter_object = 128,
+            .name = 192,
+            .pthread_self = 200,
+            .held_mutexes = 1792,
+        };
+    } else {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
+            .name = 96,
+            .pthread_self = 100,
+            .held_mutexes = 896,
         };
     }
 }
@@ -171,6 +241,7 @@ void Thread::tls_ptr_sized_values::Init34() {
             .monitor_enter_object = 128,
             .name = 184,
             .pthread_self = 192,
+            .held_mutexes = 1808,
         };
     } else {
         __Thread_tls_ptr_sized_values_offset__ = {
@@ -183,6 +254,7 @@ void Thread::tls_ptr_sized_values::Init34() {
             .monitor_enter_object = 64,
             .name = 92,
             .pthread_self = 96,
+            .held_mutexes = 904,
         };
     }
 }
@@ -311,6 +383,19 @@ const char* Thread::GetName() {
     }
 }
 
+uint64_t Thread::GetWaitMonitor() {
+    return wait_monitor();
+}
+
+mirror::Object Thread::GetMonitorEnterObject() {
+    return GetTlsPtr().monitor_enter_object();
+}
+
+BaseMutex Thread::GetHeldMutex(uint32_t level) {
+    api::MemoryRef held_mutexes(GetTlsPtr().held_mutexes(), GetTlsPtr());
+    return held_mutexes.valueOf(CoreApi::GetPointSize() * level);
+}
+
 void Thread::DumpState() {
     LOGI("\"%s\" tid=%d %s\n", GetName(), GetThreadId(), GetStateDescriptor());
     java::lang::Thread self = GetTlsPtr().opeer();
@@ -326,7 +411,24 @@ void Thread::DumpState() {
     LOGI("  | stack=0x%lx-0x%lx stackSize=0x%lx handle=0x%lx\n",
             GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
             GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());
-    LOGI("  | held mutexes=\n");
+    std::string mutexes;
+    if (Android::Sdk() >= Android::R) {
+        for (uint32_t i = 0; i < BaseMutex::kLockLevelCount; ++i) {
+            BaseMutex mutex = GetHeldMutex(i);
+            if (mutex.Ptr()) {
+                mutexes.append(" \"").append(mutex.GetName()).append("\"");;
+                if (mutex.IsReaderWriterMutex()) {
+                    ReaderWriterMutex rw_mutex = mutex;
+                    if (rw_mutex.GetExclusiveOwnerTid() == GetTid()) {
+                        mutexes.append("(exclusive held)");
+                    } else {
+                        mutexes.append("(shared held)");
+                    }
+                }
+            }
+        }
+    }
+    LOGI("  | held mutexes=%s\n", mutexes.c_str());
 }
 
 } //namespace art

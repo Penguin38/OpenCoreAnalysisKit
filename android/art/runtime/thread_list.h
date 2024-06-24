@@ -53,7 +53,8 @@ public:
     cxx::list& GetListCache();
     std::list<std::unique_ptr<Thread>>& GetList();
     bool Contains(int tid);
-    Thread* FindThread(int tid);
+    Thread* FindThreadByTid(int tid);
+    Thread* FindThreadByThreadId(int id);
 
     void CleanCache() { list_second_cache.clear(); }
 private:
