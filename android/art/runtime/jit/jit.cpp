@@ -28,7 +28,9 @@ void Jit::Init26() {
             .code_cache_ = 368,
         };
     } else {
-        //TODO
+        __Jit_offset__ = {
+            .code_cache_ = 248,
+        };
     }
 }
 

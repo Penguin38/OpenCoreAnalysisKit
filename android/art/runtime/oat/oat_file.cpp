@@ -45,6 +45,20 @@ void OatDexFile::Init26() {
     if (CoreApi::Bits() == 64) {
         __OatDexFile_offset__ = {
             .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 80,
+        };
+    } else {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 40,
+        };
+    }
+}
+
+void OatDexFile::Init28() {
+    if (CoreApi::Bits() == 64) {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
             .oat_class_offsets_pointer_ = 104,
         };
     } else {

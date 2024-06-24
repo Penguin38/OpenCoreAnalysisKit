@@ -34,6 +34,7 @@ public:
     static QuickMethodFrameInfo DecodeFrameInfo(uint64_t code_info_data);
 
     CodeInfo(uint64_t code_info_data) {
+        data_ = code_info_data;
         reader = code_info_data;
     }
 
@@ -253,6 +254,7 @@ public:
     static uint32_t kNumHeaders;
     static uint32_t kNumBitTables;
 private:
+    uint64_t data_;
     BitMemoryReader reader = 0;
     uint32_t flags_ = 0;                    // 171+
     uint32_t code_size_ = 0;                // 191+, The size of native PC range in bytes.
@@ -261,6 +263,9 @@ private:
     uint32_t fp_spill_mask_ = 0;            // 150+
     uint32_t number_of_dex_registers_ = 0;  // 150+
     uint32_t bit_table_flags_ = 0;          // 172+
+
+    // 124+
+    uint32_t number_of_stack_maps = 0;
 
     // Bit tables
     StackMap stack_map_;

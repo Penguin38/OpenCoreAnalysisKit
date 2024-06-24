@@ -50,23 +50,30 @@ void ZygoteMap::Init30() {
 void JitCodeCache::Init26() {
     if (CoreApi::Bits() == 64) {
         __JitCodeCache_offset__ = {
-            .code_map_ = 8,
-            .method_code_map_ = 8,
+            .code_map_ = 96,
+            .method_code_map_ = 136,
         };
     } else {
-        //TODO
+        __JitCodeCache_offset__ = {
+            .code_map_ = 60,
+            .method_code_map_ = 80,
+        };
     }
 }
 
 void JitCodeCache::Init28() {
     if (CoreApi::Bits() == 64) {
         __JitCodeCache_offset__ = {
-            .code_map_ = 8,
-            .jni_stubs_map_ = 8,
-            .method_code_map_ = 8,
+            .code_map_ = 96,
+            .jni_stubs_map_ = 136,
+            .method_code_map_ = 160,
         };
     } else {
-        //TODO
+        __JitCodeCache_offset__ = {
+            .code_map_ = 60,
+            .jni_stubs_map_ = 80,
+            .method_code_map_ = 92,
+        };
     }
 }
 

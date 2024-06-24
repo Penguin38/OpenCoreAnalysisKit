@@ -70,7 +70,7 @@ uint32_t CodeInfo::DexRegisterInfo::kColNumKind = 0;
 uint32_t CodeInfo::DexRegisterInfo::kColNumPackedValue = 1;
 
 void CodeInfo::OatInit124() {
-    kNumHeaders = 0;
+    kNumHeaders = 2;
     kNumBitTables = 8;
 }
 
@@ -261,29 +261,32 @@ CodeInfo CodeInfo::DecodeHeaderOnly(uint64_t code_info_data) {
 }
 
 CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
-    CodeInfo code_info = DecodeHeaderOnly(code_info_data);
-    BitMemoryReader& reader = code_info.GetMemoryReader();
+    CodeInfo code_info(code_info_data);
+    if (OatHeader::OatVersion() >= 150) {
+        code_info = DecodeHeaderOnly(code_info_data);
+        BitMemoryReader& reader = code_info.GetMemoryReader();
 
-    if (OatHeader::OatVersion() >= 171) {
-        DECODE_BIT_TABLE_171(code_info, reader, 0, StackMap);
-        DECODE_BIT_TABLE_171(code_info, reader, 1, RegisterMask);
-        DECODE_BIT_TABLE_171(code_info, reader, 2, StackMask);
-        DECODE_BIT_TABLE_171(code_info, reader, 3, InlineInfo);
-        DECODE_BIT_TABLE_171(code_info, reader, 4, MethodInfo);
-        DECODE_BIT_TABLE_171(code_info, reader, 5, DexRegisterMask);
-        DECODE_BIT_TABLE_171(code_info, reader, 6, DexRegisterMap);
-        DECODE_BIT_TABLE_171(code_info, reader, 7, DexRegisterInfo);
-    } else if (OatHeader::OatVersion() >= 170) {
-        DECODE_BIT_TABLE_170(code_info, reader, 0, StackMap);
-        DECODE_BIT_TABLE_170(code_info, reader, 1, RegisterMask);
-        DECODE_BIT_TABLE_170(code_info, reader, 2, StackMask);
-        DECODE_BIT_TABLE_170(code_info, reader, 3, InlineInfo);
-        DECODE_BIT_TABLE_170(code_info, reader, 4, MethodInfo);
-        DECODE_BIT_TABLE_170(code_info, reader, 5, DexRegisterMask);
-        DECODE_BIT_TABLE_170(code_info, reader, 6, DexRegisterMap);
-        DECODE_BIT_TABLE_170(code_info, reader, 7, DexRegisterInfo);
+        if (OatHeader::OatVersion() >= 171) {
+            DECODE_BIT_TABLE_171(code_info, reader, 0, StackMap);
+            DECODE_BIT_TABLE_171(code_info, reader, 1, RegisterMask);
+            DECODE_BIT_TABLE_171(code_info, reader, 2, StackMask);
+            DECODE_BIT_TABLE_171(code_info, reader, 3, InlineInfo);
+            DECODE_BIT_TABLE_171(code_info, reader, 4, MethodInfo);
+            DECODE_BIT_TABLE_171(code_info, reader, 5, DexRegisterMask);
+            DECODE_BIT_TABLE_171(code_info, reader, 6, DexRegisterMap);
+            DECODE_BIT_TABLE_171(code_info, reader, 7, DexRegisterInfo);
+        } else if (OatHeader::OatVersion() >= 170) {
+            DECODE_BIT_TABLE_170(code_info, reader, 0, StackMap);
+            DECODE_BIT_TABLE_170(code_info, reader, 1, RegisterMask);
+            DECODE_BIT_TABLE_170(code_info, reader, 2, StackMask);
+            DECODE_BIT_TABLE_170(code_info, reader, 3, InlineInfo);
+            DECODE_BIT_TABLE_170(code_info, reader, 4, MethodInfo);
+            DECODE_BIT_TABLE_170(code_info, reader, 5, DexRegisterMask);
+            DECODE_BIT_TABLE_170(code_info, reader, 6, DexRegisterMap);
+            DECODE_BIT_TABLE_170(code_info, reader, 7, DexRegisterInfo);
+        }
+    } else {
     }
-
     return code_info;
 }
 
@@ -509,6 +512,9 @@ void CodeInfo::Dump(const char* prefix) {
         GetDexRegisterMask().Dump(sub_prefix.c_str());
         GetDexRegisterMap().Dump(sub_prefix.c_str());
         GetDexRegisterInfo().Dump(sub_prefix.c_str());
+    } else if (OatHeader::OatVersion() >= 124) {
+        LOGI("%sCodeInfo BitSize=%ld NumberOfDexRegisters:%d NumberOfStackMaps:%d\n",
+                prefix, DataBitSize(), number_of_dex_registers_, number_of_stack_maps);
     }
 }
 
