@@ -251,9 +251,6 @@ static void VisitBlockedOnObject(art::mirror::Object& obj, art::ThreadState stat
 }
 
 static void DumpJavaFrameState(const char* prefix, art::Thread* thread, art::JavaFrame* java_frame) {
-    if (Android::Sdk() < Android::Q)
-        return;
-
     art::mirror::Object monitor_object = 0x0;
     uint32_t lock_owner_tid;
     art::ThreadState state = art::Monitor::FetchState(thread, &monitor_object, &lock_owner_tid);

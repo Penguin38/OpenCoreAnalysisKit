@@ -25,6 +25,34 @@ namespace art {
 void Monitor::Init26() {
     if (CoreApi::Bits() == 64) {
         __Monitor_offset__ = {
+            .owner_ = 96,
+            .obj_ = 108,
+        };
+    } else {
+        __Monitor_offset__ = {
+            .owner_ = 60,
+            .obj_ = 68,
+        };
+    }
+}
+
+void Monitor::Init28() {
+    if (CoreApi::Bits() == 64) {
+        __Monitor_offset__ = {
+            .owner_ = 88,
+            .obj_ = 100,
+        };
+    } else {
+        __Monitor_offset__ = {
+            .owner_ = 60,
+            .obj_ = 68,
+        };
+    }
+}
+
+void Monitor::Init29() {
+    if (CoreApi::Bits() == 64) {
+        __Monitor_offset__ = {
             .owner_ = 72,
             .obj_ = 84,
         };

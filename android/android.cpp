@@ -273,6 +273,7 @@ void Android::preLoad() {
     RegisterSdkListener(P, art::DexFile::Init28);
     RegisterSdkListener(P, art::Runtime::Init28);
     RegisterSdkListener(P, art::Thread::Init28);
+    RegisterSdkListener(P, art::Thread::tls_ptr_sized_values::Init28);
     RegisterSdkListener(P, art::ImageHeader::Init28);
     RegisterSdkListener(P, art::gc::space::RegionSpace::Init28);
     RegisterSdkListener(P, art::gc::space::LargeObjectMapSpace::Init28);
@@ -286,6 +287,7 @@ void Android::preLoad() {
     RegisterSdkListener(P, art::jit::JitCodeCache::JniStubsMapPair::Init28);
     RegisterSdkListener(P, art::OatDexFile::Init28);
     RegisterSdkListener(P, art::LockLevel::Init28);
+    RegisterSdkListener(P, art::Monitor::Init28);
 
     // 29
     RegisterSdkListener(Q, art::DexFile::Init29);
@@ -303,6 +305,7 @@ void Android::preLoad() {
     RegisterSdkListener(Q, art::jit::Jit::Init29);
     RegisterSdkListener(Q, art::jit::JitCodeCache::Init29);
     RegisterSdkListener(Q, art::LockLevel::Init29);
+    RegisterSdkListener(Q, art::Monitor::Init29);
 
     // 30 base
     RegisterSdkListener(R, art::Runtime::Init30);
