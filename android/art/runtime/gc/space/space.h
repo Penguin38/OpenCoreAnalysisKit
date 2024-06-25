@@ -71,6 +71,7 @@ public:
     inline static const char* NON_MOVING_SPACE = "non moving space";
     inline static const char* FREELIST_SPACE = "free list large object space";
     inline static const char* MEMMAP_SPACE = "mem map large object space";
+    inline static const char* BUMP_POINTER_SPACE = "Bump pointer space";
 
     Space() : api::MemoryRef() {}
     Space(uint64_t v) : api::MemoryRef(v) {}

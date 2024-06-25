@@ -225,6 +225,8 @@ SpaceType Space::GetType() {
     } else if (!strcmp(space_name, FREELIST_SPACE)
             || !strcmp(space_name, MEMMAP_SPACE)) {
         type_cache = kSpaceTypeLargeObjectSpace;
+    } else if (!strncmp(space_name, BUMP_POINTER_SPACE, strlen(BUMP_POINTER_SPACE))) {
+        type_cache = kSpaceTypeBumpPointerSpace;
     } else {
         int len = strlen(space_name);
         if (len > 4 && !strncmp(space_name + len - 4, ".art", 4))
