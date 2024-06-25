@@ -41,7 +41,24 @@ void show_copyright() {
     LOGI("limitations under the License.\n\n");
 
     LOGI("For bug reporting instructions, please see:\n");
-    LOGI("     https://github.com/Penguin38/OpenCoreAnalysisKit\n");
+    LOGI("     https://github.com/Penguin38/OpenCoreAnalysisKit\n\n");
+}
+
+void show_compat_android_version() {
+    LOGI("-------------------------------------------------------------------\n");
+    LOGI("| SDK           |  arm64  |   arm   |  x86_64 |   x86   | riscv64 |\n");
+    LOGI("|---------------|---------|---------|---------|---------|---------|\n");
+    LOGI("| AOSP-8.0 (26) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-8.1 (27) |    -    |    -    |    -    |    -    |    -    |\n");
+    LOGI("| AOSP-9.0 (28) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-10.0(29) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-11.0(30) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-12.0(31) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-12.1(32) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-13.0(33) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-14.0(34) |    √    |    √    |    √    |    √    |    ?    |\n");
+    LOGI("| AOSP-15.0(35) |    √    |    -    |    √    |    -    |    ?    |\n");
+    LOGI("-------------------------------------------------------------------\n\n");
 }
 
 class QuitCommand : public Command {
@@ -115,6 +132,9 @@ int main(int argc, char* const argv[]) {
     CommandManager::PushInlineCommand(new QuitCommand());
 
     show_copyright();
+#if defined(__AOSP_PARSER__)
+    show_compat_android_version();
+#endif
     command_preload(argc, argv);
 
     UiThread ui;
