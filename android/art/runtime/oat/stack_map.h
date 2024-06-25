@@ -26,6 +26,189 @@ namespace art {
 
 static constexpr uint32_t kFrameSlotSize = 4;
 
+class StackMap : public BitTable {
+public:
+    enum Kind {
+        Default = -1,
+        Catch = 0,
+        OSR = 1,
+        Debug = 2,
+    };
+
+    static void OatInit124();
+    static void OatInit170();
+
+    static uint32_t UnpackNativePc(uint32_t packed_native_pc);
+
+    uint32_t NumColumns() { return kNumStackMaps; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumStackMaps;
+    static uint32_t kColNumKind;
+    static uint32_t kColNumPackedNativePc;
+    static uint32_t kColNumDexPc;
+    static uint32_t kColNumRegisterMaskIndex;
+    static uint32_t kColNumStackMaskIndex;
+    static uint32_t kColNumInlineInfoIndex;
+    static uint32_t kColNumDexRegisterMaskIndex;
+    static uint32_t kColNumDexRegisterMapIndex;
+private:
+    uint32_t kind;
+    uint32_t packed_native_pc;
+    uint32_t dex_pc;
+    uint32_t register_mask_index;
+    uint32_t stack_mask_index;
+    uint32_t inline_info_index;
+    uint32_t dex_register_mask_index;
+    uint32_t dex_register_map_index;
+};
+
+class RegisterMask : public BitTable {
+public:
+    static void OatInit124();
+    static void OatInit170();
+
+    uint32_t NumColumns() { return kNumRegisterMasks; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumRegisterMasks;
+    static uint32_t kColNumValue;
+    static uint32_t kColNumShift;
+private:
+    uint32_t value;
+    uint32_t shift;
+};
+
+class StackMask : public BitTable {
+public:
+    static void OatInit124();
+    static void OatInit170();
+
+    uint32_t NumColumns() { return kNumStackMasks; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumStackMasks;
+    static uint32_t kColNumMask;
+private:
+    uint32_t mask;
+};
+
+class InlineInfo : public BitTable {
+public:
+    static void OatInit124();
+    static void OatInit170();
+
+    uint32_t NumColumns() { return kNumInlineInfos; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumInlineInfos;
+    static uint32_t kColNumIsLast;
+    static uint32_t kColNumDexPc;
+    static uint32_t kColNumMethodInfoIndex;
+    static uint32_t kColNumArtMethodHi;
+    static uint32_t kColNumArtMethodLo;
+    static uint32_t kColNumNumberOfDexRegisters;
+private:
+    uint32_t is_last;
+    uint32_t dex_pc;
+    uint32_t method_info_index;
+    uint32_t art_method_hi;
+    uint32_t art_method_lo;
+    uint32_t number_of_dex_registers;
+};
+
+class MethodInfo : public BitTable {
+public:
+    static void OatInit124();
+    static void OatInit170();
+    static void OatInit225();
+
+    uint32_t NumColumns() { return kNumMethodInfos; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumMethodInfos;
+    static uint32_t kColNumMethodIndex;
+    static uint32_t kColNumDexFileIndexKind;
+    static uint32_t kColNumDexFileIndex;
+private:
+    uint32_t method_index;
+    uint32_t dex_file_index_kind;
+    uint32_t dex_file_index;
+};
+
+class DexRegisterMask : public BitTable {
+public:
+    static void OatInit124();
+    static void OatInit170();
+
+    uint32_t NumColumns() { return kNumDexRegisterMasks; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumDexRegisterMasks;
+    static uint32_t kColNumMask;
+private:
+    uint32_t mask;
+};
+
+class DexRegisterMap : public BitTable {
+public:
+    static void OatInit124();
+    static void OatInit170();
+
+    uint32_t NumColumns() { return kNumDexRegisterMaps; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumDexRegisterMaps;
+    static uint32_t kColNumCatalogueIndex;
+private:
+    uint32_t catalogue_index;
+};
+
+class DexRegisterInfo : public BitTable {
+public:
+
+    enum class Kind : int32_t {
+        kInvalid = -2,       // only used internally during register map decoding.
+        kNone = -1,          // vreg has not been set.
+        kInStack,            // vreg is on the stack, value holds the stack offset.
+        kConstant,           // vreg is a constant value.
+        kInRegister,         // vreg is in low 32 bits of a core physical register.
+        kInRegisterHigh,     // vreg is in high 32 bits of a core physical register.
+        kInFpuRegister,      // vreg is in low 32 bits of an FPU register.
+        kInFpuRegisterHigh,  // vreg is in high 32 bits of an FPU register.
+    };
+
+    DexRegisterInfo() {}
+    DexRegisterInfo(uint32_t k, uint32_t v)
+        : kind(k), packed_value(v) {}
+    DexRegisterInfo(Kind k, uint32_t v)
+        : kind(static_cast<uint32_t>(k)), packed_value(v) {}
+
+    static void OatInit124();
+    static void OatInit170();
+
+    uint32_t NumColumns() { return kNumDexRegisterInfos; }
+    void Decode(BitMemoryReader& reader);
+    void Dump(const char* prefix);
+
+    static uint32_t kNumDexRegisterInfos;
+    static uint32_t kColNumKind;
+    static uint32_t kColNumPackedValue;
+
+    inline uint32_t Kind() const { return kind; }
+    inline uint32_t PackedValue() const { return packed_value; }
+private:
+    uint32_t kind;
+    uint32_t packed_value;
+};
+
 class CodeInfo {
 public:
     static CodeInfo Decode(uint64_t code_info_data);
@@ -40,189 +223,6 @@ public:
 
     enum Flags {
         kHasInlineInfo = 1 << 0,
-    };
-
-    class StackMap : public BitTable {
-    public:
-        enum Kind {
-            Default = -1,
-            Catch = 0,
-            OSR = 1,
-            Debug = 2,
-        };
-
-        static void OatInit124();
-        static void OatInit170();
-
-        static uint32_t UnpackNativePc(uint32_t packed_native_pc);
-
-        uint32_t NumColumns() { return kNumStackMaps; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumStackMaps;
-        static uint32_t kColNumKind;
-        static uint32_t kColNumPackedNativePc;
-        static uint32_t kColNumDexPc;
-        static uint32_t kColNumRegisterMaskIndex;
-        static uint32_t kColNumStackMaskIndex;
-        static uint32_t kColNumInlineInfoIndex;
-        static uint32_t kColNumDexRegisterMaskIndex;
-        static uint32_t kColNumDexRegisterMapIndex;
-    private:
-        uint32_t kind;
-        uint32_t packed_native_pc;
-        uint32_t dex_pc;
-        uint32_t register_mask_index;
-        uint32_t stack_mask_index;
-        uint32_t inline_info_index;
-        uint32_t dex_register_mask_index;
-        uint32_t dex_register_map_index;
-    };
-
-    class RegisterMask : public BitTable {
-    public:
-        static void OatInit124();
-        static void OatInit170();
-
-        uint32_t NumColumns() { return kNumRegisterMasks; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumRegisterMasks;
-        static uint32_t kColNumValue;
-        static uint32_t kColNumShift;
-    private:
-        uint32_t value;
-        uint32_t shift;
-    };
-
-    class StackMask : public BitTable {
-    public:
-        static void OatInit124();
-        static void OatInit170();
-
-        uint32_t NumColumns() { return kNumStackMasks; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumStackMasks;
-        static uint32_t kColNumMask;
-    private:
-        uint32_t mask;
-    };
-
-    class InlineInfo : public BitTable {
-    public:
-        static void OatInit124();
-        static void OatInit170();
-
-        uint32_t NumColumns() { return kNumInlineInfos; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumInlineInfos;
-        static uint32_t kColNumIsLast;
-        static uint32_t kColNumDexPc;
-        static uint32_t kColNumMethodInfoIndex;
-        static uint32_t kColNumArtMethodHi;
-        static uint32_t kColNumArtMethodLo;
-        static uint32_t kColNumNumberOfDexRegisters;
-    private:
-        uint32_t is_last;
-        uint32_t dex_pc;
-        uint32_t method_info_index;
-        uint32_t art_method_hi;
-        uint32_t art_method_lo;
-        uint32_t number_of_dex_registers;
-    };
-
-    class MethodInfo : public BitTable {
-    public:
-        static void OatInit124();
-        static void OatInit170();
-        static void OatInit225();
-
-        uint32_t NumColumns() { return kNumMethodInfos; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumMethodInfos;
-        static uint32_t kColNumMethodIndex;
-        static uint32_t kColNumDexFileIndexKind;
-        static uint32_t kColNumDexFileIndex;
-    private:
-        uint32_t method_index;
-        uint32_t dex_file_index_kind;
-        uint32_t dex_file_index;
-    };
-
-    class DexRegisterMask : public BitTable {
-    public:
-        static void OatInit124();
-        static void OatInit170();
-
-        uint32_t NumColumns() { return kNumDexRegisterMasks; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumDexRegisterMasks;
-        static uint32_t kColNumMask;
-    private:
-        uint32_t mask;
-    };
-
-    class DexRegisterMap : public BitTable {
-    public:
-        static void OatInit124();
-        static void OatInit170();
-
-        uint32_t NumColumns() { return kNumDexRegisterMaps; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumDexRegisterMaps;
-        static uint32_t kColNumCatalogueIndex;
-    private:
-        uint32_t catalogue_index;
-    };
-
-    class DexRegisterInfo : public BitTable {
-    public:
-
-        enum class Kind : int32_t {
-            kInvalid = -2,       // only used internally during register map decoding.
-            kNone = -1,          // vreg has not been set.
-            kInStack,            // vreg is on the stack, value holds the stack offset.
-            kConstant,           // vreg is a constant value.
-            kInRegister,         // vreg is in low 32 bits of a core physical register.
-            kInRegisterHigh,     // vreg is in high 32 bits of a core physical register.
-            kInFpuRegister,      // vreg is in low 32 bits of an FPU register.
-            kInFpuRegisterHigh,  // vreg is in high 32 bits of an FPU register.
-        };
-
-        DexRegisterInfo() {}
-        DexRegisterInfo(uint32_t k, uint32_t v)
-            : kind(k), packed_value(v) {}
-        DexRegisterInfo(Kind k, uint32_t v)
-            : kind(static_cast<uint32_t>(k)), packed_value(v) {}
-
-        static void OatInit124();
-        static void OatInit170();
-
-        uint32_t NumColumns() { return kNumDexRegisterInfos; }
-        void Decode(BitMemoryReader& reader);
-        void Dump(const char* prefix);
-
-        static uint32_t kNumDexRegisterInfos;
-        static uint32_t kColNumKind;
-        static uint32_t kColNumPackedValue;
-
-        inline uint32_t Kind() const { return kind; }
-        inline uint32_t PackedValue() const { return packed_value; }
-    private:
-        uint32_t kind;
-        uint32_t packed_value;
     };
 
     static void OatInit124(); // 8.0.0_r1 Base

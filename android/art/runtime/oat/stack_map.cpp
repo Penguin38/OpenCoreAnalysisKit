@@ -29,45 +29,45 @@ namespace art {
 uint32_t CodeInfo::kNumHeaders = 0;
 uint32_t CodeInfo::kNumBitTables = 8;
 
-uint32_t CodeInfo::StackMap::kNumStackMaps = 6;
-uint32_t CodeInfo::StackMap::kColNumKind = 0;
-uint32_t CodeInfo::StackMap::kColNumPackedNativePc = 1;
-uint32_t CodeInfo::StackMap::kColNumDexPc = 2;
-uint32_t CodeInfo::StackMap::kColNumRegisterMaskIndex = 3;
-uint32_t CodeInfo::StackMap::kColNumStackMaskIndex = 4;
-uint32_t CodeInfo::StackMap::kColNumInlineInfoIndex = 5;
-uint32_t CodeInfo::StackMap::kColNumDexRegisterMaskIndex = 6;
-uint32_t CodeInfo::StackMap::kColNumDexRegisterMapIndex = 7;
+uint32_t StackMap::kNumStackMaps = 6;
+uint32_t StackMap::kColNumKind = 0;
+uint32_t StackMap::kColNumPackedNativePc = 1;
+uint32_t StackMap::kColNumDexPc = 2;
+uint32_t StackMap::kColNumRegisterMaskIndex = 3;
+uint32_t StackMap::kColNumStackMaskIndex = 4;
+uint32_t StackMap::kColNumInlineInfoIndex = 5;
+uint32_t StackMap::kColNumDexRegisterMaskIndex = 6;
+uint32_t StackMap::kColNumDexRegisterMapIndex = 7;
 
-uint32_t CodeInfo::RegisterMask::kNumRegisterMasks = 2;
-uint32_t CodeInfo::RegisterMask::kColNumValue = 0;
-uint32_t CodeInfo::RegisterMask::kColNumShift = 1;
+uint32_t RegisterMask::kNumRegisterMasks = 2;
+uint32_t RegisterMask::kColNumValue = 0;
+uint32_t RegisterMask::kColNumShift = 1;
 
-uint32_t CodeInfo::StackMask::kNumStackMasks = 1;
-uint32_t CodeInfo::StackMask::kColNumMask = 0;
+uint32_t StackMask::kNumStackMasks = 1;
+uint32_t StackMask::kColNumMask = 0;
 
-uint32_t CodeInfo::InlineInfo::kNumInlineInfos = 6;
-uint32_t CodeInfo::InlineInfo::kColNumIsLast = 0;
-uint32_t CodeInfo::InlineInfo::kColNumDexPc = 1;
-uint32_t CodeInfo::InlineInfo::kColNumMethodInfoIndex = 2;
-uint32_t CodeInfo::InlineInfo::kColNumArtMethodHi = 3;
-uint32_t CodeInfo::InlineInfo::kColNumArtMethodLo = 4;
-uint32_t CodeInfo::InlineInfo::kColNumNumberOfDexRegisters = 5;
+uint32_t InlineInfo::kNumInlineInfos = 6;
+uint32_t InlineInfo::kColNumIsLast = 0;
+uint32_t InlineInfo::kColNumDexPc = 1;
+uint32_t InlineInfo::kColNumMethodInfoIndex = 2;
+uint32_t InlineInfo::kColNumArtMethodHi = 3;
+uint32_t InlineInfo::kColNumArtMethodLo = 4;
+uint32_t InlineInfo::kColNumNumberOfDexRegisters = 5;
 
-uint32_t CodeInfo::MethodInfo::kNumMethodInfos = 1;
-uint32_t CodeInfo::MethodInfo::kColNumMethodIndex = 0;
-uint32_t CodeInfo::MethodInfo::kColNumDexFileIndexKind = 1;
-uint32_t CodeInfo::MethodInfo::kColNumDexFileIndex = 2;
+uint32_t MethodInfo::kNumMethodInfos = 1;
+uint32_t MethodInfo::kColNumMethodIndex = 0;
+uint32_t MethodInfo::kColNumDexFileIndexKind = 1;
+uint32_t MethodInfo::kColNumDexFileIndex = 2;
 
-uint32_t CodeInfo::DexRegisterMask::kNumDexRegisterMasks = 1;
-uint32_t CodeInfo::DexRegisterMask::kColNumMask = 0;
+uint32_t DexRegisterMask::kNumDexRegisterMasks = 1;
+uint32_t DexRegisterMask::kColNumMask = 0;
 
-uint32_t CodeInfo::DexRegisterMap::kNumDexRegisterMaps = 1;
-uint32_t CodeInfo::DexRegisterMap::kColNumCatalogueIndex = 0;
+uint32_t DexRegisterMap::kNumDexRegisterMaps = 1;
+uint32_t DexRegisterMap::kColNumCatalogueIndex = 0;
 
-uint32_t CodeInfo::DexRegisterInfo::kNumDexRegisterInfos = 2;
-uint32_t CodeInfo::DexRegisterInfo::kColNumKind = 0;
-uint32_t CodeInfo::DexRegisterInfo::kColNumPackedValue = 1;
+uint32_t DexRegisterInfo::kNumDexRegisterInfos = 2;
+uint32_t DexRegisterInfo::kColNumKind = 0;
+uint32_t DexRegisterInfo::kColNumPackedValue = 1;
 
 void CodeInfo::OatInit124() {
     kNumHeaders = 2;
@@ -90,11 +90,11 @@ void CodeInfo::OatInit191() {
     kNumHeaders = 7;
 }
 
-void CodeInfo::StackMap::OatInit124() {
+void StackMap::OatInit124() {
     kNumStackMaps = 6;
 }
 
-void CodeInfo::StackMap::OatInit170() {
+void StackMap::OatInit170() {
     kNumStackMaps = 8;
     kColNumKind = 0;
     kColNumPackedNativePc = 1;
@@ -106,30 +106,30 @@ void CodeInfo::StackMap::OatInit170() {
     kColNumDexRegisterMapIndex = 7;
 }
 
-void CodeInfo::RegisterMask::OatInit124() {
+void RegisterMask::OatInit124() {
     kNumRegisterMasks = 2;
 }
 
-void CodeInfo::RegisterMask::OatInit170() {
+void RegisterMask::OatInit170() {
     kNumRegisterMasks = 2;
     kColNumValue = 0;
     kColNumShift = 1;
 }
 
-void CodeInfo::StackMask::OatInit124() {
+void StackMask::OatInit124() {
     kNumStackMasks = 1;
 }
 
-void CodeInfo::StackMask::OatInit170() {
+void StackMask::OatInit170() {
     kNumStackMasks = 1;
     kColNumMask = 0;
 }
 
-void CodeInfo::InlineInfo::OatInit124() {
+void InlineInfo::OatInit124() {
     kNumInlineInfos = 6;
 }
 
-void CodeInfo::InlineInfo::OatInit170() {
+void InlineInfo::OatInit170() {
     kNumInlineInfos = 6;
     kColNumIsLast = 0;
     kColNumDexPc = 1;
@@ -139,45 +139,45 @@ void CodeInfo::InlineInfo::OatInit170() {
     kColNumNumberOfDexRegisters = 5;
 }
 
-void CodeInfo::MethodInfo::OatInit124() {
+void MethodInfo::OatInit124() {
     kNumMethodInfos = 1;
 }
 
-void CodeInfo::MethodInfo::OatInit170() {
+void MethodInfo::OatInit170() {
     kNumMethodInfos = 1;
     kColNumMethodIndex = 0;
 }
 
-void CodeInfo::MethodInfo::OatInit225() {
+void MethodInfo::OatInit225() {
     kNumMethodInfos = 3;
     kColNumMethodIndex = 0;
     kColNumDexFileIndexKind = 1;
     kColNumDexFileIndex = 2;
 }
 
-void CodeInfo::DexRegisterMask::OatInit124() {
+void DexRegisterMask::OatInit124() {
     kNumDexRegisterMasks = 1;
 }
 
-void CodeInfo::DexRegisterMask::OatInit170() {
+void DexRegisterMask::OatInit170() {
     kNumDexRegisterMasks = 1;
     kColNumMask = 0;
 }
 
-void CodeInfo::DexRegisterMap::OatInit124() {
+void DexRegisterMap::OatInit124() {
     kNumDexRegisterMaps = 1;
 }
 
-void CodeInfo::DexRegisterMap::OatInit170() {
+void DexRegisterMap::OatInit170() {
     kNumDexRegisterMaps = 1;
     kColNumCatalogueIndex = 0;
 }
 
-void CodeInfo::DexRegisterInfo::OatInit124() {
+void DexRegisterInfo::OatInit124() {
     kNumDexRegisterInfos = 2;
 }
 
-void CodeInfo::DexRegisterInfo::OatInit170() {
+void DexRegisterInfo::OatInit170() {
     kNumDexRegisterInfos = 2;
     kColNumKind = 0;
     kColNumPackedValue = 1;
@@ -290,7 +290,7 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
     return code_info;
 }
 
-void CodeInfo::StackMap::Decode(BitMemoryReader& reader) {
+void StackMap::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
@@ -307,7 +307,7 @@ void CodeInfo::StackMap::Decode(BitMemoryReader& reader) {
     }
 }
 
-void CodeInfo::RegisterMask::Decode(BitMemoryReader& reader) {
+void RegisterMask::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
@@ -318,7 +318,7 @@ void CodeInfo::RegisterMask::Decode(BitMemoryReader& reader) {
     }
 }
 
-void CodeInfo::StackMask::Decode(BitMemoryReader& reader) {
+void StackMask::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
@@ -328,7 +328,7 @@ void CodeInfo::StackMask::Decode(BitMemoryReader& reader) {
     }
 }
 
-void CodeInfo::InlineInfo::Decode(BitMemoryReader& reader) {
+void InlineInfo::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
@@ -343,7 +343,7 @@ void CodeInfo::InlineInfo::Decode(BitMemoryReader& reader) {
     }
 }
 
-void CodeInfo::MethodInfo::Decode(BitMemoryReader& reader) {
+void MethodInfo::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 225) {
@@ -357,7 +357,7 @@ void CodeInfo::MethodInfo::Decode(BitMemoryReader& reader) {
     }
 }
 
-void CodeInfo::DexRegisterMask::Decode(BitMemoryReader& reader) {
+void DexRegisterMask::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
@@ -367,7 +367,7 @@ void CodeInfo::DexRegisterMask::Decode(BitMemoryReader& reader) {
     }
 }
 
-void CodeInfo::DexRegisterMap::Decode(BitMemoryReader& reader) {
+void DexRegisterMap::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
@@ -377,7 +377,7 @@ void CodeInfo::DexRegisterMap::Decode(BitMemoryReader& reader) {
     }
 }
 
-void CodeInfo::DexRegisterInfo::Decode(BitMemoryReader& reader) {
+void DexRegisterInfo::Decode(BitMemoryReader& reader) {
     std::vector<uint32_t> header;
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
@@ -388,7 +388,7 @@ void CodeInfo::DexRegisterInfo::Decode(BitMemoryReader& reader) {
     }
 }
 
-uint32_t CodeInfo::StackMap::UnpackNativePc(uint32_t packed_native_pc) {
+uint32_t StackMap::UnpackNativePc(uint32_t packed_native_pc) {
     int machine = CoreApi::GetMachine();
     switch (machine) {
         case EM_386: return packed_native_pc;
@@ -408,11 +408,11 @@ uint32_t CodeInfo::NativePc2DexPc(uint32_t native_pc) {
 
     uint32_t dex_pc = 0x0;
     for (int row = 0; row < map.NumRows(); row++) {
-        uint32_t packed_native_pc = map.Get(row, CodeInfo::StackMap::kColNumPackedNativePc);
-        uint32_t current_native_pc = CodeInfo::StackMap::UnpackNativePc(packed_native_pc);
+        uint32_t packed_native_pc = map.Get(row, StackMap::kColNumPackedNativePc);
+        uint32_t current_native_pc = StackMap::UnpackNativePc(packed_native_pc);
         if (current_native_pc > native_pc)
             break;
-        dex_pc = map.Get(row, CodeInfo::StackMap::kColNumDexPc);
+        dex_pc = map.Get(row, StackMap::kColNumDexPc);
     }
     return dex_pc;
 }
@@ -424,12 +424,12 @@ void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegister
     uint32_t current_row = BitTable::kNoValue;
     uint32_t dex_register_map_index = BitTable::kNoValue;
     for (int row = 0; row < map.NumRows(); row++) {
-        uint32_t packed_native_pc = map.Get(row, CodeInfo::StackMap::kColNumPackedNativePc);
-        uint32_t current_native_pc = CodeInfo::StackMap::UnpackNativePc(packed_native_pc);
+        uint32_t packed_native_pc = map.Get(row, StackMap::kColNumPackedNativePc);
+        uint32_t current_native_pc = StackMap::UnpackNativePc(packed_native_pc);
         if (current_native_pc > native_pc)
             break;
         current_row = row;
-        dex_register_map_index = map.Get(row, CodeInfo::StackMap::kColNumDexRegisterMapIndex);
+        dex_register_map_index = map.Get(row, StackMap::kColNumDexRegisterMapIndex);
     }
 
     if (dex_register_map_index == BitTable::kNoValue) return;
@@ -445,16 +445,16 @@ void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegister
     std::map<uint32_t, uint32_t> bits_set;
     uint32_t remaining_registers = number_of_dex_registers_;
     for (int row = current_row; row >= 0 && remaining_registers != 0; row--) {
-        uint32_t dex_register_mask_index = map.Get(row, CodeInfo::StackMap::kColNumDexRegisterMaskIndex);
+        uint32_t dex_register_mask_index = map.Get(row, StackMap::kColNumDexRegisterMaskIndex);
         if (dex_register_mask_index == BitTable::kNoValue)
             continue;
 
         if (dex_register_mask_index < dex_mask.NumRows()) {
-            BitMemoryRegion mask = dex_mask.GetBitMemoryRegion(dex_register_mask_index, CodeInfo::DexRegisterMask::kColNumMask);
+            BitMemoryRegion mask = dex_mask.GetBitMemoryRegion(dex_register_mask_index, DexRegisterMask::kColNumMask);
             if (mask.size_in_bits() <= 0)
                 continue;
 
-            uint32_t map_index = map.Get(row, CodeInfo::StackMap::kColNumDexRegisterMapIndex);
+            uint32_t map_index = map.Get(row, StackMap::kColNumDexRegisterMapIndex);
             map_index += mask.PopCount(0, 0);
             mask = mask.Subregion(0, mask.size_in_bits() - 0);
             uint32_t end = std::min<uint32_t>(number_of_dex_registers_, mask.size_in_bits());
@@ -464,14 +464,14 @@ void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegister
                 uint32_t bits = mask.LoadBits(reg, std::min<uint32_t>(end - reg, kNumBits));
                 while (bits != 0) {
                     uint32_t bit = __builtin_ctz(bits);
-                    uint32_t catalogue_index = dex_map.Get(map_index, CodeInfo::DexRegisterMap::kColNumCatalogueIndex);
+                    uint32_t catalogue_index = dex_map.Get(map_index, DexRegisterMap::kColNumCatalogueIndex);
                     if (catalogue_index == BitTable::kNoValue) {
                         map_index++;
                         bits ^= 1u << bit;
                         continue;
                     }
-                    uint32_t kind = dex_info.Get(catalogue_index, CodeInfo::DexRegisterInfo::kColNumKind);
-                    uint32_t value = dex_info.Get(catalogue_index, CodeInfo::DexRegisterInfo::kColNumPackedValue);
+                    uint32_t kind = dex_info.Get(catalogue_index, DexRegisterInfo::kColNumKind);
+                    uint32_t value = dex_info.Get(catalogue_index, DexRegisterInfo::kColNumPackedValue);
 
                     if (!bits_set[reg + bit]) {
                         DexRegisterInfo info(kind, value);
@@ -518,7 +518,7 @@ void CodeInfo::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::StackMap::Dump(const char* prefix) {
+void StackMap::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sStackMap BitSize=%ld Rows=%d Bits={Kind=%d PackedNativePc=0x%x DexPc=0x%x RegisterMaskIndex=%d StackMaskIndex=%d InlineInfoIndex=%d DexRegisterMaskIndex=%d DexRegisterMapIndex=%d}\n",
                 prefix, DataBitSize(), NumRows(), kind, packed_native_pc, dex_pc, register_mask_index, stack_mask_index, inline_info_index, dex_register_mask_index, dex_register_map_index);
@@ -527,7 +527,7 @@ void CodeInfo::StackMap::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::RegisterMask::Dump(const char* prefix) {
+void RegisterMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sRegisterMask BitSize=%ld Rows=%d Bits={Value=%d Shift=%d}\n", prefix, DataBitSize(), NumRows(), value, shift);
     } else if (OatHeader::OatVersion() >= 124) {
@@ -535,7 +535,7 @@ void CodeInfo::RegisterMask::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::StackMask::Dump(const char* prefix) {
+void StackMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sStackMask BitSize=%ld Rows=%d Bits={Mask=%d}\n", prefix, DataBitSize(), NumRows(), mask);
     } else if (OatHeader::OatVersion() >= 124) {
@@ -543,7 +543,7 @@ void CodeInfo::StackMask::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::InlineInfo::Dump(const char* prefix) {
+void InlineInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sInlineInfo BitSize=%ld Rows=%d Bits={IsLast=%d DexPc=%d MethodInfoIndex=%d ArtMethodHi=%d ArtMethodLo=%d NumberOfDexRegisters=%d}\n",
                 prefix, DataBitSize(), NumRows(), is_last, dex_pc, method_info_index, art_method_hi, art_method_lo, number_of_dex_registers);
@@ -552,7 +552,7 @@ void CodeInfo::InlineInfo::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::MethodInfo::Dump(const char* prefix) {
+void MethodInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 225) {
         LOGI("%sMethodInfo BitSize=%ld Rows=%d Bits={MethodIndex=%d DexFileIndexKind=%d DexFileIndex=%d}\n",
                 prefix, DataBitSize(), NumRows(), method_index, dex_file_index_kind, dex_file_index);
@@ -563,7 +563,7 @@ void CodeInfo::MethodInfo::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::DexRegisterMask::Dump(const char* prefix) {
+void DexRegisterMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sDexRegisterMask BitSize=%ld Rows=%d Bits={Mask=%d}\n", prefix, DataBitSize(), NumRows(), mask);
     } else if (OatHeader::OatVersion() >= 124) {
@@ -571,7 +571,7 @@ void CodeInfo::DexRegisterMask::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::DexRegisterMap::Dump(const char* prefix) {
+void DexRegisterMap::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sDexRegisterMap BitSize=%ld Rows=%d Bits={CatalogueIndex=%d}\n", prefix, DataBitSize(), NumRows(), catalogue_index);
     } else if (OatHeader::OatVersion() >= 124) {
@@ -579,7 +579,7 @@ void CodeInfo::DexRegisterMap::Dump(const char* prefix) {
     }
 }
 
-void CodeInfo::DexRegisterInfo::Dump(const char* prefix) {
+void DexRegisterInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sDexRegisterInfo BitSize=%ld Rows=%d Bits={Kind=%d PackedValue=%d}\n", prefix, DataBitSize(), NumRows(), kind, packed_value);
     } else if (OatHeader::OatVersion() >= 124) {

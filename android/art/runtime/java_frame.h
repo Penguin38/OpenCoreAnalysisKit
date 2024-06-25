@@ -37,7 +37,7 @@ public:
     OatQuickMethodHeader& GetMethodHeader() { return quick_frame.GetMethodHeader(); }
     uint64_t GetFramePc() { return quick_frame.Ptr() ? quick_frame.GetFramePc() : 0x0; }
     uint64_t GetDexPcPtr();
-    std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegs() {
+    std::map<uint32_t, DexRegisterInfo>& GetVRegs() {
         if (shadow_frame.Ptr()) {
             return shadow_frame.GetVRegs();
         } else if (quick_frame.Ptr()) {
@@ -51,7 +51,7 @@ private:
     ShadowFrame shadow_frame = 0x0;
     QuickFrame quick_frame = 0x0;
     QuickFrame prev_quick_frame = 0x0;
-    std::map<uint32_t, CodeInfo::DexRegisterInfo> empty_vregs;
+    std::map<uint32_t, DexRegisterInfo> empty_vregs;
 };
 
 } // namespace

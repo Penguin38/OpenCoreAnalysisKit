@@ -44,7 +44,7 @@ uint64_t QuickFrame::GetDexPcPtr() {
     return 0x0;
 }
 
-std::map<uint32_t, CodeInfo::DexRegisterInfo>& QuickFrame::GetVRegs() {
+std::map<uint32_t, DexRegisterInfo>& QuickFrame::GetVRegs() {
     if (vregs_cache.size()) {
         return vregs_cache;
     }

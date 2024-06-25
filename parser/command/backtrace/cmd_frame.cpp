@@ -139,7 +139,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
 }
 
 void FrameCommand::ShowJavaFrameRegister(const char* prefix,
-                                         std::map<uint32_t, art::CodeInfo::DexRegisterInfo>& vregs,
+                                         std::map<uint32_t, art::DexRegisterInfo>& vregs,
                                          api::MemoryRef& frame) {
     uint32_t vregs_size = vregs.size();
     if (vregs_size) {
@@ -150,8 +150,8 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix,
             uint32_t kind = vreg.second.Kind();
             uint32_t value = vreg.second.PackedValue();
 
-            if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInvalid)
-                    || kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kNone)) {
+            if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInvalid)
+                    || kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kNone)) {
                 vregs_size--;
                 continue;
             }
@@ -164,24 +164,24 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix,
             sb.append(" = ");
 
             char valuehex[11];
-            if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kConstant)) {
+            if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kConstant)) {
                 sprintf(valuehex, "0x%08x", value);
                 sb.append(valuehex);
-            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInRegister)) {
+            } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInRegister)) {
                 sb.append("r");
                 sb.append(std::to_string(value));
-            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInRegisterHigh)) {
+            } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInRegisterHigh)) {
                 sb.append("r");
                 sb.append(std::to_string(value));
                 sb.append("/hi");
-            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInFpuRegister)) {
+            } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInFpuRegister)) {
                 sb.append("f");
                 sb.append(std::to_string(value));
-            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInFpuRegisterHigh)) {
+            } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInFpuRegisterHigh)) {
                 sb.append("f");
                 sb.append(std::to_string(value));
                 sb.append("/hi");
-            } else if (kind == static_cast<uint32_t>(art::CodeInfo::DexRegisterInfo::Kind::kInStack)) {
+            } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInStack)) {
                 value *= art::kFrameSlotSize;
                 if (frame.Ptr()) {
                     sprintf(valuehex, "0x%08x", frame.value32Of(value));

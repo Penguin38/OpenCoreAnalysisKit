@@ -106,7 +106,7 @@ uint64_t NterpGetFrameDexPcPtr(QuickFrame& frame) {
 }
 
 void NterpGetFrameVRegs(QuickFrame& frame) {
-    std::map<uint32_t, CodeInfo::DexRegisterInfo>& vregs = frame.GetVRegsCache();
+    std::map<uint32_t, DexRegisterInfo>& vregs = frame.GetVRegsCache();
     ArtMethod& method = frame.GetMethod();
     art::dex::CodeItem item = method.GetCodeItem();
     const uint16_t num_regs = item.num_regs_;
@@ -122,7 +122,7 @@ void NterpGetFrameVRegs(QuickFrame& frame) {
                                  frame);
 
     for (int i = 0; i < num_regs; ++i) {
-        CodeInfo::DexRegisterInfo info(CodeInfo::DexRegisterInfo::Kind::kConstant,
+        DexRegisterInfo info(DexRegisterInfo::Kind::kConstant,
                                        dex_vregs_ptr.value32Of(i * sizeof(uint32_t)));
         vregs[i] = info;
     }

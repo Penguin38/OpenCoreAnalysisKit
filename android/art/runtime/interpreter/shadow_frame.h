@@ -62,9 +62,9 @@ public:
 
     inline ArtMethod GetMethod() { return method(); }
     uint64_t GetDexPcPtr();
-    std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegs();
+    std::map<uint32_t, DexRegisterInfo>& GetVRegs();
 private:
-    std::map<uint32_t, CodeInfo::DexRegisterInfo> vregs_cache;
+    std::map<uint32_t, DexRegisterInfo> vregs_cache;
 };
 
 } //namespace art

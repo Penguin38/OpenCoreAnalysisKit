@@ -92,7 +92,7 @@ public:
     static api::MemoryRef& NterpWithClinitImpl();
     static api::MemoryRef& NterpImpl();
     uint32_t NativePc2DexPc(uint32_t native_pc);
-    void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, CodeInfo::DexRegisterInfo>& vregs);
+    void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
     void Dump(const char* prefix);
 private:
     // quick memoryref cache

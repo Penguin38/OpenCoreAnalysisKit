@@ -37,7 +37,7 @@ public:
     void usage();
     void ShowJavaFrameInfo(int number);
     void ShowJavaFrameRegister(const char* prefix,
-                               std::map<uint32_t, art::CodeInfo::DexRegisterInfo>& vregs,
+                               std::map<uint32_t, art::DexRegisterInfo>& vregs,
                                api::MemoryRef& frame);
     void ShowNativeFrameInfo(int number);
 private:

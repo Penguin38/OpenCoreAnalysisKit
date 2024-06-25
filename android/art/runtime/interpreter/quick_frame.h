@@ -41,14 +41,14 @@ public:
     inline void SetFramePc(uint64_t pc) { frame_pc = pc; }
     inline uint64_t GetFramePc() { return frame_pc; }
     uint64_t GetDexPcPtr();
-    std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegs();
-    std::map<uint32_t, CodeInfo::DexRegisterInfo>& GetVRegsCache() { return vregs_cache; }
+    std::map<uint32_t, DexRegisterInfo>& GetVRegs();
+    std::map<uint32_t, DexRegisterInfo>& GetVRegsCache() { return vregs_cache; }
     QuickMethodFrameInfo GetFrameInfo();
 private:
     ArtMethod method = 0x0;
     OatQuickMethodHeader method_header = 0x0;
     uint64_t frame_pc = 0x0;
-    std::map<uint32_t, CodeInfo::DexRegisterInfo> vregs_cache;
+    std::map<uint32_t, DexRegisterInfo> vregs_cache;
 };
 
 } //namespace art

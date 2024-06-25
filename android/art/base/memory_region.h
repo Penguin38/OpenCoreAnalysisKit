@@ -21,4 +21,25 @@
 #include "common/bit.h"
 #include "base/globals.h"
 
+namespace art {
+
+class MemoryRegion {
+public:
+    MemoryRegion() : pointer_(0), size_(0) {}
+    MemoryRegion(uint64_t pointer_in, uint64_t size_in) : pointer_(pointer_in), size_(size_in) {}
+
+    uint64_t pointer() { return pointer_; }
+    uint64_t size() { return size_; }
+    uint64_t size_in_bits() { return size_ * kBitsPerByte; }
+
+    uint64_t begin() { return pointer_; }
+    uint64_t end() { return pointer_ + size_; }
+
+privte:
+    uint64_t pointer_;
+    uint64_t size_;
+};
+
+} // namespace art
+
 #endif // ANDROID_ART_BASE_MEMORY_REGION_H_

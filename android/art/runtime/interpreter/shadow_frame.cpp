@@ -74,11 +74,11 @@ uint64_t ShadowFrame::GetDexPcPtr() {
     return dex_pc_ptr();
 }
 
-std::map<uint32_t, CodeInfo::DexRegisterInfo>& ShadowFrame::GetVRegs() {
+std::map<uint32_t, DexRegisterInfo>& ShadowFrame::GetVRegs() {
     if (!vregs_cache.size()) {
         api::MemoryRef ref = vregs();
         for (int i = 0; i < number_of_vregs(); i++) {
-            CodeInfo::DexRegisterInfo info(CodeInfo::DexRegisterInfo::Kind::kConstant,
+            DexRegisterInfo info(DexRegisterInfo::Kind::kConstant,
                                            ref.value32Of(i * sizeof(uint32_t)));
             if (Android::Sdk() >= Android::R) {
                 vregs_cache[i] = info;
