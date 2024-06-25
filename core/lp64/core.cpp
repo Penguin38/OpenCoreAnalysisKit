@@ -173,7 +173,7 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
             if (current != block->vaddr())
                 continue;
 
-            uint64_t page_offset = RoundDown(pt[index].p_offset + map->offset(), 0x1000);
+            uint64_t page_offset = RoundDown(pt[index].p_offset + map->offset(), ELF_PAGE_SIZE);
             ::File* vma = CoreApi::FindFile(current);
             if (vma && page_offset != vma->offset()) {
                 page_offset = vma->offset();
@@ -211,7 +211,7 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
         }
 
         std::unique_ptr<MemoryMap> submap(MemoryMap::MmapFile(file,
-                                                              RoundUp(entry->getEntryTotalMemsz(), 0x1000),
+                                                              RoundUp(entry->getEntryTotalMemsz(), ELF_PAGE_SIZE),
                                                               entry->getFileOffset()));
         map = std::move(submap);
     }
@@ -256,7 +256,7 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
             if (current != block->vaddr())
                 continue;
 
-            uint64_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), 0x1000);
+            uint64_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), ELF_PAGE_SIZE);
             ::File* vma = CoreApi::FindFile(current);
             if (vma && page_offset != vma->offset()) {
                 page_offset = vma->offset();

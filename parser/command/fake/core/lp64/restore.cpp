@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "api/core.h"
 #include "common/bit.h"
+#include "common/elf.h"
 #include "command/fake/core/lp64/restore.h"
 #include <stdio.h>
 #include <linux/elf.h>
@@ -65,7 +66,7 @@ int Restore::execute(const char* output) {
 
     uint64_t current_filesz = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) * ehdr->e_phnum;
     // Write Segment
-    uint8_t zero_buf[4096];
+    uint8_t zero_buf[ELF_PAGE_SIZE];
     memset(&zero_buf, 0x0, sizeof(zero_buf));
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (!tmp[num].p_filesz)
@@ -82,8 +83,8 @@ int Restore::execute(const char* output) {
 
         fwrite(reinterpret_cast<void *>(CoreApi::GetBegin() + phdr[num].p_offset), tmp[num].p_filesz, 1, fp);
         current_filesz += tmp[num].p_filesz;
-        if (!IS_ALIGNED(current_filesz, 0x1000)) {
-            uint64_t aliged_size = RoundUp(current_filesz, 0x1000) - current_filesz;
+        if (!IS_ALIGNED(current_filesz, ELF_PAGE_SIZE)) {
+            uint64_t aliged_size = RoundUp(current_filesz, ELF_PAGE_SIZE) - current_filesz;
             fwrite(&zero_buf, aliged_size, 1, fp);
             current_filesz += aliged_size;
         }

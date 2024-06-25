@@ -18,6 +18,7 @@
 #include "zip/zip_file.h"
 #include "base/utils.h"
 #include "common/bit.h"
+#include "common/elf.h"
 #include "android.h"
 #include "properties/property.h"
 #include "runtime/mirror/object.h"
@@ -641,7 +642,7 @@ void Android::SysRoot(const char* path) {
                     continue;
                 }
 
-                block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), 0x1000));
+                block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), ELF_PAGE_SIZE));
             }
         } else {
             LOGE("ERROR: Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());

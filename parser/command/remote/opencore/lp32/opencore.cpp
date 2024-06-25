@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "common/bit.h"
+#include "common/elf.h"
 #include "command/remote/opencore/lp32/opencore.h"
 #include <string.h>
 #include <errno.h>
@@ -232,7 +233,7 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
 }
 
 void OpencoreImpl::AlignNoteSegment(FILE* fp) {
-    unsigned char zero[4096];
+    unsigned char zero[ELF_PAGE_SIZE];
     memset(&zero, 0x0, sizeof(zero));
     uint32_t offset = RoundUp(note.p_offset + note.p_filesz, sysconf(_SC_PAGE_SIZE));
     uint32_t size = offset - (note.p_offset + note.p_filesz);
@@ -243,7 +244,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
     char filename[32];
     int fd;
     int index = 0;
-    uint8_t zero[4096];
+    uint8_t zero[ELF_PAGE_SIZE];
     memset(&zero, 0x0, sizeof(zero));
 
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
@@ -350,8 +351,8 @@ bool OpencoreImpl::NeedFilterFile(const char* filename, int offset) {
         if (phdr[index].p_type != PT_LOAD)
             continue;
 
-        int pos = RoundDown(phdr[index].p_offset, 0x1000);
-        int end = RoundUp(phdr[index].p_offset + phdr[index].p_memsz, 0x1000);
+        int pos = RoundDown(phdr[index].p_offset, ELF_PAGE_SIZE);
+        int end = RoundUp(phdr[index].p_offset + phdr[index].p_memsz, ELF_PAGE_SIZE);
         if (pos <= offset && offset < end) {
             if ((phdr[index].p_flags & PF_W))
                 ret = false;

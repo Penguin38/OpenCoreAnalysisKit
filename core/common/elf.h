@@ -27,6 +27,8 @@
 #define EM_AARCH64  183
 #define EM_RISCV    243
 
+#define ELF_PAGE_SIZE 0x1000
+
 class ElfHeader {
 public:
     uint8_t  ident[16];

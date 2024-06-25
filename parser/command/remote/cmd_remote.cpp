@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "base/utils.h"
 #include "common/bit.h"
+#include "common/elf.h"
 #include "command/remote/cmd_remote.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/hook.h"
@@ -88,8 +89,8 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     opencore->StopTheWorld(pid);
 
     char filename[32];
-    uint64_t value[4096 / 8];
-    memset(value, 0x0, 4096);
+    uint64_t value[ELF_PAGE_SIZE / 8];
+    memset(value, 0x0, ELF_PAGE_SIZE);
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
