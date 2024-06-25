@@ -35,6 +35,7 @@
 #include "runtime/monitor.h"
 #include "runtime/monitor_pool.h"
 #include "runtime/base/mutex.h"
+#include "runtime/base/locks.h"
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/region_space.h"
@@ -266,6 +267,7 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::jit::Jit::Init26);
     RegisterSdkListener(O, art::jit::JitCodeCache::Init26);
     RegisterSdkListener(O, art::OatDexFile::Init26);
+    RegisterSdkListener(O, art::LockLevel::Init26);
 
     // 28
     RegisterSdkListener(P, art::DexFile::Init28);
@@ -283,6 +285,7 @@ void Android::preLoad() {
     RegisterSdkListener(P, art::jit::JitCodeCache::JniStubData::Init28);
     RegisterSdkListener(P, art::jit::JitCodeCache::JniStubsMapPair::Init28);
     RegisterSdkListener(P, art::OatDexFile::Init28);
+    RegisterSdkListener(P, art::LockLevel::Init28);
 
     // 29
     RegisterSdkListener(Q, art::DexFile::Init29);
@@ -298,6 +301,7 @@ void Android::preLoad() {
     RegisterSdkListener(Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
     RegisterSdkListener(Q, art::jit::Jit::Init29);
     RegisterSdkListener(Q, art::jit::JitCodeCache::Init29);
+    RegisterSdkListener(Q, art::LockLevel::Init29);
 
     // 30 base
     RegisterSdkListener(R, art::Runtime::Init30);
@@ -310,6 +314,7 @@ void Android::preLoad() {
     RegisterSdkListener(R, art::jit::JitCodeCache::Init30);
     RegisterSdkListener(R, art::jit::JitMemoryRegion::Init30);
     RegisterSdkListener(R, art::jit::ZygoteMap::Init30);
+    RegisterSdkListener(R, art::LockLevel::Init30);
 
     // 31
     RegisterSdkListener(S, art::Runtime::Init31);

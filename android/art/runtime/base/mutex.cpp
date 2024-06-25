@@ -26,8 +26,6 @@ struct ReaderWriterMutex_OffsetTable __ReaderWriterMutex_offset__;
 
 namespace art {
 
-int BaseMutex::kLockLevelCount = 78;
-
 void BaseMutex::Init() {
     if (CoreApi::Bits() == 64) {
         __BaseMutex_offset__ = {

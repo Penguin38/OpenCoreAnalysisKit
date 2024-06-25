@@ -15,6 +15,7 @@
  */
 
 #include "runtime/thread.h"
+#include "runtime/base/locks.h"
 #include "android.h"
 #include "cxx/string.h"
 #include "java/lang/Thread.h"
@@ -413,7 +414,9 @@ void Thread::DumpState() {
             GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());
     std::string mutexes;
     if (Android::Sdk() >= Android::R) {
-        for (uint32_t i = 0; i < BaseMutex::kLockLevelCount; ++i) {
+        for (uint8_t i = 0; i < LockLevel::kLockLevelCount; ++i) {
+            if (i == LockLevel::kMonitorLock)
+                continue;
             BaseMutex mutex = GetHeldMutex(i);
             if (mutex.Ptr()) {
                 mutexes.append(" \"").append(mutex.GetName()).append("\"");;

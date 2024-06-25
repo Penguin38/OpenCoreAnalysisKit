@@ -111,6 +111,7 @@ add_library(android STATIC
             android/art/runtime/lock_word.cpp
 
             android/art/runtime/base/mutex.cpp
+            android/art/runtime/base/locks.cpp
 
             android/art/runtime/mirror/object.cpp
             android/art/runtime/mirror/class.cpp

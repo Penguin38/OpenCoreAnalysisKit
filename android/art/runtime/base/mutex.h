@@ -56,7 +56,6 @@ public:
         const char* type;
     };
 
-    static int kLockLevelCount;
     static void Init();
     inline uint64_t vtbl() { return VALUEOF(BaseMutex, vtbl); }
     inline uint64_t name() { return VALUEOF(BaseMutex, name_); }
