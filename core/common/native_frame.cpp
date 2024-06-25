@@ -23,7 +23,10 @@ void NativeFrame::Decode() {
     auto callback = [&](LinkMap* link) -> bool {
         // FOR TEST
         uint64_t va_pc = frame_pc & CoreApi::GetVabitsMask();
-        if (va_pc < link->l_ld() && va_pc > link->begin()) {
+        LoadBlock* ld_block = CoreApi::FindLoadBlock(link->l_ld(), false);
+        if ((va_pc < link->l_ld()
+                || (ld_block ? va_pc < ld_block->vaddr() + ld_block->size() : false))
+                && va_pc > link->begin()) {
             map = link;
             return true;
         }

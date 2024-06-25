@@ -46,10 +46,19 @@ void Thread::Init28() {
 }
 
 void Thread::Init29() {
-    __Thread_offset__ = {
-        .tls32_ = 0,
-        .tlsPtr_ = 152,
-    };
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 152,
+            .wait_monitor_ = 6688,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 152,
+            .wait_monitor_ = 3432,
+        };
+    }
 }
 
 void Thread::Init30() {
@@ -166,6 +175,36 @@ void Thread::tls_ptr_sized_values::Init26() {
             .monitor_enter_object = 64,
             .name = 104,
             .pthread_self = 108,
+        };
+    }
+}
+
+void Thread::tls_ptr_sized_values::Init29() {
+    if (CoreApi::Bits() == 64) {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 16,
+            .managed_stack = 24,
+            .self = 72,
+            .opeer = 80,
+            .stack_begin = 96,
+            .stack_size = 104,
+            .monitor_enter_object = 128,
+            .name = 208,
+            .pthread_self = 216,
+            .held_mutexes = 1792,
+        };
+    } else {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
+            .name = 104,
+            .pthread_self = 108,
+            .held_mutexes = 896,
         };
     }
 }
@@ -413,7 +452,7 @@ void Thread::DumpState() {
             GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
             GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());
     std::string mutexes;
-    if (Android::Sdk() >= Android::R) {
+    if (Android::Sdk() >= Android::Q) {
         for (uint8_t i = 0; i < LockLevel::kLockLevelCount; ++i) {
             if (i == LockLevel::kMonitorLock)
                 continue;
@@ -431,7 +470,7 @@ void Thread::DumpState() {
             }
         }
     }
-    LOGI("  | held mutexes=%s\n", mutexes.c_str());
+    LOGI("  | mutexes=0x%lx held=%s\n", GetTlsPtr().held_mutexes(), mutexes.c_str());
 }
 
 } //namespace art

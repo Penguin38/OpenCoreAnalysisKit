@@ -117,6 +117,7 @@ public:
         tls_ptr_sized_values(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
         static void Init26();
+        static void Init29();
         static void Init30();
         static void Init33();
         static void Init34();

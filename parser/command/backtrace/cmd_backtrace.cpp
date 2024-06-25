@@ -251,7 +251,7 @@ static void VisitBlockedOnObject(art::mirror::Object& obj, art::ThreadState stat
 }
 
 static void DumpJavaFrameState(const char* prefix, art::Thread* thread, art::JavaFrame* java_frame) {
-    if (Android::Sdk() < Android::R)
+    if (Android::Sdk() < Android::Q)
         return;
 
     art::mirror::Object monitor_object = 0x0;
@@ -288,7 +288,11 @@ void BacktraceCommand::DumpJavaStack(void *th) {
         LOGI(format.c_str(), frameid, java_frame->GetDexPcPtr(),
              dump_detail ? java_frame->GetMethod().PrettyMethodOnlyNP().c_str()
                          : java_frame->GetMethod().PrettyMethodSimple().c_str());
-        if (!frameid) DumpJavaFrameState("  ", thread, java_frame.get());
+        if (!frameid) {
+            try {
+                DumpJavaFrameState("  ", thread, java_frame.get());
+            } catch(InvalidAddressException e) {}
+        }
         ++frameid;
     }
 }

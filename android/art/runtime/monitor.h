@@ -36,7 +36,8 @@ public:
     Monitor(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Monitor(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    static void Init();
+    static void Init26();
+    static void Init30();
     inline uint64_t owner() { return VALUEOF(Monitor, owner_); }
     inline uint64_t obj() { return VALUEOF(Monitor, obj_); }
 

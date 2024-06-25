@@ -22,7 +22,21 @@ struct Monitor_OffsetTable __Monitor_offset__;
 
 namespace art {
 
-void Monitor::Init() {
+void Monitor::Init26() {
+    if (CoreApi::Bits() == 64) {
+        __Monitor_offset__ = {
+            .owner_ = 72,
+            .obj_ = 84,
+        };
+    } else {
+        __Monitor_offset__ = {
+            .owner_ = 52,
+            .obj_ = 60,
+        };
+    }
+}
+
+void Monitor::Init30() {
     if (CoreApi::Bits() == 64) {
         __Monitor_offset__ = {
             .owner_ = 48,
