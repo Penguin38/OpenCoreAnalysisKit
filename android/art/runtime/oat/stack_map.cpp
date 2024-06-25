@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "api/core.h"
 #include "common/elf.h"
+#include "runtime/art_method.h"
 #include "runtime/oat.h"
 #include "runtime/oat/stack_map.h"
 #include "base/globals.h"
@@ -75,6 +76,7 @@ void CodeInfo::OatInit124() {
 }
 
 void CodeInfo::OatInit150() {
+    kNumBitTables = 8;
     kNumHeaders = 4;
 }
 
@@ -90,7 +92,7 @@ void CodeInfo::OatInit191() {
     kNumHeaders = 7;
 }
 
-void StackMap::OatInit124() {
+void StackMap::OatInit150() {
     kNumStackMaps = 6;
 }
 
@@ -106,7 +108,7 @@ void StackMap::OatInit170() {
     kColNumDexRegisterMapIndex = 7;
 }
 
-void RegisterMask::OatInit124() {
+void RegisterMask::OatInit150() {
     kNumRegisterMasks = 2;
 }
 
@@ -116,7 +118,7 @@ void RegisterMask::OatInit170() {
     kColNumShift = 1;
 }
 
-void StackMask::OatInit124() {
+void StackMask::OatInit150() {
     kNumStackMasks = 1;
 }
 
@@ -125,7 +127,7 @@ void StackMask::OatInit170() {
     kColNumMask = 0;
 }
 
-void InlineInfo::OatInit124() {
+void InlineInfo::OatInit150() {
     kNumInlineInfos = 6;
 }
 
@@ -139,7 +141,7 @@ void InlineInfo::OatInit170() {
     kColNumNumberOfDexRegisters = 5;
 }
 
-void MethodInfo::OatInit124() {
+void MethodInfo::OatInit150() {
     kNumMethodInfos = 1;
 }
 
@@ -155,7 +157,7 @@ void MethodInfo::OatInit225() {
     kColNumDexFileIndex = 2;
 }
 
-void DexRegisterMask::OatInit124() {
+void DexRegisterMask::OatInit150() {
     kNumDexRegisterMasks = 1;
 }
 
@@ -164,7 +166,7 @@ void DexRegisterMask::OatInit170() {
     kColNumMask = 0;
 }
 
-void DexRegisterMap::OatInit124() {
+void DexRegisterMap::OatInit150() {
     kNumDexRegisterMaps = 1;
 }
 
@@ -173,7 +175,7 @@ void DexRegisterMap::OatInit170() {
     kColNumCatalogueIndex = 0;
 }
 
-void DexRegisterInfo::OatInit124() {
+void DexRegisterInfo::OatInit150() {
     kNumDexRegisterInfos = 2;
 }
 
@@ -181,6 +183,56 @@ void DexRegisterInfo::OatInit170() {
     kNumDexRegisterInfos = 2;
     kColNumKind = 0;
     kColNumPackedValue = 1;
+}
+
+CodeInfo::CodeInfo(uint64_t code_info_data) {
+    data_ = code_info_data;
+    if (OatHeader::OatVersion() >= 150) {
+        reader = code_info_data;
+    }
+}
+
+void StackMapEncoding::Decode(const uint8_t** ptr) {
+    dex_pc_bit_offset_ = (*ptr)[0];
+    dex_register_map_bit_offset_ = (*ptr)[1];
+    inline_info_bit_offset_ = (*ptr)[2];
+    register_mask_index_bit_offset_ = (*ptr)[3];
+    stack_mask_index_bit_offset_ = (*ptr)[4];
+    total_bit_size_ = (*ptr)[5];
+    (*ptr) += sizeof(StackMapEncoding);
+}
+
+void InvokeInfoEncoding::Decode(const uint8_t** ptr) {
+    invoke_type_bit_offset_ = (*ptr)[0];
+    method_index_bit_offset_ = (*ptr)[1];
+    total_bit_size_ = (*ptr)[2];
+    (*ptr) += sizeof(InvokeInfoEncoding);
+}
+
+void InlineInfoEncoding::Decode(const uint8_t** ptr) {
+    dex_pc_bit_offset_ = (*ptr)[0];
+    extra_data_bit_offset_ = (*ptr)[1];
+    dex_register_map_bit_offset_ = (*ptr)[2];
+    total_bit_size_ = (*ptr)[3];
+    (*ptr) += sizeof(InlineInfoEncoding);
+}
+
+CodeInfoEncoding::CodeInfoEncoding(uint64_t code_info_data) {
+    api::MemoryRef data = code_info_data;
+    const uint8_t* ptr = reinterpret_cast<const uint8_t *>(data.Real());
+    dex_register_map.Decode(&ptr);
+    location_catalog.Decode(&ptr);
+    stack_map.Decode(&ptr);
+    register_mask.Decode(&ptr);
+    stack_mask.Decode(&ptr);
+    invoke_info.Decode(&ptr);
+    if (stack_map.encoding.GetInlineInfoEncoding().BitSize() > 0) {
+        inline_info.Decode(&ptr);
+    } else {
+        inline_info = BitEncodingTable<InlineInfoEncoding>();
+    }
+    cache_header_size = static_cast<uint32_t>(ptr - reinterpret_cast<const uint8_t *>(data.Real()));
+    ComputeTableOffsets();
 }
 
 uint32_t CodeInfo::DecodeCodeSize(uint64_t code_info_data) {
@@ -286,8 +338,21 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
             DECODE_BIT_TABLE_170(code_info, reader, 7, DexRegisterInfo);
         }
     } else {
+        code_info.encoding_ = CodeInfoEncoding(code_info_data);
+        code_info.region_ = MemoryRegion(code_info_data,
+                                         code_info.encoding_.HeaderSize()
+                                         + code_info.encoding_.NonHeaderSize());
+        code_info.number_of_stack_maps_ = code_info.encoding_.GetStackMap().NumEntries();
     }
     return code_info;
+}
+
+void CodeInfo::ExtendNumRegister(ArtMethod& method) {
+    if (OatHeader::OatVersion() < 150) {
+        art::dex::CodeItem item = method.GetCodeItem();
+        art::DexFile& dex_file = method.GetDexFile();
+        if (item.Ptr()) number_of_dex_registers_ = item.num_regs_;
+    }
 }
 
 void StackMap::Decode(BitMemoryReader& reader) {
@@ -302,7 +367,7 @@ void StackMap::Decode(BitMemoryReader& reader) {
         inline_info_index = header[6];
         dex_register_mask_index = header[7];
         dex_register_map_index = header[8];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -313,7 +378,7 @@ void RegisterMask::Decode(BitMemoryReader& reader) {
     if (OatHeader::OatVersion() >= 170) {
         value = header[1];
         shift = header[2];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -323,7 +388,7 @@ void StackMask::Decode(BitMemoryReader& reader) {
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
         mask = header[1];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -338,7 +403,7 @@ void InlineInfo::Decode(BitMemoryReader& reader) {
         art_method_hi = header[4];
         art_method_lo = header[5];
         number_of_dex_registers = header[6];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -352,7 +417,7 @@ void MethodInfo::Decode(BitMemoryReader& reader) {
         dex_file_index = header[3];
     } else if (OatHeader::OatVersion() >= 170) {
         method_index = header[1];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -362,7 +427,7 @@ void DexRegisterMask::Decode(BitMemoryReader& reader) {
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
         mask = header[1];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -372,7 +437,7 @@ void DexRegisterMap::Decode(BitMemoryReader& reader) {
     DecodeOnly(reader, header);
     if (OatHeader::OatVersion() >= 170) {
         catalogue_index = header[1];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -383,7 +448,7 @@ void DexRegisterInfo::Decode(BitMemoryReader& reader) {
     if (OatHeader::OatVersion() >= 170) {
         kind = header[1];
         packed_value = header[2];
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -513,8 +578,8 @@ void CodeInfo::Dump(const char* prefix) {
         GetDexRegisterMap().Dump(sub_prefix.c_str());
         GetDexRegisterInfo().Dump(sub_prefix.c_str());
     } else if (OatHeader::OatVersion() >= 124) {
-        LOGI("%sCodeInfo BitSize=%ld NumberOfDexRegisters:%d NumberOfStackMaps:%d\n",
-                prefix, DataBitSize(), number_of_dex_registers_, number_of_stack_maps);
+        LOGI("%sCodeInfo (number_of_dex_registers=%d, number_of_stack_maps=%d)\n", prefix, number_of_dex_registers_, number_of_stack_maps_);
+        GetEncoding().Dump(sub_prefix.c_str());
     }
 }
 
@@ -522,7 +587,7 @@ void StackMap::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sStackMap BitSize=%ld Rows=%d Bits={Kind=%d PackedNativePc=0x%x DexPc=0x%x RegisterMaskIndex=%d StackMaskIndex=%d InlineInfoIndex=%d DexRegisterMaskIndex=%d DexRegisterMapIndex=%d}\n",
                 prefix, DataBitSize(), NumRows(), kind, packed_native_pc, dex_pc, register_mask_index, stack_mask_index, inline_info_index, dex_register_mask_index, dex_register_map_index);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -530,7 +595,7 @@ void StackMap::Dump(const char* prefix) {
 void RegisterMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sRegisterMask BitSize=%ld Rows=%d Bits={Value=%d Shift=%d}\n", prefix, DataBitSize(), NumRows(), value, shift);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -538,7 +603,7 @@ void RegisterMask::Dump(const char* prefix) {
 void StackMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sStackMask BitSize=%ld Rows=%d Bits={Mask=%d}\n", prefix, DataBitSize(), NumRows(), mask);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -547,7 +612,7 @@ void InlineInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sInlineInfo BitSize=%ld Rows=%d Bits={IsLast=%d DexPc=%d MethodInfoIndex=%d ArtMethodHi=%d ArtMethodLo=%d NumberOfDexRegisters=%d}\n",
                 prefix, DataBitSize(), NumRows(), is_last, dex_pc, method_info_index, art_method_hi, art_method_lo, number_of_dex_registers);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -558,7 +623,7 @@ void MethodInfo::Dump(const char* prefix) {
                 prefix, DataBitSize(), NumRows(), method_index, dex_file_index_kind, dex_file_index);
     } else if (OatHeader::OatVersion() >= 170) {
         LOGI("%sMethodInfo BitSize=%ld Rows=%d Bits={MethodIndex=%d}\n", prefix, DataBitSize(), NumRows(), method_index);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -566,7 +631,7 @@ void MethodInfo::Dump(const char* prefix) {
 void DexRegisterMask::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sDexRegisterMask BitSize=%ld Rows=%d Bits={Mask=%d}\n", prefix, DataBitSize(), NumRows(), mask);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -574,7 +639,7 @@ void DexRegisterMask::Dump(const char* prefix) {
 void DexRegisterMap::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sDexRegisterMap BitSize=%ld Rows=%d Bits={CatalogueIndex=%d}\n", prefix, DataBitSize(), NumRows(), catalogue_index);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
 }
@@ -582,9 +647,43 @@ void DexRegisterMap::Dump(const char* prefix) {
 void DexRegisterInfo::Dump(const char* prefix) {
     if (OatHeader::OatVersion() >= 170) {
         LOGI("%sDexRegisterInfo BitSize=%ld Rows=%d Bits={Kind=%d PackedValue=%d}\n", prefix, DataBitSize(), NumRows(), kind, packed_value);
-    } else if (OatHeader::OatVersion() >= 124) {
+    } else if (OatHeader::OatVersion() >= 150) {
 
     }
+}
+
+void CodeInfoEncoding::Dump(const char* prefix) {
+    dex_register_map.Dump(prefix, "DexRegisterMap");
+    location_catalog.Dump(prefix, "DexRegisterLocationCatalog");
+    stack_map.Dump(prefix);
+    register_mask.Dump(prefix, "RegisterMask");
+    stack_mask.Dump(prefix, "StackMask");
+    invoke_info.Dump(prefix);
+    inline_info.Dump(prefix);
+}
+
+void StackMapEncoding::Dump(const char* prefix) {
+    LOGI("%sStackMapEncoding (native_pc_bit_offset=%d, dex_pc_bit_offset=%d, dex_register_map_bit_offset=%d, inline_info_bit_offset=%d, register_mask_bit_offset=%d, stack_mask_index_bit_offset=%d, total_bit_size=%d)\n",
+            prefix, kNativePcBitOffset, dex_pc_bit_offset_, dex_register_map_bit_offset_, inline_info_bit_offset_, register_mask_index_bit_offset_, stack_mask_index_bit_offset_, total_bit_size_);
+}
+
+void InvokeInfoEncoding::Dump(const char* prefix) {
+    LOGI("%sInvokeInfoEncoding (native_pc_bit_offset=%d, invoke_type_bit_offset_=%d, method_index_bit_offset_=%d, total_bit_size_=%d)\n",
+            prefix, kNativePcBitOffset, invoke_type_bit_offset_, method_index_bit_offset_, total_bit_size_);
+}
+
+void InlineInfoEncoding::Dump(const char* prefix) {
+    LOGI("%sInlineInfoEncoding (method_index_bit_offset=%d, dex_pc_bit_offset=%d, extra_data_bit_offset=%d, dex_register_map_bit_offset=%d, total_bit_size=%d)\n",
+            prefix, kMethodIndexBitOffset, dex_pc_bit_offset_, extra_data_bit_offset_, dex_register_map_bit_offset_, total_bit_size_);
+}
+
+void ByteSizedTable::Dump(const char* prefix, const char* name) {
+    LOGI("%s%s (number_of_entries=%d, size_in_bytes=%d)\n", prefix, name, num_entries, num_bytes);
+}
+
+void BitRegionEncoding::Dump(const char* prefix, const char* name) {
+    LOGI("%s%s (number_of_bits=%d)\n", prefix, name, num_bits);
+
 }
 
 } // namespace art

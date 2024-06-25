@@ -34,8 +34,7 @@ public:
 
     uint64_t begin() { return pointer_; }
     uint64_t end() { return pointer_ + size_; }
-
-privte:
+private:
     uint64_t pointer_;
     uint64_t size_;
 };

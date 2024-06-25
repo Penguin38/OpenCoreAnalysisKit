@@ -186,7 +186,8 @@ void MethodCommand::Oatdump() {
         if (verbose) {
             method_header.Dump("");
             art::CodeInfo code_info = art::CodeInfo::Decode(method_header.GetOptimizedCodeInfoPtr());
-            code_info.Dump("  ");
+            code_info.ExtendNumRegister(method);
+            code_info.Dump("    ");
             art::QuickMethodFrameInfo frame = method_header.GetFrameInfo();
             LOGI("  QuickMethodFrameInfo\n");
             LOGI("    frame_size_in_bytes: 0x%x\n", frame.FrameSizeInBytes());

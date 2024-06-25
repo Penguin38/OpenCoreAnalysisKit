@@ -360,15 +360,15 @@ void Android::preLoad() {
 
     // OAT
     RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);
-    RegisterOatListener(124, art::CodeInfo::OatInit124);
-    RegisterOatListener(124, art::StackMap::OatInit124);
-    RegisterOatListener(124, art::RegisterMask::OatInit124);
-    RegisterOatListener(124, art::StackMask::OatInit124);
-    RegisterOatListener(124, art::InlineInfo::OatInit124);
-    RegisterOatListener(124, art::MethodInfo::OatInit124);
-    RegisterOatListener(124, art::DexRegisterMask::OatInit124);
-    RegisterOatListener(124, art::DexRegisterMap::OatInit124);
-    RegisterOatListener(124, art::DexRegisterInfo::OatInit124);
+    RegisterOatListener(150, art::CodeInfo::OatInit150);
+    RegisterOatListener(150, art::StackMap::OatInit150);
+    RegisterOatListener(150, art::RegisterMask::OatInit150);
+    RegisterOatListener(150, art::StackMask::OatInit150);
+    RegisterOatListener(150, art::InlineInfo::OatInit150);
+    RegisterOatListener(150, art::MethodInfo::OatInit150);
+    RegisterOatListener(150, art::DexRegisterMask::OatInit150);
+    RegisterOatListener(150, art::DexRegisterMap::OatInit150);
+    RegisterOatListener(150, art::DexRegisterInfo::OatInit150);
     RegisterOatListener(150, art::CodeInfo::OatInit150);
     RegisterOatListener(156, art::OatQuickMethodHeader::OatInit156);
     RegisterOatListener(158, art::OatQuickMethodHeader::OatInit158);

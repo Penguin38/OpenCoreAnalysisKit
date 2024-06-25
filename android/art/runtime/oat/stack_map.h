@@ -19,10 +19,14 @@
 
 #include "runtime/quick/quick_method_frame_info.h"
 #include "base/bit_memory_region.h"
+#include "base/memory_region.h"
+#include "base/leb128.h"
 #include "base/bit_table.h"
 #include <map>
 
 namespace art {
+
+class ArtMethod;
 
 static constexpr uint32_t kFrameSlotSize = 4;
 
@@ -35,7 +39,7 @@ public:
         Debug = 2,
     };
 
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
 
     static uint32_t UnpackNativePc(uint32_t packed_native_pc);
@@ -66,7 +70,7 @@ private:
 
 class RegisterMask : public BitTable {
 public:
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
 
     uint32_t NumColumns() { return kNumRegisterMasks; }
@@ -83,7 +87,7 @@ private:
 
 class StackMask : public BitTable {
 public:
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
 
     uint32_t NumColumns() { return kNumStackMasks; }
@@ -98,7 +102,7 @@ private:
 
 class InlineInfo : public BitTable {
 public:
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
 
     uint32_t NumColumns() { return kNumInlineInfos; }
@@ -123,7 +127,7 @@ private:
 
 class MethodInfo : public BitTable {
 public:
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
     static void OatInit225();
 
@@ -143,7 +147,7 @@ private:
 
 class DexRegisterMask : public BitTable {
 public:
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
 
     uint32_t NumColumns() { return kNumDexRegisterMasks; }
@@ -158,7 +162,7 @@ private:
 
 class DexRegisterMap : public BitTable {
 public:
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
 
     uint32_t NumColumns() { return kNumDexRegisterMaps; }
@@ -191,7 +195,7 @@ public:
     DexRegisterInfo(Kind k, uint32_t v)
         : kind(static_cast<uint32_t>(k)), packed_value(v) {}
 
-    static void OatInit124();
+    static void OatInit150();
     static void OatInit170();
 
     uint32_t NumColumns() { return kNumDexRegisterInfos; }
@@ -209,6 +213,185 @@ private:
     uint32_t packed_value;
 };
 
+class ByteSizedTable {
+public:
+    static constexpr uint32_t kInvalidOffset = static_cast<uint32_t>(-1);
+
+    inline void Decode(const uint8_t** ptr) {
+        num_entries = DecodeUnsignedLeb128(ptr);
+        num_bytes = DecodeUnsignedLeb128(ptr);
+    }
+
+    void UpdateBitOffset(uint32_t* offset) {
+        byte_offset = *offset / kBitsPerByte;
+        *offset += num_bytes * kBitsPerByte;
+    }
+
+    void Dump(const char* prefix, const char* name);
+private:
+    uint32_t num_entries = 0;
+    uint32_t num_bytes;
+    uint32_t byte_offset = kInvalidOffset;
+};
+
+class FieldEncoding {
+public:
+    FieldEncoding(uint32_t start_offset, uint32_t end_offset, int32_t min_value = 0)
+        : start_offset_(start_offset), end_offset_(end_offset), min_value_(min_value) {}
+
+    inline uint32_t BitSize() { return end_offset_ - start_offset_; }
+private:
+    uint32_t start_offset_;
+    uint32_t end_offset_;
+    int32_t min_value_;
+};
+
+class StackMapEncoding {
+public:
+    StackMapEncoding()
+        : dex_pc_bit_offset_(0),
+        dex_register_map_bit_offset_(0),
+        inline_info_bit_offset_(0),
+        register_mask_index_bit_offset_(0),
+        stack_mask_index_bit_offset_(0),
+        total_bit_size_(0) {}
+
+    void Decode(const uint8_t** ptr);
+    inline uint32_t BitSize() { return total_bit_size_; }
+    inline FieldEncoding GetInlineInfoEncoding() {
+        return FieldEncoding(inline_info_bit_offset_,
+                             register_mask_index_bit_offset_,
+                             -1 /* min_value */);
+    }
+
+    void Dump(const char* prefix);
+private:
+    static constexpr uint32_t kNativePcBitOffset = 0;
+    uint8_t dex_pc_bit_offset_;
+    uint8_t dex_register_map_bit_offset_;
+    uint8_t inline_info_bit_offset_;
+    uint8_t register_mask_index_bit_offset_;
+    uint8_t stack_mask_index_bit_offset_;
+    uint8_t total_bit_size_;
+};
+
+class BitRegionEncoding {
+public:
+    inline void Decode(const uint8_t** ptr) {
+        num_bits = DecodeUnsignedLeb128(ptr);
+    }
+    inline uint32_t BitSize() { return num_bits; }
+
+    void Dump(const char* prefix, const char* name);
+private:
+    uint32_t num_bits = 0;
+};
+
+class InvokeInfoEncoding {
+public:
+    InvokeInfoEncoding()
+        : invoke_type_bit_offset_(0),
+        method_index_bit_offset_(0),
+        total_bit_size_(0) {}
+
+    inline uint32_t BitSize() { return total_bit_size_; }
+    void Decode(const uint8_t** ptr);
+    void Dump(const char* prefix);
+private:
+    static constexpr uint8_t kNativePcBitOffset = 0;
+    uint8_t invoke_type_bit_offset_;
+    uint8_t method_index_bit_offset_;
+    uint8_t total_bit_size_;
+};
+
+class InlineInfoEncoding {
+public:
+    InlineInfoEncoding()
+        : dex_pc_bit_offset_(0),
+        extra_data_bit_offset_(0),
+        dex_register_map_bit_offset_(0),
+        total_bit_size_(0) {}
+
+    inline uint32_t BitSize() { return total_bit_size_; }
+    void Decode(const uint8_t** ptr);
+    void Dump(const char* prefix);
+private:
+    static constexpr uint8_t kIsLastBitOffset = 0;
+    static constexpr uint8_t kMethodIndexBitOffset = 1;
+    uint8_t dex_pc_bit_offset_;
+    uint8_t extra_data_bit_offset_;
+    uint8_t dex_register_map_bit_offset_;
+    uint8_t total_bit_size_;
+};
+
+template <typename Encoding>
+class BitEncodingTable {
+public:
+    static constexpr uint32_t kInvalidOffset = static_cast<uint32_t>(-1);
+
+    inline void Decode(const uint8_t** ptr) {
+        num_entries = DecodeUnsignedLeb128(ptr);
+        encoding.Decode(ptr);
+    }
+
+    void UpdateBitOffset(uint32_t* offset) {
+        bit_offset = *offset;
+        *offset += encoding.BitSize() * num_entries;
+    }
+
+    inline void Dump(const char* prefix) { encoding.Dump(prefix); }
+    inline void Dump(const char* prefix, const char* name) { encoding.Dump(prefix, name); }
+    inline uint32_t NumEntries() { return num_entries; }
+    Encoding encoding;
+private:
+    uint32_t num_entries;
+    uint32_t bit_offset = kInvalidOffset;
+};
+
+class CodeInfoEncoding {
+public:
+    static constexpr uint32_t kInvalidSize = std::numeric_limits<uint32_t>::max();
+
+    CodeInfoEncoding() {}
+    CodeInfoEncoding(uint64_t code_info_data);
+
+    inline void ComputeTableOffsets() {
+        uint32_t bit_offset = HeaderSize() * kBitsPerByte;
+        dex_register_map.UpdateBitOffset(&bit_offset);
+        location_catalog.UpdateBitOffset(&bit_offset);
+        stack_map.UpdateBitOffset(&bit_offset);
+        register_mask.UpdateBitOffset(&bit_offset);
+        stack_mask.UpdateBitOffset(&bit_offset);
+        invoke_info.UpdateBitOffset(&bit_offset);
+        inline_info.UpdateBitOffset(&bit_offset);
+        cache_non_header_size = RoundUp(bit_offset, kBitsPerByte) / kBitsPerByte - HeaderSize();
+    }
+
+    inline uint32_t HeaderSize() { return cache_header_size; }
+    inline uint32_t NonHeaderSize() { return cache_non_header_size; }
+
+    ByteSizedTable& GetDexRegisterMap() { return dex_register_map; }
+    ByteSizedTable& GetLocationCatalog() { return location_catalog; }
+    BitEncodingTable<StackMapEncoding>& GetStackMap() { return stack_map; }
+    BitEncodingTable<BitRegionEncoding>& GetRegisterMask() { return register_mask; }
+    BitEncodingTable<BitRegionEncoding>& GetStackMask() { return stack_mask; }
+    BitEncodingTable<InvokeInfoEncoding>& GetInvokeInfo() { return invoke_info; }
+    BitEncodingTable<InlineInfoEncoding>& GetInlineInfo() { return inline_info; }
+
+    void Dump(const char* prefix);
+private:
+    uint32_t cache_header_size = kInvalidSize;
+    uint32_t cache_non_header_size = kInvalidSize;
+
+    ByteSizedTable dex_register_map;
+    ByteSizedTable location_catalog;
+    BitEncodingTable<StackMapEncoding> stack_map;
+    BitEncodingTable<BitRegionEncoding> register_mask;
+    BitEncodingTable<BitRegionEncoding> stack_mask;
+    BitEncodingTable<InvokeInfoEncoding> invoke_info;
+    BitEncodingTable<InlineInfoEncoding> inline_info;
+};
+
 class CodeInfo {
 public:
     static CodeInfo Decode(uint64_t code_info_data);
@@ -216,10 +399,7 @@ public:
     static uint32_t DecodeCodeSize(uint64_t code_info_data);
     static QuickMethodFrameInfo DecodeFrameInfo(uint64_t code_info_data);
 
-    CodeInfo(uint64_t code_info_data) {
-        data_ = code_info_data;
-        reader = code_info_data;
-    }
+    CodeInfo(uint64_t code_info_data);
 
     enum Flags {
         kHasInlineInfo = 1 << 0,
@@ -246,13 +426,21 @@ public:
     DexRegisterMap& GetDexRegisterMap() { return dex_register_map_; }
     DexRegisterInfo& GetDexRegisterInfo() { return dex_register_info_; }
 
+    // 124+
+    CodeInfoEncoding& GetEncoding() { return encoding_; }
+
     uint32_t NativePc2DexPc(uint32_t native_pc);
     void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
+    void ExtendNumRegister(ArtMethod& method);
 
     void Dump(const char* prefix);
 
     static uint32_t kNumHeaders;
     static uint32_t kNumBitTables;
+
+protected:
+    MemoryRegion region_;
+    CodeInfoEncoding encoding_;
 private:
     uint64_t data_;
     BitMemoryReader reader = 0;
@@ -265,7 +453,7 @@ private:
     uint32_t bit_table_flags_ = 0;          // 172+
 
     // 124+
-    uint32_t number_of_stack_maps = 0;
+    uint32_t number_of_stack_maps_ = 0;
 
     // Bit tables
     StackMap stack_map_;
