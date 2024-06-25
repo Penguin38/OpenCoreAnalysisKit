@@ -351,9 +351,10 @@ void Android::preLoad() {
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::gc::space::BumpPointerSpace::Init34);
 
     // 35 For test
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::gc::Heap::Init35);
+    // RegisterSdkListener(VANILLA_ICE_CREAM, art::gc::Heap::Init35);
     RegisterSdkListener(VANILLA_ICE_CREAM, art::ImageHeader::Init35);
     RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::Init35);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::tls_ptr_sized_values::Init35);
     RegisterSdkListener(VANILLA_ICE_CREAM, art::OatDexFile::Init35);
 
     // OAT

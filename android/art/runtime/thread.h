@@ -122,6 +122,7 @@ public:
         static void Init30();
         static void Init33();
         static void Init34();
+        static void Init35();
         inline uint64_t stack_end() { return VALUEOF(Thread_tls_ptr_sized_values, stack_end); }
         inline uint64_t managed_stack() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, managed_stack); }
         inline uint64_t self() { return VALUEOF(Thread_tls_ptr_sized_values, self); }
