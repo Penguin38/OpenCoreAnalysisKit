@@ -528,18 +528,29 @@ uint32_t StackMap::UnpackNativePc(uint32_t packed_native_pc) {
 }
 
 uint32_t CodeInfo::NativePc2DexPc(uint32_t native_pc) {
-    StackMap& map = GetStackMap();
-    if (!map.IsValid()) {
-        return 0;
-    }
-
     uint32_t dex_pc = 0x0;
-    for (int row = 0; row < map.NumRows(); row++) {
-        uint32_t packed_native_pc = map.Get(row, StackMap::kColNumPackedNativePc);
-        uint32_t current_native_pc = StackMap::UnpackNativePc(packed_native_pc);
-        if (current_native_pc > native_pc)
-            break;
-        dex_pc = map.Get(row, StackMap::kColNumDexPc);
+    if (OatHeader::OatVersion() >= 144) {
+        StackMap& map = GetStackMap();
+        if (!map.IsValid()) {
+            return 0;
+        }
+
+        for (int row = 0; row < map.NumRows(); row++) {
+            uint32_t packed_native_pc = map.Get(row, StackMap::kColNumPackedNativePc);
+            uint32_t current_native_pc = StackMap::UnpackNativePc(packed_native_pc);
+            if (current_native_pc > native_pc)
+                break;
+            dex_pc = map.Get(row, StackMap::kColNumDexPc);
+        }
+    } else {
+        for (int row = 0; row < number_of_stack_maps_; row++) {
+            BitMemoryRegion bit_region = encoding_.GetStackMap().BitRegion(region_, row);
+            uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
+            if (current_native_pc > native_pc)
+                break;
+            dex_pc = encoding_.GetStackMap().encoding.GetDexPcEncoding().Load(bit_region);
+        }
+
     }
     return dex_pc;
 }

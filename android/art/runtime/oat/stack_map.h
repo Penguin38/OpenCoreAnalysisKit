@@ -240,6 +240,9 @@ public:
         : start_offset_(start_offset), end_offset_(end_offset), min_value_(min_value) {}
 
     inline uint32_t BitSize() { return end_offset_ - start_offset_; }
+    inline int32_t Load(BitMemoryRegion region) {
+        return static_cast<int32_t>(region.LoadBits(start_offset_, BitSize())) + min_value_;
+    }
 private:
     uint32_t start_offset_;
     uint32_t end_offset_;
@@ -258,6 +261,12 @@ public:
 
     void Decode(const uint8_t** ptr);
     inline uint32_t BitSize() { return total_bit_size_; }
+    inline FieldEncoding GetNativePcEncoding() {
+        return FieldEncoding(kNativePcBitOffset, dex_pc_bit_offset_, -1 /* min_value */);
+    }
+    inline FieldEncoding GetDexPcEncoding() {
+        return FieldEncoding(dex_pc_bit_offset_, dex_register_map_bit_offset_, -1 /* min_value */);
+    }
     inline FieldEncoding GetInlineInfoEncoding() {
         return FieldEncoding(inline_info_bit_offset_,
                              register_mask_index_bit_offset_,
@@ -337,6 +346,11 @@ public:
     void UpdateBitOffset(uint32_t* offset) {
         bit_offset = *offset;
         *offset += encoding.BitSize() * num_entries;
+    }
+
+    inline BitMemoryRegion BitRegion(MemoryRegion region, uint32_t index) {
+        const uint32_t map_size = encoding.BitSize();
+        return BitMemoryRegion(region, bit_offset + index * map_size, map_size);
     }
 
     inline void Dump(const char* prefix) { encoding.Dump(prefix); }
