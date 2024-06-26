@@ -217,7 +217,6 @@ void Android::preLoad() {
     art::CompactDexFile::CodeItem::Init();
     art::HandleScope::Init();
     art::MonitorPool::Init();
-    art::BaseMutex::Init();
     art::Mutex::Init();
     art::ReaderWriterMutex::Init();
 
@@ -239,7 +238,6 @@ void Android::preLoad() {
     art::gc::space::LargeObjectMapSpace::LargeObject::Init();
     art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
     art::gc::space::AllocationInfo::Init();
-    art::gc::space::FreeListSpace::Init();
 
     // preLoadLater listener
     // 26
@@ -269,6 +267,8 @@ void Android::preLoad() {
     RegisterSdkListener(O, art::OatDexFile::Init26);
     RegisterSdkListener(O, art::LockLevel::Init26);
     RegisterSdkListener(O, art::Monitor::Init26);
+    RegisterSdkListener(O, art::BaseMutex::Init26);
+    RegisterSdkListener(O, art::gc::space::FreeListSpace::Init26);
 
     // 28
     RegisterSdkListener(P, art::DexFile::Init28);
@@ -307,6 +307,8 @@ void Android::preLoad() {
     RegisterSdkListener(Q, art::jit::JitCodeCache::Init29);
     RegisterSdkListener(Q, art::LockLevel::Init29);
     RegisterSdkListener(Q, art::Monitor::Init29);
+    RegisterSdkListener(Q, art::BaseMutex::Init29);
+    RegisterSdkListener(Q, art::gc::space::FreeListSpace::Init29);
 
     // 30 base
     RegisterSdkListener(R, art::Runtime::Init30);
@@ -321,6 +323,7 @@ void Android::preLoad() {
     RegisterSdkListener(R, art::jit::ZygoteMap::Init30);
     RegisterSdkListener(R, art::LockLevel::Init30);
     RegisterSdkListener(R, art::Monitor::Init30);
+    RegisterSdkListener(R, art::gc::space::FreeListSpace::Init30);
 
     // 31
     RegisterSdkListener(S, art::Runtime::Init31);

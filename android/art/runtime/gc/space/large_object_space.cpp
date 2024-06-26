@@ -247,7 +247,63 @@ void AllocationInfo::Init() {
     };
 }
 
-void FreeListSpace::Init() {
+void FreeListSpace::Init26() {
+    if (CoreApi::Bits() == 64) {
+        __FreeListSpace_offset__ = {
+            .mem_map_ = 112,
+            .allocation_info_map_ = 120,
+            .allocation_info_ = 128,
+            .free_end_ = 176,
+            .free_blocks_ = 184,
+        };
+
+        __FreeListSpace_size__ = {
+            .THIS = 208,
+        };
+    } else {
+        __FreeListSpace_offset__ = {
+            .mem_map_ = 72,
+            .allocation_info_map_ = 76,
+            .allocation_info_ = 80,
+            .free_end_ = 116,
+            .free_blocks_ = 120,
+        };
+
+        __FreeListSpace_size__ = {
+            .THIS = 132,
+        };
+    }
+}
+
+void FreeListSpace::Init29() {
+    if (CoreApi::Bits() == 64) {
+        __FreeListSpace_offset__ = {
+            .mem_map_ = 152,
+            .allocation_info_map_ = 224,
+            .allocation_info_ = 296,
+            .free_end_ = 304,
+            .free_blocks_ = 312,
+        };
+
+        __FreeListSpace_size__ = {
+            .THIS = 336,
+        };
+    } else {
+        __FreeListSpace_offset__ = {
+            .mem_map_ = 104,
+            .allocation_info_map_ = 144,
+            .allocation_info_ = 184,
+            .free_end_ = 188,
+            .free_blocks_ = 192,
+        };
+
+        __FreeListSpace_size__ = {
+            .THIS = 204,
+        };
+    }
+}
+
+void FreeListSpace::Init30() {
     if (CoreApi::Bits() == 64) {
         __FreeListSpace_offset__ = {
             .mem_map_ = 392,

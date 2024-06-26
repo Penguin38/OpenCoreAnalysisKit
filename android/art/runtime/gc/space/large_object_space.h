@@ -201,7 +201,9 @@ public:
     FreeListSpace(uint64_t v, LargeObjectSpace& ref) : LargeObjectSpace(v, ref) {}
     FreeListSpace(uint64_t v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
-    static void Init();
+    static void Init26();
+    static void Init29();
+    static void Init30();
     inline uint64_t free_end() { return VALUEOF(FreeListSpace, free_end_); }
     inline uint64_t allocation_info() { return VALUEOF(FreeListSpace, allocation_info_); }
 

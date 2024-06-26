@@ -56,7 +56,8 @@ public:
         const char* type;
     };
 
-    static void Init();
+    static void Init26();
+    static void Init29();
     inline uint64_t vtbl() { return VALUEOF(BaseMutex, vtbl); }
     inline uint64_t name() { return VALUEOF(BaseMutex, name_); }
     const char* GetName();

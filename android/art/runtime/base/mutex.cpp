@@ -26,7 +26,27 @@ struct ReaderWriterMutex_OffsetTable __ReaderWriterMutex_offset__;
 
 namespace art {
 
-void BaseMutex::Init() {
+void BaseMutex::Init26() {
+    if (CoreApi::Bits() == 64) {
+        __BaseMutex_offset__ = {
+            .vtbl = 0,
+            .vtbl_IsMutex = 0,
+            .vtbl_IsReaderWriterMutex = 8,
+            .vtbl_IsMutatorMutex = 16,
+            .name_ = 16,
+        };
+    } else {
+        __BaseMutex_offset__ = {
+            .vtbl = 0,
+            .vtbl_IsMutex = 0,
+            .vtbl_IsReaderWriterMutex = 4,
+            .vtbl_IsMutatorMutex = 8,
+            .name_ = 8,
+        };
+    }
+}
+
+void BaseMutex::Init29() {
     if (CoreApi::Bits() == 64) {
         __BaseMutex_offset__ = {
             .vtbl = 0,
