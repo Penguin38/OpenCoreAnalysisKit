@@ -454,6 +454,7 @@ private:
 
     // 124+
     uint32_t number_of_stack_maps_ = 0;
+    uint32_t frame_size_in_bytes_ = 0;
 
     // Bit tables
     StackMap stack_map_;

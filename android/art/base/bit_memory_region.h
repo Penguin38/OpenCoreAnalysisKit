@@ -20,6 +20,7 @@
 #include "api/memory_ref.h"
 #include "common/bit.h"
 #include "base/globals.h"
+#include "base/memory_region.h"
 #include <vector>
 #include <array>
 
@@ -32,6 +33,12 @@ public:
         data_ = RoundDown(data + (bit_start >> kBitsPerByteLog2), kPageSize);
         bit_start_ = bit_start + kBitsPerByte * (data - data_.Ptr());
         bit_size_ = bit_size;
+    }
+    BitMemoryRegion(MemoryRegion region)
+            : BitMemoryRegion(region.begin(), /* bit_start */ 0, region.size_in_bits()) {}
+    BitMemoryRegion(MemoryRegion region, uint64_t bit_offset, uint64_t bit_length)
+            : BitMemoryRegion(region) {
+        *this = Subregion(bit_offset, bit_length);
     }
     uint64_t data() {
         return data_.Ptr() + bit_start_ / kBitsPerByte;
@@ -69,6 +76,9 @@ class BitMemoryReader {
 public:
     BitMemoryReader(uint64_t data, int64_t bit_offset = 0)
         : finished_region_(data, bit_offset, 0) {}
+    BitMemoryReader(BitMemoryRegion data)
+        : finished_region_(data.Subregion(0, 0) /* set the length to zero */ ) {
+    }
     BitMemoryRegion ReadRegion(uint64_t bit_length) {
         uint64_t bit_offset = finished_region_.size_in_bits();
         finished_region_.Resize(bit_offset + bit_length);

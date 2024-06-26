@@ -524,7 +524,7 @@ void Thread::DumpState() {
             continue;
         BaseMutex mutex = GetHeldMutex(i);
         if (mutex.Ptr()) {
-            mutexes.append(" \"").append(mutex.GetName()).append("\"");;
+            mutexes.append("\"").append(mutex.GetName()).append("\"");;
             if (mutex.IsReaderWriterMutex()) {
                 ReaderWriterMutex rw_mutex = mutex;
                 if (rw_mutex.GetExclusiveOwnerTid() == GetTid()) {
@@ -533,6 +533,7 @@ void Thread::DumpState() {
                     mutexes.append("(shared held)");
                 }
             }
+            mutexes.append(" ");
         }
     }
     LOGI("  | mutexes=0x%lx held=%s\n", GetTlsPtr().held_mutexes(), mutexes.c_str());

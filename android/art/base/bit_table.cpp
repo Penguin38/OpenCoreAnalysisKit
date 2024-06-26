@@ -22,7 +22,7 @@
 namespace art {
 
 void BitTable::DecodeOnly(BitMemoryReader& reader, std::vector<uint32_t>& header) {
-    if (OatHeader::OatVersion() >= 171) {
+    if (OatHeader::OatVersion() >= 173) {
         uint32_t kNumColumns = NumColumns();
         reader.ReadInterleavedVarints(kNumColumns + 1, header);
         num_rows_ = header[0];
@@ -33,7 +33,7 @@ void BitTable::DecodeOnly(BitMemoryReader& reader, std::vector<uint32_t>& header
             column_offset_[i + 1] = static_cast<uint16_t>(column_end);
         }
         table_data_ = reader.ReadRegion(num_rows_ * NumRowBits());
-    } else if (OatHeader::OatVersion() >= 170) {
+    } else if (OatHeader::OatVersion() >= 159) {
         uint32_t kNumColumns = NumColumns();
         column_offset_.resize(kNumColumns + 1, 0);
         header.push_back(reader.ReadVarint());
