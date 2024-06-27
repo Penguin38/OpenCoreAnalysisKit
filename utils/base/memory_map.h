@@ -24,6 +24,7 @@
 class MemoryMap {
 public:
     static MemoryMap* MmapFile(const char* file);
+    static MemoryMap* MmapFile(const char* file, uint64_t off);
     static MemoryMap* MmapFile(const char* file, uint64_t size, uint64_t off);
     static MemoryMap* MmapMem(uint64_t addr, uint64_t size);
     static MemoryMap* MmapZeroMem(uint64_t size);

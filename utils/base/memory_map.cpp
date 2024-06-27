@@ -23,22 +23,15 @@
 #include <iostream>
 
 MemoryMap* MemoryMap::MmapFile(const char* file) {
-    int fd;
+    return MmapFile(file, 0);
+}
+
+MemoryMap* MemoryMap::MmapFile(const char* file, uint64_t off) {
     struct stat sb;
-
-    fd = open(file, O_RDONLY);
-    if (fd == -1)
+    if (stat(file, &sb) == -1)
         return nullptr;
 
-    if (fstat(fd, &sb) == -1)
-        return nullptr;
-
-    MemoryMap *map = MmapFile(fd, sb.st_size, 0);
-    close(fd);
-    if (map) {
-        map->mName = file;
-    }
-    return map;
+    return MmapFile(file, sb.st_size - off, off);
 }
 
 MemoryMap* MemoryMap::MmapFile(const char* file, uint64_t size, uint64_t off) {
