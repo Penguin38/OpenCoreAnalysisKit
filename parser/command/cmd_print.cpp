@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <iomanip>
+#include <vector>
 
 bool PrintCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
@@ -181,8 +182,10 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
 
     std::string format = FormatSize(clazz.SizeOf());
     art::mirror::Class current = clazz;
+
+    std::vector<art::ArtField> fields;
     auto callback = [&](art::ArtField& field) -> bool {
-        PrintCommand::PrintField(format.c_str(), current, clazz, field);
+        fields.push_back(field);
         return false;
     };
 
@@ -190,9 +193,20 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
     current = clazz.GetClass();
     LOGI("  info %s\n", current.PrettyDescriptor().c_str());
     Android::ForeachInstanceField(current, callback);
+
+    std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
+    for (auto& field : fields) {
+        PrintCommand::PrintField(format.c_str(), current, clazz, field);
+    }
+    fields.clear();
+
     current = current.GetSuperClass();
     LOGI("  extends %s\n", current.PrettyDescriptor().c_str());
     Android::ForeachInstanceField(current, callback);
+    std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
+    for (auto& field : fields) {
+        PrintCommand::PrintField(format.c_str(), current, clazz, field);
+    }
 }
 
 void PrintCommand::DumpArray(art::mirror::Array& array) {
@@ -249,18 +263,24 @@ void PrintCommand::DumpInstance(art::mirror::Object& object) {
             LOGI("  extends %s\n", super.PrettyDescriptor().c_str());
         }
 
-        auto callback = [&](art::ArtField& field) -> bool {
-            PrintCommand::PrintField(format.c_str(), super, object, field);
-            return false;
-        };
-        Android::ForeachInstanceField(super, callback);
-
         if (super.IsStringClass()) {
             art::mirror::String str = object;
             if (str.GetLength() != 0) {
                 LOGI(format.c_str(), SIZEOF(String), "virutal ", "char[]", "values");
                 LOGI(" = %s\n", str.ToModifiedUtf8().c_str());
             }
+        }
+
+        std::vector<art::ArtField> fields;
+        auto callback = [&](art::ArtField& field) -> bool {
+            fields.push_back(field);
+            return false;
+        };
+        Android::ForeachInstanceField(super, callback);
+        std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
+
+        for (auto& field : fields) {
+            PrintCommand::PrintField(format.c_str(), super, object, field);
         }
 
         super = super.GetSuperClass();

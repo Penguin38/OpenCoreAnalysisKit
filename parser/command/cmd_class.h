@@ -25,6 +25,13 @@
 
 class ClassCommand : public Command {
 public:
+    static constexpr int SHOW_METHOD = 1 << 0;
+    static constexpr int SHOW_IMPL = 1 << 1;
+    static constexpr int SHOW_STATIC = 1 << 2;
+    static constexpr int SHOW_FIELD = 1 << 3;
+    static constexpr int SHOW_ALL = SHOW_METHOD | SHOW_IMPL |
+                                    SHOW_STATIC | SHOW_FIELD;
+
     ClassCommand() : Command("class") {}
     ~ClassCommand() {}
     int main(int argc, char* const argv[]);
@@ -39,6 +46,7 @@ public:
 private:
     uint64_t total_classes;
     bool dump_all;
+    int show_flag;
 };
 
 #endif // PARSER_COMMAND_CMD_CLASS_H_

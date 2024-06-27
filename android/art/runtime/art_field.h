@@ -50,6 +50,7 @@ public:
     inline bool operator==(ArtField& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ArtField& ref) { return Ptr() != ref.Ptr(); }
 
+    static bool Compare(art::ArtField& a, art::ArtField& b) { return a.offset() > b.offset(); }
     static void Init();
     inline uint32_t declaring_class() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(ArtField, declaring_class_)); }
     inline uint32_t access_flags() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(ArtField, access_flags_)); }

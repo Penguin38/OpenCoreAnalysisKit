@@ -22,15 +22,50 @@
 #include "runtime/mirror/iftable.h"
 #include "api/core.h"
 #include <stdio.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <vector>
 
 int ClassCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
     dump_all = !(argc > 1)? true : false;
+    show_flag = 0;
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"method",  no_argument,       0,  'm'},
+        {"static",  no_argument,       0,  's'},
+        {"impl",    no_argument,       0,  'i'},
+        {"field",  no_argument,        0,  'f'},
+    };
+
+    while ((opt = getopt_long(argc, argv, "msif",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'm':
+                show_flag |= SHOW_METHOD;
+                break;
+            case 's':
+                show_flag |= SHOW_STATIC;
+                break;
+            case 'i':
+                show_flag |= SHOW_IMPL;
+                break;
+            case 'f':
+                show_flag |= SHOW_FIELD;
+                break;
+        }
+    }
+
+    show_flag = !show_flag ? SHOW_ALL : show_flag;
     total_classes = 0;
+
+    const char* classname = argv[optind];
     auto callback = [&](art::mirror::Object& object) -> bool {
-        return PrintClass(object, argv[1]);
+        return PrintClass(object, classname);
     };
     Android::ForeachObjects(callback);
     return 0;
@@ -66,7 +101,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str());
     }
-    if (ifcount > 0) {
+    if (ifcount > 0 && (show_flag & SHOW_IMPL)) {
         LOGI("  // Implements:\n");
         for (int i = 0; i < ifcount; ++i) {
             art::mirror::Class interface = iftable.GetInterface(i);
@@ -79,24 +114,35 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     format.append("\n");
 
     art::mirror::Class current = clazz;
-    if (clazz.NumStaticFields()) {
+    if (clazz.NumStaticFields() && (show_flag & SHOW_STATIC)) {
         if (needEnd) ENTER();
         LOGI("  // Class static fields:\n");
         needEnd = true;
     }
+    std::vector<art::ArtField> fields;
     auto print_static_field = [&](art::ArtField& field) -> bool {
-        PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field);
+        fields.push_back(field);
         return false;
     };
-    Android::ForeachStaticField(current, print_static_field);
+    if ((show_flag & SHOW_STATIC)) {
+        Android::ForeachStaticField(current, print_static_field);
+        std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
+        for (auto& field : fields) {
+            PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field);
+        }
+        fields.clear();
+    }
 
-    if (clazz.NumInstanceFields()) {
+    if (clazz.NumInstanceFields() && (show_flag & SHOW_FIELD)) {
         if (needEnd) ENTER();
         LOGI("  // Object instance fields:\n");
         needEnd = true;
     }
     super = clazz;
     do {
+        if (!(show_flag & SHOW_FIELD))
+            break;
+
         if (clazz != super) {
             if (needEnd) ENTER();
             LOGI("  // extends %s\n", super.PrettyDescriptor().c_str());
@@ -104,16 +150,21 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
         }
 
         auto callback = [&](art::ArtField& field) -> bool {
-            LOGI(format.c_str(), field.offset(), art::PrettyJavaAccessFlags(field.access_flags()).c_str(),
-                                 field.PrettyTypeDescriptor().c_str(), field.GetName());
+            fields.push_back(field);
             return false;
         };
         Android::ForeachInstanceField(super, callback);
+        std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
+        for (auto& field : fields) {
+            LOGI(format.c_str(), field.offset(), art::PrettyJavaAccessFlags(field.access_flags()).c_str(),
+                                 field.PrettyTypeDescriptor().c_str(), field.GetName());
+        }
+        fields.clear();
 
         super = super.GetSuperClass();
     } while (super.Ptr());
 
-    if (clazz.NumMethods()) {
+    if (clazz.NumMethods() && (show_flag & SHOW_METHOD)) {
         if (needEnd) ENTER();
         LOGI("  // Methods:\n");
         needEnd = true;
@@ -123,11 +174,16 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
                                  method.PrettyMethod().c_str());
         return false;
     };
-    Android::ForeachArtMethods(current, print_method);
+    if ((show_flag & SHOW_METHOD)) Android::ForeachArtMethods(current, print_method);
 
     LOGI("}\n");
 }
 
 void ClassCommand::usage() {
-    LOGI("Usage: class [CLASSNAME]\n");
+    LOGI("Usage: class [CLASSNAME] [Option..]\n");
+    LOGI("Option:\n");
+    LOGI("    --method|-m: show class method\n");
+    LOGI("    --impl|-i: show class implements class\n");
+    LOGI("    --static|-s: show static field\n");
+    LOGI("    --field|-f: show instance field\n");
 }

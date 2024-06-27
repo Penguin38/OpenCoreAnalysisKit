@@ -245,7 +245,13 @@ core-parser> search MainActivity -r
 
 ```
 core-parser> help class
-Usage: class [CLASSNAME]
+Usage: class [CLASSNAME] [Option..]
+Option:
+    --method|-m: show class method
+    --impl|-i: show class implements class
+    --static|-s: show static field
+    --field|-f: show instance field
+
 core-parser> class java.lang.Object
 [0x7024aa78]
 public class java.lang.Object {
