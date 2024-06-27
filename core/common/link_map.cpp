@@ -60,7 +60,7 @@ api::MemoryRef& LinkMap::GetAddrCache() {
                  * ---------
                  *
                  */
-                header = CoreApi::FindFile(dynamic->begin() - (dynamic->offset() - header->offset()));
+                header = CoreApi::FindFile(dynamic->begin() - (dynamic->offset() - (header ? header->offset() : 0)));
                 if (header && header->name() == dynamic->name()) {
                     addr_cache = header->begin();
                 }
