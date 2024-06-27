@@ -34,6 +34,10 @@ public:
 
     uint64_t begin() { return pointer_; }
     uint64_t end() { return pointer_ + size_; }
+
+    MemoryRegion Subregion(uint64_t offset, uint64_t size_in) {
+        return MemoryRegion(begin() + offset, size_in);
+    }
 private:
     uint64_t pointer_;
     uint64_t size_;

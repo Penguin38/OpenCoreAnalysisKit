@@ -556,6 +556,30 @@ uint32_t CodeInfo::NativePc2DexPc(uint32_t native_pc) {
 }
 
 void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vreg_map) {
+    if (OatHeader::OatVersion() >= 170) {
+        NativePc2VRegsV2(native_pc, vreg_map);
+    } else {
+        if (OatHeader::OatVersion() >= 144) {
+            // do nothing
+        } else {
+            NativePc2VRegsV1(native_pc, vreg_map);
+        }
+    }
+}
+
+void CodeInfo::NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vreg_map) {
+    int32_t dex_register_map = -1;
+    for (int row = 0; row < number_of_stack_maps_; row++) {
+        BitMemoryRegion bit_region = encoding_.GetStackMap().BitRegion(region_, row);
+        uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
+        if (current_native_pc > native_pc)
+            break;
+        dex_register_map = encoding_.GetStackMap().encoding.GetDexRegisterMapEncoding().Load(bit_region);
+    }
+    // TODO
+}
+
+void CodeInfo::NativePc2VRegsV2(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vreg_map) {
     StackMap& map = GetStackMap();
     if (!map.IsValid()) return;
 
@@ -625,6 +649,20 @@ void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegister
     }
 }
 
+std::string DexRegisterInfo::ConvertKindBit(DexRegisterInfo::KindBit kind) {
+    switch(kind) {
+        case DexRegisterInfo::KindBit::kInStack: return "stack";
+        case DexRegisterInfo::KindBit::kInRegister: return "register";
+        case DexRegisterInfo::KindBit::kInRegisterHigh: return "register high";
+        case DexRegisterInfo::KindBit::kInFpuRegister: return "fpu register";
+        case DexRegisterInfo::KindBit::kInFpuRegisterHigh: return "fpu register high";
+        case DexRegisterInfo::KindBit::kConstant: return "constant";
+        case DexRegisterInfo::KindBit::kInStackLargeOffset: return "stack (large offset)";
+        case DexRegisterInfo::KindBit::kConstantLargeValue: return "constant (large value)";
+    }
+    return "";
+}
+
 void CodeInfo::Dump(const char* prefix) {
     std::string sub_prefix(prefix);
     sub_prefix.append("  ");
@@ -653,6 +691,20 @@ void CodeInfo::Dump(const char* prefix) {
     } else if (OatHeader::OatVersion() >= 124) {
         LOGI("%sCodeInfo (number_of_dex_registers=%d, number_of_stack_maps=%d)\n", prefix, number_of_dex_registers_, number_of_stack_maps_);
         GetEncoding().Dump(sub_prefix.c_str());
+        std::string sub2_prefix(sub_prefix);
+        sub2_prefix.append("  ");
+        MemoryRegion location = region_.Subregion(GetEncoding().GetLocationCatalog().ByteOffset(), GetEncoding().GetLocationCatalog().NumBytes());
+        uint32_t num = GetEncoding().GetLocationCatalog().NumEntryes();
+        api::MemoryRef ref = location.pointer();
+        for (int i = 0; i < num; ++i) {
+            uint8_t value = ref.value8Of(i);
+            DexRegisterInfo::KindBit kind = static_cast<DexRegisterInfo::KindBit>(value & 0x7);
+            value = (value & 0xF8) >> 3;
+            LOGI("%sentry %d in %s (%d)\n", sub2_prefix.c_str(), i,
+                                            DexRegisterInfo::ConvertKindBit(kind).c_str(),
+                                            value);
+            // TODO
+        }
     }
 }
 
@@ -727,12 +779,12 @@ void DexRegisterInfo::Dump(const char* prefix) {
 
 void CodeInfoEncoding::Dump(const char* prefix) {
     dex_register_map.Dump(prefix, "DexRegisterMap");
-    location_catalog.Dump(prefix, "DexRegisterLocationCatalog");
     stack_map.Dump(prefix);
     register_mask.Dump(prefix, "RegisterMask");
     stack_mask.Dump(prefix, "StackMask");
     invoke_info.Dump(prefix);
     inline_info.Dump(prefix);
+    location_catalog.Dump(prefix, "DexRegisterLocationCatalog");
 }
 
 void StackMapEncoding::Dump(const char* prefix) {

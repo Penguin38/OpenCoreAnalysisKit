@@ -189,6 +189,17 @@ public:
         kInFpuRegisterHigh,  // vreg is in high 32 bits of an FPU register.
     };
 
+    enum class KindBit : uint8_t {
+        kInStack = 0,             // 0b000
+        kInRegister = 1,          // 0b001
+        kInRegisterHigh = 2,      // 0b010
+        kInFpuRegister = 3,       // 0b011
+        kInFpuRegisterHigh = 4,   // 0b100
+        kConstant = 5,            // 0b101
+        kInStackLargeOffset = 6,  // 0b110
+        kConstantLargeValue = 7,  // 0b111
+    };
+
     DexRegisterInfo() {}
     DexRegisterInfo(uint32_t k, uint32_t v)
         : kind(k), packed_value(v) {}
@@ -208,6 +219,8 @@ public:
 
     inline uint32_t Kind() const { return kind; }
     inline uint32_t PackedValue() const { return packed_value; }
+
+    static std::string ConvertKindBit(KindBit kind);
 private:
     uint32_t kind;
     uint32_t packed_value;
@@ -226,6 +239,10 @@ public:
         byte_offset = *offset / kBitsPerByte;
         *offset += num_bytes * kBitsPerByte;
     }
+
+    inline uint32_t NumEntryes() { return num_entries; }
+    inline uint32_t NumBytes() { return num_bytes; }
+    inline uint32_t ByteOffset() { return byte_offset; }
 
     void Dump(const char* prefix, const char* name);
 private:
@@ -267,10 +284,11 @@ public:
     inline FieldEncoding GetDexPcEncoding() {
         return FieldEncoding(dex_pc_bit_offset_, dex_register_map_bit_offset_, -1 /* min_value */);
     }
+    inline FieldEncoding GetDexRegisterMapEncoding() {
+        return FieldEncoding(dex_register_map_bit_offset_, inline_info_bit_offset_, -1 /* min_value */);
+    }
     inline FieldEncoding GetInlineInfoEncoding() {
-        return FieldEncoding(inline_info_bit_offset_,
-                             register_mask_index_bit_offset_,
-                             -1 /* min_value */);
+        return FieldEncoding(inline_info_bit_offset_, register_mask_index_bit_offset_, -1 /* min_value */);
     }
 
     void Dump(const char* prefix);
@@ -456,6 +474,9 @@ protected:
     MemoryRegion region_;
     CodeInfoEncoding encoding_;
 private:
+    void NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
+    void NativePc2VRegsV2(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
+
     uint64_t data_;
     BitMemoryReader reader = 0;
     uint32_t flags_ = 0;                    // 171+
