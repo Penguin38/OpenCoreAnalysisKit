@@ -21,8 +21,8 @@
 #include "llvm.h"
 #include "api/core.h"
 
-int CoreCommand::main(int argc, char* const argv[]) {
-    bool ret = CoreApi::Load(argv[1]);
+int CoreCommand::Load(const char* path) {
+    bool ret = CoreApi::Load(path);
     if (ret) {
         CoreApi::Init();
         CoreApi::Dump();
@@ -41,6 +41,10 @@ int CoreCommand::main(int argc, char* const argv[]) {
 #endif
     }
     return ret;
+}
+
+int CoreCommand::main(int argc, char* const argv[]) {
+    return Load(argv[1]);
 }
 
 void CoreCommand::usage() {

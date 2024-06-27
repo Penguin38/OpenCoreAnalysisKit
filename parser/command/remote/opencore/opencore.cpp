@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "base/utils.h"
+#include "command/env.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/opencore/x86_64/opencore.h"
 #include "command/remote/opencore/x86/opencore.h"
@@ -46,10 +47,12 @@ int Opencore::Dump(int argc, char* const argv[]) {
     };
 
     int pid = 0;
-    int filter = 0;
-    char* dir = nullptr;
+    int filter = FILTER_SPECIAL_VMA
+               | FILTER_SANITIZER_SHADOW_VMA
+               | FILTER_NON_READ_VMA;
+    char* dir = const_cast<char *>(Env::CurrentDir());
     char* filename = nullptr;
-    char* machine = nullptr;
+    char* machine = const_cast<char *>(NONE_MACHINE);
     while ((opt = getopt_long(argc, argv, "p:f:d:o:m:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
@@ -86,7 +89,7 @@ int Opencore::Dump(int argc, char* const argv[]) {
     }
 
     if (impl) {
-        impl->setDir(dir ? dir : "");
+        impl->setDir(dir);
         impl->setPid(pid);
         impl->setFilter(filter);
         impl->Coredump(filename);
@@ -260,7 +263,7 @@ void Opencore::Usage() {
     LOGI("     { arm64, arm, x86_64, x86, riscv64 }\n");
     LOGI("   --output|-o <COREFILE>\n");
     LOGI("   --filter|-f <Filter>\n");
-    LOGI("Filter:\n");
+    LOGI("Filter: (0x19 default)\n");
     LOGI("     0x01: filter-special-vma\n");
     LOGI("     0x02: filter-file-vma\n");
     LOGI("     0x04: filter-shared-vma\n");

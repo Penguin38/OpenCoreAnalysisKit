@@ -25,6 +25,7 @@ public:
     ~CoreCommand() {}
     int main(int argc, char* const argv[]);
     void usage();
+    static int Load(const char* path);
 };
 
 #endif // PARSER_COMMAND_CMD_CORE_H_

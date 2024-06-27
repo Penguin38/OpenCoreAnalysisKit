@@ -17,6 +17,12 @@
 #ifndef PARSER_COMMAND_ENV_H_
 #define PARSER_COMMAND_ENV_H_
 
+#if defined(__ANDROID__)
+#define CURRENT_DIR_DEF "/data/local/tmp"
+#else
+#define CURRENT_DIR_DEF "./"
+#endif
+
 class Env {
 public:
     void init();
@@ -29,6 +35,7 @@ public:
     static void Clean();
     static bool SetCurrentPid(int p) { return INSTANCE->setCurrentPid(p); }
     static int CurrentPid() { return INSTANCE->current(); }
+    static const char* CurrentDir() { return CURRENT_DIR_DEF; }
 private:
     static Env* INSTANCE;
     int pid;

@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 
+#define NONE_MACHINE "NONE"
 #define ELFCOREMAGIC "CORE"
 #define NOTE_CORE_NAME_SZ 5
 #define ELFLINUXMAGIC "LINUX"

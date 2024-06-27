@@ -18,8 +18,12 @@
 #include "api/core.h"
 #include "ui/ui_thread.h"
 #include "work/work_thread.h"
+#include "android.h"
+#include "command/env.h"
+#include "command/cmd_core.h"
 #include "command/command.h"
 #include "command/command_manager.h"
+#include "command/remote/opencore/opencore.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <signal.h>
@@ -61,6 +65,18 @@ void show_compat_android_version() {
     LOGI("-------------------------------------------------------------------\n\n");
 }
 
+void show_parser_usage() {
+    LOGI("Usage: core-parser [Option..]\n");
+    LOGI("Option:\n");
+    LOGI("    --core|-c <COREFILE>\n");
+    LOGI("    --pid|-p <PID>\n");
+    LOGI("    --machine|-m <ARCH>{ arm64, arm, x86_64, x86, riscv64 }\n");
+    LOGI("    --sdk <SDK>{ 26 ~ 35 }\n");
+    LOGI("Exp:\n");
+    LOGI("  core-parser -c /tmp/tmp.core\n");
+    LOGI("  core-parser -p 1 -m arm64\n");
+}
+
 class QuitCommand : public Command {
 public:
     QuitCommand() : Command("quit", "q") {}
@@ -92,26 +108,59 @@ int command_preload(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"core",  required_argument,       0, 'c'},
         {"sdk",   required_argument,       0,  1 },
+        {"pid",   required_argument,       0, 'p'},
+        {"machine", required_argument,     0, 'm'},
+        {"help",  no_argument,             0, 'h'},
         {0,       0,                       0,  0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "c:1:",
+    char* corefile = nullptr;
+    char* machine = const_cast<char *>(NONE_MACHINE);
+    int current_sdk = 0;
+    int pid = 0;
+    while ((opt = getopt_long(argc, argv, "c:1:p:m:h",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 'c': {
-                std::string cmdline;
-                cmdline.append("core ");
-                cmdline.append(optarg);
-                WorkThread work(cmdline);
-                work.Join();
-            } break;
-            case 1: {
-                std::string cmdline;
-                cmdline.append("env config --sdk ");
-                cmdline.append(optarg);
-                WorkThread work(cmdline);
-                work.Join();
-            } break;
+            case 'c':
+                corefile = optarg;
+                break;
+            case 1:
+                current_sdk = atoi(optarg);
+                break;
+            case 'm':
+                machine = optarg;
+                break;
+            case 'p':
+                pid = atoi(optarg);
+                break;
+            case 'h':
+                show_parser_usage();
+                return -1;
+        }
+    }
+
+    std::string output;
+    if (pid) {
+        std::string cmdline;
+        cmdline.append("remote core -p ");
+        cmdline.append(std::to_string(pid));
+        cmdline.append(" -m ");
+        cmdline.append(machine);
+        output = Env::CurrentDir();
+        std::string file = std::to_string(pid) + ".core";
+        output += "/" + file;
+        cmdline.append(" -o ");
+        cmdline.append(file);;
+        WorkThread work(cmdline);
+        work.Join();
+        corefile = output.data();
+    }
+
+    if (corefile) {
+        if (CoreCommand::Load(corefile)) {
+#if defined(__AOSP_PARSER__)
+            if (current_sdk) Android::OnSdkChanged(current_sdk);
+#endif
         }
     }
 
@@ -135,7 +184,9 @@ int main(int argc, char* const argv[]) {
 #if defined(__AOSP_PARSER__)
     show_compat_android_version();
 #endif
-    command_preload(argc, argv);
+    if (command_preload(argc, argv) < 0) {
+        return 0;
+    }
 
     UiThread ui;
     while (1) {
