@@ -49,14 +49,14 @@ public:
     inline void copyRef(MemoryRef& ref) { checkCopyBlock(ref.block); }
     inline void copyRef(MemoryRef* ref) { checkCopyBlock(ref->block); }
 
-    bool operator==(uint64_t v) { return vaddr == v; }
-    bool operator!=(uint64_t v) { return vaddr != v; }
-    bool operator==(MemoryRef& ref) const { return Ptr() == ref.Ptr(); }
-    bool operator!=(MemoryRef& ref) const { return Ptr() != ref.Ptr(); }
-    bool operator<(MemoryRef& ref) const { return Ptr() < ref.Ptr(); }
-    bool operator>(MemoryRef& ref) const { return Ptr() > ref.Ptr(); }
-    bool operator<=(MemoryRef& ref) const { return Ptr() <= ref.Ptr(); }
-    bool operator>=(MemoryRef& ref) const { return Ptr() >= ref.Ptr(); }
+    inline bool operator==(uint64_t v) { return vaddr == v; }
+    inline bool operator!=(uint64_t v) { return vaddr != v; }
+    inline bool operator==(MemoryRef& ref) const { return Ptr() == ref.Ptr(); }
+    inline bool operator!=(MemoryRef& ref) const { return Ptr() != ref.Ptr(); }
+    inline bool operator<(MemoryRef& ref) const { return Ptr() < ref.Ptr(); }
+    inline bool operator>(MemoryRef& ref) const { return Ptr() > ref.Ptr(); }
+    inline bool operator<=(MemoryRef& ref) const { return Ptr() <= ref.Ptr(); }
+    inline bool operator>=(MemoryRef& ref) const { return Ptr() >= ref.Ptr(); }
 
     inline uint64_t Ptr() { return vaddr; }
     inline uint64_t Ptr() const { return vaddr; }

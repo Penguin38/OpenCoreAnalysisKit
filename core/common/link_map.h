@@ -61,7 +61,9 @@ public:
         std::string method;
         uint64_t off;
     };
+    void ReadSymbols();
     void NiceMethod(uint64_t pc, NiceSymbol& symbol);
+    uint64_t DlSym(const char* symbol);
     api::MemoryRef& GetAddrCache();
     api::MemoryRef& GetNameCache();
 private:

@@ -46,7 +46,7 @@ uint64_t Core::dlsym(LinkMap* handle, const char* symbol) {
         if (!block->isMmapBlock()) {
             value = DynamicSymbol(handle, symbol);
         } else {
-            value = dlsym64(block->name().c_str(), symbol);
+            value = dlsym64(handle, symbol);
         }
     }
     if (value) return handle->l_addr() + value;

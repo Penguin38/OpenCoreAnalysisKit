@@ -22,10 +22,8 @@
 #include "common/bit.h"
 #include "common/load_block.h"
 #include "common/exception.h"
-#include <cxxabi.h>
 #include <string.h>
 #include <linux/elf.h>
-#include <limits>
 
 bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback) {
     Elf32_Ehdr *ehdr = reinterpret_cast<Elf32_Ehdr *>(api->begin());
@@ -268,78 +266,13 @@ bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, con
     return false;
 }
 
-uint32_t lp32::Core::dlsym32(const char* path, const char* symbol) {
-    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(path));
-    if (map) {
-        // already check valid on dlopen
-        Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
-        Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
-
-        int dynsymndx = -1;
-        int dynstrndx = -1;
-        int symtabndx = -1;
-        int strtabndx = -1;
-        int gnu_debugdatandx = -1;
-
-        int sh_num = ehdr->e_shnum;
-        Elf32_Shdr* shdr = reinterpret_cast<Elf32_Shdr*>(map->data() + ehdr->e_shoff);
-        const char* shstr = reinterpret_cast<const char*>(map->data() + shdr[ehdr->e_shstrndx].sh_offset);
-        for (int i = 0; i < sh_num; ++i) {
-            if (!strcmp(shstr + shdr[i].sh_name, ".dynsym")) {
-                dynsymndx = i;
-                continue;
-            }
-
-            if (!strcmp(shstr + shdr[i].sh_name, ".dynstr")) {
-                dynstrndx = i;
-                continue;
-            }
-
-            if (!strcmp(shstr + shdr[i].sh_name, ".symtab")) {
-                symtabndx = i;
-                continue;
-            }
-
-            if (!strcmp(shstr + shdr[i].sh_name, ".strtab")) {
-                strtabndx = i;
-                continue;
-            }
-
-            if (!strcmp(shstr + shdr[i].sh_name, ".gnu_debugdata")) {
-                gnu_debugdatandx = i;
-                continue;
-            }
-        }
-
-        // scan dynsym
-        if (dynsymndx > 0 && dynstrndx > 0) {
-            int count = shdr[dynsymndx].sh_size / shdr[dynsymndx].sh_entsize;
-            Elf32_Sym* symtab = reinterpret_cast<Elf32_Sym*>(map->data() + shdr[dynsymndx].sh_offset);
-            const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[dynstrndx].sh_offset);
-            for (int i = 0; i < count; ++i) {
-                if (!strcmp(strtab + symtab[i].st_name, symbol))
-                    return symtab[i].st_value;
-            }
-        }
-
-        // scan symtab
-        if (symtabndx > 0 && strtabndx > 0) {
-            int count = shdr[symtabndx].sh_size / shdr[symtabndx].sh_entsize;
-            Elf32_Sym* symtab = reinterpret_cast<Elf32_Sym*>(map->data() + shdr[symtabndx].sh_offset);
-            const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[strtabndx].sh_offset);
-            for (int i = 0; i < count; ++i) {
-                if (!strcmp(strtab + symtab[i].st_name, symbol))
-                    return symtab[i].st_value;
-            }
-        }
-
-        // scan gnu_debugdata
-    }
-    return 0x0;
+uint32_t lp32::Core::dlsym32(::LinkMap* handle, const char* symbol) {
+    return handle->DlSym(symbol);
 }
 
-void lp32::Core::nicesym32(const char* path, uint32_t offset, ::LinkMap::NiceSymbol& symbol) {
-    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(path));
+void lp32::Core::readsym32(::LinkMap* handle) {
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(handle->block()->name().c_str(), handle->block()->GetMmapOffset()));
+    std::vector<SymbolEntry>& symbols = handle->block()->GetSymbols();
     if (map) {
         // already check valid on dlopen
         Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
@@ -383,19 +316,15 @@ void lp32::Core::nicesym32(const char* path, uint32_t offset, ::LinkMap::NiceSym
 
         // scan dynsym
         char* match = nullptr;
-        uint32_t nice = std::numeric_limits<uint32_t>::max();
         if (dynsymndx > 0 && dynstrndx > 0) {
             int count = shdr[dynsymndx].sh_size / shdr[dynsymndx].sh_entsize;
             Elf32_Sym* symtab = reinterpret_cast<Elf32_Sym*>(map->data() + shdr[dynsymndx].sh_offset);
             const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[dynstrndx].sh_offset);
             for (int i = 0; i < count; ++i) {
-                if (symtab[i].st_value > 0 && (ELF_ST_TYPE(symtab[i].st_info) == STT_FUNC)) {
-                    if (symtab[i].st_value <= offset) {
-                        if (offset - symtab[i].st_value <= nice) {
-                            match = const_cast<char* >(strtab + symtab[i].st_name);
-                            nice = offset - symtab[i].st_value;
-                        }
-                    }
+                if (symtab[i].st_value > 0) {
+                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info,
+                                                    const_cast<const char*>(strtab + symtab[i].st_name));
+                    symbols.push_back(entry);
                 }
             }
         }
@@ -406,28 +335,14 @@ void lp32::Core::nicesym32(const char* path, uint32_t offset, ::LinkMap::NiceSym
             Elf32_Sym* symtab = reinterpret_cast<Elf32_Sym*>(map->data() + shdr[symtabndx].sh_offset);
             const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[strtabndx].sh_offset);
             for (int i = 0; i < count; ++i) {
-                if (symtab[i].st_value > 0 && (ELF_ST_TYPE(symtab[i].st_info) == STT_FUNC)) {
-                    if (symtab[i].st_value <= offset) {
-                        if (offset - symtab[i].st_value <= nice) {
-                            match = const_cast<char* >(strtab + symtab[i].st_name);
-                            nice = offset - symtab[i].st_value;
-                        }
-                    }
+                if (symtab[i].st_value > 0) {
+                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info,
+                                                    const_cast<const char*>(strtab + symtab[i].st_name));
+                    symbols.push_back(entry);
                 }
             }
         }
 
         // scan gnu_debugdata
-
-        if (match) {
-            int status;
-            char* demangled_name = abi::__cxa_demangle(match, nullptr, nullptr, &status);
-            if (status == 0) {
-                symbol.SetNiceMethod(demangled_name, nice);
-                std::free(demangled_name);
-            } else {
-                symbol.SetNiceMethod(match, nice);
-            }
-        }
     }
 }

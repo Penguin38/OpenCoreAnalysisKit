@@ -53,6 +53,7 @@ void LoadBlock::setOverlay(uint64_t addr, void *buf, uint64_t size) {
 void LoadBlock::removeMmap() {
     if (mMmap) {
         LOGI("Remove mmap [%lx, %lx) %s\n", vaddr(), vaddr() + size(), name().c_str());
+        mSymbols.clear();
         mMmap.reset();
     }
 }
