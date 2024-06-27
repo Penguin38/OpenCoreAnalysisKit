@@ -668,7 +668,9 @@ void Android::Prepare() {
 }
 
 void Android::OatPrepare() {
-    OnOatChanged(art::OatHeader::OatVersion());
+    if (CoreApi::IsReady() && IsReady()) {
+        OnOatChanged(art::OatHeader::OatVersion());
+    }
 }
 
 void Android::onLibartLoad(LinkMap *map) {
