@@ -214,9 +214,9 @@ void RemoteCommand::usage() {
     LOGI("Command:\n");
     LOGI("    core  hook  rd  wd\n");
     LOGI("    pause\n");
-    LOGI("\n");
+    ENTER();
     Opencore::Usage();
-    LOGI("\n");
+    ENTER();
     // Hook::Usage();
     LOGI("remote rd -p <PID> <BEGIN> -e <END>\n");
     LOGI("remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>\n");

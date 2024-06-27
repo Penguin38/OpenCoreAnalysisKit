@@ -80,7 +80,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 
     art::mirror::Class current = clazz;
     if (clazz.NumStaticFields()) {
-        if (needEnd) LOGI("\n");
+        if (needEnd) ENTER();
         LOGI("  // Class static fields:\n");
         needEnd = true;
     }
@@ -91,14 +91,14 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     Android::ForeachStaticField(current, print_static_field);
 
     if (clazz.NumInstanceFields()) {
-        if (needEnd) LOGI("\n");
+        if (needEnd) ENTER();
         LOGI("  // Object instance fields:\n");
         needEnd = true;
     }
     super = clazz;
     do {
         if (clazz != super) {
-            if (needEnd) LOGI("\n");
+            if (needEnd) ENTER();
             LOGI("  // extends %s\n", super.PrettyDescriptor().c_str());
             needEnd = true;
         }
@@ -114,7 +114,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     } while (super.Ptr());
 
     if (clazz.NumMethods()) {
-        if (needEnd) LOGI("\n");
+        if (needEnd) ENTER();
         LOGI("  // Methods:\n");
         needEnd = true;
     }

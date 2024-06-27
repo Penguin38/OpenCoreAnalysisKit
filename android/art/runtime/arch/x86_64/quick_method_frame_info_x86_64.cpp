@@ -67,12 +67,12 @@ void X86_64QuickMethodFrameInfo::DumpCoreSpill(const char* prefix, uint64_t sp, 
             }
             num++;
             if (!(num % 4))
-                LOGI("\n");
+                ENTER();
         }
     }
 
     if (regs_size && (regs_size % 4))
-        LOGI("\n");
+        ENTER();
     LOGI("%s}\n", prefix);
 }
 

@@ -140,7 +140,7 @@ BacktraceCommand::ThreadRecord* BacktraceCommand::findRecord(int pid) {
 void BacktraceCommand::DumpTrace() {
     bool needEnd = false;
     for (const auto& record : threads) {
-        if (needEnd) LOGI("\n");
+        if (needEnd) ENTER();
 #if defined(__AOSP_PARSER__)
         if (record->thread) {
             try {

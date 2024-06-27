@@ -68,8 +68,8 @@ void FakeCommand::usage() {
     LOGI("Usage: fake <COMMAND> [option] ...\n");
     LOGI("Command:\n");
     LOGI("    core  map\n");
-    LOGI("\n");
+    ENTER();
     FakeCore::Usage();
-    LOGI("\n");
+    ENTER();
     FakeLinkMap::Usage();
 }
