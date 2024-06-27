@@ -44,6 +44,18 @@ $ adb shell
 ```
 
 ```
+Usage: core-parser [Option..]
+Option:
+    --core|-c <COREFILE>
+    --pid|-p <PID>
+    --machine|-m <ARCH>{ arm64, arm, x86_64, x86, riscv64 }
+    --sdk <SDK>{ 26 ~ 35 }
+Exp:
+  core-parser -c /tmp/tmp.core
+  core-parser -p 1 -m arm64
+```
+
+```
 emu64xa:/ # chmod +x /data/core-parser
 emu64xa:/ # /data/core-parser -c /sdcard/Android/data/penguin.opencore.tester/files/core.opencore.tester_6422_Thread-2_6550_1709932681
 Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.
