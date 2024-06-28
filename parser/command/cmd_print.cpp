@@ -190,10 +190,18 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
     };
 
     Android::ForeachStaticField(current, callback);
+    if (current.NumStaticFields()) {
+        LOGI("  info %s\n", current.PrettyDescriptor().c_str());
+        std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
+        for (auto& field : fields) {
+            PrintCommand::PrintField(format.c_str(), current, clazz, field);
+        }
+    }
+    fields.clear();
+
     current = clazz.GetClass();
     LOGI("  info %s\n", current.PrettyDescriptor().c_str());
     Android::ForeachInstanceField(current, callback);
-
     std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
     for (auto& field : fields) {
         PrintCommand::PrintField(format.c_str(), current, clazz, field);
