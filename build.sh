@@ -18,8 +18,8 @@ export BUILD_TYPE="Debug"
 export BUILD_PRODUCT="aosp"
 export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
 
-cmake -DCMAKE_C_COMPILER="/usr/bin/clang-12" \
-      -DCMAKE_CXX_COMPILER="/usr/bin/clang++-12" \
+cmake -DCMAKE_C_COMPILER="clang-12" \
+      -DCMAKE_CXX_COMPILER="clang++-12" \
       -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_BUILD_TARGET=linux \
