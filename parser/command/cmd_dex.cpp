@@ -178,5 +178,10 @@ void DexCommand::DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::Dex
 }
 
 void DexCommand::usage() {
-    LOGI("Usage: dex [--origin|-o]\n");
+    LOGI("Usage: dex [Option]..\n");
+    LOGI("Option:\n");
+    LOGI("    --origin:-o: show dex origin name\n");
+    LOGI("    --app: dex unpack from app\n");
+    LOGI("    --num:-n: dex unpack with num\n");
+    LOGI("    --dir:-d: unpack output path\n");
 }
