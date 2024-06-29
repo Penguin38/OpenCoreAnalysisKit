@@ -18,6 +18,7 @@
 #define PARSER_COMMAND_CMD_DEX_H_
 
 #include "command/command.h"
+#include "runtime/mirror/dex_cache.h"
 
 class DexCommand : public Command {
 public:
@@ -27,6 +28,14 @@ public:
     void usage();
     void DexCachesDump();
     void DexCachesDump_v33();
+    void ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, art::DexFile& dex_file);
+    void DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::DexFile& dex_file);
+private:
+    bool dump_ori = false;
+    int num = 0;
+    bool app = false;
+    char* dir = nullptr;
+    bool dump_dex = false;
 };
 
 #endif // PARSER_COMMAND_CMD_DEX_H_

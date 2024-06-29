@@ -91,7 +91,9 @@ public:
     static void Init29();
     static void Init34();
     inline uint64_t data_begin() { return VALUEOF(DexFile, data_begin_); }
+    inline uint64_t data_size() { return VALUEOF(DexFile, data_size_); }
     inline uint64_t location() { return Ptr() + OFFSET(DexFile, location_); }
+    inline uint32_t location_checksum() { return value32Of(OFFSET(DexFile, location_checksum_)); }
     inline uint64_t type_ids() { return VALUEOF(DexFile, type_ids_); }
     inline uint64_t string_ids() { return VALUEOF(DexFile, string_ids_); }
     inline uint64_t field_ids() { return VALUEOF(DexFile, field_ids_); }
