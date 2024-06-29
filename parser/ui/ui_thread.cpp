@@ -26,13 +26,6 @@ void UiThread::prepare() {
     prctl(PR_SET_NAME, "parser:ui");
 }
 
-void UiThread::initTermiosConfig() {
-}
-
-void UiThread::showUiHeader() {
-    write(fileno(stdin), parser(), strlen(parser()));
-}
-
 void UiThread::GetCommand(std::string* result) {
     std::unique_lock<std::mutex> lock(cmdlock);
     cond.wait(lock, [this] {
@@ -56,12 +49,11 @@ void UiThread::Wake() {
 
 void UiThread::run() {
     prepare();
-    initTermiosConfig();
+    shell.Init(parser());
     while (1) {
         {
             std::lock_guard<std::mutex> lock(cmdlock);
-            showUiHeader();
-            std::getline(std::cin, cmdline);
+            cmdline = shell.HandleCommand();
             ready = true;
         }
         cond.notify_one();

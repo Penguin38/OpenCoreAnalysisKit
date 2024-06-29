@@ -17,6 +17,7 @@
 #ifndef PARSER_UI_THREAD_H_
 #define PARSER_UI_THREAD_H_
 
+#include "ui/mini_shell.h"
 #include <mutex>
 #include <string>
 #include <thread>
@@ -38,18 +39,17 @@ private:
     void Wait();
     void run();
     void prepare();
-    void showUiHeader();
-    void initTermiosConfig();
     inline std::string& cmd() { return cmdline; }
     inline char* parser() { return name; }
 
     std::unique_ptr<std::thread> ui;
-    char name[16] = "core-parser> ";
+    char name[16] = "core-parser";
     std::string cmdline;
     std::mutex cmdlock;
     std::mutex execlock;
     std::condition_variable cond;
     bool ready = false;
+    MiniShell shell;
 };
 
 #endif  // PARSER_UI_THREAD_H_

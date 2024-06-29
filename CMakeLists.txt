@@ -242,6 +242,7 @@ target_link_libraries(parser android llvm core utils)
 
 add_executable(core-parser
                parser/ui/ui_thread.cpp
+               parser/ui/mini_shell.cpp
                parser/work/work_thread.cpp
                parser/core_parser.cpp)
 target_link_libraries(core-parser parser)
