@@ -69,7 +69,7 @@ private:
      */
     uint32_t history_counter = 0;
     uint32_t history_cursor = 0;
-    char history[HISTORY_SIZE + 1][MAX_CMD_LENGTH];
+    char history[HISTORY_SIZE][MAX_CMD_LENGTH];
 
     /*     Y
      *     |

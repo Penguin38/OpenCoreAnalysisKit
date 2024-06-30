@@ -26,6 +26,7 @@ void MiniShell::Init(const char* sh) {
     if (sh) shell = sh;
     shell.append("> ");
     minX = shell.length();
+    memset(history, 0x0, HISTORY_SIZE * MAX_CMD_LENGTH);
 }
 
 void MiniShell::EnableMode() {
@@ -46,19 +47,15 @@ void MiniShell::SaveHistory(char* cmd) {
     if (cmd[0] == '\0') return;
 
     if (history_counter < HISTORY_SIZE) {
-        if (history_cursor < history_counter) {
-            for (int i = history_counter - 1; i >= history_cursor && i >= 0; i--) {
-                memset(history[i + 1], 0x0, MAX_CMD_LENGTH);
-                strcpy(history[i + 1], history[i]);
-            }
-        }
-        memset(history[history_cursor], 0x0, MAX_CMD_LENGTH);
-        strcpy(history[history_cursor], cmd);
-        history_cursor = (history_cursor + 1) % HISTORY_SIZE;
+        strcpy(history[history_counter], cmd);
         history_counter++;
+        history_cursor = history_counter;
     } else {
-        memset(history[history_cursor], 0x0, MAX_CMD_LENGTH);
-        strcpy(history[history_cursor], cmd);
+        for (int i = 1; i < HISTORY_SIZE; ++i) {
+            strcpy(history[i - 1], history[i]);
+        }
+        strcpy(history[history_counter - 1], cmd);
+        history_cursor = history_counter;
     }
 }
 
@@ -79,14 +76,14 @@ void MiniShell::ShowHistory(bool up) {
     if (up) {
         if (history_cursor > 0) history_cursor--;
         ClearLine();
-        memset(&command, 0x0, MAX_CMD_LENGTH);
+        command[0] = '\0';
         strcpy(command, history[history_cursor]);
         ShowCommand();
     } else {
         if (history_cursor < history_counter) {
             history_cursor++;
             ClearLine();
-            memset(&command, 0x0, MAX_CMD_LENGTH);
+            command[0] = '\0';
             strcpy(command, history[history_cursor]);
             ShowCommand();
         }
