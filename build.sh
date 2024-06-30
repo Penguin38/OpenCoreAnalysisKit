@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export ANDROID_NDK=$1
+#export ANDROID_NDK=""
 #export BUILD_TYPE="Release"
 export BUILD_TYPE="Debug"
 export BUILD_PRODUCT="aosp"
@@ -33,7 +33,7 @@ if [ -z $ANDROID_NDK ];then
     echo "ANDROID_NDK is not set"
     echo "Example:"
     echo "    export ANDROID_NDK=NDK_DIR"
-    echo "    ./build.sh \$ANDROID_NDK"
+    echo "    ./build.sh"
     exit
 fi
 cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
