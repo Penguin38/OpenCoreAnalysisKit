@@ -567,6 +567,9 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
 }
 
 void Android::SysRoot(const char* path) {
+    art::Runtime& runtime = art::Runtime::Current();
+    if (!runtime.Ptr()) return;
+
     std::vector<char *> dirs;
     std::unique_ptr<char> newpath(strdup(path));
     char *token = strtok(newpath.get(), ":");
@@ -575,9 +578,7 @@ void Android::SysRoot(const char* path) {
         token = strtok(nullptr, ":");
     }
 
-    art::Runtime& runtime = art::Runtime::Current();
     art::ClassLinker& linker = runtime.GetClassLinker();
-
     for (const auto& value : linker.GetDexCacheDatas()) {
         art::mirror::DexCache& dex_cache = value->GetDexCache();
         art::DexFile& dex_file = value->GetDexFile();

@@ -121,7 +121,7 @@ void Opencore::WriteCorePAC(int tid, FILE* fp) {
     };
     if (ptrace(PTRACE_GETREGSET, tid, NT_ARM_PAC_ENABLED_KEYS,
                 reinterpret_cast<void*>(&pac_enabled_keys_iov)) == -1) {
-        pac_enabled_keys = 0;
+        pac_enabled_keys = -1;
     }
     fwrite(&pac_enabled_keys, sizeof(uint64_t), 1, fp);
 }
@@ -147,6 +147,7 @@ void Opencore::WriteCoreMTE(int tid, FILE* fp) {
     };
     if (ptrace(PTRACE_GETREGSET, tid, NT_ARM_TAGGED_ADDR_CTRL,
                 reinterpret_cast<void*>(&tagged_addr_ctrl_iov)) == -1) {
+        tagged_addr_ctrl = -1;
     }
     fwrite(&tagged_addr_ctrl, sizeof(uint64_t), 1, fp);
 }

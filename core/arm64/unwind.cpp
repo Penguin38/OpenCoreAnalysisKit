@@ -83,7 +83,7 @@ void UnwindStack::FpBacktrace(Register& regs) {
 
         // FP CALLTRACE
         VisitFrame();
-        cur_frame_pc_ = regs.lr;
+        cur_frame_pc_ = regs.lr - 4;
         VisitFrame();
 
         api::MemoryRef fp = cur_frame_fp_;
@@ -92,7 +92,7 @@ void UnwindStack::FpBacktrace(Register& regs) {
         if (!block) return;
 
         while (1) {
-            cur_frame_pc_ = fp.value64Of(8);
+            cur_frame_pc_ = fp.value64Of(8) - 4;
             cur_frame_fp_ = fp.value64Of();
 
             if (cur_frame_fp_ == fp.Ptr())
