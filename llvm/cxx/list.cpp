@@ -36,11 +36,11 @@ void list::Init() {
 }
 
 list::iterator list::begin() {
-    return list::iterator(__next());
+    return list::iterator(__next() & CoreApi::GetVabitsMask());
 }
 
 list::iterator list::end() {
-    return list::iterator(Ptr());
+    return list::iterator(Ptr() & CoreApi::GetVabitsMask());
 }
 
 uint64_t list::size() {
@@ -49,7 +49,7 @@ uint64_t list::size() {
 
 list::iterator& list::iterator::operator++() {
     list cl = current;
-    current = cl.__next();
+    current = cl.__next() & CoreApi::GetVabitsMask();
     return *this;
 }
 
