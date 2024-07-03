@@ -248,7 +248,12 @@ add_executable(core-parser
 target_link_libraries(core-parser parser)
 
 add_library(plugin-logcat SHARED
-            parser/plugin/logcat/logcat_main.cpp)
+            parser/plugin/logcat/logcat_main.cpp
+            parser/plugin/logcat/event_logtags.cpp
+            parser/plugin/logcat/LogBuffer.cpp
+            parser/plugin/logcat/SerializedLogBuffer.cpp
+            parser/plugin/logcat/SerializedData.cpp
+            parser/plugin/logcat/LogStatistics.cpp)
 target_link_libraries(plugin-logcat parser)
 set_target_properties(plugin-logcat PROPERTIES PREFIX "")
 

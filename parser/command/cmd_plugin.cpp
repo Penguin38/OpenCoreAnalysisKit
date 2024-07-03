@@ -81,6 +81,7 @@ int PluginCommand::Load(const char* path, bool flag) {
     // do plugin constructor
     if (plugins[plugins.size() - 1]->Cmd()) {
         plugins[plugins.size() - 1]->HookHandle(handle);
+        LOGI("env new command \"%s\"\n", plugins[plugins.size() - 1]->Cmd()->get().c_str());
     } else {
         plugins.pop_back();
     }

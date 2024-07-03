@@ -695,6 +695,5 @@ void Android::Dump() {
     LOGI("  * Fingerprint: %s\n", Fingerprint());
     LOGI("  * Time: %s\n", Time());
     LOGI("  * Debuggable: %s\n", Debuggable());
-    LOGI("  * Trunk: %d\n", Trunk());
     LOGI("  * Sdk: %d\n", Sdk());
 }
