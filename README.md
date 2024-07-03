@@ -524,3 +524,11 @@ Usage: fake map
 
 core-parser> fake core -r -o fake.core
 ```
+
+# Plugin
+```
+core-parser> plugin plugin-logcat.so
+env new command "logcat"
+core-parser> logcat --uid 1000 -b all | grep ActivityManager
+2024-07-03 18:56:02.643   1000   560   855 I dvm_lock_sample: [system_server,1,Binder:560_7,294,ActivityManagerService.java,12345,android.content.Intent com.android.server.am.ActivityManagerService.registerReceiverWithFeature(android.app.IApplicationThread, java.lang.String, java.lang.String, java.lang.String, android.content.IIntentReceiver, android.content.IntentFilter, java.lang.String, int, int),UserController.java,2938,int com.android.server.am.UserController$Injector.broadcastIntent(android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], int, android.os.Bundle, boolean, boolean, int, int, int, int, int),58]
+```
