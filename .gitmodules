@@ -1,0 +1,3 @@
+[submodule "capstone"]
+	path = capstone
+	url = https://github.com/Penguin38/capstone.git
