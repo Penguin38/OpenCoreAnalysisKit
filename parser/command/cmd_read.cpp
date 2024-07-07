@@ -19,6 +19,7 @@
 #include "base/utils.h"
 #include "api/core.h"
 #include "common/bit.h"
+#include "common/disassemble/capstone.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <iomanip>
@@ -32,6 +33,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
     uint64_t end = 0;
     char* filepath = nullptr;
     int read_opt = OPT_READ_ALL;
+    bool dump_inst = false;
 
     int option_index = 0;
     optind = 0; // reset
@@ -41,10 +43,11 @@ int ReadCommand::main(int argc, char* const argv[]) {
         {"overlay", no_argument,       0,  2 },
         {"end",     required_argument, 0, 'e'},
         {"file",    required_argument, 0, 'f'},
+        {"inst",    no_argument,       0, 'i'},
         {0,         0,                 0,  0 }
     };
     
-    while ((opt = getopt_long(argc, argv, "e:f:012",
+    while ((opt = getopt_long(argc, argv, "e:f:012i",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'e':
@@ -62,6 +65,9 @@ int ReadCommand::main(int argc, char* const argv[]) {
             case 2:
                 read_opt = OPT_READ_OVERLAY;
                 break;
+            case 'i':
+                dump_inst = true;
+                break;
         }
     }
 
@@ -74,8 +80,13 @@ int ReadCommand::main(int argc, char* const argv[]) {
         uint64_t* value = reinterpret_cast<uint64_t *>(CoreApi::GetReal(begin, read_opt));
         if (value) {
             if (!filepath) {
-                std::string ascii = Utils::ConvertAscii(*value, 8);
-                LOGI("%lx: %016lx  %s\n", begin, (*value), ascii.c_str());
+                if (!dump_inst) {
+                    std::string ascii = Utils::ConvertAscii(*value, 8);
+                    LOGI("%lx: %016lx  %s\n", begin, (*value), ascii.c_str());
+                } else {
+                    capstone::Disassember::Option opt(begin, 1);
+                    capstone::Disassember::Dump("", (uint8_t *)value, 8, begin, opt);
+                }
             } else {
                 saveBinary(filepath, value, end - begin);
             }
@@ -85,9 +96,14 @@ int ReadCommand::main(int argc, char* const argv[]) {
         if (CoreApi::Read(begin, count * 8, buf, read_opt)) {
             uint64_t* value = reinterpret_cast<uint64_t *>(buf);
             if (!filepath) {
-                for (int i = 0; i < count; i += 2) {
-                    LOGI("%lx: %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
-                            Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
+                if (!dump_inst) {
+                    for (int i = 0; i < count; i += 2) {
+                        LOGI("%lx: %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
+                                Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
+                    }
+                } else {
+                    capstone::Disassember::Option opt(begin, -1);
+                    capstone::Disassember::Dump("", (uint8_t *)value, count * 8, begin, opt);
                 }
             } else {
                 saveBinary(filepath, value, end - begin);

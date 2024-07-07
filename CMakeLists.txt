@@ -29,6 +29,12 @@ set(AUTO_VAR_INIT_ZERO "-ftrivial-auto-var-init=zero -enable-trivial-auto-var-in
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 ${AUTO_VAR_INIT_ZERO} -O2 -fPIC")
 
+set(CAPSTONE_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/../capstone)
+set(CAPSTONE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/capstone/include)
+add_library(capstone STATIC IMPORTED)
+set_target_properties(capstone PROPERTIES IMPORTED_LOCATION ${CAPSTONE_LIB_DIR}/libcapstone.a)
+include_directories(${CAPSTONE_INCLUDE_DIR})
+
 include_directories(utils)
 add_library(utils STATIC
             utils/base/utils.cpp
@@ -62,8 +68,9 @@ add_library(core STATIC
             core/common/note_block.cpp
             core/common/load_block.cpp
             core/common/link_map.cpp
-            core/common/native_frame.cpp)
-target_link_libraries(core utils)
+            core/common/native_frame.cpp
+            core/common/disassemble/capstone.cpp)
+target_link_libraries(core utils capstone)
 
 include_directories(llvm)
 add_library(llvm STATIC

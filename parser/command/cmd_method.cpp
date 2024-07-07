@@ -24,6 +24,7 @@
 #include "runtime/oat.h"
 #include "runtime/oat/stack_map.h"
 #include "runtime/nterp_helpers.h"
+#include "common/disassemble/capstone.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <iomanip>
@@ -198,6 +199,7 @@ void MethodCommand::Oatdump() {
         }
         LOGI("OAT CODE:\n");
         LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
+        capstone::Disassember::Dump("  ", method_header.GetCodeStart(), method_header.GetCodeSize());
     }
 }
 

@@ -25,6 +25,7 @@
 #include "runtime/stack.h"
 #include "dalvik_vm_bytecode.h"
 #include "dexdump/dexdump.h"
+#include "common/disassemble/capstone.h"
 #include <unistd.h>
 #include <getopt.h>
 
@@ -128,6 +129,9 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
             if (prev_quick_frame.Ptr()) {
                 LOGI("\n      OAT CODE:\n");
+                art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
+                capstone::Disassember::Option opt(java_frame->GetFramePc() - 0x18, 7);
+                capstone::Disassember::Dump("      ", method_header.GetCodeStart(), method_header.GetCodeSize(), opt);
                 art::QuickMethodFrameInfo frame = prev_quick_frame.GetFrameInfo();
                 frame.DumpCoreSpill("      ", prev_quick_frame.Ptr());
             }

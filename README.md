@@ -1,3 +1,6 @@
+# Dependencies
+[Capstone Disassembly Framework](https://github.com/capstone-engine/capstone)
+
 # Techincal System
 ![core-analysis](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5e18eb85fd5047f2a017e4ffff075339~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=3028&h=1480&s=318380&e=png&b=fbf9f9)
 

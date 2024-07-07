@@ -12,23 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#export ANDROID_NDK=""
-#export BUILD_TYPE="Release"
-export BUILD_TYPE="Debug"
-export BUILD_PRODUCT="aosp"
-export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
-
-./capstone.sh
+git submodule update --init --recursive
 
 cmake -DCMAKE_C_COMPILER="clang-12" \
       -DCMAKE_CXX_COMPILER="clang++-12" \
-      -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-      -DCMAKE_BUILD_TARGET=linux \
-      CMakeLists.txt \
-      -B $INSTALL_OUTPUT/linux/bin
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      capstone/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/linux/capstone
 
-make -C $INSTALL_OUTPUT/linux/bin -j8
+make -C $INSTALL_OUTPUT/linux/capstone -j8
 
 if [ $BUILD_PRODUCT == "aosp" ];then
 if [ -z $ANDROID_NDK ];then
@@ -42,23 +35,21 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -DANDROID_ABI="arm64-v8a" \
       -DANDROID_NDK=$ANDROID_NDK \
       -DANDROID_PLATFORM=android-30 \
-      -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-      -DCMAKE_BUILD_TARGET=android \
-      CMakeLists.txt \
-      -B $INSTALL_OUTPUT/android/bin
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      capstone/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/android/capstone
 
-make -C $INSTALL_OUTPUT/android/bin -j8
+make -C $INSTALL_OUTPUT/android/capstone -j8
 
 cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -DANDROID_ABI="x86_64" \
       -DANDROID_NDK=$ANDROID_NDK \
       -DANDROID_PLATFORM=android-30 \
-      -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-      -DCMAKE_BUILD_TARGET=android \
-      CMakeLists.txt \
-      -B $INSTALL_OUTPUT/emulator/bin
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      capstone/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/emulator/capstone
 
-make -C $INSTALL_OUTPUT/emulator/bin -j8
+make -C $INSTALL_OUTPUT/emulator/capstone -j8
 fi

@@ -199,3 +199,14 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+   Third Party Licenses:
+
+   The following software may be included in this product:
+
+   - Capstone (https://github.com/capstone-engine/capstone/)
+
+   Capstone is provided under the BSD 3-Clause "New" or "Revised" License.
+   You should have received a copy of the BSD 3-Clause "New" or "Revised"
+   License along with Capstone. If not, see
+   https://github.com/capstone-engine/capstone/blob/next/LICENSES/LICENSE.TXT for details.

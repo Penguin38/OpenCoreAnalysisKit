@@ -20,6 +20,7 @@
 #include "command/cmd_env.h"
 #include "command/env.h"
 #include "api/core.h"
+#include "common/disassemble/capstone.h"
 #include "base/utils.h"
 #include <unistd.h>
 #include <getopt.h>
@@ -205,12 +206,16 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"load",   no_argument,       0, 1},
+        {"arm",    required_argument, 0, 2},
     };
 
     while ((opt = getopt_long(argc, argv, "1",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1: return showLoadEnv();
+            case 2:
+                capstone::Disassember::SetArmMode(optarg);
+                return 0;
         }
     }
 
@@ -293,4 +298,5 @@ void EnvCommand::usage() {
     LOGI("Usage: env core [option]...\n");
     LOGI("Option:\n");
     LOGI("   --load: show code load segments\n");
+    LOGI("   --arm <thumb|arm>\n");
 }
