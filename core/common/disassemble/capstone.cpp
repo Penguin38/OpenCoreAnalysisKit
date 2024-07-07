@@ -17,22 +17,28 @@
 #include "api/core.h"
 #include "common/elf.h"
 #include "common/disassemble/capstone.h"
-#include "capstone/capstone.h"
 #include <string.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 
+#if defined(__CAPSTONE__)
+#include "capstone/capstone.h"
+#endif // __CAPSTONE__
+
 namespace capstone {
 
-int Disassember::ARM_MODE = CS_MODE_THUMB;
+// CS_MODE_THUMB = 1 << 4, ///< ARM's Thumb mode, including Thumb-2
+int Disassember::ARM_MODE = 1 << 4;
 
 void Disassember::SetArmMode(const char* mode) {
+#if defined(__CAPSTONE__)
     if (!strcmp(mode, "thumb")) {
         ARM_MODE = CS_MODE_THUMB;
     } else {
         ARM_MODE = CS_MODE_ARM;
     }
+#endif // __CAPSTONE__
 }
 
 void Disassember::Dump(const char* prefix, api::MemoryRef& begin, uint32_t size, uint64_t address, Option& opt) {
@@ -44,6 +50,7 @@ void Disassember::Dump(const char* prefix, api::MemoryRef& begin, uint32_t size,
 }
 
 void Disassember::Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64_t address, Option& opt) {
+#if defined(__CAPSTONE__)
     csh handle;
     cs_insn *insn;
     uint32_t count;
@@ -115,6 +122,7 @@ void Disassember::Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64
         }
     }
     cs_free(insn, count);
+#endif  // __CAPSTONE__
 }
 
 } // namespace capstone

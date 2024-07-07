@@ -35,6 +35,13 @@ add_library(capstone STATIC IMPORTED)
 set_target_properties(capstone PROPERTIES IMPORTED_LOCATION ${CAPSTONE_LIB_DIR}/libcapstone.a)
 include_directories(${CAPSTONE_INCLUDE_DIR})
 
+if (NOT EXISTS "${CAPSTONE_LIB_DIR}/libcapstone.a")
+message(STATUS "Not found ${CAPSTONE_LIB_DIR}/libcapstone.a")
+else()
+add_definitions(-D__CAPSTONE__)
+set(CAPSTONE_LIB capstone)
+endif()
+
 include_directories(utils)
 add_library(utils STATIC
             utils/base/utils.cpp
@@ -70,7 +77,7 @@ add_library(core STATIC
             core/common/link_map.cpp
             core/common/native_frame.cpp
             core/common/disassemble/capstone.cpp)
-target_link_libraries(core utils capstone)
+target_link_libraries(core utils ${CAPSTONE_LIB})
 
 include_directories(llvm)
 add_library(llvm STATIC
