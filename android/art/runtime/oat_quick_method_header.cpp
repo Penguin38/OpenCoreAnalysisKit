@@ -179,6 +179,11 @@ OatQuickMethodHeader& OatQuickMethodHeader::GetNterpMethodHeader() {
     return CacheHelper::NterpMethodHeader();
 }
 
+bool OatQuickMethodHeader::IsNterpMethodHeader() {
+    OatQuickMethodHeader& header = GetNterpMethodHeader();
+    return header == *this;
+}
+
 uint32_t OatQuickMethodHeader::NativePc2DexPc(uint32_t native_pc) {
     CodeInfo code_info = CodeInfo::Decode(GetOptimizedCodeInfoPtr());
     return code_info.NativePc2DexPc(native_pc);

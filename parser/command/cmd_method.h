@@ -42,6 +42,7 @@ private:
     int count;
     api::MemoryRef instref = 0x0;
     bool verbose;
+    uint64_t pc = 0x0;
 };
 
 #endif // PARSER_COMMAND_CMD_METHOD_H_

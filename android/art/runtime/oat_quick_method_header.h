@@ -91,6 +91,7 @@ public:
     static OatQuickMethodHeader& GetNterpMethodHeader();
     static api::MemoryRef& NterpWithClinitImpl();
     static api::MemoryRef& NterpImpl();
+    bool IsNterpMethodHeader();
     uint32_t NativePc2DexPc(uint32_t native_pc);
     void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
     void Dump(const char* prefix);

@@ -42,6 +42,7 @@ bool MethodCommand::prepare(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"dex-dump",    no_argument,       0,  0 },
         {"oat-dump",    no_argument,       0,  1 },
+        {"pc",          required_argument, 0,  2 },
         {"inst",        required_argument, 0, 'i'},
         {"num",         required_argument, 0, 'n'},
         {"verbose",     no_argument,       0, 'v'},
@@ -77,12 +78,14 @@ int MethodCommand::main(int argc, char* const argv[]) {
     dump_opt = METHOD_DUMP_NAME;
     verbose = false;
     count = 0;
+    pc = 0x0;
 
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
         {"dex-dump",    no_argument,       0,  0 },
         {"oat-dump",    no_argument,       0,  1 },
+        {"pc",          required_argument, 0,  2 },
         {"inst",        required_argument, 0, 'i'},
         {"num",         required_argument, 0, 'n'},
         {"verbose",     no_argument,       0, 'v'},
@@ -90,7 +93,7 @@ int MethodCommand::main(int argc, char* const argv[]) {
         {0,               0,               0,  0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "i:n:01bv",
+    while ((opt = getopt_long(argc, argv, "i:n:012bv",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'i':
@@ -104,6 +107,9 @@ int MethodCommand::main(int argc, char* const argv[]) {
                 break;
             case 1:
                 dump_opt |= METHOD_DUMP_OATCODE;
+                break;
+            case 2:
+                pc = Utils::atol(optarg);
                 break;
             case 'v':
                 verbose = true;
@@ -182,20 +188,24 @@ void MethodCommand::Dexdump() {
 }
 
 void MethodCommand::Oatdump() {
-    art::OatQuickMethodHeader method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ 0x0);
+    art::OatQuickMethodHeader method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ pc);
     if (method_header.Ptr()) {
         if (verbose) {
             method_header.Dump("");
-            art::CodeInfo code_info = art::CodeInfo::Decode(method_header.GetOptimizedCodeInfoPtr());
-            code_info.ExtendNumRegister(method);
-            code_info.Dump("    ");
-            art::QuickMethodFrameInfo frame = method_header.GetFrameInfo();
-            LOGI("  QuickMethodFrameInfo\n");
+            art::QuickMethodFrameInfo frame;
+            if (method_header.IsOptimized()) {
+                art::CodeInfo code_info = art::CodeInfo::Decode(method_header.GetOptimizedCodeInfoPtr());
+                code_info.ExtendNumRegister(method);
+                code_info.Dump("    ");
+                frame = method_header.GetFrameInfo();
+                LOGI("  QuickMethodFrameInfo\n");
+            } else if (method_header.IsNterpMethodHeader()) {
+                frame = NterpFrameInfo(method);
+                LOGI("  NterpFrameInfo\n");
+            }
             LOGI("    frame_size_in_bytes: 0x%x\n", frame.FrameSizeInBytes());
-            LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(),
-                                                   art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
-            LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(),
-                                                 art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
+            LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
+            LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
         }
         LOGI("OAT CODE:\n");
         LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
