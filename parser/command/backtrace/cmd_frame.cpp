@@ -126,16 +126,17 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
                 ShowJavaFrameRegister("      ", java_frame->GetVRegs(), quick_frame);
             }
 
-            art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
-            if (prev_quick_frame.Ptr()) {
+            if (java_frame->GetFramePc()) {
                 LOGI("\n      OAT CODE:\n");
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
                 capstone::Disassember::Option opt(java_frame->GetFramePc() - 0x18, 7);
                 capstone::Disassember::Dump("      ", method_header.GetCodeStart(), method_header.GetCodeSize(), opt);
-                art::QuickMethodFrameInfo frame = prev_quick_frame.GetFrameInfo();
-                frame.DumpCoreSpill("      ", prev_quick_frame.Ptr());
+                art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
+                if (prev_quick_frame.Ptr()) {
+                    art::QuickMethodFrameInfo frame = prev_quick_frame.GetFrameInfo();
+                    frame.DumpCoreSpill("      ", prev_quick_frame.Ptr());
+                }
             }
-
             LOGI("  }\n");
         }
         ++frameid;

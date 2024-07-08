@@ -56,6 +56,7 @@ bool StackVisitor::VisitFrame() {
 }
 
 void StackVisitor::WalkStack() {
+    bool first_stack = true;
     for (ManagedStack current_fragment = GetThread()->GetTlsPtr().managed_stack();
             current_fragment.Ptr(); current_fragment = current_fragment.link()) {
         try {
@@ -63,6 +64,14 @@ void StackVisitor::WalkStack() {
             cur_shadow_frame_ = current_fragment.GetTopShadowFrame();
             cur_quick_frame_ = current_fragment.GetTopQuickFrame();
             prev_quick_frame_ = 0x0;
+
+            if (first_stack) {
+                first_stack = false;
+                if (GetThread()->GetFakeFrame().IsValid()) {
+                    cur_shadow_frame_ = 0x0;
+                    cur_quick_frame_ = GetThread()->GetFakeFrame().GetTopQuickFrame();
+                }
+            }
 
             if (cur_quick_frame_.Ptr()) {
                 ArtMethod method = cur_quick_frame_.valueOf();

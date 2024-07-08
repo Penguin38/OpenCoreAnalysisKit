@@ -21,6 +21,7 @@
 #include "runtime/thread_state.h"
 #include "runtime/mirror/object.h"
 #include "runtime/base/mutex.h"
+#include "runtime/interpreter/quick_frame.h"
 
 struct Thread_OffsetTable {
     uint32_t tls32_;
@@ -135,6 +136,22 @@ public:
         inline uint64_t held_mutexes() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, held_mutexes); }
     };
 
+    class FakeFrame {
+    public:
+        FakeFrame() {}
+        FakeFrame(uint64_t pc, uint64_t sp) {
+            FillFake(pc, sp);
+        }
+        void FillFake(uint64_t pc, uint64_t sp) {
+            fake_frame = sp;
+            fake_frame.SetFramePc(pc);
+        }
+        bool IsValid() { return fake_frame.IsValid(); }
+        QuickFrame& GetTopQuickFrame() { return fake_frame; }
+    protected:
+        QuickFrame fake_frame = 0x0;
+    };
+
     tls_32bit_sized_values& GetTls32();
     tls_ptr_sized_values& GetTlsPtr();
 
@@ -148,10 +165,12 @@ public:
     uint64_t GetWaitMonitor();
     mirror::Object GetMonitorEnterObject();
     BaseMutex GetHeldMutex(uint32_t level);
+    FakeFrame& GetFakeFrame() { return fake_frame; }
 private:
     // quick memoryref cache
     tls_32bit_sized_values tls32_cache = 0x0;
     tls_ptr_sized_values tlsPtr_cache = 0x0;
+    FakeFrame fake_frame;
 };
 
 } //namespace art
