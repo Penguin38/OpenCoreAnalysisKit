@@ -90,6 +90,13 @@ void Disassember::Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64
         }
     }
 
+    if (mode == CS_MODE_THUMB) {
+        if (address & 0x1) {
+            address++;
+            begin++;
+        }
+    }
+
     if (cs_open(arch, mode, &handle) != CS_ERR_OK)
         return;
 
@@ -105,7 +112,7 @@ void Disassember::Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64
 
             std::string machine_code;
             std::ostringstream ss;
-            for (uint32_t k = 0; k < insn[i].size; ++k) {
+            for (int k = insn[i].size - 1; k >= 0; k--) {
                 std::ostringstream ss;
                 ss << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(insn[i].bytes[k]);
                 machine_code.append(ss.str());
