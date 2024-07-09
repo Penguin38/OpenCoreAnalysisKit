@@ -625,7 +625,7 @@ void Android::SysRoot(const char* path) {
             } else {
                 ZipFile zip;
                 if (zip.open(filepath.c_str())) {
-                    LOGE("ERROR: Zip open fail [%lx] %s\n", block->vaddr(), ori_dex_file);
+                    LOGE("ERROR: Zip open fail [%lx] %s\n", block->vaddr(), filepath.c_str());
                     continue;
                 }
 

@@ -43,8 +43,8 @@ bool Utils::InnerSearchFile(const std::string& directory, std::string* result, c
         ListFiles(directory, result, name);
     } else if (S_ISREG(d_stat.st_mode)) {
         std::filesystem::path file(name);
-        std::size_t index = directory.find(file.filename());
-        if (index != std::string::npos) {
+        std::filesystem::path outer(directory);
+        if (file.filename() == outer.filename()) {
             result->append(directory);
         }
     }
@@ -80,8 +80,12 @@ void Utils::ListFiles(const std::string& directory, std::string* result, const s
         } else {
             std::size_t index = file_path.find(name);
             if (index != std::string::npos) {
-                result->append(file_path);
-                break;
+                std::filesystem::path file(name);
+                std::filesystem::path outer(file_path);
+                if (file.filename() == outer.filename()) {
+                    result->append(file_path);
+                    break;
+                }
             }
         }
 
