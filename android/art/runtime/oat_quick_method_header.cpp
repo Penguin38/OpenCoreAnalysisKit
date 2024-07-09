@@ -128,7 +128,7 @@ uint64_t OatQuickMethodHeader::GetCodeStart() {
     if (CoreApi::GetMachine() == EM_AARCH64) {
         code_start &= ((1ULL << 56) - 1);
     } else if (CoreApi::GetMachine() == EM_ARM) {
-        code_start++;
+        // do nothing
     }
     return code_start;
 }

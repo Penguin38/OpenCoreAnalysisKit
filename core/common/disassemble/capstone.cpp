@@ -90,13 +90,6 @@ void Disassember::Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64
         }
     }
 
-    if (mode == CS_MODE_THUMB) {
-        if (address & 0x1) {
-            address++;
-            begin++;
-        }
-    }
-
     if (cs_open(arch, mode, &handle) != CS_ERR_OK)
         return;
 

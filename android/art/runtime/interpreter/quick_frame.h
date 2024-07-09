@@ -38,8 +38,8 @@ public:
         return method;
     }
     inline OatQuickMethodHeader& GetMethodHeader() { return method_header; }
-    inline void SetFramePc(uint64_t pc) { frame_pc = pc; }
     inline uint64_t GetFramePc() { return frame_pc; }
+    void SetFramePc(uint64_t pc);
     uint64_t GetDexPcPtr();
     std::map<uint32_t, DexRegisterInfo>& GetVRegs();
     std::map<uint32_t, DexRegisterInfo>& GetVRegsCache() { return vregs_cache; }

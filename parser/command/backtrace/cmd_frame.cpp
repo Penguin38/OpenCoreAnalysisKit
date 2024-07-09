@@ -18,6 +18,7 @@
 #include "api/core.h"
 #include "api/unwind.h"
 #include "base/utils.h"
+#include "common/elf.h"
 #include "command/env.h"
 #include "command/backtrace/cmd_frame.h"
 #include "command/backtrace/cmd_backtrace.h"
@@ -69,6 +70,39 @@ int FrameCommand::main(int argc, char* const argv[]) {
     }
 #endif
     return 0;
+}
+
+struct NearAsm {
+    int length;
+    int count;
+};
+
+static NearAsm NearAsmLength() {
+    NearAsm near_asm;
+    int machine = CoreApi::GetMachine();
+    switch (machine) {
+        case EM_386:
+            near_asm.length = 0x20;
+            near_asm.count = 10;
+            break;
+        case EM_X86_64:
+            near_asm.length = 0x20;
+            near_asm.count = 10;
+            break;
+        case EM_ARM:
+            near_asm.length = 0x20;
+            near_asm.count = 15;
+            break;
+        case EM_AARCH64:
+            near_asm.length = 0x24;
+            near_asm.count = 10;
+            break;
+        case EM_RISCV:
+            near_asm.length = 0x24;
+            near_asm.count = 10;
+            break;
+    }
+    return near_asm;
 }
 
 void FrameCommand::ShowJavaFrameInfo(int number) {
@@ -129,7 +163,8 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             if (java_frame->GetFramePc()) {
                 LOGI("\n      OAT CODE:\n");
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
-                capstone::Disassember::Option opt(java_frame->GetFramePc() - 0x18, 7);
+                NearAsm near_asm = NearAsmLength();
+                capstone::Disassember::Option opt(java_frame->GetFramePc() - near_asm.length, near_asm.count);
                 capstone::Disassember::Dump("      ", method_header.GetCodeStart(), method_header.GetCodeSize(), opt);
                 art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
                 if (prev_quick_frame.Ptr()) {

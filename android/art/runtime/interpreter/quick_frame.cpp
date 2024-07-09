@@ -18,6 +18,7 @@
 #include "api/core.h"
 #include "android.h"
 #include "common/bit.h"
+#include "common/elf.h"
 #include "runtime/nterp_helpers.h"
 #include "runtime/interpreter/quick_frame.h"
 #include "runtime/runtime.h"
@@ -26,6 +27,14 @@
 #include "runtime/entrypoints/quick/callee_save_frame.h"
 
 namespace art {
+
+void QuickFrame::SetFramePc(uint64_t pc) {
+    if (CoreApi::GetMachine() == EM_ARM) {
+        frame_pc = pc & (CoreApi::GetPointMask() - 1);
+    } else {
+        frame_pc = pc;
+    }
+}
 
 uint64_t QuickFrame::GetDexPcPtr() {
     if (GetMethod().IsNative()) {

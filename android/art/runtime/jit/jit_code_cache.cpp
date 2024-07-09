@@ -313,7 +313,7 @@ OatQuickMethodHeader JitCodeCache::LookupMethodCodeMap(uint64_t pc, ArtMethod& /
 OatQuickMethodHeader JitCodeCache::LookupMethodHeader(uint64_t pc, ArtMethod& method) {
     OatQuickMethodHeader method_header = 0x0;
     if (CoreApi::GetMachine() == EM_ARM) {
-        --pc;
+        pc &= (CoreApi::GetPointMask() - 1);
     }
 
     if (!ContainsPc(pc)) {
