@@ -76,14 +76,14 @@ void MiniShell::ShowHistory(bool up) {
     if (up) {
         if (history_cursor > 0) history_cursor--;
         ClearLine();
-        command[0] = '\0';
+        memset(&command, 0x0, MAX_CMD_LENGTH);
         strcpy(command, history[history_cursor]);
         ShowCommand();
     } else {
         if (history_cursor < history_counter) {
             history_cursor++;
             ClearLine();
-            command[0] = '\0';
+            memset(&command, 0x0, MAX_CMD_LENGTH);
             strcpy(command, history[history_cursor]);
             ShowCommand();
         }
