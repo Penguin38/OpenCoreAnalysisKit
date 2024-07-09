@@ -19,6 +19,7 @@
 
 #include "common/elf.h"
 #include <stdint.h>
+#include <unistd.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -60,6 +61,9 @@ public:
         pid = INVALID_TID;
         filter = FILTER_NONE;
         extra_note_filesz = 0;
+        page_size = sysconf(_SC_PAGE_SIZE);
+        align_size = ELF_PAGE_SIZE;
+        zero = (uint8_t*)malloc(align_size);
     }
 
     void setDir(const char* d) { dir = d; }
@@ -83,6 +87,9 @@ protected:
     std::vector<int> pids;
     std::vector<uint8_t> buffer;
     std::map<uint64_t, std::string> maps;
+    uint8_t* zero;
+    uint64_t align_size;
+    uint64_t page_size;
 private:
     std::string dir;
     int flag;

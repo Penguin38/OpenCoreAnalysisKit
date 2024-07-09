@@ -66,8 +66,8 @@ int Restore::execute(const char* output) {
 
     uint64_t current_filesz = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) * ehdr->e_phnum;
     // Write Segment
-    uint8_t zero_buf[ELF_PAGE_SIZE];
-    memset(&zero_buf, 0x0, sizeof(zero_buf));
+    uint8_t* zero_buf = (uint8_t*)malloc(ELF_PAGE_SIZE);
+    memset(zero_buf, 0x0, ELF_PAGE_SIZE);
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (!tmp[num].p_filesz)
             continue;
@@ -85,11 +85,12 @@ int Restore::execute(const char* output) {
         current_filesz += tmp[num].p_filesz;
         if (!IS_ALIGNED(current_filesz, ELF_PAGE_SIZE)) {
             uint64_t aliged_size = RoundUp(current_filesz, ELF_PAGE_SIZE) - current_filesz;
-            fwrite(&zero_buf, aliged_size, 1, fp);
+            fwrite(zero_buf, aliged_size, 1, fp);
             current_filesz += aliged_size;
         }
     }
 
+    free(zero_buf);
     free(tmp);
     fclose(fp);
     LOGI("FakeCore: saved [%s]\n", output);

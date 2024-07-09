@@ -181,6 +181,7 @@ bool Opencore::Coredump(const char* filename) {
 }
 
 Opencore::~Opencore() {
+    if (zero) free(zero);
 }
 
 bool Opencore::IsFilterSegment(char* flags, int inode, std::string segment, int offset) {

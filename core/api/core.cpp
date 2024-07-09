@@ -205,6 +205,7 @@ void CoreApi::Dump() {
     LOGI("  * PointSize: %d\n", GetPointSize());
     LOGI("  * PointMask: 0x%lx\n", GetPointMask());
     LOGI("  * VabitsMask: 0x%lx\n", GetVabitsMask());
+    LOGI("  * PageSize: 0x%lx\n", GetPageSize());
 }
 
 void CoreApi::ForeachFile(std::function<bool (File *)> callback) {
@@ -446,4 +447,15 @@ void CoreApi::foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool 
         if (callback(block.get()))
             break;
     }
+}
+
+uint64_t CoreApi::getPageSize() {
+    if (!page_size) {
+        page_size = findAuxv(AT_PAGESZ);
+        if (!page_size) {
+            LOGW("WARN: Use default page_size: %x\n", ELF_PAGE_SIZE);
+            page_size = ELF_PAGE_SIZE;
+        }
+    }
+    return page_size;
 }

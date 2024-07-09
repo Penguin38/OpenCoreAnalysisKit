@@ -44,7 +44,7 @@ uint64_t UnwindStack::GetUContext() {
             struct ucontext* context = (struct ucontext*)uc.Real();
             if (block->virtualContains(context->uc_stack.ss_sp)
                     && context->uc_stack.ss_size <= block->size()
-                    && context->uc_stack.ss_size >= ELF_PAGE_SIZE) {
+                    && context->uc_stack.ss_size >= CoreApi::GetPageSize()) {
                 if (!memcmp(__reserved, context->__reserved, sizeof(__reserved))) {
                     api::MemoryRef uc_sp = context->uc_mcontext.sp;
                     if (uc_sp.IsValid()) {

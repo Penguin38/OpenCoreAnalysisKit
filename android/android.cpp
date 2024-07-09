@@ -646,7 +646,7 @@ void Android::SysRoot(const char* path) {
                     continue;
                 }
 
-                block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), ELF_PAGE_SIZE));
+                block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), CoreApi::GetPageSize()));
             }
         } else {
             LOGE("ERROR: Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());

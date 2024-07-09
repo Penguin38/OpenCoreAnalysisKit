@@ -157,7 +157,7 @@ bool lp32::Core::exec32(CoreApi* api, uint32_t phdr, const char* file) {
 
             uint32_t current = phdr - ehdr->e_phoff -
                                (pt[0].p_vaddr - pt[0].p_offset) +
-                               RoundDown(pt[index].p_vaddr, pt[index].p_align);
+                               RoundDown(pt[index].p_vaddr, CoreApi::GetPageSize());
             LoadBlock* block = api->findLoadBlock(current);
 
             if (!block) {
@@ -171,7 +171,7 @@ bool lp32::Core::exec32(CoreApi* api, uint32_t phdr, const char* file) {
             if (current != block->vaddr())
                 continue;
 
-            uint32_t page_offset = RoundDown(pt[index].p_offset + map->offset(), ELF_PAGE_SIZE);
+            uint32_t page_offset = RoundDown(pt[index].p_offset + map->offset(), CoreApi::GetPageSize());
             ::File* vma = CoreApi::FindFile(current);
             if (vma && page_offset != vma->offset()) {
                 page_offset = vma->offset();
@@ -209,7 +209,7 @@ bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, con
         }
 
         std::unique_ptr<MemoryMap> submap(MemoryMap::MmapFile(file,
-                                                              RoundUp(entry->getEntryTotalMemsz(), ELF_PAGE_SIZE),
+                                                              entry->getEntryTotalMemsz(),
                                                               entry->getFileOffset()));
         map = std::move(submap);
     }
@@ -240,7 +240,7 @@ bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, con
             if (phdr[index].p_flags & PF_W)
                 continue;
 
-            uint32_t current = handle->l_addr() + RoundDown(phdr[index].p_vaddr, phdr[index].p_align);
+            uint32_t current = handle->l_addr() + RoundDown(phdr[index].p_vaddr, CoreApi::GetPageSize());
             LoadBlock* block = api->findLoadBlock(current);
 
             if (!block) {
@@ -254,7 +254,7 @@ bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, con
             if (current != block->vaddr())
                 continue;
 
-            uint32_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), ELF_PAGE_SIZE);
+            uint32_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), CoreApi::GetPageSize());
             ::File* vma = CoreApi::FindFile(current);
             if (vma && page_offset != vma->offset()) {
                 page_offset = vma->offset();

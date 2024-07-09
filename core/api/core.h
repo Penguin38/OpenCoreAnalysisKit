@@ -100,6 +100,7 @@ public:
     static int GetPointSize();
     static uint64_t GetPointMask();
     static uint64_t GetVabitsMask();
+    static uint64_t GetPageSize() { return INSTANCE->getPageSize(); }
     static uint64_t GetReal(uint64_t vaddr) {
         return GetReal(vaddr, OPT_READ_ALL);
     }
@@ -180,6 +181,7 @@ public:
     void foreachAuxv(std::function<bool (Auxv *)> callback);
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
     void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
+    uint64_t getPageSize();
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;
@@ -200,6 +202,7 @@ private:
     std::vector<std::unique_ptr<NoteBlock>> mNote;
     std::vector<std::unique_ptr<LinkMap>> mLinkMap;
     std::function<void (LinkMap *)> mSysRootCallback;
+    uint64_t page_size;
 };
 
 #endif // CORE_API_CORE_H_

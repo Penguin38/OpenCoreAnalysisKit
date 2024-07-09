@@ -64,10 +64,10 @@ int Restore::execute(const char* output) {
         fwrite(&tmp[num], sizeof(Elf32_Phdr), 1, fp);
     }
 
-    uint64_t current_filesz = sizeof(Elf32_Ehdr) + sizeof(Elf32_Phdr) * ehdr->e_phnum;
+    uint32_t current_filesz = sizeof(Elf32_Ehdr) + sizeof(Elf32_Phdr) * ehdr->e_phnum;
     // Write Segment
-    uint8_t zero_buf[ELF_PAGE_SIZE];
-    memset(&zero_buf, 0x0, sizeof(zero_buf));
+    uint8_t* zero_buf = (uint8_t*)malloc(ELF_PAGE_SIZE);
+    memset(zero_buf, 0x0, ELF_PAGE_SIZE);
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (!tmp[num].p_filesz)
             continue;
@@ -84,12 +84,13 @@ int Restore::execute(const char* output) {
         fwrite(reinterpret_cast<void *>(CoreApi::GetBegin() + phdr[num].p_offset), tmp[num].p_filesz, 1, fp);
         current_filesz += tmp[num].p_filesz;
         if (!IS_ALIGNED(current_filesz, ELF_PAGE_SIZE)) {
-            uint64_t aliged_size = RoundUp(current_filesz, ELF_PAGE_SIZE) - current_filesz;
-            fwrite(&zero_buf, aliged_size, 1, fp);
+            uint32_t aliged_size = RoundUp(current_filesz, ELF_PAGE_SIZE) - current_filesz;
+            fwrite(zero_buf, aliged_size, 1, fp);
             current_filesz += aliged_size;
         }
     }
 
+    free(zero_buf);
     free(tmp);
     fclose(fp);
     LOGI("FakeCore: saved [%s]\n", output);

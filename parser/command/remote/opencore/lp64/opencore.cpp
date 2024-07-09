@@ -46,7 +46,7 @@ void OpencoreImpl::ParserPhdr(int index, uint64_t start, uint64_t end, char* fla
         phdr[index].p_flags = phdr[index].p_flags | PF_X;
 
     phdr[index].p_filesz = phdr[index].p_memsz;
-    phdr[index].p_align = sysconf(_SC_PAGE_SIZE);
+    phdr[index].p_align = align_size;
 }
 
 void OpencoreImpl::ParserNtFile(int index, uint64_t start, uint64_t end, int fileofs, char* filename) {
@@ -168,12 +168,7 @@ void OpencoreImpl::WriteCoreNoteHeader(FILE* fp) {
 }
 
 void OpencoreImpl::WriteCoreProgramHeaders(FILE* fp) {
-    uint64_t offset = note.p_offset + note.p_filesz;
-    int page_size = sysconf(_SC_PAGE_SIZE);
-    if (offset % page_size) {
-        offset = ((offset + page_size)/ page_size) * page_size;
-    }
-
+    uint64_t offset = RoundUp(note.p_offset + note.p_filesz, align_size);
     phdr[0].p_offset = offset;
     fwrite(&phdr[0], sizeof(Elf64_Phdr), 1, fp);
 
@@ -220,7 +215,6 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
 
     uint64_t number = phnum;
     fwrite(&number, 8, 1, fp);
-    uint64_t page_size = sysconf(_SC_PAGE_SIZE);
     fwrite(&page_size, 8, 1, fp);
 
     int index = 0;
@@ -233,9 +227,8 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
 }
 
 void OpencoreImpl::AlignNoteSegment(FILE* fp) {
-    unsigned char zero[ELF_PAGE_SIZE];
-    memset(&zero, 0x0, sizeof(zero));
-    uint64_t offset = RoundUp(note.p_offset + note.p_filesz, sysconf(_SC_PAGE_SIZE));
+    memset(zero, 0x0, align_size);
+    uint64_t offset = RoundUp(note.p_offset + note.p_filesz, align_size);
     uint64_t size = offset - (note.p_offset + note.p_filesz);
     fwrite(zero, size, 1, fp);
 }
@@ -244,8 +237,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
     char filename[32];
     int fd;
     int index = 0;
-    uint8_t zero[ELF_PAGE_SIZE];
-    memset(&zero, 0x0, sizeof(zero));
+    memset(zero, 0x0, align_size);
 
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     fd = open(filename, O_RDONLY);
@@ -258,11 +250,11 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
         if (phdr[index].p_filesz > 0) {
             long current_pos = ftell(fp);
             bool need_padd_zero = false;
-            int count = phdr[index].p_memsz / sizeof(zero);
+            int count = phdr[index].p_memsz / align_size;
             for (int i = 0; i < count; i++) {
-                memset(&zero, 0x0, sizeof(zero));
-                pread64(fd, &zero, sizeof(zero), phdr[index].p_vaddr + (i * sizeof(zero)));
-                uint64_t ret = fwrite(zero, sizeof(zero), 1, fp);
+                memset(zero, 0x0, align_size);
+                pread64(fd, zero, phdr[index].p_align, phdr[index].p_vaddr + (i * align_size));
+                uint64_t ret = fwrite(zero, align_size, 1, fp);
                 if (ret != 1) {
                     need_padd_zero = true;
                     LOGE("ERROR: [%lx] write load segment fail. %s %s\n",
@@ -271,11 +263,11 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 }
             }
             if (need_padd_zero && current_pos > 0) {
-                memset(&zero, 0x0, sizeof(zero));
+                memset(zero, 0x0, align_size);
                 fseek(fp, current_pos, SEEK_SET);
-                int count = phdr[index].p_memsz / sizeof(zero);
+                int count = phdr[index].p_memsz / align_size;
                 for (int i = 0; i < count; i++) {
-                    uint64_t ret = fwrite(zero, sizeof(zero), 1, fp);
+                    uint64_t ret = fwrite(zero, align_size, 1, fp);
                     if (ret != 1) {
                         LOGE("ERROR: [%lx] padding load segment fail. %s %s\n",
                                 (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[file[index].begin].c_str());
@@ -351,8 +343,8 @@ bool OpencoreImpl::NeedFilterFile(const char* filename, int offset) {
         if (phdr[index].p_type != PT_LOAD)
             continue;
 
-        int pos = RoundDown(phdr[index].p_offset, ELF_PAGE_SIZE);
-        int end = RoundUp(phdr[index].p_offset + phdr[index].p_memsz, ELF_PAGE_SIZE);
+        int pos = RoundDown(phdr[index].p_offset, page_size);
+        int end = pos + phdr[index].p_memsz;
         if (pos <= offset && offset < end) {
             if ((phdr[index].p_flags & PF_W))
                 ret = false;
