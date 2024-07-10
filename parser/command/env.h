@@ -20,7 +20,7 @@
 #if defined(__ANDROID__)
 #define CURRENT_DIR_DEF "/data/local/tmp"
 #else
-#define CURRENT_DIR_DEF "./"
+#define CURRENT_DIR_DEF "."
 #endif
 
 class Env {

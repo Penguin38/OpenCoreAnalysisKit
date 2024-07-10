@@ -264,6 +264,14 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                 LOGI("      library: %s\n", native_frame->GetLibrary().c_str());
                 LOGI("      frame_fp: 0x%lx\n", native_frame->GetFrameFp());
                 LOGI("      frame_pc: 0x%lx\n", native_frame->GetFramePc());
+
+                if (native_frame->GetFramePc()) {
+                    LOGI("\n      ASM CODE:\n");
+                    NearAsm near_asm = NearAsmLength();
+                    capstone::Disassember::Option opt(native_frame->GetFramePc() - near_asm.length, near_asm.count);
+                    capstone::Disassember::Dump("      ", native_frame->GetFramePc() - native_frame->GetMethodOffset(),
+                                                          native_frame->GetMethodOffset() + near_asm.length, opt);
+                }
                 LOGI("  }\n");
             }
             ++frameid;

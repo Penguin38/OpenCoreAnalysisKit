@@ -49,6 +49,7 @@ int PluginCommand::main(int argc, char* const argv[]) {
         return 0;
     }
 
+    LOGI("Linker env...\n");
     if (need_unload) {
         return UnLoad(argv[optind]);
     } else {
@@ -77,12 +78,13 @@ int PluginCommand::Load(const char* path, bool flag) {
     std::unique_ptr<Plugin> plugin = std::make_unique<Plugin>(path, nullptr);
     plugins.push_back(std::move(plugin));
 
-    void* handle = dlopen(path, RTLD_LAZY);
+    void* handle = dlopen(path, RTLD_NOW);
     // do plugin constructor
     if (plugins[plugins.size() - 1]->Cmd()) {
         plugins[plugins.size() - 1]->HookHandle(handle);
         LOGI("env new command \"%s\"\n", plugins[plugins.size() - 1]->Cmd()->get().c_str());
     } else {
+        if (!handle) LOGE("ERROR: dlopen %s fail!\n", path);
         plugins.pop_back();
     }
 
