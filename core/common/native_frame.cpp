@@ -20,6 +20,11 @@
 #include "common/file.h"
 #include "common/elf.h"
 
+NativeFrame::NativeFrame(uint64_t fp, uint64_t sp, uint64_t pc)
+        : frame_fp(fp), frame_sp(sp), map(nullptr), thumb(false) {
+    SetFramePc(pc);
+}
+
 void NativeFrame::Decode() {
     auto callback = [&](LinkMap* link) -> bool {
         // FOR TEST
@@ -71,4 +76,16 @@ uint64_t NativeFrame::GetMethodOffset() {
         }
     }
     return frame_symbol.GetOffset();
+}
+
+void NativeFrame::SetFramePc(uint64_t pc) {
+    if (CoreApi::GetMachine() == EM_ARM) {
+        frame_pc = pc & (CoreApi::GetPointMask() - 1);
+    } else {
+        frame_pc = pc;
+    }
+}
+
+bool NativeFrame::IsThumbMode() {
+    return thumb;
 }

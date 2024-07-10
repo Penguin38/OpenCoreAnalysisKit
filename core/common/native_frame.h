@@ -21,23 +21,23 @@
 
 class NativeFrame {
 public:
-    NativeFrame(uint64_t fp, uint64_t sp, uint64_t pc)
-            : frame_fp(fp), frame_sp(sp), frame_pc(pc),
-              map(nullptr) {
-        Decode();
-    }
+    NativeFrame(uint64_t fp, uint64_t sp, uint64_t pc);
     void Decode();
     uint64_t GetFrameFp() { return frame_fp; }
+    void SetFramePc(uint64_t pc);
     uint64_t GetFramePc() { return frame_pc; }
     std::string& GetMethodName() { return frame_symbol.GetMethod(); }
     uint64_t GetMethodOffset();
     std::string GetLibrary();
+    bool IsThumbMode();
+    void SetThumbMode() { thumb = true; }
 private:
     uint64_t frame_fp;
     uint64_t frame_sp;
     uint64_t frame_pc;
     LinkMap* map;
     LinkMap::NiceSymbol frame_symbol;
+    bool thumb;
 };
 
 #endif // CORE_COMMON_NATIVE_FRAME_H_

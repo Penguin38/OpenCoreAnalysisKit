@@ -167,6 +167,9 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
                 NearAsm near_asm = NearAsmLength();
                 capstone::Disassember::Option opt(java_frame->GetFramePc() - near_asm.length, near_asm.count);
+                if (CoreApi::GetMachine() == EM_ARM) {
+                    opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
+                }
                 capstone::Disassember::Dump("      ", method_header.GetCodeStart(), method_header.GetCodeSize(), opt);
                 art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
                 if (prev_quick_frame.Ptr()) {
@@ -266,11 +269,20 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                 LOGI("      library: %s\n", native_frame->GetLibrary().c_str());
                 LOGI("      frame_fp: 0x%lx\n", native_frame->GetFrameFp());
                 LOGI("      frame_pc: 0x%lx\n", native_frame->GetFramePc());
+                if (CoreApi::GetMachine() == EM_ARM)
+                    LOGI("      thumb: %s\n", native_frame->IsThumbMode() ? "true" : "false");
 
                 if (native_frame->GetFramePc()) {
                     LOGI("\n      ASM CODE:\n");
                     NearAsm near_asm = NearAsmLength();
                     capstone::Disassember::Option opt(native_frame->GetFramePc() - near_asm.length, near_asm.count);
+                    if (CoreApi::GetMachine() == EM_ARM) {
+                        if (native_frame->IsThumbMode()) {
+                            opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
+                        } else {
+                            opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_ARM);
+                        }
+                    }
                     capstone::Disassember::Dump("      ", native_frame->GetFramePc() - native_frame->GetMethodOffset(),
                                                           native_frame->GetMethodOffset() + near_asm.length, opt);
                 }

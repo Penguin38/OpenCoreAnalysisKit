@@ -24,14 +24,69 @@
 namespace arm {
 
 uint32_t UnwindStack::GetUContext() {
-    return cur_uc_ & CoreApi::GetPointMask();
+    if (cur_uc_) return cur_uc_;
+    ThreadInfo* thread = reinterpret_cast<ThreadInfo*>(GetThread());
+    Register& regs = thread->GetRegs();
+
+    uint8_t __padding[120];
+    memset(&__padding, 0x0, sizeof(__padding));
+
+    api::MemoryRef sp = regs.sp;
+    sp.Prepare(false);
+    LoadBlock* block = sp.Block();
+    if (!block) return cur_uc_;
+
+    try {
+        api::MemoryRef uc = sp.Ptr() & CoreApi::GetVabitsMask();
+        uc.checkCopyBlock(block);
+        while(uc.Ptr() + sizeof(struct ucontext) < (block->vaddr() + block->size())) {
+            struct ucontext* context = (struct ucontext*)uc.Real();
+            if (block->virtualContains(context->uc_stack.ss_sp)
+                    && context->uc_stack.ss_size <= block->size()
+                    && context->uc_stack.ss_size >= CoreApi::GetPageSize()) {
+                if (!memcmp(__padding, context->__padding, sizeof(__padding))) {
+                    api::MemoryRef uc_sp = context->uc_mcontext.arm_sp;
+                    if (uc_sp.IsValid()) {
+                        cur_uc_ = uc.Ptr();
+                        break;
+                    }
+                }
+            }
+            uc.MovePtr(4);
+        }
+    } catch(InvalidAddressException e) {
+        // do nothing
+    }
+    return cur_uc_;
 }
 
 void UnwindStack::WalkStack() {
     ThreadInfo* thread = reinterpret_cast<ThreadInfo*>(GetThread());
     Register& regs = thread->GetRegs();
-    cur_frame_pc_ = regs.pc;
-    VisitFrame();
+    Backtrace(regs);
+
+    api::MemoryRef uc = GetUContext();
+    if (uc.Ptr()) {
+        uc_num_ = cur_num_;
+        struct ucontext* context = (struct ucontext*)uc.Real();
+        Register uc_regs;
+        memcpy(&uc_regs, &context->uc_mcontext.arm_r0, sizeof(Register));
+        Backtrace(uc_regs);
+    }
+}
+
+void UnwindStack::Backtrace(Register& regs) {
+    try {
+        cur_frame_pc_ = regs.pc;
+        cur_state_ = regs.cpsr;
+        VisitFrame();
+        cur_state_ = 0x0; // reset
+
+        cur_frame_pc_ = regs.lr;
+        VisitFrame();
+    } catch(InvalidAddressException e) {
+        // do nothing
+    }
 }
 
 void UnwindStack::DumpContextRegister(const char* prefix) {

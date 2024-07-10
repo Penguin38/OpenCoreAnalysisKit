@@ -250,7 +250,9 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
     if (!syment) return 0;
 
     // maybe error match
-    uint64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
+    int64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
+    if (symsz < 0) return 0;
+
     int64_t count = symsz / syment;
 
     api::MemoryRef tables(strtab, handle->block());
@@ -290,7 +292,9 @@ void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol
     if (!syment) return;
 
     // maybe error match
-    uint64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
+    int64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
+    if (symsz < 0) return;
+
     int64_t count = symsz / syment;
 
     api::MemoryRef tables(strtab, handle->block());

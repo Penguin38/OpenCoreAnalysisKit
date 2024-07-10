@@ -30,6 +30,16 @@ void UnwindStack::VisitFrame() {
             std::make_unique<NativeFrame>(cur_frame_fp_,
                                           cur_frame_sp_,
                                           cur_frame_pc_);
+    if (CoreApi::GetMachine() == EM_ARM) {
+        /*
+         * 31|30|29|28|27|26            8|7|6|5|4   0|
+         *  N| Z| C| V| Q|       DNM     |I|F|T|M4~M0|
+         */
+        if (cur_state_ & 0b100000 || cur_frame_pc_ & 0x1) {
+            frame->SetThumbMode();
+        }
+    }
+    frame->Decode();
     native_frames_.push_back(std::move(frame));
     cur_num_++;
 }

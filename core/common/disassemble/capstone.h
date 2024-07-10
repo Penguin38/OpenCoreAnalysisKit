@@ -25,6 +25,18 @@ class Disassember {
 public:
     class Option {
     public:
+        static constexpr uint32_t ARCH_ARM = 0;
+        static constexpr uint32_t ARCH_ARM64 = 1;
+        static constexpr uint32_t ARCH_X86 = 3;
+        static constexpr uint32_t ARCH_X86_64 = 3;
+        static constexpr uint32_t ARCH_RISCV = 15;
+
+        static constexpr uint32_t MODE_DEF = 0;
+        static constexpr uint32_t MODE_ARM = 0;
+        static constexpr uint32_t MODE_32 = 1 << 2;
+        static constexpr uint32_t MODE_64 = 1 << 3;
+        static constexpr uint32_t MODE_THUMB = 1 << 4;
+
         Option(int64_t s, uint32_t n) : start(s), num(n), force(false) {}
         void SetArchMode(uint32_t a, uint32_t m) {
             force = true;

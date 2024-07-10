@@ -93,6 +93,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
         }
     } else {
         uint8_t* buf = reinterpret_cast<uint8_t*>(malloc(count * 8));
+        memset(buf, 0x0, count * 8);
         if (CoreApi::Read(begin, count * 8, buf, read_opt)) {
             uint64_t* value = reinterpret_cast<uint64_t *>(buf);
             if (!filepath) {
