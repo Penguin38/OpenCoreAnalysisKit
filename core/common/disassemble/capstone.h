@@ -83,6 +83,7 @@ public:
     static void Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64_t address, Option& opt);
 
     static void SetArmMode(const char* mode);
+    static int GetArmMode() { return ARM_MODE; }
 private:
     static int ARM_MODE;
 };

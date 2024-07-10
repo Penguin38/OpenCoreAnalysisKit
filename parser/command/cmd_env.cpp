@@ -209,7 +209,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
         {"arm",    required_argument, 0, 2},
     };
 
-    while ((opt = getopt_long(argc, argv, "1",
+    while ((opt = getopt_long(argc, argv, "12:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1: return showLoadEnv();
@@ -220,6 +220,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     }
 
     LOGI("  * r_debug: 0x%lx\n", CoreApi::GetDebugPtr());
+    LOGI("  * arm mode: %s\n", !capstone::Disassember::GetArmMode() ? "arm" : "thumb");
     return 0;
 }
 

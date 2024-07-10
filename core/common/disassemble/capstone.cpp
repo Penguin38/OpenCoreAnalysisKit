@@ -29,7 +29,7 @@
 namespace capstone {
 
 // CS_MODE_THUMB = 1 << 4, ///< ARM's Thumb mode, including Thumb-2
-int Disassember::ARM_MODE = 1 << 4;
+int Disassember::ARM_MODE = Option::MODE_THUMB;
 
 void Disassember::SetArmMode(const char* mode) {
 #if defined(__CAPSTONE__)
