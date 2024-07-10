@@ -253,8 +253,18 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
     uint64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
     int64_t count = symsz / syment;
 
-    api::MemoryRef tables(handle->l_addr() + strtab, handle->block());
-    Elfx_Sym symbols(handle->l_addr() + symtab, tables);
+    api::MemoryRef tables(strtab, handle->block());
+    Elfx_Sym symbols(symtab, tables);
+
+    if (!tables.IsValid()) {
+        tables = handle->l_addr() + strtab;
+        tables.checkCopyBlock(handle->block());
+    }
+
+    if (!symbols.IsValid()) {
+        symbols = handle->l_addr() + symtab;
+        symbols.copyRef(tables);
+    }
 
     for (int i = 0; i < count; ++i) {
         std::string name = reinterpret_cast<const char* >(tables.Real() + symbols.st_name());
@@ -283,8 +293,18 @@ void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol
     uint64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
     int64_t count = symsz / syment;
 
-    api::MemoryRef tables(handle->l_addr() + strtab, handle->block());
-    Elfx_Sym symbols(handle->l_addr() + symtab, tables);
+    api::MemoryRef tables(strtab, handle->block());
+    Elfx_Sym symbols(symtab, tables);
+
+    if (!tables.IsValid()) {
+        tables = handle->l_addr() + strtab;
+        tables.checkCopyBlock(handle->block());
+    }
+
+    if (!symbols.IsValid()) {
+        symbols = handle->l_addr() + symtab;
+        symbols.copyRef(tables);
+    }
 
     uint64_t clocaddr = addr & CoreApi::GetVabitsMask();
     char* match = nullptr;
