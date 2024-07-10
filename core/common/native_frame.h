@@ -29,8 +29,8 @@ public:
     void Decode();
     uint64_t GetFrameFp() { return frame_fp; }
     uint64_t GetFramePc() { return frame_pc; }
-    uint64_t GetMethodOffset() { return frame_symbol.GetOffset(); }
     std::string& GetMethodName() { return frame_symbol.GetMethod(); }
+    uint64_t GetMethodOffset();
     std::string GetLibrary();
 private:
     uint64_t frame_fp;
