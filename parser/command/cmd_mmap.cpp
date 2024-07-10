@@ -65,6 +65,14 @@ int MmapCommand::main(int argc, char* const argv[]) {
 
     if (!remove) {
         block->setMmapFile(file, offset);
+        auto callback = [&](LinkMap* map) -> bool {
+            if (block == map->block()) {
+                map->ReadSymbols();
+                return true;
+            }
+            return false;
+        };
+        CoreApi::ForeachLinkMap(callback);
     } else {
         if (remove & REMOVE_MMAP)
             block->removeMmap();
