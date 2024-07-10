@@ -165,6 +165,7 @@ public:
     uint64_t GetWaitMonitor();
     mirror::Object GetMonitorEnterObject();
     BaseMutex GetHeldMutex(uint32_t level);
+    bool StackEmpty();
     FakeFrame& GetFakeFrame() { return fake_frame; }
 private:
     // quick memoryref cache

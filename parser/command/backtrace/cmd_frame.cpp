@@ -44,9 +44,11 @@ int FrameCommand::main(int argc, char* const argv[]) {
 
     java = false;
     if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
-        if (art::Runtime::Current().GetThreadList().Contains(Env::CurrentPid()))
+        art::Thread* current = art::Runtime::Current().GetThreadList().FindThreadByTid(Env::CurrentPid());
+        if (current && !current->StackEmpty())
             java = true;
     }
+
     while ((opt = getopt_long(argc, (char* const*)argv, "jn",
                 long_options, &option_index)) != -1) {
         switch (opt) {

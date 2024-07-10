@@ -16,6 +16,7 @@
 
 #include "runtime/thread.h"
 #include "runtime/base/locks.h"
+#include "runtime/managed_stack.h"
 #include "android.h"
 #include "cxx/string.h"
 #include "java/lang/Thread.h"
@@ -501,6 +502,15 @@ mirror::Object Thread::GetMonitorEnterObject() {
 BaseMutex Thread::GetHeldMutex(uint32_t level) {
     api::MemoryRef held_mutexes(GetTlsPtr().held_mutexes(), GetTlsPtr());
     return held_mutexes.valueOf(CoreApi::GetPointSize() * level);
+}
+
+bool Thread::StackEmpty() {
+    ManagedStack current_fragment = GetTlsPtr().managed_stack();
+    current_fragment.copyRef(this);
+
+    return current_fragment.GetTopShadowFrame().Ptr() == 0x0 &&
+           current_fragment.link() == 0x0 &&
+           current_fragment.GetTopQuickFrame().Ptr() == 0x0;
 }
 
 void Thread::DumpState() {
