@@ -18,7 +18,9 @@
 #include "android.h"
 #include "common/bit.h"
 #include "command/cmd_print.h"
+#include "command/cmd_format_dump.h"
 #include "command/command_manager.h"
+#include "common/exception.h"
 #include "base/utils.h"
 #include "api/core.h"
 #include "runtime/runtime_globals.h"
@@ -42,12 +44,13 @@ bool PrintCommand::prepare(int argc, char* const argv[]) {
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"--binary",  no_argument,       0,  'b'},
-        {"--ref",     required_argument, 0,  'r'},
+        {"binary",  no_argument,       0,  'b'},
+        {"ref",     required_argument, 0,  'r'},
+        {"format",  no_argument,       0,  'f'},
         {0,           0,                 0,   0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "br:",
+    while ((opt = getopt_long(argc, argv, "bfr:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'r':
@@ -68,18 +71,20 @@ int PrintCommand::main(int argc, char* const argv[]) {
 
     binary = false;
     reference = false;
+    format_dump = false;
     deep = 1;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"--binary",  no_argument,       0,  'b'},
-        {"--ref",     required_argument, 0,  'r'},
+        {"binary",  no_argument,       0,  'b'},
+        {"ref",     required_argument, 0,  'r'},
+        {"format",  no_argument,       0,  'f'},
         {0,           0,                 0,   0 }
     };
     
-    while ((opt = getopt_long(argc, argv, "br:",
+    while ((opt = getopt_long(argc, argv, "bfr:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'b':
@@ -89,11 +94,33 @@ int PrintCommand::main(int argc, char* const argv[]) {
                 reference = true;
                 deep = atoi(optarg);
                 break;
+            case 'f':
+                format_dump = true;
+                break;
         }
     }
 
     art::mirror::Object ref = Utils::atol(argv[optind]);
-    DumpObject(ref);
+    FormatDumpCall format_call = nullptr;
+    if (format_dump) format_call = GetFormatDumpCall(ref);
+    if (format_call) {
+        format_call("", ref);
+    } else {
+        DumpObject(ref);
+        if (binary) {
+            LOGI("Binary:\n");
+            uint64_t real_size = RoundUp(ref.SizeOf(), art::kObjectAlignment);
+            int argc = 4;
+            std::string bs = Utils::ToHex(ref.Ptr());
+            std::string es = Utils::ToHex(ref.Ptr() + real_size);
+            char* argv[4] = {
+                const_cast<char*>("rd"),
+                const_cast<char*>(bs.c_str()),
+                const_cast<char*>("-e"),
+                const_cast<char*>(es.c_str())};
+            CommandManager::Execute(argv[0], argc, argv);
+        }
+    }
     return 0;
 }
 
@@ -107,41 +134,28 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
 
     art::mirror::Class clazz = object.GetClass();
     if (clazz.Ptr()) {
-        if (object.IsClass()) {
-            art::mirror::Class thiz = object;
-            DumpClass(thiz);
-        } else if (clazz.IsArrayClass()) {
-            art::mirror::Array thiz = object;
-            DumpArray(thiz);
-        } else {
-            DumpInstance(object);
+        try {
+            if (object.IsClass()) {
+                art::mirror::Class thiz = object;
+                DumpClass(thiz);
+            } else if (clazz.IsArrayClass()) {
+                art::mirror::Array thiz = object;
+                DumpArray(thiz);
+            } else {
+                DumpInstance(object);
+            }
+        } catch(InvalidAddressException e) {
+            // do nothing
         }
-    }
 
-    if (binary) {
-        LOGI("Binary:\n");
-        int argc = 4;
-        std::stringstream begin;
-        std::stringstream end;
-        begin << std::hex << object.Ptr();
-        end << std::hex << (object.Ptr() + real_size);
-        std::string bs = begin.str();
-        std::string es = end.str();
-        char* argv[4] = {
-                const_cast<char*>("rd"),
-                const_cast<char*>(bs.c_str()),
-                const_cast<char*>("-e"),
-                const_cast<char*>(es.c_str())};
-        CommandManager::Execute(argv[0], argc, argv);
-    }
-
-    if (reference) {
-        LOGI("Reference:\n");
-        int cur_deep = 0;
-        auto callback = [&](art::mirror::Object& reference) -> bool {
-            return PrintReference(object, reference, cur_deep);
-        };
-        Android::ForeachObjects(callback);
+        if (reference) {
+            LOGI("Reference:\n");
+            int cur_deep = 0;
+            auto callback = [&](art::mirror::Object& reference) -> bool {
+                return PrintReference(object, reference, cur_deep);
+            };
+            Android::ForeachObjects(callback);
+        }
     }
 }
 
@@ -387,5 +401,9 @@ void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::M
 }
 
 void PrintCommand::usage() {
-    LOGI("Usage: print|p object -[br]\n");
+    LOGI("Usage: print|p <OBJECT> [option...]\n");
+    LOGI("Option:\n");
+    LOGI("    --binary|-b: show object memory.\n");
+    LOGI("    --ref|-r <deep>: show object's ref.\n");
+    LOGI("    --format|-f: format dump.\n");
 }

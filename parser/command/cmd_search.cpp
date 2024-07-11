@@ -18,6 +18,7 @@
 #include "command/command_manager.h"
 #include "command/cmd_search.h"
 #include "java/lang/Object.h"
+#include "base/utils.h"
 #include "api/core.h"
 #include "android.h"
 #include <string.h>
@@ -126,9 +127,7 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
         LOGI("[%ld] 0x%lx %s\n", total_objects, object.Ptr(), descriptor.c_str());
         if (show) {
             int argc = 2;
-            std::stringstream ss;
-            ss << std::hex << object.Ptr();
-            std::string address = ss.str();
+            std::string address = Utils::ToHex(object.Ptr());
             char* argv[2] = {
                 const_cast<char*>("p"),
                 const_cast<char*>(address.c_str())};

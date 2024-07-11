@@ -41,10 +41,10 @@ public:
                     art::mirror::Object& object, art::ArtField& field);
     static std::string FormatSize(uint64_t size);
     static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref);
-
 private:
     bool binary;
     bool reference;
+    bool format_dump;
     int deep;
 };
 

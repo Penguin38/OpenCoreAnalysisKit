@@ -216,12 +216,8 @@ void MethodCommand::Oatdump() {
 void MethodCommand::Binarydump() {
     LOGI("Binary:\n");
     int argc = 4;
-    std::stringstream begin;
-    std::stringstream end;
-    begin << std::hex << method.Ptr();
-    end << std::hex << (method.Ptr() + SIZEOF(ArtMethod));
-    std::string bs = begin.str();
-    std::string es = end.str();
+    std::string bs = Utils::ToHex(method.Ptr());
+    std::string es = Utils::ToHex(method.Ptr() + SIZEOF(ArtMethod));
     char* argv[4] = {
         const_cast<char*>("rd"),
         const_cast<char*>(bs.c_str()),
