@@ -317,6 +317,9 @@ void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol
         if (symbols.st_value() > 0 && (ELF_ST_TYPE(symbols.st_info()) == STT_FUNC
                 || (vdso && ELF_ST_TYPE(symbols.st_info()) == STT_NOTYPE))) {
             uint64_t value = symbols.st_value() + handle->l_addr();
+            if (CoreApi::GetMachine() == EM_ARM)
+                value &= (CoreApi::GetPointMask() - 1);
+
             if (value <= clocaddr) {
                 if (clocaddr - value <= nice) {
                     match = reinterpret_cast<char* >(tables.Real() + symbols.st_name());

@@ -104,10 +104,14 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
             char* name = nullptr;
             for (const auto& entry : load->GetSymbols()) {
                 if (ELF_ST_TYPE(entry.type) == STT_FUNC) {
-                    if (entry.offset > cloc_offset)
+                    uint64_t offset = entry.offset;
+                    if (CoreApi::GetMachine() == EM_ARM)
+                        offset &= (CoreApi::GetPointMask() - 1);
+
+                    if (offset > cloc_offset)
                         break;
 
-                    nice = cloc_offset - entry.offset;
+                    nice = cloc_offset - offset;
                     name = const_cast<char*>(entry.symbol.data());
                 }
             }

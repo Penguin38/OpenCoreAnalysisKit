@@ -63,18 +63,7 @@ std::string NativeFrame::GetLibrary() {
     return name;
 }
 
-/*
- * nice = PC - (code_start + offset)
- * PC cleanup thumb mode flag
- * thumb mode: real_offset = offset & ~0x1; --> offset - 1;
- *             nice + 1 = PC - (code_start + real_offset)
- */
 uint64_t NativeFrame::GetMethodOffset() {
-    if (CoreApi::GetMachine() == EM_ARM) {
-        if (frame_symbol.GetOffset() & 0x1) {
-            return frame_symbol.GetOffset() + 1;
-        }
-    }
     return frame_symbol.GetOffset();
 }
 
