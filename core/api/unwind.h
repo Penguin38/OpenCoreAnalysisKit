@@ -40,6 +40,7 @@ public:
     virtual void DumpContextRegister(const char* prefix) = 0;
     static std::unique_ptr<UnwindStack> MakeUnwindStack(ThreadApi* thread);
     inline uint64_t GetContextNum() { return uc_num_; }
+    inline uint64_t GetContext() { return cur_uc_; }
     void VisitFrame();
 protected:
     std::vector<std::unique_ptr<NativeFrame>> native_frames_;

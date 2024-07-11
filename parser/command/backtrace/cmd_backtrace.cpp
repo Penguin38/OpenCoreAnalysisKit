@@ -182,7 +182,7 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
             LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
             ++frameid;
             if (frameid == unwind_stack->GetContextNum()) {
-                LOGI("  <<maybe handle signal>>\n");
+                LOGI("    <<maybe handle signal ucontext: 0x%lx>>\n", unwind_stack->GetContext());
                 unwind_stack->DumpContextRegister("  ");
             }
         }

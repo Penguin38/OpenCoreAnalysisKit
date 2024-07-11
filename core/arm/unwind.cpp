@@ -43,7 +43,10 @@ uint32_t UnwindStack::GetUContext() {
             struct ucontext* context = (struct ucontext*)uc.Real();
             if (block->virtualContains(context->uc_stack.ss_sp)
                     && context->uc_stack.ss_size <= block->size()
-                    && context->uc_stack.ss_size >= CoreApi::GetPageSize()) {
+                    && context->uc_stack.ss_size >= CoreApi::GetPageSize()
+                    && !(context->uc_stack.ss_size % CoreApi::GetPageSize())
+                    // uc_link must 0
+                    && context->uc_link == 0x0) {
                 if (!memcmp(__padding, context->__padding, sizeof(__padding))) {
                     api::MemoryRef uc_sp = context->uc_mcontext.arm_sp;
                     if (uc_sp.IsValid()) {

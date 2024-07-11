@@ -26,6 +26,7 @@ class UnwindStack : public api::UnwindStack {
 public:
     UnwindStack(ThreadApi* thread) : api::UnwindStack(thread) {}
     void WalkStack();
+    void Backtrace(Register& regs);
     uint64_t GetUContext();
     void DumpContextRegister(const char* prefix);
 };
