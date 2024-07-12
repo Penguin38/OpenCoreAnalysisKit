@@ -81,13 +81,13 @@ void Mutex::Init() {
 void ReaderWriterMutex::Init() {
     if (CoreApi::Bits() == 64) {
         __ReaderWriterMutex_offset__ = {
-            .state_ = 24,
-            .exclusive_owner_ = 32,
+            .state_ = 20,
+            .exclusive_owner_ = 24,
         };
     } else {
         __ReaderWriterMutex_offset__ = {
-            .state_ = 16,
-            .exclusive_owner_ = 20,
+            .state_ = 12,
+            .exclusive_owner_ = 16,
         };
     }
 }
