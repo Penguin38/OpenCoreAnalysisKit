@@ -350,20 +350,12 @@ cxx::string DexFile::GetLocation() {
 }
 
 dex::TypeId DexFile::GetTypeId(dex::TypeIndex idx) {
-    if (!type_ids_cache.Ptr()) {
-        type_ids_cache = type_ids();
-        type_ids_cache.Prepare(false);
-    }
-    dex::TypeId type_id(type_ids() + SIZEOF(TypeId) * idx.index_, type_ids_cache);
+    dex::TypeId type_id(get_type_ids_cache().Ptr() + SIZEOF(TypeId) * idx.index_, get_type_ids_cache());
     return type_id;
 }
 
 dex::MethodId DexFile::GetMethodId(uint32_t idx) {
-    if (!method_ids_cache.Ptr()) {
-        method_ids_cache = method_ids();
-        method_ids_cache.Prepare(false);
-    }
-    dex::MethodId method_id(method_ids() + SIZEOF(MethodId) * idx, method_ids_cache);
+    dex::MethodId method_id(get_method_ids_cache().Ptr() + SIZEOF(MethodId) * idx, get_method_ids_cache());
     return method_id;
 }
 
@@ -373,11 +365,7 @@ dex::ProtoId DexFile::GetMethodPrototype(dex::MethodId& method_id) {
 }
 
 dex::ProtoId DexFile::GetProtoId(dex::ProtoIndex idx) {
-    if (!proto_ids_cache.Ptr()) {
-        proto_ids_cache = proto_ids();
-        proto_ids_cache.Prepare(false);
-    }
-    dex::ProtoId proto_id(proto_ids() + SIZEOF(ProtoId) * idx.index_, proto_ids_cache);
+    dex::ProtoId proto_id(get_proto_ids_cache().Ptr() + SIZEOF(ProtoId) * idx.index_, get_proto_ids_cache());
     return proto_id;
 }
 
@@ -405,11 +393,7 @@ const char* DexFile::StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_
 }
 
 dex::StringId DexFile::GetStringId(dex::StringIndex idx) {
-    if (!string_ids_cache.Ptr()) {
-        string_ids_cache = string_ids();
-        string_ids_cache.Prepare(false);
-    }
-    dex::StringId string_id(string_ids() + SIZEOF(StringId) * idx.index_, string_ids_cache);
+    dex::StringId string_id(get_string_ids_cache().Ptr() + SIZEOF(StringId) * idx.index_, get_string_ids_cache());
     return string_id;
 }
 
@@ -421,11 +405,7 @@ const char* DexFile::GetStringDataAndUtf16Length(dex::StringId& string_id, uint3
 }
 
 dex::FieldId DexFile::GetFieldId(uint32_t idx) {
-    if (!field_ids_cache.Ptr()) {
-        field_ids_cache = field_ids();
-        field_ids_cache.Prepare(false);
-    }
-    dex::FieldId field_id(field_ids() + SIZEOF(FieldId) * idx, field_ids_cache);
+    dex::FieldId field_id(get_field_ids_cache().Ptr() + SIZEOF(FieldId) * idx, get_field_ids_cache());
     return field_id;
 }
 
@@ -465,14 +445,6 @@ const char* DexFile::GetMethodName(dex::MethodId& method_id) {
     }
     dex::StringIndex idx(method_id.name_idx());
     return StringDataByIdx(idx);
-}
-
-OatDexFile& DexFile::GetOatDexFile() {
-    if (!oat_dex_file_cache.Ptr()) {
-        oat_dex_file_cache = oat_dex_file();
-        oat_dex_file_cache.Prepare(false);
-    }
-    return oat_dex_file_cache;
 }
 
 std::string DexFile::GetMethodParametersDescriptor(dex::ProtoId& proto_id) {

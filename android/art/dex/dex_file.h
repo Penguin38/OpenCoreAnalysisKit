@@ -128,19 +128,19 @@ public:
     const char* GetMethodDeclaringClassDescriptor(dex::MethodId& method_id, const char* def);
     inline const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id) { return GetMethodReturnTypeDescriptor(method_id, "V"); }
     const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id, const char* def);
-    OatDexFile& GetOatDexFile();
+    inline OatDexFile& GetOatDexFile() { return get_oat_dex_file_cache(); }
     inline bool IsCompactDexFile() { return !!is_compact_dex(); }
     inline bool IsStandardDexFile() { return !is_compact_dex(); }
     const char* GetMethodShorty(dex::MethodId& method_id, uint32_t* length);
     void dumpReason(uint64_t vaddr);
 private:
     // quick memoryref cache
-    dex::TypeId type_ids_cache = 0x0;
-    dex::StringId string_ids_cache = 0x0;
-    dex::FieldId field_ids_cache = 0x0;
-    dex::MethodId method_ids_cache = 0x0;
-    dex::ProtoId proto_ids_cache = 0x0;
-    OatDexFile oat_dex_file_cache = 0x0;
+    DEFINE_QUICK_CACHE(dex::TypeId, type_ids);
+    DEFINE_QUICK_CACHE(dex::StringId, string_ids);
+    DEFINE_QUICK_CACHE(dex::FieldId, field_ids);
+    DEFINE_QUICK_CACHE(dex::MethodId, method_ids)
+    DEFINE_QUICK_CACHE(dex::ProtoId, proto_ids);
+    DEFINE_QUICK_CACHE(OatDexFile, oat_dex_file);
 };
 
 } // namespace art

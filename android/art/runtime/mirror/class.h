@@ -23,6 +23,7 @@
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/dex_cache.h"
 #include "runtime/mirror/iftable.h"
+#include "runtime/mirror/class_flags.h"
 #include "runtime/class_status.h"
 #include "dex/primitive.h"
 #include "dex/dex_file.h"
@@ -115,10 +116,10 @@ public:
     inline uint16_t virtual_methods_offset() { return *reinterpret_cast<uint16_t*>(Real() + OFFSET(Class, virtual_methods_offset_)); }
 
     bool IsArrayClass();
-    bool IsStringClass();
-    bool IsDexCacheClass();
-    bool IsClassLoaderClass();
-    bool IsClassClass();
+    inline bool IsStringClass() { return (GetClassFlags() & kClassFlagString) != 0x0; }
+    inline bool IsDexCacheClass() { return (GetClassFlags() & kClassFlagDexCache) != 0x0; }
+    inline bool IsClassLoaderClass() { return (GetClassFlags() & kClassFlagClassLoader) != 0x0; }
+    inline bool IsClassClass() { return GetClass() == *this; }
     bool IsObjectClass();
     bool IsPrimitive();
     bool IsPrimitiveBoolean();
@@ -140,7 +141,10 @@ public:
     bool IsErroneousResolved();
     bool IsErroneous();
     bool IsIdxLoaded();
-    bool IsResolved();
+    inline bool IsResolved() {
+        ClassStatus status = GetStatus();
+        return status >= ClassStatus::kResolved || status == ClassStatus::kErrorResolved;
+    }
     bool ShouldVerifyAtRuntime();
     bool IsVerifiedNeedsAccessChecks();
     bool IsVerified();
@@ -161,27 +165,27 @@ public:
 
     Primitive::Type GetPrimitiveType();
     Class GetComponentType();
-    uint32_t GetClassFlags();
+    inline uint32_t GetClassFlags() { return class_flags(); }
     Class GetSuperClass();
     uint64_t GetComponentSizeShift();
     uint64_t GetPrimitiveTypeSizeShift();
-    uint64_t GetObjectSize();
-    ClassStatus GetStatus();
-    uint32_t GetAccessFlags();
-    uint32_t SizeOf();
-    uint32_t GetClassSize();
+    inline uint64_t GetObjectSize() { return object_size(); }
+    inline ClassStatus GetStatus() { return static_cast<ClassStatus>(status() >> (32 - 4)); }
+    inline uint32_t GetAccessFlags() { return access_flags(); }
+    inline uint32_t SizeOf() { return GetClassSize(); }
+    inline uint32_t GetClassSize() { return class_size(); }
     std::string PrettyDescriptor();
     const char *GetDescriptor(std::string* storage);
     String GetName();
-    DexFile& GetDexFile();
-    DexCache& GetDexCache();
+    inline DexFile& GetDexFile() { return GetDexCache().GetDexFile(); }
+    inline DexCache& GetDexCache() { return get_dex_cache_cache(); }
     dex::TypeIndex GetDexTypeIndex();
     uint32_t NumInstanceFields();
     uint64_t GetIFields();
     uint32_t NumStaticFields();
     uint64_t GetSFields();
     Class GetClassLoader();
-    IfTable& GetIfTable();
+    inline IfTable& GetIfTable() { return get_iftable_cache(); }
     uint32_t NumMethods();
     uint64_t GetMethods();
     inline uint32_t NumDirectMethods() { return GetVirtualMethodsStartOffset(); }
@@ -190,8 +194,8 @@ public:
 
 private:
     // quick memoryref cache
-    DexCache dex_cache_cache = 0x0;
-    IfTable iftable_cache = 0x0;
+    DEFINE_QUICK_CACHE(DexCache, dex_cache);
+    DEFINE_QUICK_CACHE(IfTable, iftable);
 };
 
 } // namespace mirror

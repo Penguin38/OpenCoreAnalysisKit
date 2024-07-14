@@ -86,27 +86,27 @@ private:
 } // namespace java
 
 #define DEFINE_OBJECT_FIELD_CACHE(T, NAME) \
-    T NAME##_cache = 0x0; \
-    inline T& NAME() { \
-        do { \
-            if (NAME##_cache.isNull()) {\
-                NAME##_cache = GetObjectField(#NAME); \
-                NAME##_cache.thiz().copyRef(thiz()); \
-            } \
-            return NAME##_cache;\
-        } while (0); \
-    } \
+T NAME##_cache = 0x0; \
+inline T& NAME() { \
+    do { \
+        if (NAME##_cache.isNull()) {\
+            NAME##_cache = GetObjectField(#NAME); \
+            NAME##_cache.thiz().copyRef(thiz()); \
+        } \
+        return NAME##_cache;\
+    } while (0); \
+} \
 
 #define DEFINE_OBJECT_STATIC_FIELD_CACHE(T, NAME) \
-    T NAME##_cache = 0x0; \
-    inline T& NAME() { \
-        do { \
-            if (NAME##_cache.isNull()) {\
-                NAME##_cache = GetStaticObjectField(#NAME); \
-                NAME##_cache.thiz().copyRef(thiz()); \
-            } \
-            return NAME##_cache;\
-        } while (0); \
-    } \
+T NAME##_cache = 0x0; \
+inline T& NAME() { \
+    do { \
+        if (NAME##_cache.isNull()) {\
+            NAME##_cache = GetStaticObjectField(#NAME); \
+            NAME##_cache.thiz().copyRef(thiz()); \
+        } \
+        return NAME##_cache;\
+    } while (0); \
+} \
 
 #endif // ANDROID_JDK_JAVA_LANG_OBJECT_H_

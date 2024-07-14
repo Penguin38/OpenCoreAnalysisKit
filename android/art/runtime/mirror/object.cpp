@@ -43,12 +43,7 @@ void Object::Init() {
 }
 
 Class Object::GetClass() {
-    if (!klass_cache.Ptr()) {
-        klass_cache = klass();
-        klass_cache.copyRef(this);
-        klass_cache.Prepare(false);
-    }
-    Class clazz(klass(), klass_cache);
+    Class clazz = get_klass_cache();
     return clazz;
 }
 
@@ -175,6 +170,17 @@ bool Object::IsValid() {
         // do nothing
     }
     return false;
+}
+
+uint64_t Object::NextValidOffset(uint64_t max) {
+    Object thiz = Ptr();
+    do {
+        thiz = thiz.Ptr() + kObjectAlignment;
+        thiz.copyRef(this);
+        if (thiz.IsValid())
+            break;
+    } while (thiz.Ptr() < max);
+    return thiz.Ptr();
 }
 
 } // namespcae mirror

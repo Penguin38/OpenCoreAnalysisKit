@@ -73,21 +73,5 @@ void DexCache::Init30() {
     };
 }
 
-DexFile& DexCache::GetDexFile() {
-    if (!dex_file_cache.Ptr()) {
-        dex_file_cache = dex_file();
-        dex_file_cache.Prepare(false);
-    }
-    return dex_file_cache;
-}
-
-String& DexCache::GetLocation() {
-    if (!location_cache.Ptr()) {
-        location_cache = location();
-        location_cache.Prepare(false);
-    }
-    return location_cache;
-}
-
 } // namespace mirror
 } // namespace art

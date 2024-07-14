@@ -62,7 +62,7 @@ public:
     std::string PrettyTypeDescriptor();
     mirror::Class GetDeclaringClass();
     uint32_t GetDexFieldIndex();
-    mirror::DexCache GetDexCache();
+    mirror::DexCache& GetDexCache();
     DexFile& GetDexFile();
     const char* GetName();
     inline uint32_t GetOffset() { return offset(); }
@@ -84,6 +84,7 @@ public:
 private:
     // quick memoryref cache
     DexFile dex_file_cache = 0x0;
+    DEFINE_QUICK_CACHE(api::MemoryRef, declaring_class);
 };
 
 } //namespace art

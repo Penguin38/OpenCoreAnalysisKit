@@ -69,22 +69,6 @@ bool Class::IsArrayClass() {
     return GetComponentType() != 0x0;
 }
 
-bool Class::IsStringClass() {
-    return (GetClassFlags() & kClassFlagString) != 0x0;
-}
-
-bool Class::IsDexCacheClass() {
-    return (GetClassFlags() & kClassFlagDexCache) != 0x0;
-}
-
-bool Class::IsClassLoaderClass() {
-    return (GetClassFlags() & kClassFlagClassLoader) != 0x0;
-}
-
-bool Class::IsClassClass() {
-    return GetClass() == *this;
-}
-
 bool Class::IsObjectClass() {
     return !IsPrimitive() && GetSuperClass() == 0x0;
 }
@@ -170,11 +154,6 @@ bool Class::IsIdxLoaded() {
     return GetStatus() >= ClassStatus::kIdx;
 }
 
-bool Class::IsResolved() {
-    ClassStatus status = GetStatus();
-    return status >= ClassStatus::kResolved || status == ClassStatus::kErrorResolved;
-}
-
 bool Class::ShouldVerifyAtRuntime() {
     return GetStatus() == ClassStatus::kRetryVerificationAtRuntime;
 }
@@ -254,10 +233,6 @@ Class Class::GetComponentType() {
     return component_type_;
 }
 
-uint32_t Class::GetClassFlags() {
-    return class_flags();
-}
-
 Class Class::GetSuperClass() {
     Class super_class_(super_class(), this);
     return super_class_;
@@ -271,26 +246,6 @@ uint64_t Class::GetPrimitiveTypeSizeShift() {
     int32_t v32 = primitive_type();
     uint64_t size_shift = v32 >> kPrimitiveTypeSizeShiftShift;
     return size_shift;
-}
-
-uint64_t Class::GetObjectSize() {
-    return object_size();
-}
-
-ClassStatus Class::GetStatus() {
-    return static_cast<ClassStatus>(status() >> (32 - 4));
-}
-
-uint32_t Class::GetAccessFlags() {
-    return access_flags();
-}
-
-uint32_t Class::SizeOf() {
-    return GetClassSize();
-}
-
-uint32_t Class::GetClassSize() {
-    return class_size();
 }
 
 std::string Class::PrettyDescriptor() {
@@ -336,19 +291,6 @@ String Class::GetName() {
     return name_;
 }
 
-DexFile& Class::GetDexFile() {
-    return GetDexCache().GetDexFile();
-}
-
-DexCache& Class::GetDexCache() {
-    if (!dex_cache_cache.Ptr()) {
-        dex_cache_cache = dex_cache();
-        dex_cache_cache.copyRef(this);
-        dex_cache_cache.Prepare(false);
-    }
-    return dex_cache_cache;
-}
-
 dex::TypeIndex Class::GetDexTypeIndex() {
     return dex::TypeIndex(static_cast<uint16_t>(dex_type_idx()));
 }
@@ -376,15 +318,6 @@ uint64_t Class::GetSFields() {
 Class Class::GetClassLoader() {
     Class class_loader_(class_loader(), this);
     return class_loader_;
-}
-
-IfTable& Class::GetIfTable() {
-    if (!iftable_cache.Ptr()) {
-        iftable_cache = iftable();
-        iftable_cache.copyRef(this);
-        iftable_cache.Prepare(false);
-    }
-    return iftable_cache;
 }
 
 uint32_t Class::NumMethods() {

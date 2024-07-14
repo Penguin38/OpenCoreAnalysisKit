@@ -70,13 +70,13 @@ public:
     inline uint32_t location() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(DexCache, location_)); }
     inline uint64_t dex_file() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexCache, dex_file_)); }
 
-    DexFile& GetDexFile();
-    String& GetLocation();
+    inline DexFile& GetDexFile() { return get_dex_file_cache(); }
+    inline String& GetLocation() { return get_location_cache(); }
 
 private:
     // quick memoryref cache
-    DexFile dex_file_cache = 0x0;
-    String location_cache = 0x0;
+    DEFINE_QUICK_CACHE(DexFile, dex_file);
+    DEFINE_QUICK_CACHE(String, location);
 };
 
 } // namespace mirror

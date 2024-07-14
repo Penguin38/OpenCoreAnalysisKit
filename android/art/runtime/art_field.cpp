@@ -56,7 +56,7 @@ std::string ArtField::PrettyTypeDescriptor() {
 }
 
 mirror::Class ArtField::GetDeclaringClass() {
-    mirror::Class declaring_class_(declaring_class(), this);
+    mirror::Class declaring_class_ = get_declaring_class_cache();
     return declaring_class_;
 }
 
@@ -64,7 +64,7 @@ uint32_t ArtField::GetDexFieldIndex() {
     return field_dex_idx();
 }
 
-mirror::DexCache ArtField::GetDexCache() {
+mirror::DexCache& ArtField::GetDexCache() {
     return GetDeclaringClass().GetDexCache();
 }
 

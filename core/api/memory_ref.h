@@ -35,6 +35,19 @@
 #define SIZEOF(X) (__##X##_size__.THIS)
 #define VALUEOF(X, Y) (*reinterpret_cast<uint64_t *>(Real() + OFFSET(X, Y)) & PointMask())
 
+#define DEFINE_QUICK_CACHE(T, NAME) \
+T NAME##_cache = 0x0; \
+inline T& get_##NAME##_cache() { \
+    do { \
+        if (!NAME##_cache.Ptr()) {\
+            NAME##_cache = NAME(); \
+            NAME##_cache.copyRef(this); \
+            NAME##_cache.Prepare(false); \
+        } \
+        return NAME##_cache;\
+    } while (0); \
+} \
+
 namespace api {
 class MemoryRef {
 public:
