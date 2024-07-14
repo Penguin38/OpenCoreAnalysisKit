@@ -80,7 +80,7 @@ std::map<uint32_t, DexRegisterInfo>& ShadowFrame::GetVRegs() {
         for (int i = 0; i < number_of_vregs(); i++) {
             DexRegisterInfo info(DexRegisterInfo::Kind::kConstant,
                                            ref.value32Of(i * sizeof(uint32_t)));
-            if (Android::Sdk() >= Android::R) {
+            if (Android::Sdk() >= Android::P) {
                 vregs_cache[i] = info;
             } else {
                 vregs_cache[i + 1]  = info;
