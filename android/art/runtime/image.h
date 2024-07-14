@@ -61,6 +61,7 @@ public:
     static void Init26();
     static void Init28();
     static void Init29();
+    static void Init30();
     static void Init31();
     static void Init34();
     static void Init35();

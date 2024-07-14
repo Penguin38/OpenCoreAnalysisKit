@@ -52,6 +52,16 @@ void ImageHeader::Init29() {
     };
 }
 
+void ImageHeader::Init30() {
+    __ImageHeader_offset__ = {
+        .image_methods_ = 168,
+    };
+
+    __ImageHeader_size__ = {
+        .THIS = 256,
+    };
+}
+
 void ImageHeader::Init31() {
     __ImageHeader_offset__ = {
         .image_methods_ = 160,

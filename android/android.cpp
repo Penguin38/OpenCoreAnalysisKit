@@ -315,6 +315,7 @@ void Android::preLoad() {
     RegisterSdkListener(R, art::mirror::DexCache::Init30);
     RegisterSdkListener(R, art::Thread::Init30);
     RegisterSdkListener(R, art::Thread::tls_ptr_sized_values::Init30);
+    RegisterSdkListener(R, art::ImageHeader::Init30);
     RegisterSdkListener(R, art::gc::space::RegionSpace::Init30);
     RegisterSdkListener(R, art::gc::space::LargeObjectSpace::Init30);
     RegisterSdkListener(R, art::gc::space::LargeObjectMapSpace::Init30);
