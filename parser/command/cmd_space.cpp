@@ -21,32 +21,90 @@
 #include "runtime/gc/heap.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/gc/space/large_object_space.h"
+#include <unistd.h>
+#include <getopt.h>
 
 int SpaceCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
-    art::Runtime& runtime = art::Runtime::Current();
-    art::gc::Heap& heap = runtime.GetHeap();
+    check = false;
+    flag = 0;
 
-    LOGI("TYPE   REGION                  ADDRESS             NAME\n");
-    for (const auto& space : heap.GetContinuousSpaces()) {
-        art::gc::space::ContinuousSpace* sp = space.get();
-        LOGI(" %2d  [0x%lx, 0x%lx)  0x%lx  %s\n", sp->GetType(), sp->Begin(), sp->End(), sp->Ptr(), sp->GetName());
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"check",    no_argument,       0,  'c'},
+        {"app",      no_argument,       0,   0 },
+        {"zygote",   no_argument,       0,   1 },
+        {"image",    no_argument,       0,   2 },
+        {"fake",     no_argument,       0,   3 },
+    };
+
+    while ((opt = getopt_long(argc, argv, "c",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'c':
+                check = true;
+                break;
+            case 0:
+                flag |= Android::EACH_APP_OBJECTS;
+                break;
+            case 1:
+                flag |= Android::EACH_ZYGOTE_OBJECTS;
+                break;
+            case 2:
+                flag |= Android::EACH_IMAGE_OBJECTS;
+                break;
+            case 3:
+                flag |= Android::EACH_FAKE_OBJECTS;
+                break;
+        }
     }
 
-    for (const auto& space : heap.GetDiscontinuousSpaces()) {
-        art::gc::space::DiscontinuousSpace* dsp = space.get();
-        if (space->IsLargeObjectSpace()) {
-            art::gc::space::LargeObjectSpace *sp = reinterpret_cast<art::gc::space::LargeObjectSpace *>(dsp);
+    if (!flag) {
+        flag |= Android::EACH_APP_OBJECTS;
+        flag |= Android::EACH_ZYGOTE_OBJECTS;
+        flag |= Android::EACH_IMAGE_OBJECTS;
+        flag |= Android::EACH_FAKE_OBJECTS;
+    }
+
+    if (check) {
+        auto callback = [&](art::mirror::Object& object) -> bool {
+            // do nothing
+            return false;
+        };
+        Android::ForeachObjects(callback, flag);
+    } else {
+        art::Runtime& runtime = art::Runtime::Current();
+        art::gc::Heap& heap = runtime.GetHeap();
+
+        LOGI("TYPE   REGION                  ADDRESS             NAME\n");
+        for (const auto& space : heap.GetContinuousSpaces()) {
+            art::gc::space::ContinuousSpace* sp = space.get();
             LOGI(" %2d  [0x%lx, 0x%lx)  0x%lx  %s\n", sp->GetType(), sp->Begin(), sp->End(), sp->Ptr(), sp->GetName());
-        } else {
-            LOGI(" %2d  [0x0, 0x0)  0x%lx  %s\n", space->GetType(), space->Ptr(), space->GetName());
+        }
+
+        for (const auto& space : heap.GetDiscontinuousSpaces()) {
+            art::gc::space::DiscontinuousSpace* dsp = space.get();
+            if (space->IsLargeObjectSpace()) {
+                art::gc::space::LargeObjectSpace *sp = reinterpret_cast<art::gc::space::LargeObjectSpace *>(dsp);
+                LOGI(" %2d  [0x%lx, 0x%lx)  0x%lx  %s\n", sp->GetType(), sp->Begin(), sp->End(), sp->Ptr(), sp->GetName());
+            } else {
+                LOGI(" %2d  [0x0, 0x0)  0x%lx  %s\n", space->GetType(), space->Ptr(), space->GetName());
+            }
         }
     }
     return 0;
 }
 
 void SpaceCommand::usage() {
-    LOGI("Usage: space\n");
+    LOGI("Usage: space [Option]\n");
+    LOGI("Option:\n");
+    LOGI("  --check|-c: check space bad object.\n");
+    LOGI("  --app:\n");
+    LOGI("  --zygote:\n");
+    LOGI("  --image:\n");
+    LOGI("  --fake:\n");
 }

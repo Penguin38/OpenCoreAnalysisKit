@@ -351,7 +351,11 @@ void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visi
         api::MemoryRef ref = pair.first();
         if (ref.IsValid()) {
             mirror::Object object(ref);
-            if (object.IsValid()) visitor(object);
+            if (object.IsValid()) {
+                visitor(object);
+            } else {
+                LOGE("ERROR: 0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
+            }
         }
     }
 }
@@ -393,7 +397,11 @@ void FreeListSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
         if (!cur_info.IsFree()) {
             uint64_t byte_start = GetAddressForAllocationInfo(cur_info);
             mirror::Object object(byte_start, block_cache);
-            if (object.IsValid()) visitor(object);
+            if (object.IsValid()) {
+                visitor(object);
+            } else {
+                LOGE("ERROR: 0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
+            }
         }
         cur_info.MoveNexInfo();
     }

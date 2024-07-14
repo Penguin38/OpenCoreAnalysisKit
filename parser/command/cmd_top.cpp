@@ -39,6 +39,7 @@ int TopCommand::main(int argc, char* const argv[]) {
     num = atoi(argv[1]);
     order = ORDERBY_ALLOC;
     show = false;
+    flag = 0;
 
     int opt;
     int option_index = 0;

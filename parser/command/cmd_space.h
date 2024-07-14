@@ -30,6 +30,9 @@ public:
         return true;
     }
     void usage();
+private:
+    int flag;
+    bool check;
 };
 
 #endif // PARSER_COMMAND_CMD_SPACE_H_

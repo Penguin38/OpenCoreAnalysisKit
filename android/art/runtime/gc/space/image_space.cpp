@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "runtime/gc/space/image_space.h"
 #include "runtime/runtime_globals.h"
 #include "runtime/image.h"
@@ -41,7 +42,8 @@ void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
             visitor(object);
             pos = GetNextObject(object);
         } else {
-            pos += kObjectAlignment;
+            pos = object.NextValidOffset(top);
+            if (pos < top) LOGE("ERROR: Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
         }
     }
 }

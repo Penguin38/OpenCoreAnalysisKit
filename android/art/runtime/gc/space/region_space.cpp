@@ -243,7 +243,8 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
                 visitor(object);
                 pos = GetNextObject(object);
             } else {
-                pos += kObjectAlignment;
+                pos = object.NextValidOffset(top);
+                if (pos < top) LOGE("ERROR: Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
             }
         }
     }
