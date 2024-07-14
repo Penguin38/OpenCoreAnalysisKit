@@ -19,16 +19,18 @@
 
 #include "runtime/mirror/object.h"
 #include "java/lang/Throwable.h"
+#include "android/util/ArrayMap.h"
 
 typedef void (*FormatDumpCall)(const char* prefix, art::mirror::Object& obj);
 
 struct ObjectFormatDump {
     const char* instance;
-    FormatDumpCall call;   
+    FormatDumpCall call;
 };
 
 static ObjectFormatDump kFormatDump[] = {
     { "java.lang.Throwable", java::lang::Throwable::FormatDump },
+    { "android.util.ArrayMap", android::util::ArrayMap<java::lang::Object, java::lang::Object>::FormatDump },
 };
 
 static FormatDumpCall GetFormatDumpCall(art::mirror::Object& obj) {

@@ -27,7 +27,7 @@ namespace app {
 java::lang::Object ContextImpl::getSystemService(const char* serviceName) {
     java::lang::Object service = 0x0;
     java::lang::Class registry = java::lang::Class::forName("android.app.SystemServiceRegistry");
-    android::util::ArrayMap SYSTEM_SERVICE_FETCHERS = registry.GetStaticObjectField("SYSTEM_SERVICE_FETCHERS");
+    android::util::ArrayMap<java::lang::String, java::lang::Object> SYSTEM_SERVICE_FETCHERS = registry.GetStaticObjectField("SYSTEM_SERVICE_FETCHERS");
     for (int i = 0; i < SYSTEM_SERVICE_FETCHERS.size(); ++i) {
         java::lang::String key = SYSTEM_SERVICE_FETCHERS.keyAt(i).Ptr();
         if (key.toString() == serviceName) {

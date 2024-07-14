@@ -15,6 +15,8 @@
  */
 
 #include "java/lang/Object.h"
+#include "java/lang/Integer.h"
+#include "java/lang/Class.h"
 #include "runtime/mirror/iftable.h"
 #include "android.h"
 
@@ -42,6 +44,19 @@ bool Object::instanceof(const char* classname) {
     }
 
     return false;
+}
+
+std::string Object::toString() {
+    std::string sb;
+    if (isNull()) {
+        sb.append("null");
+    } else {
+        Class clazz = klass();
+        sb.append(clazz.getSimpleName());
+        sb.append("@");
+        sb.append(Integer::toHexString(Ptr()));
+    }
+    return sb;
 }
 
 #define GET_INSTANCE_FIELD(TYPE, NAME) \

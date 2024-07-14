@@ -14,33 +14,71 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
+#include "java/lang/String.h"
 #include "android/util/ArrayMap.h"
-#include "runtime/mirror/array.h"
 
 namespace android {
 namespace util {
 
-java::lang::Object ArrayMap::keyAt(int idx) {
-    art::mirror::Array array = GetObjectField("mArray");
-    api::MemoryRef ref(array.GetRawData(sizeof(uint32_t), idx << 1), array);
-    art::mirror::Object object(*reinterpret_cast<uint32_t *>(ref.Real()), array);
-    return object;
-}
+template <typename K, typename V>
+std::string ArrayMap<K, V>::toString() {
+    std::string sb;
+    int mSize = size();
 
-java::lang::Object ArrayMap::valueAt(int idx) {
-    art::mirror::Array array = GetObjectField("mArray");
-    api::MemoryRef ref(array.GetRawData(sizeof(uint32_t), (idx << 1) + 1), array);
-    art::mirror::Object object(*reinterpret_cast<uint32_t *>(ref.Real()), array);
-    return object;
-}
+    sb.append("{");
+    for (int idx = 0; idx < mSize; ++idx) {
+        K key = keyAt(idx);
+        V value = valueAt(idx);
 
-java::lang::Object ArrayMap::get(java::lang::Object& key) {
-    for (int idx = 0; idx < size(); ++idx) {
-        if (keyAt(idx) == key) {
-            return valueAt(idx);
+        if (idx > 0)
+            sb.append(", ");
+
+        if (key.instanceof("java.lang.String")) {
+            java::lang::String str = key;
+            sb.append(str.toString());
+        } else {
+            sb.append(key.toString());
+        }
+
+        sb.append("=");
+
+        if (value.instanceof("java.lang.String")) {
+            java::lang::String str = value;
+            sb.append(str.toString());
+        } else {
+            sb.append(value.toString());
         }
     }
-    return 0x0;
+    sb.append("}");
+    return sb;
+}
+
+template<>
+void ArrayMap<java::lang::Object, java::lang::Object>::FormatDump(const char* prefix, art::mirror::Object& obj) {
+    ArrayMap<java::lang::Object, java::lang::Object> array = obj;
+    int mSize = array.size();
+    for (int idx = 0; idx < mSize; ++idx) {
+        std::string sb;
+        java::lang::Object key = array.keyAt(idx);
+        java::lang::Object value = array.valueAt(idx);
+        sb.append("{");
+        if (key.instanceof("java.lang.String")) {
+            java::lang::String str = key;
+            sb.append(str.toString());
+        } else {
+            sb.append(key.toString());
+        }
+        sb.append(", ");
+        if (value.instanceof("java.lang.String")) {
+            java::lang::String str = value;
+            sb.append(str.toString());
+        } else {
+            sb.append(value.toString());
+        }
+        sb.append("}");
+        LOGI("[%d] %s\n", idx, sb.c_str());
+    }
 }
 
 } // namespace util

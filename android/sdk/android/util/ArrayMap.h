@@ -17,21 +17,43 @@
 #ifndef ANDROID_SDK_ANDROID_UTIL_ARRAYMAP_H_
 #define ANDROID_SDK_ANDROID_UTIL_ARRAYMAP_H_
 
-#include "java/lang/Object.h"
+#include "logger/log.h"
+#include "android/util/BaseArrayMap.h"
 
 namespace android {
 namespace util {
 
-class ArrayMap : public java::lang::Object {
+template <typename K, typename V>
+class ArrayMap : public BaseArrayMap {
 public:
-    ArrayMap(uint32_t obj) : java::lang::Object(obj) {}
-    ArrayMap(java::lang::Object& obj) : java::lang::Object(obj) {}
-    ArrayMap(art::mirror::Object& obj) : java::lang::Object(obj) {}
+    ArrayMap(uint32_t map) : BaseArrayMap(map) {}
+    ArrayMap(java::lang::Object& obj) : BaseArrayMap(obj) {}
+    ArrayMap(BaseArrayMap& map) : BaseArrayMap(map) {}
+    ArrayMap(art::mirror::Object& obj) : BaseArrayMap(obj) {}
 
-    inline int size() { return GetIntField("mSize"); }
-    java::lang::Object keyAt(int idx);
-    java::lang::Object valueAt(int idx);
-    java::lang::Object get(java::lang::Object& key);
+    K keyAt(int idx) {
+        java::lang::ObjectArray<java::lang::Object>& mArray = getArray();
+        java::lang::Object key = mArray[idx << 1];
+        return key;
+    }
+
+    V valueAt(int idx) {
+        java::lang::ObjectArray<java::lang::Object>& mArray = getArray();
+        java::lang::Object value = mArray[(idx << 1) + 1];
+        return value;
+    }
+
+    V get(K& key) {
+        for (int idx = 0; idx < size(); ++idx) {
+            if (keyAt(idx).thiz() == key.thiz()) {
+                return valueAt(idx);
+            }
+        }
+        return 0x0;
+    }
+
+    std::string toString();
+    static void FormatDump(const char* prefix, art::mirror::Object& obj);
 };
 
 } // namespace util

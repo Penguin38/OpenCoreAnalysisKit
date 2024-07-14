@@ -198,6 +198,7 @@ add_library(android STATIC
 
             # sdk
             android/sdk/android/app/ContextImpl.cpp
+            android/sdk/android/util/BaseArrayMap.cpp
             android/sdk/android/util/ArrayMap.cpp)
 target_link_libraries(android core llvm)
 

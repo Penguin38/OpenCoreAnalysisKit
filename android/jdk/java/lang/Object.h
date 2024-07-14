@@ -74,6 +74,8 @@ public:
 
     inline bool operator==(Object& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Object& ref) { return Ptr() != ref.Ptr(); }
+
+    std::string toString();
 private:
     // quick memoryref cache;
     art::mirror::Object thiz_cache = 0;
