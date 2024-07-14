@@ -30,11 +30,9 @@ public:
     BaseArrayMap(art::mirror::Object& obj) : java::lang::Object(obj) {}
 
     inline int size() { return GetIntField("mSize"); }
-    java::lang::ObjectArray<java::lang::Object>& array();
-
-    inline java::lang::ObjectArray<java::lang::Object>& getArray() { return array(); }
+    inline java::lang::ObjectArray<java::lang::Object>& getArray() { return mArray(); }
 private:
-    java::lang::ObjectArray<java::lang::Object> array_cache = 0x0;
+    DEFINE_OBJECT_FIELD_CACHE(java::lang::ObjectArray<java::lang::Object>, mArray);
 };
 
 } // namespace util

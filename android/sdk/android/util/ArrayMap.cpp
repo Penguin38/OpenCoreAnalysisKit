@@ -55,8 +55,8 @@ std::string ArrayMap<K, V>::toString() {
 }
 
 template<>
-void ArrayMap<java::lang::Object, java::lang::Object>::FormatDump(const char* prefix, art::mirror::Object& obj) {
-    ArrayMap<java::lang::Object, java::lang::Object> array = obj;
+void ArrayMap<>::FormatDump(const char* prefix, art::mirror::Object& obj) {
+    ArrayMap<> array = obj;
     int mSize = array.size();
     for (int idx = 0; idx < mSize; ++idx) {
         std::string sb;

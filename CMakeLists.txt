@@ -189,16 +189,11 @@ add_library(android STATIC
             android/jdk/java/lang/Class.cpp
             android/jdk/java/lang/Array.cpp
             android/jdk/java/lang/String.cpp
-            android/jdk/java/lang/Thread.cpp
-            android/jdk/java/lang/ThreadGroup.cpp
             android/jdk/java/lang/Throwable.cpp
             android/jdk/java/lang/StackTraceElement.cpp
-            android/jdk/sun/misc/Cleaner.cpp
-            android/jdk/libcore/util/NativeAllocationRegistry.cpp
 
             # sdk
             android/sdk/android/app/ContextImpl.cpp
-            android/sdk/android/util/BaseArrayMap.cpp
             android/sdk/android/util/ArrayMap.cpp)
 target_link_libraries(android core llvm)
 

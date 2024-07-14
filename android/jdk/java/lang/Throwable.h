@@ -31,18 +31,14 @@ public:
     Throwable(Object& obj) : Object(obj) {}
     Throwable(art::mirror::Object& obj) : Object(obj) {}
 
-    Object& cause();
-    String& detailMessage();
-    ObjectArray<StackTraceElement>& stackTrace();
-
     inline Throwable getCause() { return cause(); }
     inline String& getMessage() { return detailMessage(); }
     inline ObjectArray<StackTraceElement>& getStackTrace() { return stackTrace(); }
     static void FormatDump(const char* prefix, art::mirror::Object& obj);
 private:
-    Object cause_cache = 0x0;
-    String detailMessage_cache = 0x0;
-    ObjectArray<StackTraceElement> stackTrace_cache = 0x0;
+    DEFINE_OBJECT_FIELD_CACHE(Object, cause);
+    DEFINE_OBJECT_FIELD_CACHE(String, detailMessage);
+    DEFINE_OBJECT_FIELD_CACHE(ObjectArray<StackTraceElement>, stackTrace);
 };
 
 } // namespace lang

@@ -21,6 +21,7 @@
 namespace java {
 namespace lang {
 
+#if 0
 Object& Throwable::cause() {
     if (cause_cache.isNull()) {
         cause_cache = GetObjectField("cause");
@@ -44,6 +45,7 @@ ObjectArray<StackTraceElement>& Throwable::stackTrace() {
     }
     return stackTrace_cache;
 }
+#endif
 
 void Throwable::FormatDump(const char* prefix, art::mirror::Object& obj) {
     Throwable throwable = obj;

@@ -29,10 +29,10 @@ public:
     ThreadGroup(Object& obj) : Object(obj) {}
     ThreadGroup(art::mirror::Object& obj) : Object(obj) {}
 
-    String& getName();
-    std::string Name();
+    inline String& getName() { return name(); }
+    inline std::string Name() { return getName().toString(); }
 private:
-    String name = 0x0;
+    DEFINE_OBJECT_FIELD_CACHE(String, name);
 };
 
 } // namespace lang

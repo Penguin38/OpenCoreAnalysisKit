@@ -22,7 +22,7 @@
 namespace java {
 namespace lang {
 
-template <typename T>
+template <typename T = java::lang::Object>
 class ObjectArray : public Array {
 public:
     ObjectArray(uint32_t array) : Array(array) {}

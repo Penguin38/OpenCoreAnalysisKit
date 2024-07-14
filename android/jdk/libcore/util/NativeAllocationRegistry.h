@@ -36,9 +36,9 @@ public:
         CleanerThunk(java::lang::Object& obj) : java::lang::Object(obj) {}
         CleanerThunk(art::mirror::Object& obj) : java::lang::Object(obj) {}
 
-        java::lang::Object& getRegistry();
+        inline java::lang::Object& getRegistry() { return this$0(); }
     private:
-        java::lang::Object this0 = 0x0;
+        DEFINE_OBJECT_FIELD_CACHE(java::lang::Object, this$0);
     };
 };
 

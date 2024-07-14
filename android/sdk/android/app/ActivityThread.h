@@ -29,10 +29,13 @@ public:
     ActivityThread(java::lang::Object& obj) : java::lang::Object(obj) {}
     ActivityThread(art::mirror::Object& obj) : java::lang::Object(obj) {}
 
-    inline ContextImpl getSystemContext() { return GetObjectField("mSystemContext"); }
+    inline ContextImpl& getSystemContext() { return mSystemContext(); }
 
-    // static
-    inline java::lang::Object getCurrentActivityThread() { return GetStaticObjectField("sCurrentActivityThread"); }
+    // only java::lang::Class<?>
+    inline java::lang::Object& getCurrentActivityThread() { return sCurrentActivityThread(); }
+private:
+    DEFINE_OBJECT_FIELD_CACHE(ContextImpl, mSystemContext);
+    DEFINE_OBJECT_STATIC_FIELD_CACHE(java::lang::Object, sCurrentActivityThread);
 };
 
 } // namespace app

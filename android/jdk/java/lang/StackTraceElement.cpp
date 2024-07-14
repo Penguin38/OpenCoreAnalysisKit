@@ -19,30 +19,6 @@
 namespace java {
 namespace lang {
 
-String& StackTraceElement::methodName() {
-    if (methodName_cache.isNull()) {
-        methodName_cache = GetObjectField("methodName");
-        methodName_cache.thiz().copyRef(thiz());
-    }
-    return methodName_cache;
-}
-
-String& StackTraceElement::fileName() {
-    if (fileName_cache.isNull()) {
-        fileName_cache = GetObjectField("fileName");
-        fileName_cache.thiz().copyRef(thiz());
-    }
-    return fileName_cache;
-}
-
-String& StackTraceElement::declaringClass() {
-    if (declaringClass_cache.isNull()) {
-        declaringClass_cache = GetObjectField("declaringClass");
-        declaringClass_cache.thiz().copyRef(thiz());
-    }
-    return declaringClass_cache;
-}
-
 std::string StackTraceElement::toString() {
     std::string result;
     String& declaringClass = getClassName();

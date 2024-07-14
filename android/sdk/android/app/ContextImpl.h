@@ -28,8 +28,10 @@ public:
     ContextImpl(java::lang::Object& obj) : java::lang::Object(obj) {}
     ContextImpl(art::mirror::Object& obj) : java::lang::Object(obj) {}
 
-    inline java::lang::Object getServiceCache() { return GetObjectField("mServiceCache"); }
+    inline java::lang::Object& getServiceCache() { return mServiceCache(); }
     java::lang::Object getSystemService(const char* serviceName);
+private:
+    DEFINE_OBJECT_FIELD_CACHE(java::lang::Object, mServiceCache);
 };
 
 } // namespace app

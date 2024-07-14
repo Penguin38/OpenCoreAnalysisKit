@@ -29,9 +29,6 @@ public:
     StackTraceElement(Object& obj) : Object(obj) {}
     StackTraceElement(art::mirror::Object& obj) : Object(obj) {}
 
-    String& methodName();
-    String& fileName();
-    String& declaringClass();
     inline int lineNumber() { return GetIntField("lineNumber"); }
 
     inline String& getMethodName() { return methodName(); }
@@ -41,9 +38,9 @@ public:
     inline bool isNativeMethod() { return lineNumber() == -2; }
     std::string toString();
 private:
-    String methodName_cache = 0x0;
-    String fileName_cache = 0x0;
-    String declaringClass_cache = 0x0;
+    DEFINE_OBJECT_FIELD_CACHE(String, methodName);
+    DEFINE_OBJECT_FIELD_CACHE(String, fileName);
+    DEFINE_OBJECT_FIELD_CACHE(String, declaringClass);
 };
 
 } // namespace lang

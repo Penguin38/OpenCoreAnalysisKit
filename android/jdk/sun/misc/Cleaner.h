@@ -28,12 +28,12 @@ public:
     Cleaner(java::lang::Object& obj) : java::lang::Object(obj) {}
     Cleaner(art::mirror::Object& obj) : java::lang::Object(obj) {}
 
-    java::lang::Object& getReferent();
-    java::lang::Object& getThunk();
+    inline java::lang::Object& getReferent() { return referent(); }
+    inline java::lang::Object& getThunk() { return thunk(); }
 
 private:
-    java::lang::Object referent = 0x0;
-    java::lang::Object thunk = 0x0;
+    DEFINE_OBJECT_FIELD_CACHE(java::lang::Object, referent);
+    DEFINE_OBJECT_FIELD_CACHE(java::lang::Object, thunk);
 };
 
 } // namespace misc

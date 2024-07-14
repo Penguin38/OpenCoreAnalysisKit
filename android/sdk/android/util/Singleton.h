@@ -28,7 +28,9 @@ public:
     Singleton(java::lang::Object& obj) : java::lang::Object(obj) {}
     Singleton(art::mirror::Object& obj) : java::lang::Object(obj) {}
 
-    inline java::lang::Object get() { return GetObjectField("mInstance"); }
+    inline java::lang::Object& get() { return mInstance(); }
+private:
+    DEFINE_OBJECT_FIELD_CACHE(java::lang::Object, mInstance);
 };
 
 } // namespace util

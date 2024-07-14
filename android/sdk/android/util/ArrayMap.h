@@ -23,7 +23,7 @@
 namespace android {
 namespace util {
 
-template <typename K, typename V>
+template <typename K = java::lang::Object, typename V = java::lang::Object>
 class ArrayMap : public BaseArrayMap {
 public:
     ArrayMap(uint32_t map) : BaseArrayMap(map) {}

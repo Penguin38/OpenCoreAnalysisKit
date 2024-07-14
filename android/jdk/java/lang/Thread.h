@@ -32,9 +32,9 @@ public:
     inline bool getDaemon() { return GetBooleanField("daemon"); }
     inline int getPriority() { return GetIntField("priority"); }
     inline Object getTarget() { return GetObjectField("target"); }
-    ThreadGroup& getGroup();
+    inline ThreadGroup& getGroup() { return group(); }
 private:
-    ThreadGroup group = 0x0;
+    DEFINE_OBJECT_FIELD_CACHE(ThreadGroup, group);
 };
 
 } // namespace lang
