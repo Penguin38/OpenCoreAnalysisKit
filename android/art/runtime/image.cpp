@@ -38,17 +38,17 @@ void ImageHeader::Init28() {
     };
 
     __ImageHeader_size__ = {
-        .THIS = 240,
+        .THIS = 232,
     };
 }
 
 void ImageHeader::Init29() {
     __ImageHeader_offset__ = {
-        .image_methods_ = 168,
+        .image_methods_ = 160,
     };
 
     __ImageHeader_size__ = {
-        .THIS = 256,
+        .THIS = 248,
     };
 }
 
