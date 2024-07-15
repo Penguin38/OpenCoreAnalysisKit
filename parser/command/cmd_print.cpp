@@ -242,7 +242,7 @@ void PrintCommand::DumpArray(art::mirror::Array& array) {
             art::mirror::Object object(*reinterpret_cast<uint32_t *>(ref.Real()), array);
             if (object.Ptr() && object.IsString()) {
                 art::mirror::String str = object;
-                LOGI("    [%d] %s\n", i, str.ToModifiedUtf8().c_str());
+                LOGI("    [%d] \"%s\"\n", i, str.ToModifiedUtf8().c_str());
             } else {
                 LOGI("    [%d] 0x%lx\n", i, object.Ptr());
             }
@@ -289,7 +289,7 @@ void PrintCommand::DumpInstance(art::mirror::Object& object) {
             art::mirror::String str = object;
             if (str.GetLength() != 0) {
                 LOGI(format.c_str(), SIZEOF(String), "virutal ", "char[]", "values");
-                LOGI(" = %s\n", str.ToModifiedUtf8().c_str());
+                LOGI(" = \"%s\"\n", str.ToModifiedUtf8().c_str());
             }
         }
 
@@ -343,7 +343,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz, art
             art::mirror::Object tmp(field.GetObj(object), object);
             if (tmp.Ptr() && tmp.IsString()) {
                 art::mirror::String str = tmp;
-                LOGI(" = %s\n", str.ToModifiedUtf8().c_str());
+                LOGI(" = \"%s\"\n", str.ToModifiedUtf8().c_str());
             } else {
                 LOGI(" = 0x%lx\n", tmp.Ptr());
             }

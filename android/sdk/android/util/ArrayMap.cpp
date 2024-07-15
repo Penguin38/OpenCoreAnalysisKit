@@ -77,7 +77,7 @@ void ArrayMap<>::FormatDump(const char* prefix, art::mirror::Object& obj) {
             sb.append(value.toString());
         }
         sb.append("}");
-        LOGI("[%d] %s\n", idx, sb.c_str());
+        LOGI("%s[%d] %s\n", prefix, idx, sb.c_str());
     }
 }
 

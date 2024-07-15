@@ -29,6 +29,7 @@ public:
     String(art::mirror::Object& obj) : Object(obj) {}
 
     std::string toString();
+    static void FormatDump(const char* prefix, art::mirror::Object& obj);
 };
 
 } // namespace lang

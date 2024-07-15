@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "java/lang/String.h"
 #include "runtime/mirror/string.h"
 
@@ -27,6 +28,11 @@ std::string String::toString() {
     } else {
         return "null";
     }
+}
+
+void String::FormatDump(const char* prefix, art::mirror::Object& obj) {
+    String value = obj;
+    LOGI("%s%s\n", prefix, value.toString().c_str());
 }
 
 } // namespace lang
