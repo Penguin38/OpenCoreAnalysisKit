@@ -23,6 +23,9 @@
 namespace arm {
 
 bool Core::load() {
+    pointer_mask = ((1ULL << (bits() - 1)) - 1) | (1ULL << (bits() - 1));
+    vabits_mask = pointer_mask;
+
     auto callback = [](uint64_t type, uint64_t pos) -> void * {
         switch(type) {
             case NT_PRSTATUS:

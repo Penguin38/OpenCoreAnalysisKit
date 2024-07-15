@@ -41,6 +41,11 @@ private:
     bool sysroot(LinkMap* handle, const char* file, const char* subfile) { return dlopen64(this, handle, file, subfile); }
     uint64_t dlsym(LinkMap* handle, const char* symbol);
     uint64_t r_debug_ptr() { return GetDebug().Ptr(); }
+
+    uint64_t data_mask;
+    uint64_t insn_mask;
+    uint64_t pac_enabled_keys;
+    uint64_t tagged_addr_ctrl;
 };
 
 } // namespace arm64

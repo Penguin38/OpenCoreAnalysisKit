@@ -17,19 +17,42 @@
 #include "arm64/core.h"
 #include "arm64/thread_info.h"
 #include "common/prstatus.h"
+#include "common/elf.h"
 #include <string.h>
 #include <linux/elf.h>
 
 namespace arm64 {
 
+struct user_pac_mask {
+    uint64_t data_mask;
+    uint64_t insn_mask;
+};
+
 bool Core::load() {
-    auto callback = [](uint64_t type, uint64_t pos) -> void * {
+    pointer_mask = ((1ULL << (bits() - 1)) - 1) | (1ULL << (bits() - 1));
+    vabits_mask = (1ULL << DEF_VA_BITS) - 1;
+
+    auto callback = [this](uint64_t type, uint64_t pos) -> void * {
         switch(type) {
-            case NT_PRSTATUS:
+            case NT_PRSTATUS: {
                 Elf64_prstatus* prs = reinterpret_cast<Elf64_prstatus *>(pos);
                 ThreadInfo* thread = new ThreadInfo(prs->pr_pid);
                 memcpy(&thread->reg, &prs->pr_reg, sizeof(Register));
                 return thread;
+            } break;
+            case NT_ARM_PAC_MASK: {
+                user_pac_mask* uregs = reinterpret_cast<user_pac_mask *>(pos);
+                data_mask = uregs->data_mask;
+                insn_mask = uregs->insn_mask;
+                // pointer_mask = (1ULL << (63 - __builtin_clzll(data_mask))) - 1;
+                vabits_mask = (1ULL << __builtin_ctzll(data_mask)) - 1;
+            } break;
+            case NT_ARM_TAGGED_ADDR_CTRL: {
+                tagged_addr_ctrl = *reinterpret_cast<uint64_t *>(pos);
+            } break;
+            case NT_ARM_PAC_ENABLED_KEYS: {
+                pac_enabled_keys = *reinterpret_cast<uint64_t *>(pos);
+            } break;
         }
         return nullptr;
     };

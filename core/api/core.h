@@ -205,6 +205,9 @@ public:
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
     void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
     uint64_t getPageSize();
+protected:
+    uint64_t pointer_mask;
+    uint64_t vabits_mask;
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;

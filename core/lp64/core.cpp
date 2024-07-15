@@ -89,6 +89,9 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                             ++index;
                         }
                     } break;
+                    default:
+                        callback(nhdr->n_type, item_pos);
+                        break;
                 }
 
                 pos = pos + sizeof(Elf64_Nhdr) + RoundUp(nhdr->n_namesz, 0x4) + RoundUp(nhdr->n_descsz, 0x4);

@@ -112,12 +112,11 @@ int CoreApi::GetPointSize() {
 }
 
 uint64_t CoreApi::GetPointMask() {
-    uint64_t bits = Bits();
-    return ((1ULL << (bits - 1)) - 1) | (1ULL << (bits - 1));
+    return INSTANCE->pointer_mask;
 }
 
 uint64_t CoreApi::GetVabitsMask() {
-    return INSTANCE->getVabitsMask();
+    return INSTANCE->vabits_mask;
 }
 
 CoreApi::~CoreApi() {
