@@ -254,19 +254,22 @@ uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
     if (symsz < 0) return 0;
 
     int64_t count = symsz / syment;
+    api::MemoryRef tables = 0x0;
+    Elfx_Sym symbols = 0x0;
 
-    api::MemoryRef tables(strtab, handle->block());
-    Elfx_Sym symbols(symtab, tables);
-
-    if (!tables.IsValid()) {
+    if (handle->block()->virtualContains(strtab)) {
+        tables = strtab;
+    } else {
         tables = handle->l_addr() + strtab;
-        tables.checkCopyBlock(handle->block());
     }
+    tables.checkCopyBlock(handle->block());
 
-    if (!symbols.IsValid()) {
+    if (handle->block()->virtualContains(symtab)) {
+        symbols = symtab;
+    } else {
         symbols = handle->l_addr() + symtab;
-        symbols.copyRef(tables);
     }
+    symbols.checkCopyBlock(handle->block());
 
     for (int i = 0; i < count; ++i) {
         std::string name = reinterpret_cast<const char* >(tables.Real() + symbols.st_name());
@@ -296,19 +299,22 @@ void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol
     if (symsz < 0) return;
 
     int64_t count = symsz / syment;
+    api::MemoryRef tables = 0x0;
+    Elfx_Sym symbols = 0x0;
 
-    api::MemoryRef tables(strtab, handle->block());
-    Elfx_Sym symbols(symtab, tables);
-
-    if (!tables.IsValid()) {
+    if (handle->block()->virtualContains(strtab)) {
+        tables = strtab;
+    } else {
         tables = handle->l_addr() + strtab;
-        tables.checkCopyBlock(handle->block());
     }
+    tables.checkCopyBlock(handle->block());
 
-    if (!symbols.IsValid()) {
+    if (handle->block()->virtualContains(symtab)) {
+        symbols = symtab;
+    } else {
         symbols = handle->l_addr() + symtab;
-        symbols.copyRef(tables);
     }
+    symbols.checkCopyBlock(handle->block());
 
     uint64_t clocaddr = addr & CoreApi::GetVabitsMask();
     char* match = nullptr;
