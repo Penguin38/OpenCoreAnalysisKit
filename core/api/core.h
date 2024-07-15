@@ -158,10 +158,33 @@ public:
     uint64_t size();
     std::string& getName();
     void addLoadBlock(std::shared_ptr<LoadBlock>& block);
+
+    /*
+     * strongly increasing sort
+     * M0 S1   E1M1 S2M2 E2M3...
+     *  | *----*  | *-|--* | ...
+     *  M0 S1 < E1 <= M1 < S2 <= M2 < E2 <= M3 ...
+     */
     inline LoadBlock* findLoadBlock(uint64_t vaddr) {
-        for (const auto& block : mLoad) {
-            if (block->virtualContains(vaddr)) {
-                return block.get();
+        if (mLoad.empty()) return nullptr;
+
+        int left = 0;
+        int right = mLoad.size();
+        uint64_t clocaddr = vaddr & getVabitsMask();
+
+        if (clocaddr < mLoad[left]->vaddr()
+                || clocaddr >= (mLoad[right - 1]->vaddr() + mLoad[right - 1]->size()))
+           return nullptr;
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            LoadBlock* block = mLoad[mid].get();
+            if (block->vaddr() > clocaddr) {
+                right = mid;
+            } else {
+                if (clocaddr < (block->vaddr() + block->size()))
+                    return block;
+                left = mid + 1;
             }
         }
         return nullptr;
