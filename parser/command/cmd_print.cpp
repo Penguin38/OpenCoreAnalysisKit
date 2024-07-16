@@ -145,7 +145,7 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
                 DumpInstance(object);
             }
         } catch(InvalidAddressException e) {
-            // do nothing
+            LOGI("%s\n", e.what());
         }
 
         if (reference) {

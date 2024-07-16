@@ -153,7 +153,9 @@ void DexCommand::DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::Dex
         }
 
         if (app) {
-            if (name[0] == '/' && name.substr(0, 9) != "/data/app")
+            if (name[0] == '/'
+                    && name.substr(0, 9) != "/data/app"
+                    && name.substr(0, 10) != "/data/user")
                 return;
         }
 
