@@ -18,9 +18,6 @@
 #include "common/bit.h"
 #include "api/core.h"
 #include "runtime/mirror/class.h"
-#include "runtime/mirror/class_flags.h"
-#include "dex/primitive.h"
-#include "dex/modifiers.h"
 #include "dex/descriptors_names.h"
 #include "base/length_prefixed_array.h"
 
@@ -216,10 +213,6 @@ bool Class::WasVerificationAttempted() {
 
 bool Class::IsObsoleteObject() {
     return (GetAccessFlags() & kAccObsoleteObject) != 0;
-}
-
-bool Class::IsProxyClass() {
-    return (GetAccessFlags() & kAccClassIsProxy) != 0;
 }
 
 Primitive::Type Class::GetPrimitiveType() {

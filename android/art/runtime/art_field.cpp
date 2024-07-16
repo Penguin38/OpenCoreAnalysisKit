@@ -35,10 +35,6 @@ void ArtField::Init() {
     };
 }
 
-bool ArtField::IsProxyField() {
-    return GetDeclaringClass().IsProxyClass();
-}
-
 const char* ArtField::GetTypeDescriptor() {
     uint32_t field_index = GetDexFieldIndex();
     if (IsProxyField()) {
@@ -53,26 +49,6 @@ std::string ArtField::PrettyTypeDescriptor() {
     std::string tmp;
     AppendPrettyDescriptor(GetTypeDescriptor(), &tmp, "B");
     return tmp;
-}
-
-mirror::Class ArtField::GetDeclaringClass() {
-    mirror::Class declaring_class_ = get_declaring_class_cache();
-    return declaring_class_;
-}
-
-uint32_t ArtField::GetDexFieldIndex() {
-    return field_dex_idx();
-}
-
-mirror::DexCache& ArtField::GetDexCache() {
-    return GetDeclaringClass().GetDexCache();
-}
-
-DexFile& ArtField::GetDexFile() {
-    if (!dex_file_cache.Ptr()) {
-        dex_file_cache = GetDexCache().GetDexFile();
-    }
-    return dex_file_cache;
 }
 
 const char* ArtField::GetName() {

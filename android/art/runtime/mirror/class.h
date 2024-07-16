@@ -18,7 +18,6 @@
 #define ANDROID_ART_RUNTIME_MIRROR_CLASS_H_
 
 #include "api/memory_ref.h"
-#include "runtime/art_field.h"
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/string.h"
 #include "runtime/mirror/dex_cache.h"
@@ -26,6 +25,7 @@
 #include "runtime/mirror/class_flags.h"
 #include "runtime/class_status.h"
 #include "dex/primitive.h"
+#include "dex/modifiers.h"
 #include "dex/dex_file.h"
 #include <string>
 
@@ -161,7 +161,7 @@ public:
     bool IsSynthetic();
     bool WasVerificationAttempted();
     bool IsObsoleteObject();
-    bool IsProxyClass();
+    inline bool IsProxyClass() { return (GetAccessFlags() & kAccClassIsProxy) != 0; }
 
     Primitive::Type GetPrimitiveType();
     Class GetComponentType();

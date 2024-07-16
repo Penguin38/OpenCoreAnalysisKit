@@ -268,7 +268,7 @@ dex::CodeItem ArtMethod::GetCodeItem() {
 
     DexFile& dex_file = GetDexFile();
     if (Android::Sdk() < Android::S) {
-        item = dex_file.DataBegin() + dex_code_item_offset();
+        item = dex_file.DataBegin().Ptr() + dex_code_item_offset();
     } else {
         ArtMethod::PtrSizedFields ptr_sized_fields_(ptr_sized_fields(), this);
         item = ptr_sized_fields_.data();

@@ -57,13 +57,17 @@ public:
     inline uint32_t field_dex_idx() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(ArtField, field_dex_idx_)); }
     inline uint32_t offset() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(ArtField, offset_)); }
 
-    bool IsProxyField();
+    inline bool IsProxyField() { return GetDeclaringClass().IsProxyClass(); }
     const char* GetTypeDescriptor();
     std::string PrettyTypeDescriptor();
-    mirror::Class GetDeclaringClass();
-    uint32_t GetDexFieldIndex();
-    mirror::DexCache& GetDexCache();
-    DexFile& GetDexFile();
+    inline mirror::Class& GetDeclaringClass() { return get_declaring_class_cache(); }
+    inline uint32_t GetDexFieldIndex() { return field_dex_idx(); }
+    inline mirror::DexCache& GetDexCache() { return GetDeclaringClass().GetDexCache(); }
+    inline DexFile& GetDexFile() {
+        if (!dex_file_cache.Ptr())
+            dex_file_cache = GetDexCache().GetDexFile();
+        return dex_file_cache;
+    }
     const char* GetName();
     inline uint32_t GetOffset() { return offset(); }
     inline uint32_t GetAccessFlags() { return access_flags(); }
@@ -84,7 +88,7 @@ public:
 private:
     // quick memoryref cache
     DexFile dex_file_cache = 0x0;
-    DEFINE_QUICK_CACHE(api::MemoryRef, declaring_class);
+    DEFINE_QUICK_CACHE(mirror::Class, declaring_class);
 };
 
 } //namespace art

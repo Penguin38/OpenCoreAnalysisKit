@@ -48,6 +48,19 @@ inline T& get_##NAME##_cache() { \
     } while (0); \
 } \
 
+#define DEFINE_QUICK_CACHE_COPY(T, NAME, REF) \
+T NAME##_cache = 0x0; \
+inline T& get_##NAME##_cache() { \
+    do { \
+        if (!NAME##_cache.Ptr()) {\
+            NAME##_cache = NAME(); \
+            NAME##_cache.copyRef(get_##REF##_cache()); \
+            NAME##_cache.Prepare(false); \
+        } \
+        return NAME##_cache;\
+    } while (0); \
+} \
+
 namespace api {
 class MemoryRef {
 public:

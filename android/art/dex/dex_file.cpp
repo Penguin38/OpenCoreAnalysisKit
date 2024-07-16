@@ -398,7 +398,7 @@ dex::StringId DexFile::GetStringId(dex::StringIndex idx) {
 }
 
 const char* DexFile::GetStringDataAndUtf16Length(dex::StringId& string_id, uint32_t* utf16_length) {
-    api::MemoryRef ref(DataBegin() + string_id.string_data_off(), string_id);
+    api::MemoryRef ref(DataBegin().Ptr() + string_id.string_data_off(), string_id);
     const uint8_t* ptr = reinterpret_cast<const uint8_t *>(ref.Real());
     *utf16_length = DecodeUnsignedLeb128(&ptr);
     return reinterpret_cast<const char*>(ptr);

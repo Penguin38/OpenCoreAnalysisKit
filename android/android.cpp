@@ -468,13 +468,9 @@ void Android::ForeachInstanceField(art::mirror::Class& clazz, std::function<bool
     int i = 0;
     do {
         if (fn(field)) break;
+        field.MovePtr(SIZEOF(ArtField));
         i++;
-        if (i < size) {
-            field.MovePtr(SIZEOF(ArtField));
-        } else {
-            break;
-        }
-    } while(true);
+    } while(i < size);
 }
 
 void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
@@ -484,13 +480,9 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
     int i = 0;
     do {
         if (fn(field)) break;
+        field.MovePtr(SIZEOF(ArtField));
         i++;
-        if (i < size) {
-            field.MovePtr(SIZEOF(ArtField));
-        } else {
-            break;
-        }
-    } while(true);
+    } while(i < size);
 }
 
 void Android::ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
@@ -500,13 +492,9 @@ void Android::ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (a
     int i = 0;
     do {
         if (fn(method)) break;
+        method.MovePtr(SIZEOF(ArtMethod));
         i++;
-        if (i < size) {
-            method.MovePtr(SIZEOF(ArtMethod));
-        } else {
-            break;
-        }
-    } while(true);
+    } while(i < size);
 }
 
 void Android::ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
@@ -518,13 +506,9 @@ void Android::ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<
     method.MovePtr(i * SIZEOF(ArtMethod));
     do {
         if (fn(method)) break;
+        method.MovePtr(SIZEOF(ArtMethod));
         i++;
-        if (i < size) {
-            method.MovePtr(SIZEOF(ArtMethod));
-        } else {
-            break;
-        }
-    } while(true);
+    } while(i < size);
 }
 
 void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn) {

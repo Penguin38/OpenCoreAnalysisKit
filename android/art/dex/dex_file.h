@@ -102,7 +102,7 @@ public:
     inline uint64_t proto_ids() { return VALUEOF(DexFile, proto_ids_); }
     inline uint8_t is_compact_dex() { return value8Of(OFFSET(DexFile, is_compact_dex_)); }
 
-    inline uint64_t DataBegin() { return data_begin(); }
+    inline api::MemoryRef& DataBegin() { return get_data_begin_cache(); }
     cxx::string GetLocation();
     dex::TypeId GetTypeId(dex::TypeIndex idx);
     dex::MethodId GetMethodId(uint32_t idx);
@@ -135,11 +135,12 @@ public:
     void dumpReason(uint64_t vaddr);
 private:
     // quick memoryref cache
-    DEFINE_QUICK_CACHE(dex::TypeId, type_ids);
-    DEFINE_QUICK_CACHE(dex::StringId, string_ids);
-    DEFINE_QUICK_CACHE(dex::FieldId, field_ids);
-    DEFINE_QUICK_CACHE(dex::MethodId, method_ids)
-    DEFINE_QUICK_CACHE(dex::ProtoId, proto_ids);
+    DEFINE_QUICK_CACHE(api::MemoryRef, data_begin);
+    DEFINE_QUICK_CACHE_COPY(dex::TypeId, type_ids, data_begin);
+    DEFINE_QUICK_CACHE_COPY(dex::StringId, string_ids, data_begin);
+    DEFINE_QUICK_CACHE_COPY(dex::FieldId, field_ids, data_begin);
+    DEFINE_QUICK_CACHE_COPY(dex::MethodId, method_ids, data_begin)
+    DEFINE_QUICK_CACHE_COPY(dex::ProtoId, proto_ids, data_begin);
     DEFINE_QUICK_CACHE(OatDexFile, oat_dex_file);
 };
 
