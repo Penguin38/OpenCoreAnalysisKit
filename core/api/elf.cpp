@@ -195,7 +195,15 @@ MemoryRef& Elf::GetDebug() {
         tmp.MovePtr(SIZEOF(Elfx_Phdr));
     }
 
-    mDebug = FindDynamicEntry(dynamic, DT_DEBUG);
+    if (dynamic.Ptr()) {
+        mDebug = FindDynamicEntry(dynamic, DT_DEBUG);
+    } else {
+        std::string name;
+        if (CoreApi::IsVirtualValid(execfn)) {
+            name.append(reinterpret_cast<const char*>(CoreApi::GetReal(execfn)));
+        }
+        LOGW("WARN: Not found exec dynamic [%s].\n", name.c_str());
+    }
     return mDebug;
 }
 
@@ -237,53 +245,8 @@ Elfx_Dynamic Elf::FindDynamic(LinkMap* handle) {
     return dynamic;
 }
 
-uint64_t Elf::DynamicSymbol(LinkMap* handle, const char* symbol) {
-    if (!handle->l_addr()) return 0x0;
-    Elfx_Dynamic dynamic = FindDynamic(handle);
-
-    uint64_t strtab = FindDynamicEntry(dynamic, DT_STRTAB);
-    uint64_t symtab = FindDynamicEntry(dynamic, DT_SYMTAB);
-    uint64_t syment = FindDynamicEntry(dynamic, DT_SYMENT);
-    uint64_t versym = FindDynamicEntry(dynamic, DT_VERSYM);
-
-    // check page fault
-    if (!syment) return 0;
-
-    // maybe error match
-    int64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
-    if (symsz < 0) return 0;
-
-    int64_t count = symsz / syment;
-    api::MemoryRef tables = 0x0;
-    Elfx_Sym symbols = 0x0;
-
-    if (handle->block()->virtualContains(strtab)) {
-        tables = strtab;
-    } else {
-        tables = handle->l_addr() + strtab;
-    }
-    tables.checkCopyBlock(handle->block());
-
-    if (handle->block()->virtualContains(symtab)) {
-        symbols = symtab;
-    } else {
-        symbols = handle->l_addr() + symtab;
-    }
-    symbols.checkCopyBlock(handle->block());
-
-    for (int i = 0; i < count; ++i) {
-        std::string name = reinterpret_cast<const char* >(tables.Real() + symbols.st_name());
-        if (name == symbol) {
-            return symbols.st_value();
-        }
-        symbols.MovePtr(syment);
-    }
-    return 0;
-}
-
-void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol) {
+void Elf::ReadSymbols(LinkMap* handle) {
     if (!handle->l_addr()) return;
-    bool vdso = !strcmp(handle->name(), "[vdso]");
     Elfx_Dynamic dynamic = FindDynamic(handle);
 
     uint64_t strtab = FindDynamicEntry(dynamic, DT_STRTAB);
@@ -292,7 +255,7 @@ void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol
     uint64_t versym = FindDynamicEntry(dynamic, DT_VERSYM);
 
     // check page fault
-    if (!syment) return;
+    if (!syment && syment != SIZEOF(Elfx_Sym)) return;
 
     // maybe error match
     int64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
@@ -316,35 +279,14 @@ void Elf::NiceSymbol(LinkMap* handle, uint64_t addr, LinkMap::NiceSymbol& symbol
     }
     symbols.checkCopyBlock(handle->block());
 
-    uint64_t clocaddr = addr & CoreApi::GetVabitsMask();
-    char* match = nullptr;
-    uint64_t nice = std::numeric_limits<uint64_t>::max();
+    std::vector<SymbolEntry>& dynsyms = handle->GetDynsyms();
     for (int i = 0; i < count; ++i) {
-        if (symbols.st_value() > 0 && (ELF_ST_TYPE(symbols.st_info()) == STT_FUNC
-                || (vdso && ELF_ST_TYPE(symbols.st_info()) == STT_NOTYPE))) {
-            uint64_t value = symbols.st_value() + handle->l_addr();
-            if (CoreApi::GetMachine() == EM_ARM)
-                value &= (CoreApi::GetPointMask() - 1);
-
-            if (value <= clocaddr) {
-                if (clocaddr - value <= nice) {
-                    match = reinterpret_cast<char* >(tables.Real() + symbols.st_name());
-                    nice = clocaddr - value;
-                }
-            }
+        if (symbols.st_value() > 0) {
+            SymbolEntry entry = SymbolEntry(symbols.st_value(), symbols.st_info(),
+                                            reinterpret_cast<const char* >(tables.Real() + symbols.st_name()));
+            dynsyms.push_back(entry);
         }
         symbols.MovePtr(syment);
-    }
-
-    if (match) {
-        int status;
-        char* demangled_name = abi::__cxa_demangle(match, nullptr, nullptr, &status);
-        if (status == 0) {
-            symbol.SetNiceMethod(demangled_name, nice);
-            std::free(demangled_name);
-        } else {
-            symbol.SetNiceMethod(match, nice);
-        }
     }
 }
 

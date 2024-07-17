@@ -20,6 +20,7 @@
 #include "lp32/core.h"
 #include "api/elf.h"
 #include "common/link_map.h"
+#include "common/exception.h"
 #include <linux/elf.h>
 #include <cxxabi.h>
 
@@ -98,47 +99,43 @@ LoadBlock* LinkMap::block() {
 void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
     LoadBlock* load = block();
     if (load) {
-        if (load->isMmapBlock()) {
-            uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
-            uint64_t nice = 0;
-            char* name = nullptr;
-            for (const auto& entry : load->GetSymbols()) {
-                if (ELF_ST_TYPE(entry.type) == STT_FUNC) {
-                    uint64_t offset = entry.offset;
-                    if (CoreApi::GetMachine() == EM_ARM)
-                        offset &= (CoreApi::GetPointMask() - 1);
+        bool vdso = !strcmp(name(), "[vdso]");
+        uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
+        uint64_t nice = 0;
+        char* name = nullptr;
 
-                    if (offset > cloc_offset)
-                        break;
+        for (const auto& entry : GetCurrentSymbols()) {
+            if (ELF_ST_TYPE(entry.type) == STT_FUNC
+                    || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
+                uint64_t offset = entry.offset;
+                if (CoreApi::GetMachine() == EM_ARM)
+                    offset &= (CoreApi::GetPointMask() - 1);
 
-                    nice = cloc_offset - offset;
-                    name = const_cast<char*>(entry.symbol.data());
-                }
+                if (offset > cloc_offset)
+                    break;
+
+                nice = cloc_offset - offset;
+                name = const_cast<char*>(entry.symbol.data());
             }
-            if (name) {
-                int status;
-                char* demangled_name = abi::__cxa_demangle(name, nullptr, nullptr, &status);
-                if (status == 0) {
-                    symbol.SetNiceMethod(demangled_name, nice);
-                    std::free(demangled_name);
-                } else {
-                    symbol.SetNiceMethod(name, nice);
-                }
-            }
+        }
 
-        } else {
-            api::Elf::NiceSymbol(this, pc, symbol);
+        if (name) {
+            int status;
+            char* demangled_name = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+            if (status == 0) {
+                symbol.SetNiceMethod(demangled_name, nice);
+                std::free(demangled_name);
+            } else {
+                symbol.SetNiceMethod(name, nice);
+            }
         }
     }
 }
 
 uint64_t LinkMap::DlSym(const char* symbol) {
-    LoadBlock* load = block();
-    if (load && load->isMmapBlock()) {
-        for (const auto& entry : load->GetSymbols()) {
-            if (entry.symbol == symbol) {
-                return entry.offset;
-            }
+    for (const auto& entry : GetCurrentSymbols()) {
+        if (entry.symbol == symbol) {
+            return entry.offset;
         }
     }
     return 0x0;
@@ -156,5 +153,22 @@ void LinkMap::ReadSymbols() {
         }
         std::sort(symbols.begin(), symbols.end(), SymbolEntry::Compare);
         if (symbols.size()) LOGI("Read symbols[%ld] (%s)\n", symbols.size(), name());
+    } else {
+        dynsyms.clear();
+        try {
+            api::Elf::ReadSymbols(this);
+        } catch(InvalidAddressException e) {
+        }
+        std::sort(dynsyms.begin(), dynsyms.end(), SymbolEntry::Compare);
+        if (dynsyms.size()) LOGD("Read dynsyms[%ld] (%s)\n", dynsyms.size(), name());
+    }
+}
+
+std::vector<SymbolEntry>& LinkMap::GetCurrentSymbols() {
+    LoadBlock* load = block();
+    if (load && load->isMmapBlock()) {
+        return load->GetSymbols();
+    } else {
+        return GetDynsyms();
     }
 }

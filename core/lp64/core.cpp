@@ -73,6 +73,7 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                         lp64::Auxv* auxv = reinterpret_cast<lp64::Auxv *>(item_pos);
                         for (int index = 0; index < numauxv; ++index) {
                             block->addAuxvItem(auxv[index].type, auxv[index].value);
+                            if (!auxv[index].type) break;
                         }
                     } break;
                     case NT_FILE: {
@@ -267,10 +268,6 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
         return true;
     }
     return false;
-}
-
-uint64_t lp64::Core::dlsym64(::LinkMap* handle, const char* symbol) {
-    return handle->DlSym(symbol);
 }
 
 void lp64::Core::readsym64(::LinkMap* handle) {

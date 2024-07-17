@@ -19,6 +19,7 @@
 
 #include "api/memory_ref.h"
 #include <string>
+#include <vector>
 
 struct LinkMap_OffsetTable {
     uint32_t l_addr;
@@ -37,7 +38,10 @@ extern struct LinkMap_SizeTable __LinkMap_size__;
 
 class LinkMap : public api::MemoryRef {
 public:
-    LinkMap(uint64_t m) : api::MemoryRef(m) {}
+    LinkMap(uint64_t m) : api::MemoryRef(m) {
+        ReadSymbols();
+    }
+    ~LinkMap() { dynsyms.clear(); }
     static void Init();
     inline uint64_t l_addr() { return VALUEOF(LinkMap, l_addr); }
     inline uint64_t l_name() { return VALUEOF(LinkMap, l_name); }
@@ -66,9 +70,12 @@ public:
     uint64_t DlSym(const char* symbol);
     api::MemoryRef& GetAddrCache();
     api::MemoryRef& GetNameCache();
+    inline std::vector<SymbolEntry>& GetDynsyms() { return dynsyms; }
+    std::vector<SymbolEntry>& GetCurrentSymbols();
 private:
     api::MemoryRef addr_cache;
     api::MemoryRef name_cache;
+    std::vector<SymbolEntry> dynsyms;
 };
 
 #endif  // CORE_COMMON_LINKMAP_H_

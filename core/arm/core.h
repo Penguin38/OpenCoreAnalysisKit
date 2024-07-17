@@ -39,7 +39,6 @@ private:
     void loadLinkMap() { loadLinkMap32(this); }
     bool exec(uint64_t phdr, const char* file) { return exec32(this, phdr, file); }
     bool sysroot(LinkMap* handle, const char* file, const char* subfile) { return dlopen32(this, handle, file, subfile); }
-    uint64_t dlsym(LinkMap* handle, const char* symbol);
     uint64_t r_debug_ptr() { return GetDebug().Ptr(); }
 };
 

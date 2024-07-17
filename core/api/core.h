@@ -142,7 +142,7 @@ public:
         }
         return block;
     }
-    static uint64_t SearchSymbol(const char* path, const char* symbol);
+    static uint64_t DlSym(const char* path, const char* symbol);
     static void ForeachThread(std::function<bool (ThreadApi *)> callback);
     static bool NewLoadBlock(uint64_t begin, uint64_t size);
     static void RegisterSysRootListener(std::function<void (LinkMap *)> fn) {
@@ -220,7 +220,6 @@ private:
     virtual void loadLinkMap() = 0;
     virtual bool exec(uint64_t phdr, const char* file) = 0;
     virtual bool sysroot(LinkMap* handle, const char* file, const char* subfile) = 0;
-    virtual uint64_t dlsym(LinkMap* handle, const char* symbol) = 0;
     virtual uint64_t r_debug_ptr() { return 0x0; }
 
     std::unique_ptr<MemoryMap> mCore;

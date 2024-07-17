@@ -73,6 +73,7 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                         lp32::Auxv* auxv = reinterpret_cast<lp32::Auxv *>(item_pos);
                         for (int index = 0; index < numauxv; ++index) {
                             block->addAuxvItem(auxv[index].type, auxv[index].value);
+                            if (!auxv[index].type) break;
                         }
                     } break;
                     case NT_FILE: {
@@ -264,10 +265,6 @@ bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, con
         return true;
     }
     return false;
-}
-
-uint32_t lp32::Core::dlsym32(::LinkMap* handle, const char* symbol) {
-    return handle->DlSym(symbol);
 }
 
 void lp32::Core::readsym32(::LinkMap* handle) {

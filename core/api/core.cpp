@@ -312,28 +312,33 @@ void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool 
     INSTANCE->foreachLoadBlock(callback, check);
 }
 
-uint64_t CoreApi::SearchSymbol(const char* path, const char* symbol) {
-    LinkMap* result = nullptr;
+uint64_t CoreApi::DlSym(const char* path, const char* symbol) {
+    LinkMap* handle = nullptr;
     auto callback = [&](LinkMap* map) -> bool {
         LoadBlock* block = map->block();
         if (block) {
             if (!strcmp(map->name(), path))
-                result = map;
+                handle = map;
 
             if (block->isMmapBlock()) {
                 std::size_t index = block->name().find(path);
                 if (index != std::string::npos)
-                    result = map;
+                    handle = map;
             }
 
-            if (result) return true;
+            if (handle) return true;
         }
         return false;
     };
     INSTANCE->foreachLinkMap(callback);
 
-    if (result)
-        return INSTANCE->dlsym(result, symbol);
+    if (handle) {
+        LoadBlock* block = handle->block();
+        if (block) {
+            uint64_t value = handle->DlSym(symbol);
+            if (value) return handle->l_addr() + value;
+        }
+    }
     return 0x0;
 }
 

@@ -26,7 +26,7 @@ namespace art {
 int OatHeader::OatVersion() {
     OatHeader& header = Android::GetOatHeader();
     if (!header.kOatVersion) {
-        api::MemoryRef version = Android::SearchSymbol(Android::ART_OAT_HEADER_VERSION);
+        api::MemoryRef version = Android::DlSym(Android::ART_OAT_HEADER_VERSION);
         if (version.Ptr()) {
             char kOatVersion[4];
             kOatVersion[0] = version.value8Of(0);

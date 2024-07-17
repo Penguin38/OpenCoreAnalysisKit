@@ -63,7 +63,6 @@ public:
     void loadLinkMap64(CoreApi* api);
     bool exec64(CoreApi* api, uint64_t phdr, const char* file);
     bool dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile);
-    static uint64_t dlsym64(::LinkMap* handle, const char* symbol);
     static void readsym64(::LinkMap* handle);
 };
 

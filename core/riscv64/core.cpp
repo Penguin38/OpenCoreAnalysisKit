@@ -42,20 +42,6 @@ bool Core::load() {
 void Core::unload() {
 }
 
-uint64_t Core::dlsym(LinkMap* handle, const char* symbol) {
-    LoadBlock* block = handle->block();
-    uint64_t value = 0;
-    if (block) {
-        if (!block->isMmapBlock()) {
-            value = DynamicSymbol(handle, symbol);
-        } else {
-            value = dlsym64(handle, symbol);
-        }
-    }
-    if (value) return handle->l_addr() + value;
-    return 0x0;
-}
-
 Core::~Core() {
 }
 

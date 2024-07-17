@@ -73,70 +73,70 @@ void CacheHelper::Clean() {
 
 uint64_t CacheHelper::JniDlsymLookupStub() {
     if (art_jni_dlsym_lookup_stub == INVALID_ENTRY_POINTER) {
-        art_jni_dlsym_lookup_stub = Android::SearchSymbol("art_jni_dlsym_lookup_stub");
+        art_jni_dlsym_lookup_stub = Android::DlSym("art_jni_dlsym_lookup_stub");
     }
     return art_jni_dlsym_lookup_stub;
 }
 
 uint64_t CacheHelper::JniDlsymLookupCriticalStub() {
     if (art_jni_dlsym_lookup_critical_stub == INVALID_ENTRY_POINTER) {
-        art_jni_dlsym_lookup_critical_stub = Android::SearchSymbol("art_jni_dlsym_lookup_critical_stub");
+        art_jni_dlsym_lookup_critical_stub = Android::DlSym("art_jni_dlsym_lookup_critical_stub");
     }
     return art_jni_dlsym_lookup_critical_stub;
 }
 
 uint64_t CacheHelper::QuickImtConflictStub() {
     if (art_quick_imt_conflict_trampoline == INVALID_ENTRY_POINTER) {
-        art_quick_imt_conflict_trampoline = Android::SearchSymbol("art_quick_imt_conflict_trampoline");
+        art_quick_imt_conflict_trampoline = Android::DlSym("art_quick_imt_conflict_trampoline");
     }
     return art_quick_imt_conflict_trampoline;
 }
 
 uint64_t CacheHelper::QuickToInterpreterBridge() {
     if (art_quick_to_interpreter_bridge == INVALID_ENTRY_POINTER) {
-        art_quick_to_interpreter_bridge = Android::SearchSymbol("art_quick_to_interpreter_bridge");
+        art_quick_to_interpreter_bridge = Android::DlSym("art_quick_to_interpreter_bridge");
     }
     return art_quick_to_interpreter_bridge;
 }
 
 uint64_t CacheHelper::InvokeObsoleteMethodStub() {
     if (art_invoke_obsolete_method_stub == INVALID_ENTRY_POINTER) {
-        art_invoke_obsolete_method_stub = Android::SearchSymbol("art_invoke_obsolete_method_stub");
+        art_invoke_obsolete_method_stub = Android::DlSym("art_invoke_obsolete_method_stub");
     }
     return art_invoke_obsolete_method_stub;
 }
 
 uint64_t CacheHelper::QuickGenericJniStub() {
     if (art_quick_generic_jni_trampoline == INVALID_ENTRY_POINTER) {
-        art_quick_generic_jni_trampoline = Android::SearchSymbol("art_quick_generic_jni_trampoline");
+        art_quick_generic_jni_trampoline = Android::DlSym("art_quick_generic_jni_trampoline");
     }
     return art_quick_generic_jni_trampoline;
 }
 
 uint64_t CacheHelper::QuickProxyInvokeHandler() {
     if (art_quick_proxy_invoke_handler == INVALID_ENTRY_POINTER) {
-        art_quick_proxy_invoke_handler = Android::SearchSymbol("art_quick_proxy_invoke_handler");
+        art_quick_proxy_invoke_handler = Android::DlSym("art_quick_proxy_invoke_handler");
     }
     return art_quick_proxy_invoke_handler;
 }
 
 uint64_t CacheHelper::QuickResolutionStub() {
     if (art_quick_resolution_trampoline == INVALID_ENTRY_POINTER) {
-        art_quick_resolution_trampoline = Android::SearchSymbol("art_quick_resolution_trampoline");
+        art_quick_resolution_trampoline = Android::DlSym("art_quick_resolution_trampoline");
     }
     return art_quick_resolution_trampoline;
 }
 
 uint64_t CacheHelper::QuickDeoptimizationEntryPoint() {
     if (art_quick_deoptimize == INVALID_ENTRY_POINTER) {
-        art_quick_deoptimize = Android::SearchSymbol("art_quick_deoptimize");
+        art_quick_deoptimize = Android::DlSym("art_quick_deoptimize");
     }
     return art_quick_deoptimize;
 }
 
 uint64_t CacheHelper::ExecuteNterpImplEntryPoint() {
     if (ExecuteNterpImpl == INVALID_ENTRY_POINTER) {
-        ExecuteNterpImpl = Android::SearchSymbol(Android::EXECUTE_NTERP_IMPL);
+        ExecuteNterpImpl = Android::DlSym(Android::EXECUTE_NTERP_IMPL);
     }
     return ExecuteNterpImpl;
 }
@@ -153,7 +153,7 @@ OatQuickMethodHeader& CacheHelper::NterpMethodHeader() {
     }
 
     try {
-        api::MemoryRef value = Android::SearchSymbol(Android::NTERP_METHOD_HEADER);
+        api::MemoryRef value = Android::DlSym(Android::NTERP_METHOD_HEADER);
         NterpMethodHeaderRef = value.valueOf();
     } catch(InvalidAddressException e) {
     }
@@ -171,14 +171,14 @@ OatQuickMethodHeader& CacheHelper::NterpMethodHeader() {
 
 api::MemoryRef& CacheHelper::NterpWithClinitImpl() {
     if (!NterpWithClinitImplRef.Ptr()) {
-        NterpWithClinitImplRef = Android::SearchSymbol(Android::NTERP_WITH_CLINT_IMPL);
+        NterpWithClinitImplRef = Android::DlSym(Android::NTERP_WITH_CLINT_IMPL);
     }
     return NterpWithClinitImplRef;
 }
 
 api::MemoryRef& CacheHelper::NterpImpl() {
     if (!NterpImplRef.Ptr()) {
-        NterpImplRef = Android::SearchSymbol(Android::NTERP_IMPL);
+        NterpImplRef = Android::DlSym(Android::NTERP_IMPL);
     }
     return NterpImplRef;
 }

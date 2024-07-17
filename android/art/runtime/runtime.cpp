@@ -241,7 +241,7 @@ Runtime& Runtime::Current() {
     if (!runtime.Ptr()) {
         api::MemoryRef value = 0x0;
         try {
-            value = Android::SearchSymbol(Android::ART_RUNTIME_INSTANCE);
+            value = Android::DlSym(Android::ART_RUNTIME_INSTANCE);
             runtime = value.valueOf();
         } catch(InvalidAddressException e) {
             runtime = AnalysisInstance();
