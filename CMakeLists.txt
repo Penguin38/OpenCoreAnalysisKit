@@ -95,6 +95,7 @@ include_directories(android)
 include_directories(android/art)
 include_directories(android/jdk)
 include_directories(android/sdk)
+include_directories(android/services)
 add_library(android STATIC
             android/android.cpp
 
@@ -196,6 +197,9 @@ add_library(android STATIC
             android/sdk/android/app/ContextImpl.cpp
             android/sdk/android/util/ArrayMap.cpp
 
+            # services
+            android/services/com/android/server/am/ActivityManagerService.cpp
+
             # logcat
             android/logcat/event_logtags.cpp
             android/logcat/LogBuffer.cpp
@@ -239,6 +243,7 @@ add_library(parser STATIC
             parser/command/cmd_dex.cpp
             parser/command/cmd_method.cpp
             parser/command/cmd_logcat.cpp
+            parser/command/cmd_dumpsys.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
             parser/command/cmd_plugin.cpp
@@ -268,13 +273,6 @@ add_executable(core-parser
                parser/work/work_thread.cpp
                parser/core_parser.cpp)
 target_link_libraries(core-parser parser)
-
-include_directories(parser/plugin/dumpsys/services)
-add_library(plugin-dumpsys SHARED
-            parser/plugin/dumpsys/dumpsys.cpp
-            parser/plugin/dumpsys/services/com/android/server/am/ActivityManagerService.cpp)
-target_link_libraries(plugin-dumpsys parser)
-set_target_properties(plugin-dumpsys PROPERTIES PREFIX "")
 
 add_executable(test tests/test.cpp)
 target_link_libraries(test parser)

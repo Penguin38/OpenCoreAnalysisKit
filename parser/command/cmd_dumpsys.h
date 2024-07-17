@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_CMD_LOGCAT_H_
-#define PARSER_COMMAND_CMD_LOGCAT_H_
+#ifndef PARSER_COMMAND_CMD_DUMPSYS_H_
+#define PARSER_COMMAND_CMD_DUMPSYS_H_
 
 #include "command/command.h"
 
-class LogcatCommand : public Command {
+class DumpsysCommand : public Command {
 public:
-    static constexpr int DUMP_MAIN = 1 << 0;
-    static constexpr int DUMP_RADIO = 1 << 1;
-    static constexpr int DUMP_EVENTS = 1 << 2;
-    static constexpr int DUMP_SYSTEM = 1 << 3;
-    static constexpr int DUMP_CRASH = 1 << 4;
-    static constexpr int DUMP_KERNEL = 1 << 5;
-
-    LogcatCommand() : Command("logcat") {}
-    ~LogcatCommand() {}
+    DumpsysCommand() : Command("dumpsys") {}
+    ~DumpsysCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) { return true; }
+    bool prepare(int argc, char* const argv[]) {
+        Android::Prepare();
+        return true;
+    }
     void usage();
-private:
-    int dump_flag = 0;
-    int filter = 0;
-    int id;
 };
 
-#endif // PARSER_COMMAND_CMD_LOGCAT_H_
+#endif // PARSER_COMMAND_CMD_DUMPSYS_H_

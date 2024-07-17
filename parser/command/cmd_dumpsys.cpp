@@ -16,28 +16,9 @@
 
 #include "logger/log.h"
 #include "android.h"
-#include "command/command_manager.h"
-#include "command/command.h"
+#include "command/cmd_dumpsys.h"
 #include "com/android/server/am/ActivityManagerService.h"
 #include <string>
-
-class DumpsysCommand : public Command {
-public:
-    DumpsysCommand() : Command("dumpsys") {}
-    ~DumpsysCommand() {}
-    int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
-    void usage();
-};
-
-void __attribute__((constructor)) logcat_init(void) {
-    CommandManager::PushExtendCommand(new DumpsysCommand());
-}
-
-void __attribute__((destructor)) logcat_fini(void) {}
 
 typedef int (*DumpsysCall)(int argc, char* const argv[]);
 struct DumpsysOption {

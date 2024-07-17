@@ -39,6 +39,7 @@
 #include "command/cmd_dex.h"
 #include "command/cmd_method.h"
 #include "command/cmd_logcat.h"
+#include "command/cmd_dumpsys.h"
 #include "command/cmd_env.h"
 #include "command/cmd_shell.h"
 #include "command/remote/cmd_remote.h"
@@ -80,6 +81,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new DexCommand());
     CommandManager::PushInlineCommand(new MethodCommand());
     CommandManager::PushInlineCommand(new LogcatCommand());
+    CommandManager::PushInlineCommand(new DumpsysCommand());
 #endif
 
     // other
