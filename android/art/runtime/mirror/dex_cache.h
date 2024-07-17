@@ -70,8 +70,8 @@ public:
     inline uint32_t location() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(DexCache, location_)); }
     inline uint64_t dex_file() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexCache, dex_file_)); }
 
-    inline DexFile& GetDexFile() { return get_dex_file_cache(); }
-    inline String& GetLocation() { return get_location_cache(); }
+    inline DexFile& GetDexFile() { return QUICK_CACHE(dex_file); }
+    inline String& GetLocation() { return QUICK_CACHE(location); }
 
 private:
     // quick memoryref cache

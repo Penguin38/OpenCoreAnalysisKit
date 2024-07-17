@@ -35,29 +35,32 @@
 #define SIZEOF(X) (__##X##_size__.THIS)
 #define VALUEOF(X, Y) (*reinterpret_cast<uint64_t *>(Real() + OFFSET(X, Y)) & PointMask())
 
+#define QUICK_CACHE(NAME) get_##NAME##_cache()
+#define CACHE(NAME) NAME##_cache
+
 #define DEFINE_QUICK_CACHE(T, NAME) \
-T NAME##_cache = 0x0; \
-inline T& get_##NAME##_cache() { \
+T CACHE(NAME) = 0x0; \
+inline T& QUICK_CACHE(NAME) { \
     do { \
-        if (!NAME##_cache.Ptr()) {\
-            NAME##_cache = NAME(); \
-            NAME##_cache.copyRef(this); \
-            NAME##_cache.Prepare(false); \
+        if (!CACHE(NAME).Ptr()) {\
+            CACHE(NAME) = NAME(); \
+            CACHE(NAME).copyRef(this); \
+            CACHE(NAME).Prepare(false); \
         } \
-        return NAME##_cache;\
+        return CACHE(NAME);\
     } while (0); \
 } \
 
 #define DEFINE_QUICK_CACHE_COPY(T, NAME, REF) \
-T NAME##_cache = 0x0; \
-inline T& get_##NAME##_cache() { \
+T CACHE(NAME) = 0x0; \
+inline T& QUICK_CACHE(NAME) { \
     do { \
-        if (!NAME##_cache.Ptr()) {\
-            NAME##_cache = NAME(); \
-            NAME##_cache.copyRef(get_##REF##_cache()); \
-            NAME##_cache.Prepare(false); \
+        if (!CACHE(NAME).Ptr()) {\
+            CACHE(NAME) = NAME(); \
+            CACHE(NAME).copyRef(QUICK_CACHE(REF)); \
+            CACHE(NAME).Prepare(false); \
         } \
-        return NAME##_cache;\
+        return CACHE(NAME);\
     } while (0); \
 } \
 

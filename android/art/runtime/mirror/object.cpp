@@ -43,7 +43,7 @@ void Object::Init() {
 }
 
 Class Object::GetClass() {
-    Class clazz = get_klass_cache();
+    Class clazz = QUICK_CACHE(klass);
     return clazz;
 }
 

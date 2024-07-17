@@ -102,7 +102,7 @@ public:
     inline uint64_t proto_ids() { return VALUEOF(DexFile, proto_ids_); }
     inline uint8_t is_compact_dex() { return value8Of(OFFSET(DexFile, is_compact_dex_)); }
 
-    inline api::MemoryRef& DataBegin() { return get_data_begin_cache(); }
+    inline api::MemoryRef& DataBegin() { return QUICK_CACHE(data_begin); }
     cxx::string GetLocation();
     dex::TypeId GetTypeId(dex::TypeIndex idx);
     dex::MethodId GetMethodId(uint32_t idx);
@@ -128,7 +128,7 @@ public:
     const char* GetMethodDeclaringClassDescriptor(dex::MethodId& method_id, const char* def);
     inline const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id) { return GetMethodReturnTypeDescriptor(method_id, "V"); }
     const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id, const char* def);
-    inline OatDexFile& GetOatDexFile() { return get_oat_dex_file_cache(); }
+    inline OatDexFile& GetOatDexFile() { return QUICK_CACHE(oat_dex_file); }
     inline bool IsCompactDexFile() { return !!is_compact_dex(); }
     inline bool IsStandardDexFile() { return !is_compact_dex(); }
     const char* GetMethodShorty(dex::MethodId& method_id, uint32_t* length);

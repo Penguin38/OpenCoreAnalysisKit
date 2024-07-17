@@ -60,7 +60,7 @@ public:
     inline bool IsProxyField() { return GetDeclaringClass().IsProxyClass(); }
     const char* GetTypeDescriptor();
     std::string PrettyTypeDescriptor();
-    inline mirror::Class& GetDeclaringClass() { return get_declaring_class_cache(); }
+    inline mirror::Class& GetDeclaringClass() { return QUICK_CACHE(declaring_class); }
     inline uint32_t GetDexFieldIndex() { return field_dex_idx(); }
     inline mirror::DexCache& GetDexCache() { return GetDeclaringClass().GetDexCache(); }
     inline DexFile& GetDexFile() {

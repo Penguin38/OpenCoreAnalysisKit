@@ -350,12 +350,12 @@ cxx::string DexFile::GetLocation() {
 }
 
 dex::TypeId DexFile::GetTypeId(dex::TypeIndex idx) {
-    dex::TypeId type_id(get_type_ids_cache().Ptr() + SIZEOF(TypeId) * idx.index_, get_type_ids_cache());
+    dex::TypeId type_id(QUICK_CACHE(type_ids).Ptr() + SIZEOF(TypeId) * idx.index_, QUICK_CACHE(type_ids));
     return type_id;
 }
 
 dex::MethodId DexFile::GetMethodId(uint32_t idx) {
-    dex::MethodId method_id(get_method_ids_cache().Ptr() + SIZEOF(MethodId) * idx, get_method_ids_cache());
+    dex::MethodId method_id(QUICK_CACHE(method_ids).Ptr() + SIZEOF(MethodId) * idx, QUICK_CACHE(method_ids));
     return method_id;
 }
 
@@ -365,7 +365,7 @@ dex::ProtoId DexFile::GetMethodPrototype(dex::MethodId& method_id) {
 }
 
 dex::ProtoId DexFile::GetProtoId(dex::ProtoIndex idx) {
-    dex::ProtoId proto_id(get_proto_ids_cache().Ptr() + SIZEOF(ProtoId) * idx.index_, get_proto_ids_cache());
+    dex::ProtoId proto_id(QUICK_CACHE(proto_ids).Ptr() + SIZEOF(ProtoId) * idx.index_, QUICK_CACHE(proto_ids));
     return proto_id;
 }
 
@@ -393,7 +393,7 @@ const char* DexFile::StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_
 }
 
 dex::StringId DexFile::GetStringId(dex::StringIndex idx) {
-    dex::StringId string_id(get_string_ids_cache().Ptr() + SIZEOF(StringId) * idx.index_, get_string_ids_cache());
+    dex::StringId string_id(QUICK_CACHE(string_ids).Ptr() + SIZEOF(StringId) * idx.index_, QUICK_CACHE(string_ids));
     return string_id;
 }
 
@@ -405,7 +405,7 @@ const char* DexFile::GetStringDataAndUtf16Length(dex::StringId& string_id, uint3
 }
 
 dex::FieldId DexFile::GetFieldId(uint32_t idx) {
-    dex::FieldId field_id(get_field_ids_cache().Ptr() + SIZEOF(FieldId) * idx, get_field_ids_cache());
+    dex::FieldId field_id(QUICK_CACHE(field_ids).Ptr() + SIZEOF(FieldId) * idx, QUICK_CACHE(field_ids));
     return field_id;
 }
 

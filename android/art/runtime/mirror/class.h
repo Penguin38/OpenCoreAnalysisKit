@@ -178,14 +178,14 @@ public:
     const char *GetDescriptor(std::string* storage);
     String GetName();
     inline DexFile& GetDexFile() { return GetDexCache().GetDexFile(); }
-    inline DexCache& GetDexCache() { return get_dex_cache_cache(); }
+    inline DexCache& GetDexCache() { return QUICK_CACHE(dex_cache); }
     dex::TypeIndex GetDexTypeIndex();
     uint32_t NumInstanceFields();
     uint64_t GetIFields();
     uint32_t NumStaticFields();
     uint64_t GetSFields();
     Class GetClassLoader();
-    inline IfTable& GetIfTable() { return get_iftable_cache(); }
+    inline IfTable& GetIfTable() { return QUICK_CACHE(iftable); }
     uint32_t NumMethods();
     uint64_t GetMethods();
     inline uint32_t NumDirectMethods() { return GetVirtualMethodsStartOffset(); }
