@@ -278,3 +278,8 @@ add_executable(test tests/test.cpp)
 target_link_libraries(test parser)
 
 add_executable(cloctime tests/time.cpp)
+
+add_library(plugin-simple SHARED
+            parser/plugin/simple/simple.cpp)
+target_link_libraries(plugin-simple parser)
+set_target_properties(plugin-simple PROPERTIES PREFIX "")
