@@ -70,6 +70,8 @@ int FrameCommand::main(int argc, char* const argv[]) {
     } else {
         ShowNativeFrameInfo(number);
     }
+#else
+    ShowNativeFrameInfo(number);
 #endif
     return 0;
 }
