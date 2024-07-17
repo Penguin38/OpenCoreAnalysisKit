@@ -18,45 +18,19 @@
 #include "logger/log.h"
 #include "android.h"
 #include "command/command_manager.h"
-#include "command/command.h"
+#include "command/cmd_logcat.h"
 #include "common/auxv.h"
-#include "log.h"
-#include "LogBuffer.h"
-#include "LogStatistics.h"
-#include "SerializedData.h"
-#include "SerializedLogBuffer.h"
+#include "logcat/log.h"
+#include "logcat/LogBuffer.h"
+#include "logcat/LogStatistics.h"
+#include "logcat/SerializedData.h"
+#include "logcat/SerializedLogBuffer.h"
 #include "cxx/list.h"
 #include <string>
 #include <unistd.h>
 #include <getopt.h>
 
 using namespace android;
-
-class LogcatCommand : public Command {
-public:
-    static constexpr int DUMP_MAIN = 1 << 0;
-    static constexpr int DUMP_RADIO = 1 << 1;
-    static constexpr int DUMP_EVENTS = 1 << 2;
-    static constexpr int DUMP_SYSTEM = 1 << 3;
-    static constexpr int DUMP_CRASH = 1 << 4;
-    static constexpr int DUMP_KERNEL = 1 << 5;
-
-    LogcatCommand() : Command("logcat") {}
-    ~LogcatCommand() {}
-    int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) { return true; }
-    void usage();
-private:
-    int dump_flag = 0;
-    int filter = 0;
-    int id;
-};
-
-void __attribute__((constructor)) logcat_init(void) {
-    CommandManager::PushExtendCommand(new LogcatCommand());
-}
-
-void __attribute__((destructor)) logcat_fini(void) {}
 
 // std::list<SerializedLogChunk> logs_[LOG_ID_MAX] GUARDED_BY(logd_lock);
 static void PrintSerializedLogBuf(const char* header, cxx::list& logs, int filter, int id) {

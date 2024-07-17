@@ -194,7 +194,14 @@ add_library(android STATIC
 
             # sdk
             android/sdk/android/app/ContextImpl.cpp
-            android/sdk/android/util/ArrayMap.cpp)
+            android/sdk/android/util/ArrayMap.cpp
+
+            # logcat
+            android/logcat/event_logtags.cpp
+            android/logcat/LogBuffer.cpp
+            android/logcat/SerializedLogBuffer.cpp
+            android/logcat/SerializedData.cpp
+            android/logcat/LogStatistics.cpp)
 target_link_libraries(android core llvm)
 
 set(LINKER_PTHREAD "")
@@ -231,6 +238,7 @@ add_library(parser STATIC
             parser/command/cmd_space.cpp
             parser/command/cmd_dex.cpp
             parser/command/cmd_method.cpp
+            parser/command/cmd_logcat.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
             parser/command/cmd_plugin.cpp
@@ -260,16 +268,6 @@ add_executable(core-parser
                parser/work/work_thread.cpp
                parser/core_parser.cpp)
 target_link_libraries(core-parser parser)
-
-add_library(plugin-logcat SHARED
-            parser/plugin/logcat/logcat_main.cpp
-            parser/plugin/logcat/event_logtags.cpp
-            parser/plugin/logcat/LogBuffer.cpp
-            parser/plugin/logcat/SerializedLogBuffer.cpp
-            parser/plugin/logcat/SerializedData.cpp
-            parser/plugin/logcat/LogStatistics.cpp)
-target_link_libraries(plugin-logcat parser)
-set_target_properties(plugin-logcat PROPERTIES PREFIX "")
 
 include_directories(parser/plugin/dumpsys/services)
 add_library(plugin-dumpsys SHARED

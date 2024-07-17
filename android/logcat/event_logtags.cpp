@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "event_logtags.h"
+#include "logcat/event_logtags.h"
 #include <stdint.h>
 #include <sys/types.h>
 #include <stdlib.h>

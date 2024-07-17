@@ -38,8 +38,8 @@
 // 30053 am_uid_stopped (UID|1|5)
 // 30047 am_pss (Pid|1|5),(UID|1|5),(Process Name|3),(Pss|2|2),(Uss|2|2),(SwapPss|2|2),(Rss|2|2),(StatType|1|5),(ProcState|1|5),(TimeToCollect|2|2)
 
-#ifndef PARSER_PLUGIN_LOGCAT_EVENT_LOG_TAGS_H_
-#define PARSER_PLUGIN_LOGCAT_EVENT_LOG_TAGS_H_
+#ifndef ANDROID_LOGCAT_EVENT_LOG_TAGS_H_
+#define ANDROID_LOGCAT_EVENT_LOG_TAGS_H_
 
 #include <string>
 
@@ -66,4 +66,4 @@ extern EventTags kEventTags[EventTags::kNumEvents];
 
 } // namespace android
 
-#endif  // PARSER_PLUGIN_LOGCAT_EVENT_LOG_TAGS_H_
+#endif  // ANDROID_LOGCAT_EVENT_LOG_TAGS_H_

@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-#include "LogBuffer.h"
+#include "api/core.h"
+#include "logcat/LogStatistics.h"
 
-struct LogBuffer_OffsetTable __LogBuffer_offset__;
+struct LogStatistics_OffsetTable __LogStatistics_offset__;
 
 namespace android {
 
-void LogBuffer::Init() {
-
+void LogStatistics::Init() {
+    if (CoreApi::Bits() == 64) {
+        __LogStatistics_offset__ = {
+            .mElements = 64,
+        };
+    } else {
+        // do nothing
+    }
 }
 
 } // namespace android

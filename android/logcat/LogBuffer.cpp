@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-#include "SerializedLogBuffer.h"
+#include "logcat/LogBuffer.h"
 
-struct SerializedLogBuffer_OffsetTable __SerializedLogBuffer_offset__;
-struct SerializedLogBuffer_SizeTable __SerializedLogBuffer_size__;
+struct LogBuffer_OffsetTable __LogBuffer_offset__;
 
 namespace android {
 
-void SerializedLogBuffer::Init31() {
-    __SerializedLogBuffer_offset__ = {
-        .vtbl = 0,
-        .reader_list_ = 8,
-        .tags_ = 16,
-        .stats_ = 24,
-        .max_size_ = 32,
-        .logs_ = 96,
-    };
+void LogBuffer::Init() {
 
-    __SerializedLogBuffer_size__ = {
-        .THIS = 288,
-        .vtbl = 10,
-    };
 }
 
 } // namespace android

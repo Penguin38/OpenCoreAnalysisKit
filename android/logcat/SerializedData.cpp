@@ -16,9 +16,9 @@
 
 #include "logger/log.h"
 #include "api/core.h"
-#include "SerializedData.h"
-#include "event_logtags.h"
-#include "log.h"
+#include "logcat/SerializedData.h"
+#include "logcat/event_logtags.h"
+#include "logcat/log.h"
 #include <time.h>
 #include <vector>
 #include <memory>

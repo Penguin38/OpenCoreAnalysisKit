@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_PLUGIN_LOGCAT_LOGBUFFER_H_
-#define PARSER_PLUGIN_LOGCAT_LOGBUFFER_H_
+#ifndef ANDROID_LOGCAT_LOGBUFFER_H_
+#define ANDROID_LOGCAT_LOGBUFFER_H_
 
 #include "api/memory_ref.h"
 
@@ -40,4 +40,4 @@ public:
 
 } // namespace android
 
-#endif // PARSER_PLUGIN_LOGCAT_LOGBUFFER_H_
+#endif // ANDROID_LOGCAT_LOGBUFFER_H_

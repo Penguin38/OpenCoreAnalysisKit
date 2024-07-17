@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_PLUGIN_LOGCAT_LOG_H_
-#define PARSER_PLUGIN_LOGCAT_LOG_H_
+#ifndef ANDROID_LOGCAT_LOG_H_
+#define ANDROID_LOGCAT_LOG_H_
 
 #include <string>
 
@@ -83,4 +83,4 @@ inline std::string ConvertPriority(uint8_t prio) {
 
 } // namespace android
 
-#endif // PARSER_PLUGIN_LOGCAT_LOG_H_
+#endif // ANDROID_LOGCAT_LOG_H_

@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-#include "api/core.h"
-#include "LogStatistics.h"
+#include "logcat/SerializedLogBuffer.h"
 
-struct LogStatistics_OffsetTable __LogStatistics_offset__;
+struct SerializedLogBuffer_OffsetTable __SerializedLogBuffer_offset__;
+struct SerializedLogBuffer_SizeTable __SerializedLogBuffer_size__;
 
 namespace android {
 
-void LogStatistics::Init() {
-    if (CoreApi::Bits() == 64) {
-        __LogStatistics_offset__ = {
-            .mElements = 64,
-        };
-    } else {
-        // do nothing
-    }
+void SerializedLogBuffer::Init31() {
+    __SerializedLogBuffer_offset__ = {
+        .vtbl = 0,
+        .reader_list_ = 8,
+        .tags_ = 16,
+        .stats_ = 24,
+        .max_size_ = 32,
+        .logs_ = 96,
+    };
+
+    __SerializedLogBuffer_size__ = {
+        .THIS = 288,
+        .vtbl = 10,
+    };
 }
 
 } // namespace android
