@@ -110,13 +110,13 @@ core-parser>
 
 ```
 core-parser> help
-        core          exec       sysroot          mmap          auxv  
-        file           map          read         write      register  
-      thread     backtrace         frame       getprop         print  
-       hprof        search         class           top         space  
-         dex        method           env         shell        plugin  
-        help        remote          fake          time       version  
-        quit
+        core          exec       sysroot          mmap          auxv
+        file           map          read         write      register
+      thread     backtrace         frame       getprop         print
+       hprof        search         class           top         space
+         dex        method        logcat       dumpsys           env
+       shell        plugin          help        remote          fake
+        time       version          quit
 ```
 
 ```
@@ -528,10 +528,21 @@ Usage: fake map
 core-parser> fake core -r -o fake.core
 ```
 
+```
+core-parser> help logcat
+Usage: logcat [option]...
+Option:
+    -b, --buffer=<buffer> {main, radio, events, system, crash, kernel}
+    -p, --pid=<pid>
+    -u, --uid=<uid>
+    -t, --tid=<tid>
+```
+
 # Plugin
 ```
-core-parser> plugin plugin-logcat.so
-env new command "logcat"
-core-parser> logcat --uid 1000 -b all | grep ActivityManager
-2024-07-03 18:56:02.643   1000   560   855 I dvm_lock_sample: [system_server,1,Binder:560_7,294,ActivityManagerService.java,12345,android.content.Intent com.android.server.am.ActivityManagerService.registerReceiverWithFeature(android.app.IApplicationThread, java.lang.String, java.lang.String, java.lang.String, android.content.IIntentReceiver, android.content.IntentFilter, java.lang.String, int, int),UserController.java,2938,int com.android.server.am.UserController$Injector.broadcastIntent(android.content.Intent, java.lang.String, android.content.IIntentReceiver, int, java.lang.String, android.os.Bundle, java.lang.String[], int, android.os.Bundle, boolean, boolean, int, int, int, int, int),58]
+core-parser> plugin plugin-simple.so
+Linker env...
+env new command "simple"
+core-parser> simple
+command simple!
 ```
