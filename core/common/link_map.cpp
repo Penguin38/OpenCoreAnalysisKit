@@ -97,6 +97,9 @@ LoadBlock* LinkMap::block() {
 }
 
 void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
+    std::vector<SymbolEntry>& symbols = GetCurrentSymbols();
+    if (symbols.empty()) return;
+
     LoadBlock* load = block();
     if (load) {
         bool vdso = !strcmp(name(), "[vdso]");
@@ -104,18 +107,25 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
         uint64_t nice = 0;
         char* name = nullptr;
 
-        for (const auto& entry : GetCurrentSymbols()) {
-            if (ELF_ST_TYPE(entry.type) == STT_FUNC
-                    || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
-                uint64_t offset = entry.offset;
-                if (CoreApi::GetMachine() == EM_ARM)
-                    offset &= (CoreApi::GetPointMask() - 1);
+        int left = 0;
+        int right = symbols.size();
 
-                if (offset > cloc_offset)
-                    break;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            const auto& entry = symbols[mid];
+            uint64_t offset = entry.offset;
+            if (CoreApi::GetMachine() == EM_ARM)
+                offset &= (CoreApi::GetPointMask() - 1);
 
-                nice = cloc_offset - offset;
-                name = const_cast<char*>(entry.symbol.data());
+            if (offset > cloc_offset) {
+                right = mid;
+            } else {
+                if (ELF_ST_TYPE(entry.type) == STT_FUNC
+                        || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
+                    nice = cloc_offset - offset;
+                    name = const_cast<char*>(entry.symbol.data());
+                }
+                left = mid + 1;
             }
         }
 
