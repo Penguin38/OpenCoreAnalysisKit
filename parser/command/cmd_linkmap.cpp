@@ -25,64 +25,92 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
         return 0;
 
-    bool dump_ori = false;
+    dump_ori = false;
+    num = 0;
+
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"--origin",  no_argument,       0,  'o'},
-        {0,           0,                 0,   0 }
+        {"origin",  no_argument,       0,  'o'},
+        {"sym",     required_argument, 0,  's'},
+        {0,           0,               0,   0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "o",
+    while ((opt = getopt_long(argc, argv, "os:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
                 dump_ori = true;
                 break;
+            case 's':
+                num = std::atoi(optarg);
+                break;
         }
     }
 
+    if (!num) LOGI("NUM LINKMAP       REGION                   FLAGS NAME\n");
+    int pos = 0;
     auto callback = [&](LinkMap* map) -> bool {
-        LoadBlock* block = map->block();
-        if (block) {
-            std::string name;
-            if (!dump_ori && block->isMmapBlock()) {
-                name = block->name();
-            } else {
-                name = map->name();
-            }
-            std::string valid;
-            if (block->isValid()) {
-                valid.append("[*]");
-                if (block->isOverlayBlock()) {
-                    valid.append("(OVERLAY)");
-                } else if (block->isMmapBlock()) {
-                    valid.append("(MMAP");
-                    if (block->GetMmapOffset()) {
-                        valid.append(" ");
-                        valid.append(Utils::ToHex(block->GetMmapOffset()));
-                    }
-                    valid.append(")");
-                }
-            } else {
-                valid.append("[EMPTY]");
-            }
-
-            LOGI("0x%lx  [%lx, %lx)  %s  %s %s\n", map->map(), block->vaddr(), block->vaddr() + block->size(),
-                                                   block->convertFlags().c_str(), name.c_str(), valid.c_str());
+        pos++;
+        if (!num) {
+            ShowLinkMap(pos, map);
         } else {
-            LOGI("0x%lx  [%lx, %lx)  ---  %s [unknown]\n", map->map(), map->begin(), map->begin(), map->name());
+            if (num == pos) {
+                ShowLinkMapSymbols(map);
+                return true;
+            }
         }
         return false;
     };
-    LOGI("LINKMAP       REGION                   FLAGS NAME\n");
     CoreApi::ForeachLinkMap(callback);
-
     return 0;
 }
 
+void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
+    LoadBlock* block = map->block();
+    if (block) {
+        std::string name;
+        if (!dump_ori && block->isMmapBlock()) {
+            name = block->name();
+        } else {
+            name = map->name();
+        }
+        std::string valid;
+        if (block->isValid()) {
+            valid.append("[*]");
+            if (block->isOverlayBlock()) {
+                valid.append("(OVERLAY)");
+            } else if (block->isMmapBlock()) {
+                valid.append("(MMAP");
+                if (block->GetMmapOffset()) {
+                    valid.append(" ");
+                    valid.append(Utils::ToHex(block->GetMmapOffset()));
+                }
+                valid.append(")");
+            }
+        } else {
+            valid.append("[EMPTY]");
+        }
+
+        LOGI("%3d 0x%lx  [%lx, %lx)  %s  %s %s\n", pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
+                block->convertFlags().c_str(), name.c_str(), valid.c_str());
+    } else {
+        LOGI("%3d 0x%lx  [%lx, %lx)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->begin(), map->name());
+    }
+}
+
+void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
+    LOGI("VALUE             INFO              NAME\n");
+    for (const auto& entry : map->GetCurrentSymbols()) {
+        LOGI("%016lx  %016lx  %s\n", entry.offset, entry.type, entry.symbol.c_str());
+    }
+}
+
 void LinkMapCommand::usage() {
-    LOGI("Usage: map [--origin|-o]\n");
+    LOGI("Usage: map [option..]\n");
+    LOGI("Option:\n");
+    LOGI("  --ori|-o: show origin link map.\n");
+    LOGI("  --sym|-s <NUM>: show link map current symbols.\n");
 }
 

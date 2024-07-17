@@ -18,13 +18,19 @@
 #define PARSER_COMMAND_CMD_LINKMAP_H_
 
 #include "command/command.h"
+#include "common/link_map.h"
 
 class LinkMapCommand : public Command {
 public:
     LinkMapCommand() : Command("map") {}
     ~LinkMapCommand() {}
     int main(int argc, char* const argv[]);
+    void ShowLinkMap(int pos, LinkMap* map);
+    void ShowLinkMapSymbols(LinkMap* map);
     void usage();
+private:
+    bool dump_ori;
+    int num;
 };
 
 #endif // PARSER_COMMAND_CMD_LINKMAP_H_

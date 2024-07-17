@@ -27,11 +27,13 @@ public:
         offset = off;
         type = ty;
         if (name) symbol = name;
+        core_size = 0;
     }
 
     uint64_t offset;
     uint64_t type;
     std::string symbol;
+    uint64_t core_size;
 
     static bool Compare(SymbolEntry& a, SymbolEntry& b) { return a.offset < b.offset; }
 };
