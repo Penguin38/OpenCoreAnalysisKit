@@ -101,7 +101,7 @@ int SearchCommand::main(int argc, char* const argv[]) {
     auto callback = [&](art::mirror::Object& object) -> bool {
         return SearchObjects(classname, object);
     };
-    Android::ForeachObjects(callback, each_flag);
+    Android::ForeachObjects(callback, each_flag, false);
     return 0;
 }
 

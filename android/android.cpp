@@ -512,17 +512,17 @@ void Android::ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<
 }
 
 void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn) {
-    ForeachObjects(fn, EACH_IMAGE_OBJECTS | EACH_ZYGOTE_OBJECTS | EACH_APP_OBJECTS | EACH_FAKE_OBJECTS);
+    ForeachObjects(fn, EACH_IMAGE_OBJECTS | EACH_ZYGOTE_OBJECTS | EACH_APP_OBJECTS | EACH_FAKE_OBJECTS, false);
 }
 
-void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag) {
+void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag, bool check) {
     art::Runtime& runtime = art::Runtime::Current();
     art::gc::Heap& heap = runtime.GetHeap();
 
-    auto walkfn = [&fn](art::gc::space::Space* space) {
+    auto walkfn = [&](art::gc::space::Space* space) {
         LOGD("Walk [%s] ...\n", space->GetName());
         if (space->IsVaildSpace()) {
-            space->Walk(fn);
+            space->Walk(fn, check);
         } else {
             LOGE("ERROR: %s invalid space.\n", space->GetName());
         }

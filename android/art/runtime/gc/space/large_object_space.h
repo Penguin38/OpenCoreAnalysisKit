@@ -142,7 +142,7 @@ public:
     inline uint64_t large_objects() { return Ptr() + OFFSET(LargeObjectMapSpace, large_objects_); }
 
     cxx::map& GetLargeObjectsCache();
-    void Walk(std::function<bool (mirror::Object& object)> fn);
+    void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
     bool IsVaildSpace();
 
     class LargeObject : public api::MemoryRef {
@@ -208,7 +208,7 @@ public:
     inline uint64_t allocation_info() { return VALUEOF(FreeListSpace, allocation_info_); }
 
     api::MemoryRef& GetAlloctionInfoCache();
-    void Walk(std::function<bool (mirror::Object& object)> fn);
+    void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
     uint64_t GetAllocationInfoForAddress(uint64_t address);
     uint64_t GetSlotIndexForAddress(uint64_t address);
     uint64_t GetAddressForAllocationInfo(AllocationInfo& info);

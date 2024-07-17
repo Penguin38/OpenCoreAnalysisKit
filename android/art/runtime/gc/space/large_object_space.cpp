@@ -344,7 +344,7 @@ bool LargeObjectMapSpace::IsVaildSpace() {
     return large_objects_.Ptr() &&  CoreApi::IsVirtualValid(large_objects_.Ptr());
 }
 
-void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
     cxx::map& large_objects_ = GetLargeObjectsCache();
     for (const auto& value : large_objects_) {
         LargeObjectMapSpace::LargeObjectsPair pair = value;
@@ -353,7 +353,7 @@ void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visi
             mirror::Object object(ref);
             if (object.IsValid()) {
                 visitor(object);
-            } else {
+            } else if (check) {
                 LOGE("ERROR: 0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
             }
         }
@@ -385,7 +385,7 @@ uint64_t FreeListSpace::GetAllocationAddressForSlot(uint64_t slot) {
     return begin() + (slot * kLargeObjectAlignment);
 }
 
-void FreeListSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+void FreeListSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
     uint64_t free_end_start = end() - free_end();
     api::MemoryRef block_cache = begin();
     block_cache.Prepare(false);
@@ -399,7 +399,7 @@ void FreeListSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
             mirror::Object object(byte_start, block_cache);
             if (object.IsValid()) {
                 visitor(object);
-            } else {
+            } else if (check) {
                 LOGE("ERROR: 0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
             }
         }

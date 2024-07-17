@@ -49,7 +49,7 @@ public:
     inline uint64_t bitmap_size() { return VALUEOF(ContinuousSpaceBitmap, bitmap_size_); }
     inline uint64_t heap_begin() { return VALUEOF(ContinuousSpaceBitmap, heap_begin_); }
 
-    void VisitMarkedRange(uint64_t visit_begin, uint64_t visit_end, std::function<bool (mirror::Object& object)> fn);
+    void VisitMarkedRange(uint64_t visit_begin, uint64_t visit_end, std::function<bool (mirror::Object& object)> fn, bool check);
     uint64_t OffsetToIndex(uint64_t offset, int point_bit);
     uint64_t IndexToOffset(uint64_t index, int point_bit);
 };

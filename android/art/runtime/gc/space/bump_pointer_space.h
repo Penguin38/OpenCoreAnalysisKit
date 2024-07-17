@@ -49,7 +49,7 @@ public:
     inline uint64_t block_sizes() { return Ptr() + OFFSET(BumpPointerSpace, block_sizes_); }
 
     SpaceType GetType() { return kSpaceTypeBumpPointerSpace; }
-    void Walk(std::function<bool (mirror::Object& object)> fn);
+    void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
 
     cxx::deque& GetBlockSizes();
 private:

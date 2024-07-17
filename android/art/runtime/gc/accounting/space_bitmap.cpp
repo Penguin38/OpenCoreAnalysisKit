@@ -61,7 +61,7 @@ void ContinuousSpaceBitmap::Init29() {
 }
 
 void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visit_end,
-                                             std::function<bool (mirror::Object& object)> visitor) {
+                                             std::function<bool (mirror::Object& object)> visitor, bool check) {
     api::MemoryRef bitmap_begin_ref(bitmap_begin());
     api::MemoryRef heap_begin_ref(heap_begin());
     heap_begin_ref.Prepare(false);
@@ -102,7 +102,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
                 mirror::Object obj(ptr_base + shift * kObjectAlignment, heap_begin_ref);
                 if (obj.IsValid()) {
                     visitor(obj);
-                } else {
+                } else if (check) {
                     LOGE("ERROR: 0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
                 }
                 left_edge ^= ((static_cast<uint64_t>(1)) << shift);
@@ -120,7 +120,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
                     mirror::Object obj(ptr_base + shift * kObjectAlignment, heap_begin_ref);
                     if (obj.IsValid()) {
                         visitor(obj);
-                    } else {
+                    } else if (check) {
                         LOGE("ERROR: 0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
                     }
                     w ^= (static_cast<uint64_t>(1)) << shift;
@@ -151,7 +151,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
             mirror::Object obj(ptr_base + shift * kObjectAlignment, heap_begin_ref);
             if (obj.IsValid()) {
                 visitor(obj);
-            } else {
+            } else if (check) {
                 LOGE("ERROR: 0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
             }
             right_edge ^= (static_cast<uint64_t>(1)) << shift;

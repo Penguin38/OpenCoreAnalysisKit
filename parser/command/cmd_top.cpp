@@ -123,7 +123,7 @@ int TopCommand::main(int argc, char* const argv[]) {
 
         return false;
     };
-    Android::ForeachObjects(callback, flag);
+    Android::ForeachObjects(callback, flag, false);
 
     LOGI("Address       Allocations       ShallowSize       NativeSize     %s\n", show ? "ClassName" : "");
     art::mirror::Class cur_max_thiz = 0;

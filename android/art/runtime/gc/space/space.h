@@ -97,7 +97,7 @@ public:
     inline bool IsRegionSpace() { return GetType() == kSpaceTypeRegionSpace; }
 
     virtual SpaceType GetType();
-    virtual void Walk(std::function<bool (mirror::Object& object)> fn) {}
+    virtual void Walk(std::function<bool (mirror::Object& object)> fn, bool check) {}
     virtual bool IsVaildSpace() { return false; }
 private:
     SpaceType type_cache = kSpaceTypeInvalidSpace;

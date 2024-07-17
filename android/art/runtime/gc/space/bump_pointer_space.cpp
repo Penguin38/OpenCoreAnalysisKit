@@ -62,7 +62,7 @@ cxx::deque& BumpPointerSpace::GetBlockSizes() {
 }
 
 #if 1
-void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
     uint64_t pos = Begin();
     uint64_t end = End();
 

@@ -81,8 +81,8 @@ public:
     inline uint64_t mark_bitmap_v28() { return VALUEOF(RegionSpace, mark_bitmap_); }
 
     SpaceType GetType() { return kSpaceTypeRegionSpace; }
-    void Walk(std::function<bool (mirror::Object& object)> fn);
-    void WalkInternal(std::function<bool (mirror::Object& object)> fn, bool only);
+    void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
+    void WalkInternal(std::function<bool (mirror::Object& object)> fn, bool only, bool check);
 
     enum class RegionType : uint8_t {
         kRegionTypeAll,              // All types.
@@ -127,7 +127,7 @@ public:
         inline uint64_t ObjectsAllocated() { return objects_allocated(); }
     };
 
-    void WalkNonLargeRegion(std::function<bool (mirror::Object& object)> fn, RegionSpace::Region& region);
+    void WalkNonLargeRegion(std::function<bool (mirror::Object& object)> fn, RegionSpace::Region& region, bool check);
     accounting::ContinuousSpaceBitmap& GetLiveBitmap();
 
 private:

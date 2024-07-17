@@ -75,7 +75,7 @@ int SpaceCommand::main(int argc, char* const argv[]) {
             // do nothing
             return false;
         };
-        Android::ForeachObjects(callback, flag);
+        Android::ForeachObjects(callback, flag, true);
     } else {
         art::Runtime& runtime = art::Runtime::Current();
         art::gc::Heap& heap = runtime.GetHeap();

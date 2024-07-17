@@ -30,7 +30,7 @@ void ImageSpace::Init() {
     // do nothing
 }
 
-void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
     uint64_t pos = Begin() + SIZEOF(ImageHeader);
     uint64_t top = End();
     mirror::Object object_cache = pos;
@@ -43,7 +43,7 @@ void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
             pos = GetNextObject(object);
         } else {
             pos = object.NextValidOffset(top);
-            if (pos < top) LOGE("ERROR: Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
+            if (check && pos < top) LOGE("ERROR: Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
         }
     }
 }

@@ -161,7 +161,7 @@ public:
      * zygote
      * image
      */
-    static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag);
+    static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag, bool check);
 private:
     void init();
     void onSdkChanged(int sdk);

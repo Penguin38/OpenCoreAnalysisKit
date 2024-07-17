@@ -194,11 +194,11 @@ void RegionSpace::Region::Init29() {
     }
 }
 
-void RegionSpace::Walk(std::function<bool (mirror::Object& object)> fn) {
-    WalkInternal(fn, false);
+void RegionSpace::Walk(std::function<bool (mirror::Object& object)> fn, bool check) {
+    WalkInternal(fn, false, check);
 }
 
-void RegionSpace::WalkInternal(std::function<bool (mirror::Object& object)> visitor, bool only) {
+void RegionSpace::WalkInternal(std::function<bool (mirror::Object& object)> visitor, bool only, bool check) {
     Region regions_(regions(), this);
     uint64_t num_regions_ = num_regions();
     for (int i = 0; i < num_regions_; ++i) {
@@ -217,12 +217,12 @@ void RegionSpace::WalkInternal(std::function<bool (mirror::Object& object)> visi
         } else if (r.IsLargeTail()) {
             // Do nothing.
         } else {
-            WalkNonLargeRegion(visitor, r);
+            WalkNonLargeRegion(visitor, r, check);
         }
     }
 }
 
-void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)> visitor, RegionSpace::Region& region) {
+void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)> visitor, RegionSpace::Region& region, bool check) {
     uint64_t pos = region.Begin();
     uint64_t begin = pos;
     uint64_t top = region.Top();
@@ -235,7 +235,7 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
         region.LiveBytes() != static_cast<uint64_t>(top - pos);
 
     if (need_bitmap) {
-        GetLiveBitmap().VisitMarkedRange(pos, top, visitor);
+        GetLiveBitmap().VisitMarkedRange(pos, top, visitor, check);
     } else {
         while (pos < top) {
             mirror::Object object(pos, object_cache);
@@ -244,7 +244,7 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
                 pos = GetNextObject(object);
             } else {
                 pos = object.NextValidOffset(top);
-                if (pos < top) LOGE("ERROR: Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
+                if (check && pos < top) LOGE("ERROR: Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
             }
         }
     }
