@@ -56,7 +56,7 @@ int SysRootCommand::main(int argc, char* const argv[]) {
         if (Android::IsSdkReady()) {
             Android::SysRoot(argv[optind]);
         } else {
-            LOGW("WARN: Android sdk no ready, You can enter command:\n         env config --sdk <version>\n");
+            LOGW("Android sdk no ready, You can enter command:\n         env config --sdk <version>\n");
         }
     }
 

@@ -78,7 +78,8 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
     art::mirror::Class thiz = object;
     if (dump_all) {
         total_classes++;
-        LOGI("[%ld] 0x%lx %s\n", total_classes, thiz.Ptr(), thiz.PrettyDescriptor().c_str());
+        LOGI("[%ld]  " ANSI_COLOR_LIGHTYELLOW "0x%lx  " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET,
+                total_classes, thiz.Ptr(), thiz.PrettyDescriptor().c_str());
     } else if (thiz.PrettyDescriptor() == classname) {
         PrintPrettyClassContent(thiz);
     }
@@ -87,17 +88,17 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
 }
 
 void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
-    LOGI("[0x%lx]\n", clazz.Ptr());
+    LOGI(ANSI_COLOR_LIGHTYELLOW "[0x%lx]\n" ANSI_COLOR_RESET, clazz.Ptr());
     art::mirror::Class super = clazz.GetSuperClass();
     art::mirror::IfTable& iftable = clazz.GetIfTable();
     int32_t ifcount = iftable.Count();
     bool needEnd = false;
     if (super.Ptr()) {
-        LOGI("%sclass %s extends %s {\n",
+        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_RESET "class " ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " extends " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " {\n",
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str());
     } else {
-        LOGI("%sclass %s {\n",
+        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_RESET "class " ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " {\n",
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str());
     }
@@ -170,8 +171,8 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
         needEnd = true;
     }
     auto print_method = [](art::ArtMethod& method) -> bool {
-        LOGI("    [0x%lx] %s%s\n", method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
-                                 method.PrettyMethod().c_str());
+        LOGI("    [0x%lx] " ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_LIGHTYELLOW "%s\n" ANSI_COLOR_RESET,\
+                method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(), method.PrettyMethod().c_str());
         return false;
     };
     if ((show_flag & SHOW_METHOD)) Android::ForeachArtMethods(current, print_method);

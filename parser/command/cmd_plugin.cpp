@@ -84,7 +84,7 @@ int PluginCommand::Load(const char* path, bool flag) {
         plugins[plugins.size() - 1]->HookHandle(handle);
         LOGI("env new command \"%s\"\n", plugins[plugins.size() - 1]->Cmd()->get().c_str());
     } else {
-        if (!handle) LOGE("ERROR: dlopen %s fail!\n", path);
+        if (!handle) LOGE("dlopen %s fail!\n", path);
         plugins.pop_back();
     }
 

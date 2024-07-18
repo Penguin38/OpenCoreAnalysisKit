@@ -67,7 +67,7 @@ cxx::vector& Heap::GetContinuousSpacesCache() {
 
 #if defined(__PARSER_DEBUG__)
         if (!(continuous_spaces_cache.size() > 2 && continuous_spaces_cache.size() < 64)) {
-            LOGE("ERROR: continuous_spaces_ invalid, do analysis ...\n");
+            LOGE("continuous_spaces_ invalid, do analysis ...\n");
             bool found = false;
             int count = 0;
             uint64_t point_size = CoreApi::GetPointSize();
@@ -96,7 +96,7 @@ cxx::vector& Heap::GetDiscontinuousSpacesCache() {
 
 #if defined(__PARSER_DEBUG__)
         if (!(discontinuous_spaces_cache.size() < 8)) {
-            LOGE("ERROR: discontinuous_spaces_ invalid, do analysis ...\n");
+            LOGE("discontinuous_spaces_ invalid, do analysis ...\n");
             bool found = false;
             int count = 0;
             uint64_t point_size = CoreApi::GetPointSize();

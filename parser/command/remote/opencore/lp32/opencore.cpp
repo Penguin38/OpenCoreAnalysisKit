@@ -242,7 +242,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     fd = open(filename, O_RDONLY);
     if (fd < 0) {
-        LOGE("ERROR: open %s fail.\n", filename);
+        LOGE("open %s fail.\n", filename);
         return;
     }
 
@@ -257,7 +257,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 uint32_t ret = fwrite(zero, align_size, 1, fp);
                 if (ret != 1) {
                     need_padd_zero = true;
-                    LOGE("ERROR: [%x] write load segment fail. %s %s\n",
+                    LOGE("[%x] write load segment fail. %s %s\n",
                             (uint32_t)phdr[index].p_vaddr, strerror(errno), maps[file[index].begin].c_str());
                     break;
                 }
@@ -269,7 +269,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 for (int i = 0; i < count; i++) {
                     uint32_t ret = fwrite(zero, align_size, 1, fp);
                     if (ret != 1) {
-                        LOGE("ERROR: [%x] padding load segment fail. %s %s\n",
+                        LOGE("[%x] padding load segment fail. %s %s\n",
                                 (uint32_t)phdr[index].p_vaddr, strerror(errno), maps[file[index].begin].c_str());
                     }
                 }
@@ -285,7 +285,7 @@ bool OpencoreImpl::DoCoredump(const char* filename) {
 
     FILE* fp = fopen(filename, "wb");
     if (!fp) {
-        LOGE("ERROR: %s %s: %s\n", __func__, filename, strerror(errno));
+        LOGE("%s %s: %s\n", __func__, filename, strerror(errno));
         return false;
     }
 

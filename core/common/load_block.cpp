@@ -64,7 +64,7 @@ void LoadBlock::removeOverlay() {
             LOGI("Remove overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
             mOverlay.reset();
         } else {
-            LOGE("ERROR: Can't remove fake load\n");
+            LOGE("Can't remove fake load\n");
         }
     }
 }

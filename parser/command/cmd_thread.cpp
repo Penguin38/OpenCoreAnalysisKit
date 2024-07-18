@@ -77,11 +77,11 @@ int ThreadCommand::main(int argc, char* const argv[]) {
         if (native) {
             int index = 1;
             int machine = CoreApi::GetMachine();
-            LOGI(" Id     Target Id         Frame\n");
+            LOGI(ANSI_COLOR_LIGHTRED " Id     Target Id         Frame\n" ANSI_COLOR_RESET);
             auto callback = [&](ThreadApi *api) -> bool {
                 uint64_t frame_pc = api->GetFramePC();
                 File* file = CoreApi::FindFile(frame_pc);
-                LOGI("%s%-4d   Thread %-10d 0x%lx  %s\n",
+                LOGI("%s%-4d   Thread " ANSI_COLOR_YELLOW "%-10d " ANSI_COLOR_CYAN "ax%lx  " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET,
                         api->pid() == Env::CurrentPid() ? "*" : " ",
                         index, api->pid(), frame_pc, file? file->name().c_str() : "");
                 ++index;
@@ -100,12 +100,13 @@ int ThreadCommand::main(int argc, char* const argv[]) {
             };
             CoreApi::ForeachThread(callback);
 
-            LOGI(" Id   Tid    Status                          Name\n");
+            LOGI(ANSI_COLOR_LIGHTRED " Id   Tid    Status                          Name\n" ANSI_COLOR_RESET);
             art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
                 int tid = thread->GetTid();
                 auto it = std::find(threads.begin(), threads.end(), tid);
-                LOGI("%s%-4d %-6d %-31s \"%s\" %s\n", tid == Env::CurrentPid() ? "*" : " ",
+                LOGI("%s%-4d " ANSI_COLOR_LIGHTYELLOW "%-6d " ANSI_COLOR_LIGHTCYAN "%-31s " ANSI_COLOR_RESET "\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" %s\n",
+                        tid == Env::CurrentPid() ? "*" : " ",
                         thread->GetThreadId(), tid, thread->GetStateDescriptor(), thread->GetName(),
                         it != threads.end() ? "" : "(NOT EXIST THREAD)");
                 if (it != threads.end()) threads.erase(it);
@@ -113,7 +114,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
 
             if (dump_all) {
                 for (int pid : threads) {
-                    LOGI("%s---  %-6d NotAttachJVM\n", pid == Env::CurrentPid() ? "*" : " ", pid);
+                    LOGI("%s---  " ANSI_COLOR_YELLOW "%-6d " ANSI_COLOR_CYAN "NotAttachJVM\n" ANSI_COLOR_RESET , pid == Env::CurrentPid() ? "*" : " ", pid);
                 }
             }
 #endif

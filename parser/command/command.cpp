@@ -35,7 +35,7 @@ int Command::execute(int argc, char* const argv[]) {
             try {
                 main(argc, argv);
             } catch (InvalidAddressException e) {
-                LOGI("%s\n", e.what());
+                LOGE("%s\n", e.what());
             }
             exit(0);
         } else if (pid > 0) {

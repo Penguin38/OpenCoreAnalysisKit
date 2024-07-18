@@ -174,7 +174,7 @@ void Android::init() {
     trunk = android::Property::GetInt32("ro.build.version.trunk");
     sdk = android::Property::GetInt32("ro.build.version.sdk");
     if (trunk > Sdk2Trunk(sdk)) {
-        LOGW("WARN: current trunk(%d) no match sdk(%d).\n", trunk, sdk);
+        LOGW("current trunk(%d) no match sdk(%d).\n", trunk, sdk);
         int trunk_size = sizeof(kTrunkData) / sizeof(kTrunkData[0]);
         for (int cur = sdk + 1; cur < trunk_size; ++cur) {
             if (trunk == kTrunkData[cur]) {
@@ -429,7 +429,7 @@ void Android::RegisterOatListener(int minioat, std::function<void ()> fn) {
 
 void Android::OnSdkChanged(int sdk) {
     if (sdk < O) {
-        LOGE("ERROR: Invaild sdk(%d)\n", sdk);
+        LOGE("Invaild sdk(%d)\n", sdk);
         return;
     }
     INSTANCE->onSdkChanged(sdk);
@@ -437,7 +437,7 @@ void Android::OnSdkChanged(int sdk) {
 
 void Android::OnOatChanged(int oat) {
     if (oat > 999) {
-        LOGE("ERROR: Invaild oat(%d)\n", oat);
+        LOGE("Invaild oat(%d)\n", oat);
         return;
     }
     INSTANCE->onOatChanged(oat);
@@ -538,7 +538,7 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
         if (space->IsVaildSpace()) {
             space->Walk(fn, check);
         } else {
-            LOGE("ERROR: %s invalid space.\n", space->GetName());
+            LOGE("%s invalid space.\n", space->GetName());
         }
     };
 
@@ -555,7 +555,7 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
             if (space->GetType() != art::gc::space::kSpaceTypeInvalidSpace) {
                 walkfn(space.get());
             } else {
-                LOGE("ERROR: please run sysroot libart.so, %s invalid space.\n", space->GetName());
+                LOGE("please run sysroot libart.so, %s invalid space.\n", space->GetName());
             }
         }
     }
@@ -616,7 +616,7 @@ void Android::SysRoot(const char* path) {
                 std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(filepath.c_str()));
                 if (map) {
                     if (memcmp((void*)map->data(), "vdex", 4)) {
-                        LOGE("ERROR: Invalid vdex file (%s)\n", filepath.c_str());
+                        LOGE("Invalid vdex file (%s)\n", filepath.c_str());
                         continue;
                     }
                     block->setMmapFile(filepath.c_str(), 0x0);
@@ -624,7 +624,7 @@ void Android::SysRoot(const char* path) {
             } else {
                 ZipFile zip;
                 if (zip.open(filepath.c_str())) {
-                    LOGE("ERROR: Zip open fail [%lx] %s\n", block->vaddr(), filepath.c_str());
+                    LOGE("Zip open fail [%lx] %s\n", block->vaddr(), filepath.c_str());
                     continue;
                 }
 
@@ -636,19 +636,19 @@ void Android::SysRoot(const char* path) {
                 }
 
                 if (!entry) {
-                    LOGE("ERROR: %s Not found entry %s\n", filepath.c_str(), sub_file ? sub_file : "classes.dex");
+                    LOGE("%s Not found entry %s\n", filepath.c_str(), sub_file ? sub_file : "classes.dex");
                     continue;
                 }
 
                 if (!entry->IsUncompressed()) {
-                    LOGE("ERROR: Not support compress zip [%lx] %s!%s\n", block->vaddr(), filepath.c_str(), sub_file ? sub_file : "classes.dex");
+                    LOGE("Not support compress zip [%lx] %s!%s\n", block->vaddr(), filepath.c_str(), sub_file ? sub_file : "classes.dex");
                     continue;
                 }
 
                 block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), CoreApi::GetPageSize()));
             }
         } else {
-            LOGE("ERROR: Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
+            LOGE("Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
         }
     }
 }

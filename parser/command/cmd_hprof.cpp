@@ -27,7 +27,7 @@ int HprofCommand::main(int argc, char* const argv[]) {
         return 0;
 
     if (!(argc > 1)) {
-        LOGE("ERROR: Please enter <FILE>\n");
+        LOGE("Please enter <FILE>\n");
         return 0;
     }
 

@@ -108,7 +108,7 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
 void lp64::Core::loadLinkMap64(CoreApi* api) {
     api::MemoryRef& debug = GetDebug();
     if (!debug.Ptr()) {
-        LOGW("WARN: Not found debug. You can try command exec.\n");
+        LOGW("Not found debug. You can try command exec.\n");
         return;
     }
 
@@ -121,7 +121,7 @@ void lp64::Core::loadLinkMap64(CoreApi* api) {
             map = link->next;
         }
     } catch (InvalidAddressException e) {
-        LOGI("%s\n", e.what());
+        LOGE("%s\n", e.what());
     }
 }
 
@@ -130,17 +130,17 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
         if (memcmp(header->ident, ELFMAG, 4)) {
-            LOGE("ERROR: Invalid ELF file (%s)\n", file);
+            LOGE("Invalid ELF file (%s)\n", file);
             return false;
         }
 
         if (header->type != ET_DYN) {
-            LOGE("ERROR: Invalid shared object file (%s)\n", file);
+            LOGE("Invalid shared object file (%s)\n", file);
             return false;
         }
 
         if (header->machine != CoreApi::GetMachine()) {
-            LOGE("ERROR: Invalid match machine(%d) (%s)\n", header->machine, file);
+            LOGE("Invalid match machine(%d) (%s)\n", header->machine, file);
             return false;
         }
 
@@ -148,7 +148,7 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
         Elf64_Phdr* pt = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
 
         if (pt[0].p_type != PT_PHDR) {
-            LOGE("ERROR: Exec file PHDR segment non-first\n");
+            LOGE("Exec file PHDR segment non-first\n");
             return false;
         }
 
@@ -165,7 +165,7 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
             LoadBlock* block = api->findLoadBlock(current);
 
             if (!block) {
-                LOGE("ERROR: Not found LoadBlock(%lx)\n", current);
+                LOGE("Not found LoadBlock(%lx)\n", current);
                 continue;
             }
 
@@ -192,7 +192,7 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
     if (subfile) {
         ZipFile zip;
         if (zip.open(file)) {
-            LOGE("ERROR: Zip open fail %s\n", file);
+            LOGE("Zip open fail %s\n", file);
             return false;
         }
 
@@ -203,12 +203,12 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
             entry = zip.getEntryByName(subfile);
         }
         if (!entry) {
-            LOGE("ERROR: %s Not found entry %s\n", file, subfile);
+            LOGE("%s Not found entry %s\n", file, subfile);
             return false;
         }
 
         if (!entry->IsUncompressed()) {
-            LOGE("ERROR: Not support compress zip %s!%s\n", file, entry->getFileName());
+            LOGE("Not support compress zip %s!%s\n", file, entry->getFileName());
             return false;
         }
 
@@ -220,17 +220,17 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
         if (memcmp(header->ident, ELFMAG, 4)) {
-            LOGE("ERROR: Invalid ELF file (%s)\n", file);
+            LOGE("Invalid ELF file (%s)\n", file);
             return false;
         }
 
         if (header->type != ET_DYN) {
-            LOGE("ERROR: Invalid shared object file (%s)\n", file);
+            LOGE("Invalid shared object file (%s)\n", file);
             return false;
         }
 
         if (header->machine != CoreApi::GetMachine()) {
-            LOGE("ERROR: Invalid match machine(%d) (%s)\n", header->machine, file);
+            LOGE("Invalid match machine(%d) (%s)\n", header->machine, file);
             return false;
         }
 
@@ -248,7 +248,7 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
             LoadBlock* block = api->findLoadBlock(current);
 
             if (!block) {
-                LOGE("ERROR: Not found LoadBlock(%lx)\n", current);
+                LOGE("Not found LoadBlock(%lx)\n", current);
                 continue;
             }
 

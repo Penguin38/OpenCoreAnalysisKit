@@ -23,19 +23,19 @@ status_t ZipEntry::initFromCDE(FILE* fp) {
     off_t posn;
     result = mCDE.read(fp);
     if (result != 0) {
-        LOGE("ERROR: read CDE failed\n");
+        LOGE("read CDE failed\n");
         return result;
     }
 
     posn = ftell(fp);
     if (fseek(fp, mCDE.mLocalHeaderRelOffset, SEEK_SET) != 0) {
-        LOGE("ERROR: localheader seek failed\n");
+        LOGE("localheader seek failed\n");
         return -1;
     }
 
     result = mLFH.read(fp);
     if (result != 0) {
-        LOGE("ERROR: read LFH failed\n");
+        LOGE("read LFH failed\n");
         return result;
     }
 
@@ -54,7 +54,7 @@ status_t ZipEntry::LocalFileHeader::read(FILE* fp) {
     }
 
     if (ZipEntry::getLongLE(&buf[0x00]) != kSigNature) {
-        LOGE("ERROR: didn't find the expected signature");
+        LOGE("didn't find the expected signature");
         result = -1;
         goto bail;
     }
@@ -102,7 +102,7 @@ status_t ZipEntry::CentralDirEntry::read(FILE* fp) {
     }
 
     if (ZipEntry::getLongLE(&buf[0x00]) != kSignature) {
-        LOGE("ERROR: didn't find the expected signature");
+        LOGE("didn't find the expected signature");
         result = -1;
         goto bail;
     }

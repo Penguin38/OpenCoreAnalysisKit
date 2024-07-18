@@ -30,7 +30,7 @@ int Restore::execute(const char* output) {
 
     FILE *fp = fopen(output, "wb");
     if (!fp) {
-        LOGE("ERROR: Can't open \"%s\".\n", output);
+        LOGE("Can't open \"%s\".\n", output);
         return -1;
     }
 

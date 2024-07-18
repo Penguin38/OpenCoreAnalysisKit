@@ -72,7 +72,7 @@ int DexCommand::main(int argc, char* const argv[]) {
     art::Runtime& runtime = art::Runtime::Current();
     art::ClassLinker& linker = runtime.GetClassLinker();
     if (!dump_dex)
-        LOGI("NUM DEXCACHE    REGION                   FLAGS NAME\n");
+        LOGI(ANSI_COLOR_LIGHTRED "NUM DEXCACHE    REGION                   FLAGS NAME\n" ANSI_COLOR_RESET);
     int pos = 0;
     for (const auto& value : linker.GetDexCacheDatas()) {
         pos++;
@@ -124,10 +124,11 @@ void DexCommand::ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, a
             valid.append("[EMPTY]");
         }
 
-        LOGI("%3d 0x%08lx  [%lx, %lx)  %s  %s %s\n",pos, dex_cache.Ptr(), block->vaddr(), block->vaddr() + block->size(),
+        LOGI("%3d " ANSI_COLOR_LIGHTYELLOW "0x%08lx" ANSI_COLOR_LIGHTCYAN "  [%lx, %lx)" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET " %s\n",
+                pos, dex_cache.Ptr(), block->vaddr(), block->vaddr() + block->size(),
                 block->convertFlags().c_str(), name.c_str(), valid.c_str());
     } else {
-        LOGE("ERROR: Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
+        LOGE("Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
     }
 
 }

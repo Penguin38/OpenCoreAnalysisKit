@@ -137,10 +137,10 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
             }
             return command->execute(argc, argv);
         } catch (InvalidAddressException e) {
-            LOGI("%s\n", e.what());
+            LOGE("%s\n", e.what());
         }
     } else {
-        LOGI("Not found command (%s).\n", cmd);
+        LOGW("Not found command (%s).\n", cmd);
     }
     return 0;
 }
@@ -195,7 +195,7 @@ int CommandManager::pushExtendCommand(Command* command) {
     std::unique_ptr<Command> ref(command);
     Command* tmp = FindCommand(command->get().c_str());
     if (tmp) {
-        LOGW("WARN: plugin \"%s\" exist.\n", command->get().c_str());
+        LOGW("plugin \"%s\" exist.\n", command->get().c_str());
         return 0;
     }
 

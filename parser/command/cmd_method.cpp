@@ -128,7 +128,7 @@ int MethodCommand::main(int argc, char* const argv[]) {
     method = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
     uint32_t dex_method_idx = method.GetDexMethodIndex();
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
-        LOGI("%s%s [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
+        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_LIGHTYELLOW "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
                        method.PrettyMethod().c_str(), dex_method_idx);
 
         if (dump_opt & METHOD_DUMP_DEXCODE)
@@ -159,7 +159,7 @@ void MethodCommand::Dexdump() {
             LOGI("Insns size    : 0x%x\n", item.insns_count_);
         }
 
-        LOGI("DEX CODE:\n");
+        LOGI(ANSI_COLOR_LIGHTRED "DEX CODE:\n" ANSI_COLOR_RESET);
         api::MemoryRef coderef = item.Ptr() + item.code_offset_;
         api::MemoryRef endref = coderef.Ptr() + (item.insns_count_ << 1);
 
@@ -183,7 +183,7 @@ void MethodCommand::Dexdump() {
             coderef.MovePtr(art::Dexdump::GetDexInstSize(coderef));
         }
     } else {
-        LOGI("  NO CODE!\n");
+        LOGI(ANSI_COLOR_RED "  NO CODE!\n" ANSI_COLOR_RESET);
     }
 }
 
@@ -207,7 +207,7 @@ void MethodCommand::Oatdump() {
             LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
             LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
         }
-        LOGI("OAT CODE:\n");
+        LOGI(ANSI_COLOR_LIGHTRED "OAT CODE:\n" ANSI_COLOR_RESET);
         LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
         capstone::Disassember::Dump("  ", method_header.GetCodeStart(), method_header.GetCodeSize());
     }

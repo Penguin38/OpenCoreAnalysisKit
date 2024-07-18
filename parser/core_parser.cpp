@@ -30,13 +30,13 @@
 #include <iostream>
 
 void show_copyright() {
-    LOGI("Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.\n\n");
+    LOGI(ANSI_COLOR_LIGHTRED "Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.\n\n" ANSI_COLOR_RESET);
 
     LOGI("Licensed under the Apache License, Version 2.0 (the \"License\");\n");
     LOGI("you may not use this file ercept in compliance with the License.\n");
     LOGI("You may obtain a copy of the License at\n\n");
 
-    LOGI("     http://www.apache.org/licenses/LICENSE-2.0\n\n");
+    LOGI(ANSI_COLOR_LIGHTGREEN "     http://www.apache.org/licenses/LICENSE-2.0\n\n" ANSI_COLOR_RESET);
 
     LOGI("Unless required by applicable law or agreed to in writing, software\n");
     LOGI("distributed under the License is distributed on an \"AS IS\" BASIS,\n");
@@ -45,11 +45,11 @@ void show_copyright() {
     LOGI("limitations under the License.\n\n");
 
     LOGI("For bug reporting instructions, please see:\n");
-    LOGI("     https://github.com/Penguin38/OpenCoreAnalysisKit\n\n");
+    LOGI(ANSI_COLOR_LIGHTGREEN "     https://github.com/Penguin38/OpenCoreAnalysisKit\n\n" ANSI_COLOR_RESET);
 }
 
 void show_compat_android_version() {
-    LOGI("-------------------------------------------------------------------\n");
+    LOGI("+-----------------------------------------------------------------+\n");
     LOGI("| SDK           |  arm64  |   arm   |  x86_64 |   x86   | riscv64 |\n");
     LOGI("|---------------|---------|---------|---------|---------|---------|\n");
     LOGI("| AOSP-8.0 (26) |    √    |    √    |    √    |    √    |    ?    |\n");
@@ -62,7 +62,7 @@ void show_compat_android_version() {
     LOGI("| AOSP-13.0(33) |    √    |    √    |    √    |    √    |    ?    |\n");
     LOGI("| AOSP-14.0(34) |    √    |    √    |    √    |    √    |    ?    |\n");
     LOGI("| AOSP-15.0(35) |    √    |    -    |    √    |    -    |    ?    |\n");
-    LOGI("-------------------------------------------------------------------\n\n");
+    LOGI("+-----------------------------------------------------------------+\n\n");
 }
 
 void show_parser_usage() {

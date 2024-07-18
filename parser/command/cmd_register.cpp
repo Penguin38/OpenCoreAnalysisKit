@@ -31,7 +31,7 @@ int RegisterCommand::main(int argc, char* const argv[]) {
     thread = CoreApi::FindThread(pid);
 
     if (!thread) {
-        LOGE("ERROR: Invalid tid %d\n", pid);
+        LOGE("Invalid tid %d\n", pid);
         return 0;
     }
 

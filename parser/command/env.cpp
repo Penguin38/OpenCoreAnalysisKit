@@ -23,7 +23,7 @@ Env* Env::INSTANCE = nullptr;
 bool Env::setCurrentPid(int p) {
     ThreadApi *api = CoreApi::FindThread(p);
     if (!api) {
-        LOGE("ERROR: Not find tid %d\n", p);
+        LOGE("Not find tid %d\n", p);
         return false;
     }
     pid = api->pid();

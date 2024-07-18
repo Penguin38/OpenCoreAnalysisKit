@@ -158,7 +158,7 @@ void BacktraceCommand::DumpTrace() {
         try {
             DumpJavaStack(record->thread);
         } catch(InvalidAddressException e) {
-            LOGI("  (STACK MAYBE INCOIMPLETE)\n");
+            LOGI(ANSI_COLOR_RED "  (STACK MAYBE INCOIMPLETE)\n" ANSI_COLOR_RESET);
         }
 #endif
         needEnd = true;
@@ -183,7 +183,7 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
             LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
             ++frameid;
             if (frameid == unwind_stack->GetContextNum()) {
-                LOGI("    <<maybe handle signal ucontext: 0x%lx>>\n", unwind_stack->GetContext());
+                LOGI(ANSI_COLOR_LIGHTRED "    <<maybe handle signal ucontext: 0x%lx>>\n" ANSI_COLOR_RESET, unwind_stack->GetContext());
                 unwind_stack->DumpContextRegister("  ");
             }
         }
@@ -306,10 +306,15 @@ std::string BacktraceCommand::FormatJavaFrame(const char* prefix, uint64_t size)
         ++num;
     } while(current != 0);
     format.append(std::to_string(num));
-    format.append("d  %0");
+    format.append("d  ");
+    format.append(ANSI_COLOR_LIGHTCYAN);
+    format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
-    format.append("lx  %s\n");
+    format.append("lx  ");
+    format.append(ANSI_COLOR_LIGHTYELLOW);
+    format.append("%s\n");
+    format.append(ANSI_COLOR_RESET);
     return format;
 }
 
@@ -324,10 +329,15 @@ std::string BacktraceCommand::FormatNativeFrame(const char* prefix, uint64_t siz
         ++num;
     } while(current != 0);
     format.append(std::to_string(num));
-    format.append("d  %0");
+    format.append("d  ");
+    format.append(ANSI_COLOR_CYAN);
+    format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
-    format.append("lx  %s\n");
+    format.append("lx  ");
+    format.append(ANSI_COLOR_YELLOW);
+    format.append("%s\n");
+    format.append(ANSI_COLOR_RESET);
     return format;
 }
 

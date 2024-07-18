@@ -179,7 +179,7 @@ MemoryRef& Elf::GetDebug() {
         if (CoreApi::IsVirtualValid(execfn)) {
             name.append(reinterpret_cast<const char*>(CoreApi::GetReal(execfn)));
         }
-        LOGW("WARN: Not found exec [%s].\n", name.c_str());
+        LOGW("Not found exec [%s].\n", name.c_str());
         return mDebug;
     }
 
@@ -202,7 +202,7 @@ MemoryRef& Elf::GetDebug() {
         if (CoreApi::IsVirtualValid(execfn)) {
             name.append(reinterpret_cast<const char*>(CoreApi::GetReal(execfn)));
         }
-        LOGW("WARN: Not found exec dynamic [%s].\n", name.c_str());
+        LOGW("Not found exec dynamic [%s].\n", name.c_str());
     }
     return mDebug;
 }

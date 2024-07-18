@@ -354,7 +354,7 @@ void LargeObjectMapSpace::Walk(std::function<bool (mirror::Object& object)> visi
             if (object.IsValid()) {
                 visitor(object);
             } else if (check) {
-                LOGE("ERROR: 0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
+                LOGE("0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
             }
         }
     }
@@ -400,7 +400,7 @@ void FreeListSpace::Walk(std::function<bool (mirror::Object& object)> visitor, b
             if (object.IsValid()) {
                 visitor(object);
             } else if (check) {
-                LOGE("ERROR: 0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
+                LOGE("0x%lx is bad object on %s!!\n", object.Ptr(), GetName());
             }
         }
         cur_info.MoveNexInfo();

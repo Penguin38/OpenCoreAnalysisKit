@@ -21,7 +21,7 @@
 status_t ZipFile::open(const char* zipFileName) {
     mZipFp = fopen(zipFileName, "rb");
     if (mZipFp == NULL) {
-        LOGE("ERROR: fopen failed %s\n", zipFileName);
+        LOGE("fopen failed %s\n", zipFileName);
         return -1;
     }
     status_t result;
@@ -39,13 +39,13 @@ status_t ZipFile::readCentralDir(void) {
     rewind(mZipFp);
 
     if (fileLength < EndOfCentralDir::kEOCDLen) {
-        LOGE("ERROR: Length is %ld -- too small\n", (long)fileLength);
+        LOGE("Length is %ld -- too small\n", (long)fileLength);
         return -1;
     }
 
     buf = new uint8_t[EndOfCentralDir::kMaxEOCDSearch];
     if (buf == NULL) {
-        LOGE("ERROR: Failure allocating %d bytes for EOCD search",
+        LOGE("Failure allocating %d bytes for EOCD search",
                 EndOfCentralDir::kMaxEOCDSearch);
         result = -1;
         goto bail;
@@ -60,7 +60,7 @@ status_t ZipFile::readCentralDir(void) {
     }
 
     if (fseek(mZipFp, seekStart, SEEK_SET) != 0) {
-        LOGE("ERROR: Failure seeking to end of zip at %ld", (long) seekStart);
+        LOGE("Failure seeking to end of zip at %ld", (long) seekStart);
         result = -1;
         goto bail;
     }
@@ -78,26 +78,26 @@ status_t ZipFile::readCentralDir(void) {
     }
 
     if (i < 0) {
-        LOGE("ERROR: EOCD not found, not Zip\n");
+        LOGE("EOCD not found, not Zip\n");
         result = -1;
         goto bail;
     }
 
     result = mEOCD.readbuf(buf + i, readAmount - i);
     if (result != 0) {
-        LOGE("ERROR: Failure reading %ld bytes of EOCD values", readAmount - i);
+        LOGE("Failure reading %ld bytes of EOCD values", readAmount - i);
         goto bail;
     }
 
     if (mEOCD.mDiskNumber != 0 || mEOCD.mDiskWithCentralDir != 0 ||
             mEOCD.mNumEntries != mEOCD.mTotalNumEntries) {
-        LOGE("ERROR: Archive spanning not supported\n");
+        LOGE("Archive spanning not supported\n");
         result = -1;
         goto bail;
     }
 
     if (fseek(mZipFp, mEOCD.mCentralDirOffset, SEEK_SET) != 0) {
-        LOGE("ERROR: failed to seek mCentralDirOffset\n");
+        LOGE("failed to seek mCentralDirOffset\n");
         result = -1;
         goto bail;
     }
@@ -107,7 +107,7 @@ status_t ZipFile::readCentralDir(void) {
         ZipEntry* pEntry = new ZipEntry;
         result = pEntry->initFromCDE(mZipFp);
         if (result != 0) {
-            LOGE("ERROR: initFromCDE failed\n");
+            LOGE("initFromCDE failed\n");
             delete pEntry;
             goto bail;
         }
@@ -122,7 +122,7 @@ status_t ZipFile::readCentralDir(void) {
         }
 
         if (ZipEntry::getLongLE(checkBuf) != EndOfCentralDir::kSignature) {
-            LOGE("ERROR: EOCD read check failed\n");
+            LOGE("EOCD read check failed\n");
             result = -1;
             goto bail;
         }
@@ -143,7 +143,7 @@ void ZipFile::discardEntries(void) {
 
 status_t ZipFile::EndOfCentralDir::readbuf(const uint8_t* buf, int len) {
     if (len < kEOCDLen) {
-        LOGE("ERROR: zip eocd truncated\n");
+        LOGE("zip eocd truncated\n");
     }
     if (ZipEntry::getLongLE(&buf[0x00]) != kSignature) {
         return -1;

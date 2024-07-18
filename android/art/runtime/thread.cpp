@@ -514,7 +514,8 @@ bool Thread::StackEmpty() {
 }
 
 void Thread::DumpState() {
-    LOGI("\"%s\" tid=%d %s\n", GetName(), GetThreadId(), GetStateDescriptor());
+    LOGI("\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" tid=%d " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
+         GetName(), GetThreadId(), GetStateDescriptor());
     java::lang::Thread self = GetTlsPtr().opeer();
     if (self.IsValid()) {
         java::lang::ThreadGroup& group = self.getGroup();

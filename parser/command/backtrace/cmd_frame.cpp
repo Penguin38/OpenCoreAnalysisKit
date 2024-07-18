@@ -147,7 +147,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             }
 
             if (dex_pc_ptr) {
-                LOGI("\n      DEX CODE:\n");
+                LOGI(ANSI_COLOR_LIGHTRED "\n      DEX CODE:\n" ANSI_COLOR_RESET);
                 art::dex::CodeItem item = method.GetCodeItem();
                 api::MemoryRef startref = item.Ptr() + item.code_offset_;
                 api::MemoryRef coderef = dex_pc_ptr;
@@ -165,7 +165,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             }
 
             if (java_frame->GetFramePc()) {
-                LOGI("\n      OAT CODE:\n");
+                LOGI(ANSI_COLOR_LIGHTRED "\n      OAT CODE:\n" ANSI_COLOR_RESET);
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
                 NearAsm near_asm = NearAsmLength();
                 capstone::Disassember::Option opt(java_frame->GetFramePc() - near_asm.length, near_asm.count);

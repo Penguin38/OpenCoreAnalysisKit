@@ -458,7 +458,7 @@ uint64_t CoreApi::getPageSize() {
     if (!page_size) {
         page_size = findAuxv(AT_PAGESZ);
         if (!page_size) {
-            LOGW("WARN: Use default page_size: %x\n", ELF_PAGE_SIZE);
+            LOGW("Use default page_size: %x\n", ELF_PAGE_SIZE);
             page_size = ELF_PAGE_SIZE;
         }
     }

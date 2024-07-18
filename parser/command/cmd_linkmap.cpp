@@ -49,7 +49,7 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    if (!num) LOGI("NUM LINKMAP       REGION                   FLAGS NAME\n");
+    if (!num) LOGI(ANSI_COLOR_LIGHTRED "NUM LINKMAP       REGION                   FLAGS NAME\n" ANSI_COLOR_RESET);
     int pos = 0;
     auto callback = [&](LinkMap* map) -> bool {
         pos++;
@@ -93,17 +93,19 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
             valid.append("[EMPTY]");
         }
 
-        LOGI("%3d 0x%lx  [%lx, %lx)  %s  %s %s\n", pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
+        LOGI("%3d " ANSI_COLOR_YELLOW "0x%lx" ANSI_COLOR_CYAN "  [%lx, %lx)" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
+                pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
                 block->convertFlags().c_str(), name.c_str(), valid.c_str());
     } else {
-        LOGI("%3d 0x%lx  [%lx, %lx)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->begin(), map->name());
+        LOGW("%3d 0x%lx  [%lx, %lx)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->begin(), map->name());
     }
 }
 
 void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
-    LOGI("VALUE             SIZE              INFO              NAME\n");
+    LOGI(ANSI_COLOR_LIGHTRED "VALUE             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
     for (const auto& entry : map->GetCurrentSymbols()) {
-        LOGI("%016lx  %016lx  %016lx  %s\n", entry.offset, entry.size, entry.type, entry.symbol.c_str());
+        LOGI(ANSI_COLOR_CYAN "%016lx" ANSI_COLOR_RESET "  %016lx  %016lx  " ANSI_COLOR_YELLOW "%s\n" ANSI_COLOR_RESET,
+                entry.offset, entry.size, entry.type, entry.symbol.c_str());
     }
 }
 

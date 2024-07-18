@@ -94,13 +94,13 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     int fd = open(filename, O_RDONLY);
     if (fd < 0) {
-        LOGE("ERROR: open %s fail.\n", filename);
+        LOGE("open %s fail.\n", filename);
         return 0;
     }
 
     uint64_t begin = Utils::atol(argv[optind]);
     if (pread64(fd, &value, sizeof(value), begin) < 0) {
-        LOGE("ERROR: read %lx fail.\n", begin);
+        LOGE("read %lx fail.\n", begin);
         close(fd);
         return 0;
     }
@@ -158,18 +158,18 @@ int RemoteCommand::OptionWrite(int argc, char* const argv[]) {
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     int fd = open(filename, O_RDWR);
     if (fd < 0) {
-        LOGE("ERROR: open %s fail.\n", filename);
+        LOGE("open %s fail.\n", filename);
         return 0;
     }
 
     uint64_t begin = Utils::atol(argv[optind]);
     if (buf) {
         if (pwrite64(fd, buf, strlen(buf) + 1, begin) < 0) {
-            LOGE("ERROR: write %lx fail.\n", begin);
+            LOGE("write %lx fail.\n", begin);
         }
     } else {
         if (pwrite64(fd, &value, sizeof(uint64_t), begin) < 0) {
-            LOGE("ERROR: write %lx fail.\n", begin);
+            LOGE("write %lx fail.\n", begin);
         }
     }
     close(fd);

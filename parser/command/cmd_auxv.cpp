@@ -28,7 +28,7 @@ int AuxvCommand::main(int argc, char* const argv[]) {
             if (CoreApi::IsVirtualValid(auxv->value())) {
                 name = reinterpret_cast<const char*>(CoreApi::GetReal(auxv->value()));
             }
-            LOGI("%6lx  %16s  0x%lx %s\n", auxv->type(), auxv->to_string().c_str(),
+            LOGI("%6lx  %16s  0x%lx " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET, auxv->type(), auxv->to_string().c_str(),
                                            auxv->value(), name.c_str());
         } else {
             LOGI("%6lx  %16s  0x%lx\n", auxv->type(), auxv->to_string().c_str(), auxv->value());
