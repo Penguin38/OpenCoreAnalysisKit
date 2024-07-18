@@ -461,6 +461,19 @@ void Android::onOatChanged(int current_oat) {
     }
 }
 
+/*
+ *  +-------+-------+
+ *  | klass |flags1 |
+ *  +-------+-------+
+ *  | idx1  |offset1|
+ *  +-------+-------+
+ *  | klass |flags2 |
+ *  +-------+-------+
+ *  | idx2  |offset2|
+ *  +-------+-------+
+ *  ...
+ *  only declaring_class cache and it's same.
+ */
 void Android::ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
     uint32_t size = clazz.NumInstanceFields();
     if (!size) return;
@@ -488,11 +501,12 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
 void Android::ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
     uint32_t size = clazz.NumMethods();
     if (!size) return;
-    art::ArtMethod method(clazz.GetMethods(), clazz);
+    api::MemoryRef base(clazz.GetMethods(), clazz);
+    base.Prepare(false);
     int i = 0;
     do {
+        art::ArtMethod method(base.Ptr() + i * SIZEOF(ArtMethod), base);
         if (fn(method)) break;
-        method.MovePtr(SIZEOF(ArtMethod));
         i++;
     } while(i < size);
 }
@@ -501,12 +515,12 @@ void Android::ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<
     uint32_t size = clazz.NumMethods();
     uint32_t virtual_offset = clazz.NumDirectMethods();
     if (!(size - virtual_offset)) return;
-    art::ArtMethod method(clazz.GetMethods(), clazz);
+    api::MemoryRef base(clazz.GetMethods(), clazz);
+    base.Prepare(false);
     int i = virtual_offset;
-    method.MovePtr(i * SIZEOF(ArtMethod));
     do {
+        art::ArtMethod method(base.Ptr() + i * SIZEOF(ArtMethod), base);
         if (fn(method)) break;
-        method.MovePtr(SIZEOF(ArtMethod));
         i++;
     } while(i < size);
 }

@@ -104,6 +104,9 @@ public:
         if (block || !vaddr) return;
         block = Bridge::FindLoadBlock(vaddr, check);
     }
+    /*
+     * Must check quick cache is same.
+     */
     inline void MovePtr(int64_t length) {
         Prepare(true);
         if (block && block->virtualContains(vaddr + length)) {

@@ -58,7 +58,8 @@ public:
     inline uint32_t offset() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(ArtField, offset_)); }
 
     inline bool IsProxyField() { return GetDeclaringClass().IsProxyClass(); }
-    const char* GetTypeDescriptor();
+    inline const char* GetTypeDescriptor() { return GetTypeDescriptor("B"); }
+    const char* GetTypeDescriptor(const char* def);
     std::string PrettyTypeDescriptor();
     inline mirror::Class& GetDeclaringClass() { return QUICK_CACHE(declaring_class); }
     inline uint32_t GetDexFieldIndex() { return field_dex_idx(); }
@@ -68,7 +69,8 @@ public:
             dex_file_cache = GetDexCache().GetDexFile();
         return dex_file_cache;
     }
-    const char* GetName();
+    inline const char* GetName() { return GetName("<invalid>"); }
+    const char* GetName(const char* def);
     inline uint32_t GetOffset() { return offset(); }
     inline uint32_t GetAccessFlags() { return access_flags(); }
 

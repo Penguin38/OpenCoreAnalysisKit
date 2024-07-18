@@ -618,7 +618,7 @@ void Hprof::DumpHeapClass(mirror::Class& klass) {
     HLOGV("%s\n", klass.PrettyDescriptor().c_str());
 
     uint64_t num_static_fields = klass.NumStaticFields();
-    uint64_t total_class_size = klass.GetClassSize();
+    uint64_t total_class_size = RoundUp(klass.GetClassSize(), kObjectAlignment);
     uint64_t base_class_size = SIZEOF(Class);
 
     uint64_t base_overhead_size = total_class_size - base_class_size;

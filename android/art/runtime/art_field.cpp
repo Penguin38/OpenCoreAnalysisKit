@@ -35,7 +35,8 @@ void ArtField::Init() {
     };
 }
 
-const char* ArtField::GetTypeDescriptor() {
+const char* ArtField::GetTypeDescriptor(const char* def) {
+    if (!GetDeclaringClass().Ptr()) return def;
     uint32_t field_index = GetDexFieldIndex();
     if (IsProxyField()) {
         return field_index == 0x0 ? "[Ljava/lang/Class;" : "[[Ljava/lang/Class;";
@@ -51,7 +52,8 @@ std::string ArtField::PrettyTypeDescriptor() {
     return tmp;
 }
 
-const char* ArtField::GetName() {
+const char* ArtField::GetName(const char* def) {
+    if (!GetDeclaringClass().Ptr()) return def;
     int32_t field_index = GetDexFieldIndex();
     if (IsProxyField()) {
         return field_index == 0 ? "interfaces" : "throws";
