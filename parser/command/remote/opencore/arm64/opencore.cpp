@@ -20,8 +20,6 @@
 #include <sys/uio.h>
 #include <errno.h>
 
-#define GENMASK(h, l) (((1ULL<<(h+1))-1)&(~((1ULL<<l)-1)))
-
 namespace arm64 {
 
 struct user_pac_mask {
