@@ -101,6 +101,7 @@ public:
     static uint64_t GetPointMask();
     static uint64_t GetVabitsMask();
     static uint64_t GetPageSize() { return INSTANCE->getPageSize(); }
+    static bool IsRemote() { return INSTANCE->isRemote(); }
     static uint64_t GetReal(uint64_t vaddr) {
         return GetReal(vaddr, OPT_READ_ALL);
     }
@@ -109,7 +110,6 @@ public:
     static bool IsVirtualValid(uint64_t vaddr);
     static uint64_t FindAuxv(uint64_t type);
     static ThreadApi* FindThread(int tid);
-    // Command
     static void Init();
     static void Dump();
     static void ForeachFile(std::function<bool (File *)> callback);
@@ -205,9 +205,11 @@ public:
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
     void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
     uint64_t getPageSize();
+    bool isRemote() { return mRemote; }
 protected:
     uint64_t pointer_mask;
     uint64_t vabits_mask;
+    uint64_t page_size;
 private:
     static CoreApi* INSTANCE;
     virtual bool load() = 0;
@@ -227,7 +229,7 @@ private:
     std::vector<std::unique_ptr<NoteBlock>> mNote;
     std::vector<std::unique_ptr<LinkMap>> mLinkMap;
     std::function<void (LinkMap *)> mSysRootCallback;
-    uint64_t page_size;
+    bool mRemote = false;
 };
 
 #endif // CORE_API_CORE_H_

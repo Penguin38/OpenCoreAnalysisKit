@@ -205,6 +205,7 @@ void CoreApi::Dump() {
     LOGI("  * PointMask: 0x%lx\n", GetPointMask());
     LOGI("  * VabitsMask: 0x%lx\n", GetVabitsMask());
     LOGI("  * PageSize: 0x%lx\n", GetPageSize());
+    LOGI("  * Remote: %s\n", IsRemote()? "true" : "false");
 }
 
 void CoreApi::ForeachFile(std::function<bool (File *)> callback) {
