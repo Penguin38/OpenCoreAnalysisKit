@@ -87,6 +87,7 @@ public:
     PropArea(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     PropArea(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
 
+    constexpr static uint32_t LARGE_PA_SIZE = 1024 * 1024;
     constexpr static uint32_t PA_SIZE = 128 * 1024;
     constexpr static uint32_t PROP_AREA_MAGIC = 0x504f5250;
     constexpr static uint32_t PROP_AREA_VERSION = 0xfc6ed0ab;
