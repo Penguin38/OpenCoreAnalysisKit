@@ -94,7 +94,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     int32_t ifcount = iftable.Count();
     bool needEnd = false;
     if (super.Ptr()) {
-        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_RESET "class " ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " extends " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " {\n",
+        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_RESET "class " ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " extends " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET " {\n",
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str());
     } else {

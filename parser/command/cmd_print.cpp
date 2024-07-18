@@ -290,7 +290,7 @@ void PrintCommand::DumpInstance(art::mirror::Object& object) {
             art::mirror::String str = object;
             if (str.GetLength() != 0) {
                 LOGI(format.c_str(), SIZEOF(String), "virutal ", "char[]", "values");
-                LOGI(" = \"%s\"\n", str.ToModifiedUtf8().c_str());
+                LOGI(" = \"" ANSI_COLOR_LIGHTYELLOW "%s" ANSI_COLOR_RESET "\"\n", str.ToModifiedUtf8().c_str());
             }
         }
 
@@ -369,7 +369,7 @@ std::string PrintCommand::FormatSize(uint64_t size) {
         ++num;
     } while(current != 0);
     format.append(std::to_string(num));
-    format.append("x] " ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_LIGHTRED "%s " ANSI_COLOR_LIGHTMAGENTA "%s" ANSI_COLOR_RESET);
+    format.append("x] " ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_LIGHTRED "%s " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET);
     return format;
 }
 
