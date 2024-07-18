@@ -272,7 +272,7 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
 
 void lp64::Core::readsym64(::LinkMap* handle) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(handle->block()->name().c_str(), handle->block()->GetMmapOffset()));
-    std::vector<SymbolEntry>& symbols = handle->block()->GetSymbols();
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = handle->block()->GetSymbols();
     if (map) {
         // already check valid on dlopen
         Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
@@ -321,10 +321,10 @@ void lp64::Core::readsym64(::LinkMap* handle) {
             Elf64_Sym* symtab = reinterpret_cast<Elf64_Sym*>(map->data() + shdr[dynsymndx].sh_offset);
             const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[dynstrndx].sh_offset);
             for (int i = 0; i < count; ++i) {
-                if (symtab[i].st_value > 0) {
-                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info,
+                if (symtab[i].st_value && symtab[i].st_size) {
+                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info, symtab[i].st_size,
                                                     const_cast<const char*>(strtab + symtab[i].st_name));
-                    symbols.push_back(entry);
+                    symbols.insert(entry);
                 }
             }
         }
@@ -335,10 +335,10 @@ void lp64::Core::readsym64(::LinkMap* handle) {
             Elf64_Sym* symtab = reinterpret_cast<Elf64_Sym*>(map->data() + shdr[symtabndx].sh_offset);
             const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[strtabndx].sh_offset);
             for (int i = 0; i < count; ++i) {
-                if (symtab[i].st_value > 0) {
-                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info,
+                if (symtab[i].st_value && symtab[i].st_size) {
+                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info, symtab[i].st_size,
                                                     const_cast<const char*>(strtab + symtab[i].st_name));
-                    symbols.push_back(entry);
+                    symbols.insert(entry);
                 }
             }
         }

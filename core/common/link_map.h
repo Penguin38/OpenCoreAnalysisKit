@@ -19,7 +19,7 @@
 
 #include "api/memory_ref.h"
 #include <string>
-#include <vector>
+#include <unordered_set>
 
 struct LinkMap_OffsetTable {
     uint32_t l_addr;
@@ -54,28 +54,31 @@ public:
 
     class NiceSymbol {
     public:
-        NiceSymbol() : off(0) {}
-        void SetNiceMethod(const char* sym, uint64_t o) {
+        NiceSymbol() : off(0), size(0) {}
+        void SetNiceMethod(const char* sym, uint64_t o, uint64_t s) {
             sym ? method = sym : "";
             off = o;
+            size = s;
         }
         std::string& GetMethod() { return method; }
         uint64_t GetOffset() { return off; }
+        uint64_t GetSize() { return size; }
     private:
         std::string method;
         uint64_t off;
+        uint64_t size;
     };
     void ReadSymbols();
     void NiceMethod(uint64_t pc, NiceSymbol& symbol);
     uint64_t DlSym(const char* symbol);
     api::MemoryRef& GetAddrCache();
     api::MemoryRef& GetNameCache();
-    inline std::vector<SymbolEntry>& GetDynsyms() { return dynsyms; }
-    std::vector<SymbolEntry>& GetCurrentSymbols();
+    inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetDynsyms() { return dynsyms; }
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetCurrentSymbols();
 private:
     api::MemoryRef addr_cache;
     api::MemoryRef name_cache;
-    std::vector<SymbolEntry> dynsyms;
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash> dynsyms;
 };
 
 #endif  // CORE_COMMON_LINKMAP_H_

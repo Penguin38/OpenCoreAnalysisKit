@@ -101,9 +101,9 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
 }
 
 void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
-    LOGI("VALUE             INFO              NAME\n");
+    LOGI("VALUE             SIZE              INFO              NAME\n");
     for (const auto& entry : map->GetCurrentSymbols()) {
-        LOGI("%016lx  %016lx  %s\n", entry.offset, entry.type, entry.symbol.c_str());
+        LOGI("%016lx  %016lx  %016lx  %s\n", entry.offset, entry.size, entry.type, entry.symbol.c_str());
     }
 }
 

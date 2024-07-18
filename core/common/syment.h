@@ -23,19 +23,32 @@
 
 class SymbolEntry {
 public:
-    SymbolEntry(uint64_t off, uint64_t ty, const char* name) {
+    SymbolEntry(uint64_t off, uint64_t ty, uint64_t cs, const char* name) {
         offset = off;
         type = ty;
+        size = cs;
         if (name) symbol = name;
-        core_size = 0;
     }
 
     uint64_t offset;
     uint64_t type;
+    uint64_t size;
     std::string symbol;
-    uint64_t core_size;
 
-    static bool Compare(SymbolEntry& a, SymbolEntry& b) { return a.offset < b.offset; }
+    bool operator==(const SymbolEntry& entry) const {
+        return offset == entry.offset
+                && type == entry.type
+                && size == entry.size;
+    }
+
+    struct Hash {
+        std::size_t operator()(const SymbolEntry& entry) const {
+            std::hash<uint64_t> offset_hasher;
+            std::hash<uint64_t> type_hasher;
+            std::hash<uint64_t> size_hasher;
+            return offset_hasher(entry.offset) ^ type_hasher(entry.type) ^ size_hasher(entry.size);
+        }
+    };
 };
 
 #endif // CORE_COMMON_SYMENT_H_

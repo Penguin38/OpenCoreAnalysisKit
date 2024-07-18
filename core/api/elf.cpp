@@ -279,12 +279,12 @@ void Elf::ReadSymbols(LinkMap* handle) {
     }
     symbols.checkCopyBlock(handle->block());
 
-    std::vector<SymbolEntry>& dynsyms = handle->GetDynsyms();
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& dynsyms = handle->GetDynsyms();
     for (int i = 0; i < count; ++i) {
-        if (symbols.st_value() > 0) {
-            SymbolEntry entry = SymbolEntry(symbols.st_value(), symbols.st_info(),
+        if (symbols.st_value() && symbols.st_size()) {
+            SymbolEntry entry = SymbolEntry(symbols.st_value(), symbols.st_info(), symbols.st_size(),
                                             reinterpret_cast<const char* >(tables.Real() + symbols.st_name()));
-            dynsyms.push_back(entry);
+            dynsyms.insert(entry);
         }
         symbols.MovePtr(syment);
     }

@@ -28,6 +28,7 @@ public:
     uint64_t GetFramePc() { return frame_pc; }
     std::string& GetMethodName() { return frame_symbol.GetMethod(); }
     uint64_t GetMethodOffset();
+    uint64_t GetMethodSize();
     std::string GetLibrary();
     bool IsThumbMode();
     void SetThumbMode() { thumb = true; }

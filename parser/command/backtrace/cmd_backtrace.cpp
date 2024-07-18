@@ -178,7 +178,8 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
         uint32_t frameid = 0;
         for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
             std::string method_desc = native_frame->GetMethodName();
-            if (native_frame->GetMethodOffset()) method_desc.append("+").append(Utils::ToHex(native_frame->GetMethodOffset()));
+            if (native_frame->GetMethodOffset())
+                method_desc.append("+").append(Utils::ToHex(native_frame->GetFramePc() - native_frame->GetMethodOffset()));
             LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
             ++frameid;
             if (frameid == unwind_stack->GetContextNum()) {

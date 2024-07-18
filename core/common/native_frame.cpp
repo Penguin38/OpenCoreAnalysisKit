@@ -67,6 +67,10 @@ uint64_t NativeFrame::GetMethodOffset() {
     return frame_symbol.GetOffset();
 }
 
+uint64_t NativeFrame::GetMethodSize() {
+    return frame_symbol.GetSize();
+}
+
 void NativeFrame::SetFramePc(uint64_t pc) {
     if (CoreApi::GetMachine() == EM_ARM) {
         frame_pc = pc & (CoreApi::GetPointMask() - 1);

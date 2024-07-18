@@ -23,7 +23,7 @@
 #include "base/macros.h"
 #include <string>
 #include <memory>
-#include <vector>
+#include <unordered_set>
 
 class LoadBlock : public Block {
 public:
@@ -86,7 +86,7 @@ public:
     inline uint64_t GetMmapOffset() { return mMmap->offset(); }
     inline void setMmapMemoryMap(std::unique_ptr<MemoryMap>& map) { mMmap = std::move(map); }
     inline void setOverlayMemoryMap(std::unique_ptr<MemoryMap>& map) { mOverlay = std::move(map); }
-    inline std::vector<SymbolEntry>& GetSymbols() { return mSymbols; }
+    inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetSymbols() { return mSymbols; }
 
     ~LoadBlock() {
         mSymbols.clear();
@@ -98,7 +98,7 @@ private:
     uint64_t mPointMask;
     std::unique_ptr<MemoryMap> mMmap;
     std::unique_ptr<MemoryMap> mOverlay;
-    std::vector<SymbolEntry> mSymbols;
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash> mSymbols;
 };
 
 #endif  // CORE_COMMON_LOAD_BLOCK_H_

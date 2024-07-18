@@ -97,71 +97,74 @@ LoadBlock* LinkMap::block() {
 }
 
 void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
-    std::vector<SymbolEntry>& symbols = GetCurrentSymbols();
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
     if (symbols.empty()) return;
 
     LoadBlock* load = block();
     if (load) {
         bool vdso = !strcmp(name(), "[vdso]");
         uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
-        uint64_t nice = 0;
-        char* name = nullptr;
+        uint64_t nice_offset = 0;
+        uint64_t nice_size = 0;
+        char* nice_name = nullptr;
 
-        int left = 0;
-        int right = symbols.size();
+        const auto& it = std::find_if(symbols.begin(), symbols.end(),
+                [&](const SymbolEntry& entry) {
+                    uint64_t offset = entry.offset;
+                    if (CoreApi::GetMachine() == EM_ARM)
+                        offset &= (CoreApi::GetPointMask() - 1);
 
-        while (left < right) {
-            int mid = left + (right - left) / 2;
-            const auto& entry = symbols[mid];
-            uint64_t offset = entry.offset;
-            if (CoreApi::GetMachine() == EM_ARM)
-                offset &= (CoreApi::GetPointMask() - 1);
+                    if (offset > cloc_offset)
+                        return false;
 
-            if (offset > cloc_offset) {
-                right = mid;
-            } else {
-                if (ELF_ST_TYPE(entry.type) == STT_FUNC
-                        || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
-                    nice = cloc_offset - offset;
-                    name = const_cast<char*>(entry.symbol.data());
-                }
-                left = mid + 1;
-            }
+                    if (ELF_ST_TYPE(entry.type) == STT_FUNC
+                            || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
+                        if (cloc_offset < offset + entry.size)
+                            return true;
+                    }
+                    return false;
+                });
+
+        if (it != symbols.end()) {
+            nice_offset = it->offset + l_addr();
+            nice_size = it->size;
+            nice_name = const_cast<char*>(it->symbol.data());
         }
 
-        if (name) {
+        if (nice_name) {
             int status;
-            char* demangled_name = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+            char* demangled_name = abi::__cxa_demangle(nice_name, nullptr, nullptr, &status);
             if (status == 0) {
-                symbol.SetNiceMethod(demangled_name, nice);
+                symbol.SetNiceMethod(demangled_name, nice_offset, nice_size);
                 std::free(demangled_name);
             } else {
-                symbol.SetNiceMethod(name, nice);
+                symbol.SetNiceMethod(nice_name, nice_offset, nice_size);
             }
         }
     }
 }
 
 uint64_t LinkMap::DlSym(const char* symbol) {
-    for (const auto& entry : GetCurrentSymbols()) {
-        if (entry.symbol == symbol) {
-            return entry.offset;
-        }
-    }
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
+    const auto& it = std::find_if(symbols.begin(), symbols.end(),
+            [&](const SymbolEntry& entry) {
+                return entry.symbol == symbol;
+            });
+    if (it != symbols.end())
+        return it->offset;
     return 0x0;
 }
 
 void LinkMap::ReadSymbols() {
     LoadBlock* load = block();
     if (load && load->isMmapBlock()) {
-        std::vector<SymbolEntry>& symbols = load->GetSymbols();
+        std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = load->GetSymbols();
         symbols.clear(); // clear prev symbols
         if (CoreApi::Bits() == 64) {
             lp64::Core::readsym64(this);
         } else {
             lp32::Core::readsym32(this);
         }
-        std::sort(symbols.begin(), symbols.end(), SymbolEntry::Compare);
         if (symbols.size()) LOGI("Read symbols[%ld] (%s)\n", symbols.size(), name());
     } else {
         dynsyms.clear();
@@ -169,12 +172,11 @@ void LinkMap::ReadSymbols() {
             api::Elf::ReadSymbols(this);
         } catch(InvalidAddressException e) {
         }
-        std::sort(dynsyms.begin(), dynsyms.end(), SymbolEntry::Compare);
         if (dynsyms.size()) LOGD("Read dynsyms[%ld] (%s)\n", dynsyms.size(), name());
     }
 }
 
-std::vector<SymbolEntry>& LinkMap::GetCurrentSymbols() {
+std::unordered_set<SymbolEntry, SymbolEntry::Hash>& LinkMap::GetCurrentSymbols() {
     LoadBlock* load = block();
     if (load && load->isMmapBlock()) {
         return load->GetSymbols();

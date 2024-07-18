@@ -265,7 +265,8 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
         for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
             if (frameid == number) {
                 std::string method_desc = native_frame->GetMethodName();
-                if (native_frame->GetMethodOffset()) method_desc.append("+").append(Utils::ToHex(native_frame->GetMethodOffset()));
+                if (native_frame->GetMethodOffset())
+                    method_desc.append("+").append(Utils::ToHex(native_frame->GetFramePc() - native_frame->GetMethodOffset()));
                 LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
                 LOGI("  {\n");
                 LOGI("      library: %s\n", native_frame->GetLibrary().c_str());
@@ -285,8 +286,14 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                             opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_ARM);
                         }
                     }
-                    capstone::Disassember::Dump("      ", native_frame->GetFramePc() - native_frame->GetMethodOffset(),
-                                                          native_frame->GetMethodOffset() + near_asm.length, opt);
+                    if (native_frame->GetMethodOffset()) {
+                        capstone::Disassember::Dump("      ", native_frame->GetMethodOffset(), native_frame->GetMethodSize(), opt);
+                    } else {
+                        uint64_t near = 0x0;
+                        if (CoreApi::GetMachine() == EM_AARCH64)
+                            near = near_asm.length - 4;
+                        capstone::Disassember::Dump("      ", native_frame->GetFramePc() - near, near_asm.length, opt);
+                    }
                 }
                 LOGI("  }\n");
             }
