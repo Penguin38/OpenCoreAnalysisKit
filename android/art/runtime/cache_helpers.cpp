@@ -36,23 +36,23 @@ api::MemoryRef CacheHelper::NterpWithClinitImplRef = INVALID_ENTRY_POINTER;
 api::MemoryRef CacheHelper::NterpImplRef = INVALID_ENTRY_POINTER;
 
 void CacheHelper::EntryPointDump() {
-    LOGI("  * art_jni_dlsym_lookup_stub: 0x%lx\n", JniDlsymLookupStub());
-    LOGI("  * art_jni_dlsym_lookup_critical_stub: 0x%lx\n", JniDlsymLookupCriticalStub());
-    LOGI("  * art_quick_imt_conflict_trampoline: 0x%lx\n", QuickImtConflictStub());
-    LOGI("  * art_quick_to_interpreter_bridge: 0x%lx\n", QuickToInterpreterBridge());
-    LOGI("  * art_invoke_obsolete_method_stub: 0x%lx\n", InvokeObsoleteMethodStub());
-    LOGI("  * art_quick_generic_jni_trampoline: 0x%lx\n", QuickGenericJniStub());
-    LOGI("  * art_quick_proxy_invoke_handler: 0x%lx\n", QuickProxyInvokeHandler());
-    LOGI("  * art_quick_resolution_trampoline: 0x%lx\n", QuickResolutionStub());
-    LOGI("  * art_quick_deoptimize: 0x%lx\n", QuickDeoptimizationEntryPoint());
+    LOGI("  * art_jni_dlsym_lookup_stub: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, JniDlsymLookupStub());
+    LOGI("  * art_jni_dlsym_lookup_critical_stub: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, JniDlsymLookupCriticalStub());
+    LOGI("  * art_quick_imt_conflict_trampoline: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, QuickImtConflictStub());
+    LOGI("  * art_quick_to_interpreter_bridge: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, QuickToInterpreterBridge());
+    LOGI("  * art_invoke_obsolete_method_stub: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, InvokeObsoleteMethodStub());
+    LOGI("  * art_quick_generic_jni_trampoline: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, QuickGenericJniStub());
+    LOGI("  * art_quick_proxy_invoke_handler: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, QuickProxyInvokeHandler());
+    LOGI("  * art_quick_resolution_trampoline: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, QuickResolutionStub());
+    LOGI("  * art_quick_deoptimize: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, QuickDeoptimizationEntryPoint());
 }
 
 void CacheHelper::NterpDump() {
     Android::OatPrepare();
-    LOGI("  * ExecuteNterpImpl: 0x%lx\n", ExecuteNterpImplEntryPoint());
-    LOGI("  * art::OatQuickMethodHeader::NterpWithClinitImpl: %lx\n", NterpWithClinitImpl().Ptr());
-    LOGI("  * art::OatQuickMethodHeader::NterpImpl: 0x%lx\n", NterpImpl().Ptr());
-    LOGI("  * art::OatQuickMethodHeader::NterpMethodHeader: %lx\n", NterpMethodHeader().Ptr());
+    LOGI("  * ExecuteNterpImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, ExecuteNterpImplEntryPoint());
+    LOGI("  * art::OatQuickMethodHeader::NterpWithClinitImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, NterpWithClinitImpl().Ptr());
+    LOGI("  * art::OatQuickMethodHeader::NterpImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, NterpImpl().Ptr());
+    LOGI("  * art::OatQuickMethodHeader::NterpMethodHeader: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, NterpMethodHeader().Ptr());
 }
 
 void CacheHelper::Clean() {

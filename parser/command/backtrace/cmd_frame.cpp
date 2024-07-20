@@ -134,16 +134,16 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             art::QuickFrame& quick_frame = java_frame->GetQuickFrame();
             art::DexFile& dex_file = method.GetDexFile();
             uint64_t dex_pc_ptr = java_frame->GetDexPcPtr();
-            LOGI(format.c_str(), frameid, dex_pc_ptr, method.PrettyMethodOnlyNP().c_str());
+            LOGI(format.c_str(), frameid, dex_pc_ptr, method.ColorPrettyMethodOnlyNP().c_str());
             LOGI("  {\n");
-            LOGI("      art::ArtMethod: 0x%lx\n", method.Ptr());
-            LOGI("      shadow_frame: 0x%lx\n", shadow_frame.Ptr());
-            LOGI("      quick_frame: 0x%lx\n", quick_frame.Ptr());
-            LOGI("      dex_pc_ptr: 0x%lx\n", dex_pc_ptr);
+            LOGI("      art::ArtMethod: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, method.Ptr());
+            LOGI("      shadow_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, shadow_frame.Ptr());
+            LOGI("      quick_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, quick_frame.Ptr());
+            LOGI("      dex_pc_ptr: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, dex_pc_ptr);
             if (quick_frame.Ptr()) {
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
-                LOGI("      frame_pc: 0x%lx\n", java_frame->GetFramePc());
-                LOGI("      method_header: 0x%lx\n", method_header.Ptr());
+                LOGI("      frame_pc: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, java_frame->GetFramePc());
+                LOGI("      method_header: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, method_header.Ptr());
             }
 
             if (dex_pc_ptr) {
@@ -165,7 +165,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             }
 
             if (java_frame->GetFramePc()) {
-                LOGI(ANSI_COLOR_LIGHTRED "\n      OAT CODE:\n" ANSI_COLOR_RESET);
+                LOGI(ANSI_COLOR_RED "\n      OAT CODE:\n" ANSI_COLOR_RESET);
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
                 NearAsm near_asm = NearAsmLength();
                 capstone::Disassember::Option opt(java_frame->GetFramePc() - near_asm.length, near_asm.count);
@@ -269,14 +269,14 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                     method_desc.append("+").append(Utils::ToHex(native_frame->GetFramePc() - native_frame->GetMethodOffset()));
                 LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
                 LOGI("  {\n");
-                LOGI("      library: %s\n", native_frame->GetLibrary().c_str());
-                LOGI("      frame_fp: 0x%lx\n", native_frame->GetFrameFp());
-                LOGI("      frame_pc: 0x%lx\n", native_frame->GetFramePc());
+                LOGI("      library: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, native_frame->GetLibrary().c_str());
+                LOGI("      frame_fp: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, native_frame->GetFrameFp());
+                LOGI("      frame_pc: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, native_frame->GetFramePc());
                 if (CoreApi::GetMachine() == EM_ARM)
                     LOGI("      thumb: %s\n", native_frame->IsThumbMode() ? "true" : "false");
 
                 if (native_frame->GetFramePc()) {
-                    LOGI("\n      ASM CODE:\n");
+                    LOGI(ANSI_COLOR_RED "\n      ASM CODE:\n" ANSI_COLOR_RESET);
                     NearAsm near_asm = NearAsmLength();
                     capstone::Disassember::Option opt(native_frame->GetFramePc() - near_asm.length, near_asm.count);
                     if (CoreApi::GetMachine() == EM_ARM) {

@@ -60,7 +60,7 @@ void MiniShell::SaveHistory(char* cmd) {
 }
 
 void MiniShell::ShowHeader() {
-    printf("%s", shell.c_str());
+    printf(ANSI_COLOR_RESET "%s", shell.c_str());
     curX = minX + 1;
     totalX = curX;
 }

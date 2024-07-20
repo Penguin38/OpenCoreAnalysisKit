@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <string>
+#include <functional>
 
 class SymbolEntry {
 public:

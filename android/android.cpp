@@ -624,7 +624,7 @@ void Android::SysRoot(const char* path) {
             } else {
                 ZipFile zip;
                 if (zip.open(filepath.c_str())) {
-                    LOGE("Zip open fail [%lx] %s\n", block->vaddr(), filepath.c_str());
+                    LOGE("Zip open fail [%lx]" ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, block->vaddr(), filepath.c_str());
                     continue;
                 }
 
@@ -636,7 +636,7 @@ void Android::SysRoot(const char* path) {
                 }
 
                 if (!entry) {
-                    LOGE("%s Not found entry %s\n", filepath.c_str(), sub_file ? sub_file : "classes.dex");
+                    LOGE("%s Not found entry" ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, filepath.c_str(), sub_file ? sub_file : "classes.dex");
                     continue;
                 }
 
@@ -678,21 +678,21 @@ void Android::onLibartLoad(LinkMap *map) {
 }
 
 void Android::Dump() {
-    LOGI("Android env:\n");
-    LOGI("  * ID: %s\n", Id());
-    LOGI("  * Name: %s\n", Name());
-    LOGI("  * Model: %s\n", Model());
-    LOGI("  * Manufacturer: %s\n", Manufacturer());
-    LOGI("  * Brand: %s\n", Brand());
-    LOGI("  * Hardware: %s\n", Hardware());
-    LOGI("  * ABIS: %s\n", Abis());
-    LOGI("  * Incremental: %s\n", Incremental());
-    LOGI("  * Release: %s\n", Release());
-    LOGI("  * Security: %s\n", Security());
-    LOGI("  * Type: %s\n", Type());
-    LOGI("  * Tag: %s\n", Tag());
-    LOGI("  * Fingerprint: %s\n", Fingerprint());
-    LOGI("  * Time: %s\n", Time());
-    LOGI("  * Debuggable: %s\n", Debuggable());
-    LOGI("  * Sdk: %d\n", Sdk());
+    LOGI(ANSI_COLOR_LIGHTRED "Android env:\n" ANSI_COLOR_RESET);
+    LOGI("  * ID: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Id());
+    LOGI("  * Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Name());
+    LOGI("  * Model: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Model());
+    LOGI("  * Manufacturer: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Manufacturer());
+    LOGI("  * Brand: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Brand());
+    LOGI("  * Hardware: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Hardware());
+    LOGI("  * ABIS: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Abis());
+    // LOGI("  * Incremental: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Incremental());
+    LOGI("  * Release: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Release());
+    // LOGI("  * Security: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Security());
+    LOGI("  * Type: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Type());
+    // LOGI("  * Tag: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Tag());
+    LOGI("  * Fingerprint: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Fingerprint());
+    LOGI("  * Time: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Time());
+    LOGI("  * Debuggable: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Debuggable());
+    LOGI("  * Sdk: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, Sdk());
 }

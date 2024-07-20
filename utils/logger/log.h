@@ -25,6 +25,8 @@
 
 #define ENTER() LOGI("\n");
 
+#define ANSI_HIGH_LIGHT
+#ifdef ANSI_HIGH_LIGHT
 #define ANSI_COLOR_BLACK         "\033[30m"
 #define ANSI_COLOR_RED           "\033[31m"
 #define ANSI_COLOR_GREEN         "\033[32m"
@@ -42,6 +44,25 @@
 #define ANSI_COLOR_LIGHTCYAN     "\033[96m"
 #define ANSI_COLOR_LIGHTWHITE    "\033[97m"
 #define ANSI_COLOR_RESET         "\x1b[0m"
+#else
+#define ANSI_COLOR_BLACK         ""
+#define ANSI_COLOR_RED           ""
+#define ANSI_COLOR_GREEN         ""
+#define ANSI_COLOR_YELLOW        ""
+#define ANSI_COLOR_BLUE          ""
+#define ANSI_COLOR_MAGENTA       ""
+#define ANSI_COLOR_CYAN          ""
+#define ANSI_COLOR_WHITE         ""
+#define ANSI_COLOR_LIGHTBLACK    ""
+#define ANSI_COLOR_LIGHTRED      ""
+#define ANSI_COLOR_LIGHTGREEN    ""
+#define ANSI_COLOR_LIGHTYELLOW   ""
+#define ANSI_COLOR_LIGHTBLUE     ""
+#define ANSI_COLOR_LIGHTMAGENTA  ""
+#define ANSI_COLOR_LIGHTCYAN     ""
+#define ANSI_COLOR_LIGHTWHITE    ""
+#define ANSI_COLOR_RESET         ""
+#endif
 
 #define LOG_WARN_PREFIX "WARN: "
 #define LOG_ERROR_PREFIX "ERROR: "

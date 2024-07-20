@@ -42,7 +42,6 @@ int DumpsysCommand::main(int argc, char* const argv[]) {
             return dumpsys_option[index].call(argc - 1, &argv[1]);
         }
     }
-
     return 0;
 }
 

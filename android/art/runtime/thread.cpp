@@ -514,19 +514,19 @@ bool Thread::StackEmpty() {
 }
 
 void Thread::DumpState() {
-    LOGI("\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" tid=%d " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
-         GetName(), GetThreadId(), GetStateDescriptor());
+    LOGI("\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" sysTid=%d " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
+         GetName(), GetTid(), GetStateDescriptor());
     java::lang::Thread self = GetTlsPtr().opeer();
     if (self.IsValid()) {
         java::lang::ThreadGroup& group = self.getGroup();
-        LOGI("  | group=\"%s\" daemon=%d prio=%d target=0x%x\n",
+        LOGI(ANSI_COLOR_BLUE "  | group=\"%s\" daemon=%d prio=%d target=0x%x\n" ANSI_COLOR_RESET,
                 group.Ptr() ? group.Name().c_str() : "<unknown>", self.getDaemon(),
                 self.getPriority(), self.getTarget().Ptr());
     }
-    LOGI("  | sysTid=%d sCount=%d flags=%d obj=0x%lx self=0x%lx\n",
-            GetTid(), GetTls32().suspend_count(),
+    LOGI(ANSI_COLOR_BLUE "  | tid=%d sCount=%d flags=%d obj=0x%lx self=0x%lx\n" ANSI_COLOR_RESET,
+            GetThreadId(), GetTls32().suspend_count(),
             GetFlags(), GetTlsPtr().opeer(), Ptr());
-    LOGI("  | stack=0x%lx-0x%lx stackSize=0x%lx handle=0x%lx\n",
+    LOGI(ANSI_COLOR_BLUE "  | stack=0x%lx-0x%lx stackSize=0x%lx handle=0x%lx\n" ANSI_COLOR_RESET,
             GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
             GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());
     std::string mutexes;
@@ -547,7 +547,7 @@ void Thread::DumpState() {
             mutexes.append(" ");
         }
     }
-    LOGI("  | mutexes=0x%lx held=%s\n", GetTlsPtr().held_mutexes(), mutexes.c_str());
+    LOGI(ANSI_COLOR_BLUE "  | mutexes=0x%lx held=%s\n" ANSI_COLOR_RESET, GetTlsPtr().held_mutexes(), mutexes.c_str());
 }
 
 } //namespace art

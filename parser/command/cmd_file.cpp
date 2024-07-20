@@ -28,12 +28,14 @@ int FileCommand::main(int argc, char* const argv[]) {
     if (argc > 1) address = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
     auto callback = [argc, address](File* file) -> bool {
         if (!(argc > 1)) {
-            LOGI("[%lx, %lx)  %08lx  %s\n", file->begin(), file->end(),
-                                            file->offset(), file->name().c_str());
+            LOGI(ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %016lx  " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET,
+                    file->begin(), file->end(),
+                    file->offset(), file->name().c_str());
         } else {
             if (address >= file->begin() && address < file->end()) {
-                LOGI("[%lx, %lx)  %08lx  %s\n", file->begin(), file->end(),
-                                            file->offset(), file->name().c_str());
+                LOGI(ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %016lx  " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET,
+                        file->begin(), file->end(),
+                        file->offset(), file->name().c_str());
                 return true;
             }
         }
@@ -41,7 +43,6 @@ int FileCommand::main(int argc, char* const argv[]) {
     };
 
     CoreApi::ForeachFile(callback);
-
     return 0;
 }
 

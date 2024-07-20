@@ -284,8 +284,8 @@ void BacktraceCommand::DumpJavaStack(void *th) {
     uint32_t frameid = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
         LOGI(format.c_str(), frameid, java_frame->GetDexPcPtr(),
-             dump_detail ? java_frame->GetMethod().PrettyMethodOnlyNP().c_str()
-                         : java_frame->GetMethod().PrettyMethodSimple().c_str());
+             dump_detail ? java_frame->GetMethod().ColorPrettyMethodOnlyNP().c_str()
+                         : java_frame->GetMethod().ColorPrettyMethodSimple().c_str());
         if (!frameid) {
             try {
                 DumpJavaFrameState("  ", thread, java_frame.get());

@@ -23,7 +23,7 @@ Env* Env::INSTANCE = nullptr;
 bool Env::setCurrentPid(int p) {
     ThreadApi *api = CoreApi::FindThread(p);
     if (!api) {
-        LOGE("Not find tid %d\n", p);
+        LOGE("Not find tid: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, p);
         return false;
     }
     pid = api->pid();
@@ -57,5 +57,5 @@ void Env::Clean() {
 }
 
 void Env::Dump() {
-    LOGI("  * Thread: %d\n", CurrentPid());
+    LOGI("  * Thread: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, CurrentPid());
 }

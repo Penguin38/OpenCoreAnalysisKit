@@ -1610,6 +1610,7 @@ std::string Dexdump::PrettyDexInst(api::MemoryRef& ref, DexFile& dex_file) {
 
     sb.append(ANSI_COLOR_LIGHTCYAN);
     sb.append(Utils::ToHex(ref.Ptr()));
+    sb.append(ANSI_COLOR_RESET);
     sb.append(": ");
 
     if (!IsVaildDexOp(op)) {

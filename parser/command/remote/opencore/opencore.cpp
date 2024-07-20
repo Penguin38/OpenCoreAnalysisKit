@@ -233,7 +233,7 @@ void Opencore::StopTheWorld(int pid) {
 
             pid_t tid = atoi(entry->d_name);
             if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
-                LOGI("%s %d: %s\n", __func__ , tid, strerror(errno));
+                LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
                 continue;
             }
             pids.push_back(tid);
@@ -246,7 +246,7 @@ void Opencore::StopTheWorld(int pid) {
 
 void Opencore::StopTheThread(int tid) {
     if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
-        LOGI("%s %d: %s\n", __func__ , tid, strerror(errno));
+        LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
         return;
     }
     pids.push_back(tid);

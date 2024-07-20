@@ -210,41 +210,48 @@ std::string ArtMethod::PrettyParameters() {
     return dex_file.PrettyMethodParameters(method_id);
 }
 
-std::string ArtMethod::PrettyMethod() {
+std::string ArtMethod::ColorPrettyMethodOnlyNP() {
     std::string result;
     uint32_t dex_method_idx = GetDexMethodIndex();
     if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
+        result.append(ANSI_COLOR_LIGHTYELLOW);
+        result.append(GetDeclaringClass().PrettyDescriptor());
+        result.append(".");
+        result.append(GetName());
+        result.append(ANSI_COLOR_RESET);
+        result.append(PrettyParameters());
+        return result;
+    }
+    return GetRuntimeMethodName();
+}
+
+std::string ArtMethod::ColorPrettyMethodSimple() {
+    std::string result;
+    uint32_t dex_method_idx = GetDexMethodIndex();
+    if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
+        result.append(ANSI_COLOR_LIGHTYELLOW);
+        result.append(GetDeclaringClass().PrettyDescriptor());
+        result.append(".");
+        result.append(GetName());
+        result.append(ANSI_COLOR_RESET);
+        return result;
+    }
+    return GetRuntimeMethodName();
+}
+
+std::string ArtMethod::ColorPrettyMethod() {
+    std::string result;
+    uint32_t dex_method_idx = GetDexMethodIndex();
+    if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
+        result.append(ANSI_COLOR_LIGHTRED);
         result.append(PrettyReturnTypeDescriptor());
+        result.append(ANSI_COLOR_LIGHTYELLOW);
         result.append(" ");
         result.append(GetDeclaringClass().PrettyDescriptor());
         result.append(".");
         result.append(GetName());
+        result.append(ANSI_COLOR_RESET);
         result.append(PrettyParameters());
-        return result;
-    }
-    return GetRuntimeMethodName();
-}
-
-std::string ArtMethod::PrettyMethodOnlyNP() {
-    std::string result;
-    uint32_t dex_method_idx = GetDexMethodIndex();
-    if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(GetDeclaringClass().PrettyDescriptor());
-        result.append(".");
-        result.append(GetName());
-        result.append(PrettyParameters());
-        return result;
-    }
-    return GetRuntimeMethodName();
-}
-
-std::string ArtMethod::PrettyMethodSimple() {
-    std::string result;
-    uint32_t dex_method_idx = GetDexMethodIndex();
-    if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(GetDeclaringClass().PrettyDescriptor());
-        result.append(".");
-        result.append(GetName());
         return result;
     }
     return GetRuntimeMethodName();

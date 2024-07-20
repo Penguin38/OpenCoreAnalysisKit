@@ -48,12 +48,12 @@ bool CoreApi::Load(const char* corefile) {
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
         if (memcmp(header->ident, ELFMAG, 4)) {
-            LOGI("Invalid ELF file.\n");
+            LOGE("Invalid ELF file.\n");
             return false;
         }
 
         if (header->type != ET_CORE) {
-            LOGI("Invalid Core file.\n");
+            LOGE("Invalid Core file.\n");
             return false;
         }
 
@@ -74,7 +74,7 @@ bool CoreApi::Load(const char* corefile) {
                 INSTANCE = new x86::Core(map);
                 break;
             default:
-                LOGI("Not support machine (%d)\n", header->machine);
+                LOGW("Not support machine (%d)\n", header->machine);
                 break;
         }
 
@@ -198,14 +198,15 @@ void CoreApi::removeAllLinkMap() {
 }
 
 void CoreApi::Dump() {
-    LOGI("Core env: %s\n", GetName());
-    LOGI("  * Machine: %s\n", GetMachineName());
-    LOGI("  * Bits: %d\n", Bits());
-    LOGI("  * PointSize: %d\n", GetPointSize());
-    LOGI("  * PointMask: 0x%lx\n", GetPointMask());
-    LOGI("  * VabitsMask: 0x%lx\n", GetVabitsMask());
-    LOGI("  * PageSize: 0x%lx\n", GetPageSize());
-    LOGI("  * Remote: %s\n", IsRemote()? "true" : "false");
+    LOGI(ANSI_COLOR_LIGHTRED "Core env:\n" ANSI_COLOR_RESET);
+    LOGI("  * Path: " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET, GetName());
+    LOGI("  * Machine: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, GetMachineName());
+    LOGI("  * Bits: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, Bits());
+    LOGI("  * PointSize: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, GetPointSize());
+    LOGI("  * PointMask: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, GetPointMask());
+    LOGI("  * VabitsMask: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, GetVabitsMask());
+    LOGI("  * PageSize: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, GetPageSize());
+    LOGI("  * Remote: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, IsRemote()? "true" : "false");
 }
 
 void CoreApi::ForeachFile(std::function<bool (File *)> callback) {

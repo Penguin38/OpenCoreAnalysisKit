@@ -124,7 +124,8 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
             || descriptor == classsname
             || (instof && java.instanceof(classsname))) {
         total_objects++;
-        LOGI("[%ld] 0x%lx %s\n", total_objects, object.Ptr(), descriptor.c_str());
+        LOGI("[%ld] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
+                total_objects, object.Ptr(), descriptor.c_str());
         if (show) {
             int argc = 2;
             std::string address = Utils::ToHex(object.Ptr());

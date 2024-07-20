@@ -128,8 +128,8 @@ int MethodCommand::main(int argc, char* const argv[]) {
     method = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
     uint32_t dex_method_idx = method.GetDexMethodIndex();
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
-        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_LIGHTYELLOW "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
-                       method.PrettyMethod().c_str(), dex_method_idx);
+        LOGI(ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
+                       method.ColorPrettyMethod().c_str(), dex_method_idx);
 
         if (dump_opt & METHOD_DUMP_DEXCODE)
             Dexdump();
@@ -141,7 +141,7 @@ int MethodCommand::main(int argc, char* const argv[]) {
             Binarydump();
 
     } else {
-        LOGI("%s\n", method.PrettyMethod().c_str());
+        LOGI("%s\n", method.ColorPrettyMethod().c_str());
     }
     return 0;
 }
@@ -207,7 +207,7 @@ void MethodCommand::Oatdump() {
             LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
             LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
         }
-        LOGI(ANSI_COLOR_LIGHTRED "OAT CODE:\n" ANSI_COLOR_RESET);
+        LOGI(ANSI_COLOR_RED "OAT CODE:\n" ANSI_COLOR_RESET);
         LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
         capstone::Disassember::Dump("  ", method_header.GetCodeStart(), method_header.GetCodeSize());
     }

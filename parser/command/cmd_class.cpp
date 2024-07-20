@@ -78,7 +78,7 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
     art::mirror::Class thiz = object;
     if (dump_all) {
         total_classes++;
-        LOGI("[%ld]  " ANSI_COLOR_LIGHTYELLOW "0x%lx  " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET,
+        LOGI("[%ld] " ANSI_COLOR_LIGHTYELLOW "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 total_classes, thiz.Ptr(), thiz.PrettyDescriptor().c_str());
     } else if (thiz.PrettyDescriptor() == classname) {
         PrintPrettyClassContent(thiz);
@@ -94,16 +94,16 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     int32_t ifcount = iftable.Count();
     bool needEnd = false;
     if (super.Ptr()) {
-        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_RESET "class " ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " extends " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET " {\n",
+        LOGI(ANSI_COLOR_LIGHTGREEN "%s" "class " ANSI_COLOR_RESET "%s" ANSI_COLOR_LIGHTGREEN " extends " ANSI_COLOR_RESET "%s" " {\n",
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str());
     } else {
-        LOGI(ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_RESET "class " ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " {\n",
+        LOGI(ANSI_COLOR_LIGHTGREEN "%s" "class " ANSI_COLOR_RESET "%s" " {\n",
                 art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str());
     }
     if (ifcount > 0 && (show_flag & SHOW_IMPL)) {
-        LOGI("  // Implements:\n");
+        LOGI(ANSI_COLOR_LIGHTCYAN "  // Implements:\n" ANSI_COLOR_RESET);
         for (int i = 0; i < ifcount; ++i) {
             art::mirror::Class interface = iftable.GetInterface(i);
             LOGI("    %s\n", interface.PrettyDescriptor().c_str());
@@ -117,7 +117,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     art::mirror::Class current = clazz;
     if (clazz.NumStaticFields() && (show_flag & SHOW_STATIC)) {
         if (needEnd) ENTER();
-        LOGI("  // Class static fields:\n");
+        LOGI(ANSI_COLOR_LIGHTCYAN "  // Class static fields:\n" ANSI_COLOR_RESET);
         needEnd = true;
     }
     std::vector<art::ArtField> fields;
@@ -136,7 +136,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 
     if (clazz.NumInstanceFields() && (show_flag & SHOW_FIELD)) {
         if (needEnd) ENTER();
-        LOGI("  // Object instance fields:\n");
+        LOGI(ANSI_COLOR_LIGHTCYAN "  // Object instance fields:\n" ANSI_COLOR_RESET);
         needEnd = true;
     }
     super = clazz;
@@ -146,7 +146,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 
         if (clazz != super) {
             if (needEnd) ENTER();
-            LOGI("  // extends %s\n", super.PrettyDescriptor().c_str());
+            LOGI(ANSI_COLOR_LIGHTCYAN "  // extends %s\n" ANSI_COLOR_RESET, super.PrettyDescriptor().c_str());
             needEnd = true;
         }
 
@@ -167,12 +167,12 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 
     if (clazz.NumMethods() && (show_flag & SHOW_METHOD)) {
         if (needEnd) ENTER();
-        LOGI("  // Methods:\n");
+        LOGI(ANSI_COLOR_LIGHTCYAN "  // Methods:\n" ANSI_COLOR_RESET);
         needEnd = true;
     }
     auto print_method = [](art::ArtMethod& method) -> bool {
-        LOGI("    [0x%lx] " ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_LIGHTYELLOW "%s\n" ANSI_COLOR_RESET,\
-                method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(), method.PrettyMethod().c_str());
+        LOGI("    [0x%lx] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
+                method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
         return false;
     };
     if ((show_flag & SHOW_METHOD)) Android::ForeachArtMethods(current, print_method);

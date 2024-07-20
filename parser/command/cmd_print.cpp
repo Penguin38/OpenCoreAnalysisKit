@@ -47,7 +47,7 @@ bool PrintCommand::prepare(int argc, char* const argv[]) {
         {"binary",  no_argument,       0,  'b'},
         {"ref",     required_argument, 0,  'r'},
         {"format",  no_argument,       0,  'f'},
-        {0,           0,                 0,   0 }
+        {0,         0,                 0,   0 }
     };
 
     while ((opt = getopt_long(argc, argv, "bfr:",
@@ -81,7 +81,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
         {"binary",  no_argument,       0,  'b'},
         {"ref",     required_argument, 0,  'r'},
         {"format",  no_argument,       0,  'f'},
-        {0,           0,                 0,   0 }
+        {0,         0,                 0,   0 }
     };
     
     while ((opt = getopt_long(argc, argv, "bfr:",
@@ -108,7 +108,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
     } else {
         DumpObject(ref);
         if (binary) {
-            LOGI("Binary:\n");
+            LOGI(ANSI_COLOR_LIGHTRED "Binary:\n" ANSI_COLOR_RESET);
             uint64_t real_size = RoundUp(ref.SizeOf(), art::kObjectAlignment);
             int argc = 4;
             std::string bs = Utils::ToHex(ref.Ptr());
@@ -149,7 +149,7 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
         }
 
         if (reference) {
-            LOGI("Reference:\n");
+            LOGI(ANSI_COLOR_LIGHTRED "Reference:\n" ANSI_COLOR_RESET);
             int cur_deep = 0;
             auto callback = [&](art::mirror::Object& reference) -> bool {
                 return PrintReference(object, reference, cur_deep);
@@ -178,7 +178,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
             } else {
                 ref_thiz = reference.GetClass();
             }
-            LOGI("%s--> " ANSI_COLOR_LIGHTYELLOW "0x%lx " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET,
+            LOGI("%s--> " ANSI_COLOR_LIGHTYELLOW "0x%lx " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
                     prefix.c_str(), reference.Ptr(), ref_thiz.PrettyDescriptor().c_str());
             if (cur_deep + 1 < deep) {
                 auto callback = [&](art::mirror::Object& second) -> bool {
@@ -193,7 +193,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
 }
 
 void PrintCommand::DumpClass(art::mirror::Class& clazz) {
-    LOGI("Class Name: " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
+    LOGI("Class Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
     std::string format = FormatSize(clazz.SizeOf());
     art::mirror::Class current = clazz;
@@ -206,7 +206,7 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
 
     Android::ForeachStaticField(current, callback);
     if (current.NumStaticFields()) {
-        LOGI("  info %s\n", current.PrettyDescriptor().c_str());
+        LOGI(ANSI_COLOR_LIGHTCYAN "  // info %s\n" ANSI_COLOR_RESET, current.PrettyDescriptor().c_str());
         std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
         for (auto& field : fields) {
             PrintCommand::PrintField(format.c_str(), current, clazz, field);
@@ -215,7 +215,7 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
     fields.clear();
 
     current = clazz.GetClass();
-    LOGI("  info %s\n", current.PrettyDescriptor().c_str());
+    LOGI(ANSI_COLOR_LIGHTCYAN "  // info %s\n" ANSI_COLOR_RESET, current.PrettyDescriptor().c_str());
     Android::ForeachInstanceField(current, callback);
     std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
     for (auto& field : fields) {
@@ -224,7 +224,7 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
     fields.clear();
 
     current = current.GetSuperClass();
-    LOGI("  extends %s\n", current.PrettyDescriptor().c_str());
+    LOGI(ANSI_COLOR_LIGHTCYAN "  // extends %s\n" ANSI_COLOR_RESET, current.PrettyDescriptor().c_str());
     Android::ForeachInstanceField(current, callback);
     std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
     for (auto& field : fields) {
@@ -234,7 +234,7 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
 
 void PrintCommand::DumpArray(art::mirror::Array& array) {
     art::mirror::Class clazz = array.GetClass();
-    LOGI("Array Name: " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
+    LOGI("Array Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
     uint32_t length = array.GetLength();
     if (array.IsObjectArray()) {
@@ -277,20 +277,20 @@ void PrintCommand::DumpArray(art::mirror::Array& array) {
 
 void PrintCommand::DumpInstance(art::mirror::Object& object) {
     art::mirror::Class clazz = object.GetClass();
-    LOGI("Object Name: " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
+    LOGI("Object Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
     std::string format = FormatSize(object.SizeOf());
     art::mirror::Class super = clazz;
     do {
         if (clazz != super) {
-            LOGI("  extends %s\n", super.PrettyDescriptor().c_str());
+            LOGI(ANSI_COLOR_LIGHTCYAN "  // extends %s\n" ANSI_COLOR_RESET, super.PrettyDescriptor().c_str());
         }
 
         if (super.IsStringClass()) {
             art::mirror::String str = object;
             if (str.GetLength() != 0) {
                 LOGI(format.c_str(), SIZEOF(String), "virutal ", "char[]", "values");
-                LOGI(" = \"" ANSI_COLOR_LIGHTYELLOW "%s" ANSI_COLOR_RESET "\"\n", str.ToModifiedUtf8().c_str());
+                LOGI(" = \"" ANSI_COLOR_LIGHTMAGENTA "%s" ANSI_COLOR_RESET "\"\n", str.ToModifiedUtf8().c_str());
             }
         }
 
@@ -317,44 +317,44 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz, art
     LOGI(format, field.offset(), art::PrettyJavaAccessFlags(field.access_flags()).c_str(), field.PrettyTypeDescriptor().c_str(), field.GetName());
     switch (type) {
         case Android::basic_byte:
-            LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%x\n" ANSI_COLOR_RESET, field.GetByte(object));
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, field.GetByte(object));
             break;
         case Android::basic_boolean:
-            LOGI(" = " ANSI_COLOR_LIGHTYELLOW "%s\n" ANSI_COLOR_RESET, field.GetBoolean(object) ? "true" : "false");
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, field.GetBoolean(object) ? "true" : "false");
             break;
         case Android::basic_char:
-            LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%c\n" ANSI_COLOR_RESET, field.GetChar(object));
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%c\n" ANSI_COLOR_RESET, field.GetChar(object));
             break;
         case Android::basic_short:
-            LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%x\n" ANSI_COLOR_RESET, field.GetShort(object));
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, field.GetShort(object));
             break;
         case Android::basic_int:
             if (field.offset() == OFFSET(String, count_)
                     && clazz.IsValid() && clazz.IsStringClass()) {
                 art::mirror::String str = object;
-                LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%x\n" ANSI_COLOR_RESET, str.GetLength());
+                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, str.GetLength());
                 break;
             } else {
-                LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%x\n" ANSI_COLOR_RESET, field.GetInt(object));
+                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, field.GetInt(object));
             }
             break;
         case Android::basic_float:
-            LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%f\n" ANSI_COLOR_RESET, field.GetFloat(object));
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%f\n" ANSI_COLOR_RESET, field.GetFloat(object));
             break;
         case Android::basic_object: {
             art::mirror::Object tmp(field.GetObj(object), object);
             if (tmp.Ptr() && tmp.IsValid() && tmp.IsString()) {
                 art::mirror::String str = tmp;
-                LOGI(" = \"" ANSI_COLOR_LIGHTYELLOW "%s" ANSI_COLOR_RESET "\"\n", str.ToModifiedUtf8().c_str());
+                LOGI(" = \"" ANSI_COLOR_LIGHTMAGENTA "%s" ANSI_COLOR_RESET "\"\n", str.ToModifiedUtf8().c_str());
             } else {
-                LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%lx\n" ANSI_COLOR_RESET, tmp.Ptr());
+                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, tmp.Ptr());
             }
         } break;
         case Android::basic_double:
-            LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%lf\n" ANSI_COLOR_RESET, field.GetDouble(object));
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%lf\n" ANSI_COLOR_RESET, field.GetDouble(object));
             break;
         case Android::basic_long:
-            LOGI(" = " ANSI_COLOR_LIGHTYELLOW "0x%lx\n" ANSI_COLOR_RESET, field.GetLong(object));
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, field.GetLong(object));
             break;
     }
 }
@@ -369,7 +369,7 @@ std::string PrintCommand::FormatSize(uint64_t size) {
         ++num;
     } while(current != 0);
     format.append(std::to_string(num));
-    format.append("x] " ANSI_COLOR_LIGHTCYAN "%s" ANSI_COLOR_LIGHTRED "%s " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET);
+    format.append("x] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s " ANSI_COLOR_RESET "%s");
     return format;
 }
 

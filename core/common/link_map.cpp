@@ -165,7 +165,7 @@ void LinkMap::ReadSymbols() {
         } else {
             lp32::Core::readsym32(this);
         }
-        if (symbols.size()) LOGI("Read symbols[%ld] (%s)\n", symbols.size(), name());
+        if (symbols.size()) LOGI(ANSI_COLOR_GREEN "Read symbols[%ld] (%s)\n" ANSI_COLOR_RESET, symbols.size(), name());
     } else {
         dynsyms.clear();
         try {

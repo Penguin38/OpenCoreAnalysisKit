@@ -125,7 +125,7 @@ int TopCommand::main(int argc, char* const argv[]) {
     };
     Android::ForeachObjects(callback, flag, false);
 
-    LOGI(ANSI_COLOR_LIGHTRED "Address       Allocations       ShallowSize       NativeSize     %s\n" ANSI_COLOR_RESET, show ? "ClassName" : "");
+    LOGI(ANSI_COLOR_LIGHTRED "Address       Allocations      ShallowSize        NativeSize     %s\n" ANSI_COLOR_RESET, show ? "ClassName" : "");
     art::mirror::Class cur_max_thiz = 0;
     TopCommand::Pair cur_max_pair = {
         .alloc_count = 0,
@@ -171,7 +171,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         total_native += pair.native_size;
     }
 
-    LOGI("TOTAL            " ANSI_COLOR_LIGHTMAGENTA "%8ld      " ANSI_COLOR_LIGHTCYAN "%11ld       " ANSI_COLOR_LIGHTGREEN "%11ld\n" ANSI_COLOR_RESET,
+    LOGI("TOTAL            " ANSI_COLOR_LIGHTMAGENTA "%8ld      " ANSI_COLOR_LIGHTBLUE "%11ld       " ANSI_COLOR_LIGHTGREEN "%11ld\n" ANSI_COLOR_RESET,
          total_count, total_shallow, total_native);
     LOGI("------------------------------------------------------------\n");
 
@@ -205,7 +205,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         if (!cur_max_thiz.Ptr())
             break;
 
-        LOGI(ANSI_COLOR_LIGHTYELLOW "0x%08lx       " ANSI_COLOR_MAGENTA "%8ld      " ANSI_COLOR_CYAN "%11ld       " ANSI_COLOR_GREEN "%11ld     " ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET,
+        LOGI(ANSI_COLOR_LIGHTYELLOW "0x%08lx" ANSI_COLOR_RESET "       " "%8ld      " "%11ld       " "%11ld     " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
              cur_max_thiz.Ptr(), cur_max_pair.alloc_count,
              cur_max_pair.shallow_size, cur_max_pair.native_size,
              show ? cur_max_thiz.PrettyDescriptor().c_str() : "");
