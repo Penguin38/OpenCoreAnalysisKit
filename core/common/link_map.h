@@ -56,21 +56,24 @@ public:
     public:
         NiceSymbol() : off(0), size(0) {}
         void SetNiceMethod(const char* sym, uint64_t o, uint64_t s) {
-            sym ? method = sym : "";
+            sym ? symbol = sym : "";
             off = o;
             size = s;
         }
-        std::string& GetMethod() { return method; }
+        std::string& GetSymbol() { return symbol; }
+        std::string& GetMethod();
         uint64_t GetOffset() { return off; }
         uint64_t GetSize() { return size; }
     private:
+        std::string symbol;
         std::string method;
         uint64_t off;
         uint64_t size;
     };
     void ReadSymbols();
     void NiceMethod(uint64_t pc, NiceSymbol& symbol);
-    uint64_t DlSym(const char* symbol);
+    SymbolEntry DlSymEntry(const char* symbol);
+    inline uint64_t DlSym(const char* symbol) { return DlSymEntry(symbol).offset; }
     api::MemoryRef& GetAddrCache();
     api::MemoryRef& GetNameCache();
     inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetDynsyms() { return dynsyms; }

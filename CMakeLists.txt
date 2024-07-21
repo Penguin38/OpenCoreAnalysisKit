@@ -232,6 +232,7 @@ add_library(parser STATIC
             parser/command/cmd_read.cpp
             parser/command/cmd_write.cpp
             parser/command/cmd_register.cpp
+            parser/command/cmd_disassemble.cpp
             parser/command/cmd_thread.cpp
             parser/command/cmd_getprop.cpp
             parser/command/cmd_print.cpp

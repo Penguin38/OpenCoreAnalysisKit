@@ -25,6 +25,7 @@
 #include "runtime/oat/stack_map.h"
 #include "runtime/nterp_helpers.h"
 #include "common/disassemble/capstone.h"
+#include "common/elf.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <iomanip>
@@ -209,7 +210,11 @@ void MethodCommand::Oatdump() {
         }
         LOGI(ANSI_COLOR_RED "OAT CODE:\n" ANSI_COLOR_RESET);
         LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
-        capstone::Disassember::Dump("  ", method_header.GetCodeStart(), method_header.GetCodeSize());
+        capstone::Disassember::Option opt(method_header.GetCodeStart(), -1);
+        if (CoreApi::GetMachine() == EM_ARM) {
+            opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
+        }
+        capstone::Disassember::Dump("  ", method_header.GetCodeStart(), method_header.GetCodeSize(), opt);
     }
 }
 

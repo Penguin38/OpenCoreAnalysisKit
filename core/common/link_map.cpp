@@ -106,7 +106,6 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
         uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
         uint64_t nice_offset = 0;
         uint64_t nice_size = 0;
-        char* nice_name = nullptr;
 
         const auto& it = std::find_if(symbols.begin(), symbols.end(),
                 [&](const SymbolEntry& entry) {
@@ -128,31 +127,20 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
         if (it != symbols.end()) {
             nice_offset = it->offset + l_addr();
             nice_size = it->size;
-            nice_name = const_cast<char*>(it->symbol.data());
-        }
-
-        if (nice_name) {
-            int status;
-            char* demangled_name = abi::__cxa_demangle(nice_name, nullptr, nullptr, &status);
-            if (status == 0) {
-                symbol.SetNiceMethod(demangled_name, nice_offset, nice_size);
-                std::free(demangled_name);
-            } else {
-                symbol.SetNiceMethod(nice_name, nice_offset, nice_size);
-            }
+            symbol.SetNiceMethod(it->symbol.data(), nice_offset, nice_size);
         }
     }
 }
 
-uint64_t LinkMap::DlSym(const char* symbol) {
+SymbolEntry LinkMap::DlSymEntry(const char* symbol) {
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
     const auto& it = std::find_if(symbols.begin(), symbols.end(),
             [&](const SymbolEntry& entry) {
                 return entry.symbol == symbol;
             });
     if (it != symbols.end())
-        return it->offset;
-    return 0x0;
+        return *it;
+    return SymbolEntry(0, 0, 0, 0);
 }
 
 void LinkMap::ReadSymbols() {
@@ -183,4 +171,18 @@ std::unordered_set<SymbolEntry, SymbolEntry::Hash>& LinkMap::GetCurrentSymbols()
     } else {
         return GetDynsyms();
     }
+}
+
+std::string& LinkMap::NiceSymbol::GetMethod() {
+    if (method.length() == 0) {
+        int status;
+        char* demangled_name = abi::__cxa_demangle(symbol.data(), nullptr, nullptr, &status);
+        if (status == 0) {
+            method = demangled_name;
+            std::free(demangled_name);
+        } else {
+            method = symbol;
+        }
+    }
+    return method;
 }

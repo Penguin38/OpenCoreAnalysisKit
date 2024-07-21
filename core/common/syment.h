@@ -50,6 +50,8 @@ public:
             return offset_hasher(entry.offset) ^ type_hasher(entry.type) ^ size_hasher(entry.size);
         }
     };
+
+    inline bool IsValid() { return offset != 0x0 && size != 0x0; }
 };
 
 #endif // CORE_COMMON_SYMENT_H_

@@ -27,6 +27,7 @@ public:
     void SetFramePc(uint64_t pc);
     uint64_t GetFramePc() { return frame_pc; }
     std::string& GetMethodName() { return frame_symbol.GetMethod(); }
+    std::string& GetMethodSymbol() { return frame_symbol.GetSymbol(); }
     uint64_t GetMethodOffset();
     uint64_t GetMethodSize();
     std::string GetLibrary();

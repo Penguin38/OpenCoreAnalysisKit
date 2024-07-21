@@ -28,6 +28,7 @@
 #include "command/cmd_read.h"
 #include "command/cmd_write.h"
 #include "command/cmd_register.h"
+#include "command/cmd_disassemble.h"
 #include "command/cmd_thread.h"
 #include "command/cmd_getprop.h"
 #include "command/cmd_print.h"
@@ -68,6 +69,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new ThreadCommand());
     CommandManager::PushInlineCommand(new BacktraceCommand());
     CommandManager::PushInlineCommand(new FrameCommand());
+    CommandManager::PushInlineCommand(new DisassembleCommand());
 
 #if defined(__AOSP_PARSER__)
     // android

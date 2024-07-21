@@ -270,6 +270,7 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                 LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
                 LOGI("  {\n");
                 LOGI("      library: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, native_frame->GetLibrary().c_str());
+                LOGI("      symbol: " ANSI_COLOR_YELLOW "%s\n" ANSI_COLOR_RESET, native_frame->GetMethodSymbol().c_str());
                 LOGI("      frame_fp: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, native_frame->GetFrameFp());
                 LOGI("      frame_pc: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, native_frame->GetFramePc());
                 if (CoreApi::GetMachine() == EM_ARM)
