@@ -514,7 +514,9 @@ bool Thread::StackEmpty() {
 }
 
 void Thread::DumpState() {
-    LOGI("\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" sysTid=%d " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
+    LOGI("\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" "
+              ANSI_COLOR_LIGHTYELLOW "sysTid=%d" ANSI_COLOR_RESET " "
+              ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
          GetName(), GetTid(), GetStateDescriptor());
     java::lang::Thread self = GetTlsPtr().opeer();
     if (self.IsValid()) {

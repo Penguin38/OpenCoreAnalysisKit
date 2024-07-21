@@ -148,10 +148,11 @@ void BacktraceCommand::DumpTrace() {
                 thread->DumpState();
             } catch(InvalidAddressException e) {}
         } else {
-            LOGI("Thread(\"%d\") %s\n", record->pid, art::Runtime::Current().Ptr() ? "NotAttachJVM" : "");
+            LOGI("Thread(\"" ANSI_COLOR_YELLOW "%d" ANSI_COLOR_RESET "\") " ANSI_COLOR_CYAN "%s\n" ANSI_COLOR_RESET,
+                    record->pid, art::Runtime::Current().Ptr() ? "NotAttachJVM" : "");
         }
 #else
-        LOGI("Thread(\"%d\")\n", record->pid);
+        LOGI("Thread(\"" ANSI_COLOR_YELLOW "%d" ANSI_COLOR_RESET "\")\n", record->pid);
 #endif
         DumpNativeStack(record->thread, record->api);
 #if defined(__AOSP_PARSER__)
