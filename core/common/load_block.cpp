@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "common/load_block.h"
+#include "base/utils.h"
 
 void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, size(), offset));
@@ -67,4 +68,20 @@ void LoadBlock::removeOverlay() {
             LOGE("Can't remove fake load\n");
         }
     }
+}
+
+uint32_t LoadBlock::GetCRC32(int opt) {
+    if (mOverlay && (opt & OPT_READ_OVERLAY)) {
+        return mOverlay->GetCRC32();
+    }
+    if (mMmap && (opt & OPT_READ_MMAP)) {
+        return mMmap->GetCRC32();
+    }
+    if (oraddr() && (opt & OPT_READ_OR)) {
+        if (!mCRC32 && isValidBlock()) {
+            mCRC32 = Utils::CRC32(reinterpret_cast<uint8_t *>(begin(LoadBlock::OPT_READ_OR)), realSize());
+        }
+        return mCRC32;
+    }
+    return 0x0;
 }

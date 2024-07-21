@@ -31,6 +31,7 @@ public:
     static int showArtEnv(int argc, char* const argv[]);
     static int showCoreEnv(int argc, char* const argv[]);
     static int showLoadEnv();
+    static int clocLoadCRC32(int num);
 };
 
 #endif // PARSER_COMMAND_CMD_ENV_H_

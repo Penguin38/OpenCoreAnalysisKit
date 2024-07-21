@@ -38,11 +38,11 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                                              phdr[num].p_filesz,
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
-            block->setTruncated(api->size() < (phdr[num].p_offset + phdr[num].p_filesz));
+            block->setTruncated(api->size() < (block->offset() + block->realSize()));
             if (!(block->flags() & Block::FLAG_R))
                 continue;
 
-            block->setOriAddr(api->begin() + phdr[num].p_offset);
+            block->setOriAddr(api->begin() + block->offset());
             block->setVabitsMask(CoreApi::GetVabitsMask());
             block->setPointMask(CoreApi::GetPointMask());
             api->addLoadBlock(block);
@@ -54,11 +54,11 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                                              phdr[num].p_filesz,
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
-            block->setTruncated(api->size() < (phdr[num].p_offset + phdr[num].p_filesz));
+            block->setTruncated(api->size() < (block->offset() + block->realSize()));
             if (!block->isValidBlock())
                 continue;
 
-            block->setOriAddr(api->begin() + phdr[num].p_offset);
+            block->setOriAddr(api->begin() + block->offset());
             uint64_t pos = block->oraddr();
             uint64_t end = block->oraddr() + block->realSize();
             while (pos < end) {

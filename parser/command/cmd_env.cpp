@@ -20,8 +20,12 @@
 #include "command/cmd_env.h"
 #include "command/env.h"
 #include "api/core.h"
+#include "api/elf.h"
+#include "common/elf.h"
 #include "common/disassemble/capstone.h"
 #include "base/utils.h"
+#include "base/macros.h"
+#include <linux/elf.h>
 #include <unistd.h>
 #include <getopt.h>
 
@@ -207,20 +211,33 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"load",   no_argument,       0, 1},
         {"arm",    required_argument, 0, 2},
+        {"crc",    no_argument,       0, 3},
+        {"num",    required_argument, 0,'n'},
     };
 
-    while ((opt = getopt_long(argc, argv, "12:",
+    bool crc = false;
+    int num = 0;
+    while ((opt = getopt_long(argc, argv, "12:3:n:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1: return showLoadEnv();
             case 2:
                 capstone::Disassember::SetArmMode(optarg);
                 return 0;
+            case 3:
+                crc = true;
+                break;
+            case 'n':
+                num = std::atoi(optarg);
+                break;
         }
     }
-
-    LOGI("  * r_debug: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, CoreApi::GetDebugPtr());
-    LOGI("  * arm mode: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, !capstone::Disassember::GetArmMode() ? "arm" : "thumb");
+    if (crc) {
+        clocLoadCRC32(num);
+    } else {
+        LOGI("  * r_debug: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, CoreApi::GetDebugPtr());
+        LOGI("  * arm mode: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, !capstone::Disassember::GetArmMode() ? "arm" : "thumb");
+    }
     return 0;
 }
 
@@ -230,9 +247,12 @@ int EnvCommand::showLoadEnv() {
 
     int index = 0;
     auto callback = [&index](LoadBlock *block) -> bool {
+        index++;
         std::string name;
         if (block->isMmapBlock()) {
-            name = block->name();
+            name.append(ANSI_COLOR_GREEN);
+            name.append(block->name());
+            name.append(ANSI_COLOR_RESET);
         } else {
             name.append("[]");
         }
@@ -252,13 +272,82 @@ int EnvCommand::showLoadEnv() {
         } else {
             valid.append("[EMPTY]");
         }
-        LOGI("  %-5d " ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %s  %010lx  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
-                index++,
-                block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
+        LOGI("  %-5d " ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %s  %010lx  ""%s"" %s\n",
+                index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
                 block->realSize(), name.c_str(), valid.c_str());
         return false;
     };
     LOGI(ANSI_COLOR_LIGHTRED "INDEX   REGION               FLAGS FILESZ      PATH\n" ANSI_COLOR_RESET);
+    CoreApi::ForeachLoadBlock(callback, false);
+    return 0;
+}
+
+int EnvCommand::clocLoadCRC32(int num) {
+    bool cloc_all = num == 0;
+    if (!CoreApi::IsReady())
+        return 0;
+
+    int index = 0;
+    auto callback = [&](LoadBlock *block) -> bool {
+        index++;
+        if (!cloc_all && num != index)
+            return false;
+
+        if (!block->isMmapBlock() || !block->isValidBlock())
+            return false;
+
+        // only check .text crc32
+        // if (!(block->flags() & Block::FLAG_X))
+        //    return false;
+
+        if (cloc_all || num == index) {
+            uint32_t or_crc = 0x0;
+            uint32_t mmap_crc = 0x0;
+
+            ElfHeader* header = reinterpret_cast<ElfHeader*>(block->begin(LoadBlock::OPT_READ_MMAP));
+            if (!memcmp(header->ident, ELFMAG, 4)) {
+                // skip elf header
+                or_crc = Utils::CRC32(reinterpret_cast<uint8_t*>(block->begin(LoadBlock::OPT_READ_OR)) + SIZEOF(Elfx_Ehdr),
+                        block->size() - SIZEOF(Elfx_Ehdr));
+                mmap_crc = Utils::CRC32(reinterpret_cast<uint8_t*>(block->begin(LoadBlock::OPT_READ_MMAP)) + SIZEOF(Elfx_Ehdr),
+                        block->size() - SIZEOF(Elfx_Ehdr));
+            } else {
+                or_crc = block->GetCRC32(LoadBlock::OPT_READ_OR);
+                mmap_crc = block->GetCRC32(LoadBlock::OPT_READ_MMAP);
+            }
+
+            if (or_crc != mmap_crc) {
+                std::string name;
+                name.append(ANSI_COLOR_GREEN);
+                name.append(block->name());
+                name.append(ANSI_COLOR_RESET);
+
+                LOGI("%-5d " ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %s  %010lx  ""%s""\n",
+                        index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
+                        block->realSize(), name.c_str());
+
+                uint64_t* orv = reinterpret_cast<uint64_t*>(block->begin(LoadBlock::OPT_READ_OR));
+                uint64_t* mmv = reinterpret_cast<uint64_t*>(block->begin(LoadBlock::OPT_READ_MMAP));
+                int count = RoundUp(block->size() / 8, 2);
+                for (int k = 0; k < count; k += 2) {
+                    uint64_t orv1 = orv[k];
+                    uint64_t orv2 = orv[k + 1];
+                    uint64_t mmv1 = mmv[k];
+                    uint64_t mmv2 = mmv[k + 1];
+                    if (LIKELY(orv1 == mmv1) && LIKELY(orv2 == mmv2))
+                        continue;
+
+                    LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %016lx  %s%s  |  %016lx  %016lx  %s%s\n",
+                            (block->vaddr() + k * 8), orv1, orv2,
+                            Utils::ConvertAscii(orv1, 8).c_str(), Utils::ConvertAscii(orv2, 8).c_str(),
+                            mmv1, mmv2,
+                            Utils::ConvertAscii(mmv1, 8).c_str(), Utils::ConvertAscii(mmv2, 8).c_str());
+                }
+                ENTER();
+            }
+        }
+        return false;
+    };
     CoreApi::ForeachLoadBlock(callback, false);
     return 0;
 }

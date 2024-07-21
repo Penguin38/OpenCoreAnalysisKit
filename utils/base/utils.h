@@ -29,6 +29,8 @@ public:
     static int FreopenWrite(const char* path);
     static void CloseWriteout(int fd);
     static std::string ToHex(uint64_t value);
+    static uint32_t CRC32(uint8_t* data, uint32_t len);
+    static uint64_t CRC64(uint8_t* data, uint64_t len);
 };
 
 #endif // UTILS_BASE_UTILS_H_

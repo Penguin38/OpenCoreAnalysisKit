@@ -30,6 +30,7 @@ public:
 
     inline uint64_t vaddr() { return mVaddr; }
     inline uint32_t flags() { return mFlags; }
+    inline uint64_t offset() { return mOffset; }
     inline uint64_t size() { return mMemSize; }
     inline uint64_t realSize() { return mFileSize; }
     inline uint64_t align() { return mAlign; }

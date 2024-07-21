@@ -15,6 +15,7 @@
  */
 
 #include "base/memory_map.h"
+#include "base/utils.h"
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -79,6 +80,13 @@ MemoryMap* MemoryMap::MmapZeroMem(uint64_t size) {
         memset(mem, 0x0, size);
     }
     return map;
+}
+
+uint32_t MemoryMap::GetCRC32() {
+    if (!mCRC32) {
+        mCRC32 = Utils::CRC32(reinterpret_cast<uint8_t *>(mBegin), mSize);
+    }
+    return mCRC32;
 }
 
 MemoryMap::~MemoryMap() {

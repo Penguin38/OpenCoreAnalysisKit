@@ -32,16 +32,18 @@ public:
     inline uint64_t size() { return mSize; }
     inline uint64_t offset() { return mOffset; }
     inline std::string& getName() { return mName; }
+    uint32_t GetCRC32();
     ~MemoryMap();
 private:
     static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);
     MemoryMap(void *m, uint64_t s, uint64_t off)
-        : mBegin(m), mSize(s), mOffset(off) {}
+        : mBegin(m), mSize(s), mOffset(off), mCRC32(0x0) {}
 
     std::string mName;
     void* mBegin;
     uint64_t mSize;
     uint64_t mOffset;
+    uint32_t mCRC32;
 };
 
 #endif  // UTILS_BASE_MEMORY_MAP_H_

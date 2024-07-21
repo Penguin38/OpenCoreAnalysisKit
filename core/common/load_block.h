@@ -69,7 +69,11 @@ public:
 
     LoadBlock(uint32_t f, uint64_t off, uint64_t va, uint64_t pa,
             uint64_t filesz, uint64_t memsz, uint64_t align)
-            : Block(f, off, va, pa, filesz, memsz, align) {}
+            : Block(f, off, va, pa, filesz, memsz, align) {
+        mVabitsMask = 0x0;
+        mPointMask = 0x0;
+        mCRC32 = 0x0;
+    }
 
     void setMmapFile(const char* file, uint64_t offset);
     void setOverlay(uint64_t addr, void *buf, uint64_t size);
@@ -87,6 +91,7 @@ public:
     inline void setMmapMemoryMap(std::unique_ptr<MemoryMap>& map) { mMmap = std::move(map); }
     inline void setOverlayMemoryMap(std::unique_ptr<MemoryMap>& map) { mOverlay = std::move(map); }
     inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetSymbols() { return mSymbols; }
+    uint32_t GetCRC32(int opt);
 
     ~LoadBlock() {
         mSymbols.clear();
@@ -96,6 +101,7 @@ public:
 private:
     uint64_t mVabitsMask;
     uint64_t mPointMask;
+    uint32_t mCRC32;
     std::unique_ptr<MemoryMap> mMmap;
     std::unique_ptr<MemoryMap> mOverlay;
     std::unordered_set<SymbolEntry, SymbolEntry::Hash> mSymbols;

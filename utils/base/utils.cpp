@@ -137,3 +137,34 @@ std::string Utils::ToHex(uint64_t value) {
     sb.append(ss.str());
     return sb;
 }
+
+uint32_t Utils::CRC32(uint8_t* data, uint32_t len) {
+    uint32_t crc = 0xFFFFFFFF;
+    for (uint32_t k = 0; k < len; ++k) {
+        crc ^= (uint32_t)data[k] << 24;
+        for (int i = 0; i < 8; ++i) {
+            if (crc & (1 << 31)) {
+                crc = (crc << 1) ^ 0x04C11DB7;
+            } else {
+                crc <<= 1;
+            }
+            crc &= 0xFFFFFFFF;
+        }
+    }
+    return crc;
+}
+
+uint64_t Utils::CRC64(uint8_t* data, uint64_t len) {
+    uint64_t crc = 0xFFFFFFFFFFFFFFFF;
+    for (uint64_t k = 0; k < len; ++k) {
+        crc ^= (uint64_t)data[k] << 56;
+        for (int i = 0; i < 8; ++i) {
+            if (crc & (1ULL << 63)) {
+                crc = (crc << 1) ^ 0x42F0E1EBA9EA3693;
+            } else {
+                crc <<= 1;
+            }
+        }
+    }
+    return crc;
+}
