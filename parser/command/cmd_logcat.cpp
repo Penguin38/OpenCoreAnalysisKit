@@ -49,8 +49,15 @@ static SerializedLogBuffer AnalysisSerializedLogBuffer() {
     api::MemoryRef exec_fn = CoreApi::FindAuxv(AT_EXECFN);
     exec_text.Prepare(false);
     exec_fn.Prepare(false);
-    uint32_t point_size = CoreApi::GetPointSize();
 
+    if (exec_fn.IsValid()) {
+        std::string name = reinterpret_cast<const char*>(exec_fn.Real());
+        if (name.length() > 0 && name != "/system/bin/logd") {
+            LOGE("Exec filename \"%s\" not that \"/system/bin/logd\".\n", name.c_str());
+            return false;
+        }
+    }
+    uint32_t point_size = CoreApi::GetPointSize();
     auto callback = [&](LoadBlock *block) -> bool {
         if (!(block->flags() & Block::FLAG_W))
             return false;
@@ -158,6 +165,10 @@ int LogcatCommand::main(int argc, char* const argv[]) {
     if (Android::Sdk() >= Android::S) {
         SerializedLogBuffer::Init31();
         SerializedLogBuffer log_buffer = AnalysisSerializedLogBuffer();
+        if (!log_buffer.Ptr()) {
+            LOGE("Not found SerializedLogBuffer!\n");
+            return 0;
+        }
 
         if (dump_flag & DUMP_MAIN) {
             cxx::list main_logs = log_buffer.logs() + LOG_ID_MAIN * SIZEOF(cxx_list);
