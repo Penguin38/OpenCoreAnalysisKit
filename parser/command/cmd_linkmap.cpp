@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "base/utils.h"
 #include "command/cmd_linkmap.h"
+#include "common/elf.h"
 #include "api/core.h"
 #include <unistd.h>
 #include <getopt.h>
@@ -102,10 +103,13 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
 }
 
 void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
-    LOGI(ANSI_COLOR_LIGHTRED "VALUE             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
+    LOGI(ANSI_COLOR_LIGHTRED "VADDR             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
     for (const auto& entry : map->GetCurrentSymbols()) {
+        uint64_t offset = entry.offset;
+        if (CoreApi::GetMachine() == EM_ARM)
+            offset &= (CoreApi::GetPointMask() - 1);
         LOGI(ANSI_COLOR_CYAN "%016lx" ANSI_COLOR_RESET "  %016lx  %016lx  " ANSI_COLOR_YELLOW "%s\n" ANSI_COLOR_RESET,
-                entry.offset, entry.size, entry.type, entry.symbol.c_str());
+                map->l_addr() + offset, entry.size, entry.type, entry.symbol.c_str());
     }
 }
 

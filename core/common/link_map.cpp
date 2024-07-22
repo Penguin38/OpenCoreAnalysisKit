@@ -140,7 +140,7 @@ SymbolEntry LinkMap::DlSymEntry(const char* symbol) {
             });
     if (it != symbols.end())
         return *it;
-    return SymbolEntry(0, 0, 0, 0);
+    return SymbolEntry::Invalid();
 }
 
 void LinkMap::ReadSymbols() {

@@ -51,6 +51,7 @@ public:
         }
     };
 
+    inline static const SymbolEntry Invalid() { return SymbolEntry(0, 0, 0, 0); }
     inline bool IsValid() { return offset != 0x0 && size != 0x0; }
 };
 

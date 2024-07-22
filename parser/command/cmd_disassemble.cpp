@@ -96,7 +96,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
 
                 uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(vaddr, read_opt));
                 if (data) {
-                    LOGI(ANSI_COLOR_YELLOW "%s:\n" ANSI_COLOR_RESET, d_symbol.c_str());
+                    LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ":\n", d_symbol.c_str());
                     capstone::Disassember::Dump("  ", data, entry.size, vaddr, opt);
                 }
             } else {

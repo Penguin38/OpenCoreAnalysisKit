@@ -168,7 +168,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
                 LOGI(ANSI_COLOR_RED "\n      OAT CODE:\n" ANSI_COLOR_RESET);
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
                 NearAsm near_asm = NearAsmLength();
-                capstone::Disassember::Option opt(java_frame->GetFramePc() - near_asm.length, near_asm.count);
+                capstone::Disassember::Option opt(java_frame->GetFramePc() & CoreApi::GetVabitsMask() - near_asm.length, near_asm.count);
                 if (CoreApi::GetMachine() == EM_ARM) {
                     opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
                 }
@@ -265,8 +265,10 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
         for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
             if (frameid == number) {
                 std::string method_desc = native_frame->GetMethodName();
-                if (native_frame->GetMethodOffset())
-                    method_desc.append("+").append(Utils::ToHex(native_frame->GetFramePc() - native_frame->GetMethodOffset()));
+                uint64_t cloc_pc = native_frame->GetFramePc() & CoreApi::GetVabitsMask();
+                uint64_t offset = cloc_pc - native_frame->GetMethodOffset();
+                if (offset && native_frame->GetMethodOffset())
+                    method_desc.append("+").append(Utils::ToHex(offset));
                 LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
                 LOGI("  {\n");
                 LOGI("      library: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, native_frame->GetLibrary().c_str());
@@ -279,7 +281,7 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                 if (native_frame->GetFramePc()) {
                     LOGI(ANSI_COLOR_RED "\n      ASM CODE:\n" ANSI_COLOR_RESET);
                     NearAsm near_asm = NearAsmLength();
-                    capstone::Disassember::Option opt(native_frame->GetFramePc() - near_asm.length, near_asm.count);
+                    capstone::Disassember::Option opt(cloc_pc - near_asm.length, near_asm.count);
                     if (CoreApi::GetMachine() == EM_ARM) {
                         if (native_frame->IsThumbMode()) {
                             opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
@@ -293,7 +295,7 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                         uint64_t near = 0x0;
                         if (CoreApi::GetMachine() == EM_AARCH64)
                             near = near_asm.length - 4;
-                        capstone::Disassember::Dump("      ", native_frame->GetFramePc() - near, near_asm.length, opt);
+                        capstone::Disassember::Dump("      ", cloc_pc - near, near_asm.length, opt);
                     }
                 }
                 LOGI("  }\n");
