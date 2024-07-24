@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "api/core.h"
 #include "base/utils.h"
 #include "common/native_frame.h"
@@ -38,7 +39,13 @@ void NativeFrame::Decode() {
         }
         return false;
     };
-    CoreApi::ForeachLinkMap(callback);
+
+    LoadBlock* block = CoreApi::FindLoadBlock(frame_pc, false);
+    if (block && block->handle()) {
+        map = block->handle();
+    } else {
+        CoreApi::ForeachLinkMap(callback);
+    }
     if (map) map->NiceMethod(frame_pc, frame_symbol);
 }
 

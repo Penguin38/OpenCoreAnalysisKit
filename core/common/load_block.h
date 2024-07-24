@@ -25,6 +25,8 @@
 #include <memory>
 #include <unordered_set>
 
+class LinkMap;
+
 class LoadBlock : public Block {
 public:
     static constexpr int OPT_READ_OR = (1 << 0);
@@ -73,6 +75,7 @@ public:
         mVabitsMask = 0x0;
         mPointMask = 0x0;
         mCRC32 = 0x0;
+        mMap = nullptr;
     }
 
     void setMmapFile(const char* file, uint64_t offset);
@@ -93,6 +96,8 @@ public:
     inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetSymbols() { return mSymbols; }
     bool CheckCanMmap(uint64_t header);
     uint32_t GetCRC32(int opt);
+    void bind(LinkMap* map) { mMap = map; }
+    LinkMap* handle() { return mMap; }
 
     ~LoadBlock() {
         mSymbols.clear();
@@ -103,6 +108,7 @@ private:
     uint64_t mVabitsMask;
     uint64_t mPointMask;
     uint32_t mCRC32;
+    LinkMap* mMap;
     std::unique_ptr<MemoryMap> mMmap;
     std::unique_ptr<MemoryMap> mOverlay;
     std::unordered_set<SymbolEntry, SymbolEntry::Hash> mSymbols;

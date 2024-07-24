@@ -64,6 +64,8 @@ public:
         std::string& GetMethod();
         uint64_t GetOffset() { return off; }
         uint64_t GetSize() { return size; }
+        bool IsValid() { return off && size; }
+        static NiceSymbol Invalid() { return NiceSymbol(); }
     private:
         std::string symbol;
         std::string method;

@@ -332,6 +332,7 @@ int EnvCommand::clocLoadCRC32(int num) {
                 uint64_t* orv = reinterpret_cast<uint64_t*>(block->begin(LoadBlock::OPT_READ_OR));
                 uint64_t* mmv = reinterpret_cast<uint64_t*>(block->begin(LoadBlock::OPT_READ_MMAP));
                 int count = RoundUp(block->size() / 8, 2);
+                LinkMap::NiceSymbol symbol;
                 for (int k = 0; k < count; k += 2) {
                     uint64_t orv1 = orv[k];
                     uint64_t orv2 = orv[k + 1];
@@ -340,8 +341,18 @@ int EnvCommand::clocLoadCRC32(int num) {
                     if (LIKELY(orv1 == mmv1) && LIKELY(orv2 == mmv2))
                         continue;
 
+                    uint64_t current = block->vaddr() + k * 8;
+                    if (!symbol.IsValid() ||
+                            (current < symbol.GetOffset() ||
+                             current >= symbol.GetOffset() + symbol.GetSize())) {
+                        if (block->handle()) {
+                            symbol = LinkMap::NiceSymbol::Invalid();
+                            block->handle()->NiceMethod(current, symbol);
+                            if (symbol.IsValid()) LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ":\n", symbol.GetSymbol().c_str());
+                        }
+                    }
                     LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %016lx  %s%s  |  %016lx  %016lx  %s%s\n",
-                            (block->vaddr() + k * 8), orv1, orv2,
+                            current, orv1, orv2,
                             Utils::ConvertAscii(orv1, 8).c_str(), Utils::ConvertAscii(orv2, 8).c_str(),
                             mmv1, mmv2,
                             Utils::ConvertAscii(mmv1, 8).c_str(), Utils::ConvertAscii(mmv2, 8).c_str());

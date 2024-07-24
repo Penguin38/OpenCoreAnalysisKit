@@ -66,7 +66,7 @@ public:
     bool dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile);
     static void readsym64(::LinkMap* handle);
 private:
-    bool loader_dlopen64(CoreApi* api, MemoryMap* map, uint64_t addr, const char* file);
+    bool loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle, uint64_t addr, const char* file);
 };
 
 } // namespace lp64

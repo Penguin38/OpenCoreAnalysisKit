@@ -140,7 +140,7 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
             return false;
         }
 
-        return loader_dlopen64(api, map.get(), phdr - ehdr->e_phoff - (pt[0].p_vaddr - pt[0].p_offset), file);
+        return loader_dlopen64(api, map.get(), nullptr, phdr - ehdr->e_phoff - (pt[0].p_vaddr - pt[0].p_offset), file);
     }
     return false;
 }
@@ -180,12 +180,12 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
         if (!header->CheckLibrary(file))
             return false;
 
-        return loader_dlopen64(api, map.get(), handle->l_addr(), file);
+        return loader_dlopen64(api, map.get(), handle, handle->l_addr(), file);
     }
     return false;
 }
 
-bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, uint64_t addr, const char* file) {
+bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle, uint64_t addr, const char* file) {
     bool status = false;
     Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
     Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
@@ -222,6 +222,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, uint64_t addr, co
                                   - page_offset;
         if (mem_size >= block->size()) {
             block->setMmapFile(file, page_offset);
+            if (handle) block->bind(handle);
             status = true;
         } else {
             LOGE("Please checksum %s miss match.\n", file);
@@ -253,6 +254,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, uint64_t addr, co
                     next_page_offset = next_vma->offset();
                 }
                 next_block->setMmapFile(file, next_page_offset);
+                if (handle) next_block->bind(handle);
             }
         }
     }
