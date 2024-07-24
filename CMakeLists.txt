@@ -72,6 +72,7 @@ add_library(core STATIC
             core/x86_64/unwind.cpp
             core/x86/core.cpp
             core/x86/unwind.cpp
+            core/common/elf.cpp
             core/common/note_block.cpp
             core/common/load_block.cpp
             core/common/link_map.cpp

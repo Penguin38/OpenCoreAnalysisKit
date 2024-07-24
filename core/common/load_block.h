@@ -91,6 +91,7 @@ public:
     inline void setMmapMemoryMap(std::unique_ptr<MemoryMap>& map) { mMmap = std::move(map); }
     inline void setOverlayMemoryMap(std::unique_ptr<MemoryMap>& map) { mOverlay = std::move(map); }
     inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetSymbols() { return mSymbols; }
+    bool CheckCanMmap(uint64_t header);
     uint32_t GetCRC32(int opt);
 
     ~LoadBlock() {

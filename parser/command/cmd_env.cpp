@@ -287,6 +287,7 @@ int EnvCommand::clocLoadCRC32(int num) {
     if (!CoreApi::IsReady())
         return 0;
 
+    bool first = true;
     int index = 0;
     auto callback = [&](LoadBlock *block) -> bool {
         index++;
@@ -322,6 +323,8 @@ int EnvCommand::clocLoadCRC32(int num) {
                 name.append(block->name());
                 name.append(ANSI_COLOR_RESET);
 
+                if (!first) { ENTER(); }
+                first = false;
                 LOGI("%-5d " ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %s  %010lx  ""%s""\n",
                         index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
                         block->realSize(), name.c_str());
@@ -343,7 +346,6 @@ int EnvCommand::clocLoadCRC32(int num) {
                             mmv1, mmv2,
                             Utils::ConvertAscii(mmv1, 8).c_str(), Utils::ConvertAscii(mmv2, 8).c_str());
                 }
-                ENTER();
             }
         }
         return false;

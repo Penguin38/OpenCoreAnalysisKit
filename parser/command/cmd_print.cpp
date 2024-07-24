@@ -243,9 +243,9 @@ void PrintCommand::DumpArray(art::mirror::Array& array) {
             art::mirror::Object object(*reinterpret_cast<uint32_t *>(ref.Real()), array);
             if (object.Ptr() && object.IsString()) {
                 art::mirror::String str = object;
-                LOGI("    [%d] \"%s\"\n", i, str.ToModifiedUtf8().c_str());
+                LOGI("    [%d] \"" ANSI_COLOR_LIGHTMAGENTA "%s\"\n" ANSI_COLOR_RESET, i, str.ToModifiedUtf8().c_str());
             } else {
-                LOGI("    [%d] 0x%lx\n", i, object.Ptr());
+                LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, i, object.Ptr());
             }
         }
     } else {
@@ -376,28 +376,28 @@ std::string PrintCommand::FormatSize(uint64_t size) {
 void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref) {
     switch (static_cast<uint32_t>(type)) {
         case Android::basic_byte:
-            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint8_t *>(ref.Real()));
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint8_t *>(ref.Real()));
             break;
         case Android::basic_boolean:
-            LOGI("    [%d] %s\n", i, *reinterpret_cast<uint8_t *>(ref.Real()) ? "true" : "false");
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint8_t *>(ref.Real()) ? "true" : "false");
             break;
         case Android::basic_char:
-            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint16_t *>(ref.Real()));
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint16_t *>(ref.Real()));
             break;
         case Android::basic_short:
-            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint16_t *>(ref.Real()));
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint16_t *>(ref.Real()));
             break;
         case Android::basic_int:
-            LOGI("    [%d] 0x%x\n", i, *reinterpret_cast<uint32_t *>(ref.Real()));
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint32_t *>(ref.Real()));
             break;
         case Android::basic_float:
-            LOGI("    [%d] %f\n", i, (double)*reinterpret_cast<uint32_t *>(ref.Real()));
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%f\n" ANSI_COLOR_RESET, i, (double)*reinterpret_cast<uint32_t *>(ref.Real()));
             break;
         case Android::basic_double:
-            LOGI("    [%d] %Lf\n", i, (long double)*reinterpret_cast<uint64_t *>(ref.Real()));
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%Lf\n" ANSI_COLOR_RESET, i, (long double)*reinterpret_cast<uint64_t *>(ref.Real()));
             break;
         case Android::basic_long:
-            LOGI("    [%d] %lx\n", i, *reinterpret_cast<uint64_t *>(ref.Real()));
+            LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%lx\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint64_t *>(ref.Real()));
             break;
     }
 }

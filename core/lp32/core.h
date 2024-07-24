@@ -19,6 +19,7 @@
 
 #include "api/core.h"
 #include "api/elf.h"
+#include "base/memory_map.h"
 #include <functional>
 
 namespace lp32 {
@@ -64,6 +65,8 @@ public:
     bool exec32(CoreApi* api, uint32_t phdr, const char* file);
     bool dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile);
     static void readsym32(::LinkMap* handle);
+private:
+    bool loader_dlopen32(CoreApi* api, MemoryMap* map, uint32_t addr, const char* file);
 };
 
 } // namespace lp32

@@ -46,6 +46,7 @@ public:
     uint16_t type;
     uint16_t machine;
     uint32_t version;
+    bool CheckLibrary(const char* file);
 };
 
 #endif  // CORE_COMMON_ELF_H_

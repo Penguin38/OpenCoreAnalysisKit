@@ -39,8 +39,8 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
             block->setTruncated(api->size() < (block->offset() + block->realSize()));
-            if (!(block->flags() & Block::FLAG_R))
-                continue;
+            // if (!(block->flags() & Block::FLAG_R))
+            //     continue;
 
             block->setOriAddr(api->begin() + block->offset());
             block->setVabitsMask(CoreApi::GetVabitsMask());
@@ -90,6 +90,9 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                             ++index;
                         }
                     } break;
+                    default:
+                        callback(nhdr->n_type, item_pos);
+                        break;
                 }
 
                 pos = pos + sizeof(Elf32_Nhdr) + RoundUp(nhdr->n_namesz, 0x4) + RoundUp(nhdr->n_descsz, 0x4);
@@ -126,20 +129,8 @@ bool lp32::Core::exec32(CoreApi* api, uint32_t phdr, const char* file) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file));
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
-        if (memcmp(header->ident, ELFMAG, 4)) {
-            LOGE("Invalid ELF file (%s)\n", file);
+        if (!header->CheckLibrary(file))
             return false;
-        }
-
-        if (header->type != ET_DYN) {
-            LOGE("Invalid shared object file (%s)\n", file);
-            return false;
-        }
-
-        if (header->machine != CoreApi::GetMachine()) {
-            LOGE("Invalid match machine(%d) (%s)\n", header->machine, file);
-            return false;
-        }
 
         Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
         Elf32_Phdr* pt = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
@@ -149,37 +140,7 @@ bool lp32::Core::exec32(CoreApi* api, uint32_t phdr, const char* file) {
             return false;
         }
 
-        for (int index = 0; index < ehdr->e_phnum; ++index) {
-            if (pt[index].p_type != PT_LOAD)
-                continue;
-
-            if (pt[index].p_flags & PF_W)
-                continue;
-
-            uint32_t current = phdr - ehdr->e_phoff -
-                               (pt[0].p_vaddr - pt[0].p_offset) +
-                               RoundDown(pt[index].p_vaddr, CoreApi::GetPageSize());
-            LoadBlock* block = api->findLoadBlock(current);
-
-            if (!block) {
-                LOGE("Not found LoadBlock(%x)\n", current);
-                continue;
-            }
-
-            if (block->flags() & PF_W)
-                continue;
-
-            if (current != block->vaddr())
-                continue;
-
-            uint32_t page_offset = RoundDown(pt[index].p_offset + map->offset(), CoreApi::GetPageSize());
-            ::File* vma = CoreApi::FindFile(current);
-            if (vma && page_offset != vma->offset()) {
-                page_offset = vma->offset();
-            }
-            block->setMmapFile(file, page_offset);
-        }
-        return true;
+        return loader_dlopen32(api, map.get(), phdr - ehdr->e_phoff - (pt[0].p_vaddr - pt[0].p_offset), file);
     }
     return false;
 }
@@ -216,55 +177,86 @@ bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, con
     }
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
-        if (memcmp(header->ident, ELFMAG, 4)) {
-            LOGE("Invalid ELF file (%s)\n", file);
+        if (!header->CheckLibrary(file))
             return false;
-        }
 
-        if (header->type != ET_DYN) {
-            LOGE("Invalid shared object file (%s)\n", file);
-            return false;
-        }
-
-        if (header->machine != CoreApi::GetMachine()) {
-            LOGE("Invalid match machine(%d) (%s)\n", header->machine, file);
-            return false;
-        }
-
-        Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
-        Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
-
-        for (int index = 0; index < ehdr->e_phnum; ++index) {
-            if (phdr[index].p_type != PT_LOAD)
-                continue;
-
-            if (phdr[index].p_flags & PF_W)
-                continue;
-
-            uint32_t current = handle->l_addr() + RoundDown(phdr[index].p_vaddr, CoreApi::GetPageSize());
-            LoadBlock* block = api->findLoadBlock(current);
-
-            if (!block) {
-                LOGE("Not found LoadBlock(%x)\n", current);
-                continue;
-            }
-
-            if (block->flags() & PF_W)
-                continue;
-
-            if (current != block->vaddr())
-                continue;
-
-            uint32_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), CoreApi::GetPageSize());
-            ::File* vma = CoreApi::FindFile(current);
-            if (vma && page_offset != vma->offset()) {
-                page_offset = vma->offset();
-            }
-            block->setMmapFile(file, page_offset);
-        }
-        return true;
+        return loader_dlopen32(api, map.get(), handle->l_addr(), file);
     }
     return false;
+}
+
+bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, uint32_t addr, const char* file) {
+    bool status = false;
+    Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
+    Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
+
+    for (int index = 0; index < ehdr->e_phnum; ++index) {
+        if (phdr[index].p_type != PT_LOAD)
+            continue;
+
+        if (phdr[index].p_flags & PF_W)
+            continue;
+
+        if (!phdr[index].p_filesz)
+            continue;
+
+        uint32_t current = addr + RoundDown(phdr[index].p_vaddr, CoreApi::GetPageSize());
+        uint32_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), CoreApi::GetPageSize());
+
+        LoadBlock* block = api->findLoadBlock(current);
+        if (!block) {
+            LOGE("Not found LoadBlock(%x)\n", current);
+            continue;
+        }
+
+        if (!block->CheckCanMmap(current))
+            continue;
+
+        ::File* vma = CoreApi::FindFile(current);
+        if (vma && page_offset != vma->offset()) {
+            page_offset = vma->offset();
+        }
+
+        uint32_t mem_size = RoundUp(phdr[index].p_offset + map->offset()
+                                  + phdr[index].p_memsz, phdr[index].p_align)
+                                  - page_offset;
+        if (mem_size >= block->size()) {
+            block->setMmapFile(file, page_offset);
+            status = true;
+        } else {
+            LOGE("Please checksum %s miss match.\n", file);
+            break;
+        }
+
+        // continue mmap
+        if (mem_size > block->size()) {
+            LOGW("Mmap segment [%lx, %lx) size %lx != %x, maybe reset range!\n",
+                    block->vaddr(), block->vaddr() + block->size(), block->size(), mem_size);
+
+            uint32_t cur_size = block->size();
+            while (cur_size < mem_size) {
+                uint32_t next = current + cur_size;
+                uint32_t next_page_offset = page_offset + cur_size;
+
+                LoadBlock* next_block = api->findLoadBlock(next);
+                if (!next_block) {
+                    LOGE("Not found next LoadBlock(%x)\n", next);
+                    break;
+                }
+                cur_size += next_block->size();
+
+                if (!next_block->CheckCanMmap(next))
+                    continue;
+
+                ::File* next_vma = CoreApi::FindFile(next);
+                if (next_vma && next_page_offset != next_vma->offset()) {
+                    next_page_offset = next_vma->offset();
+                }
+                next_block->setMmapFile(file, next_page_offset);
+            }
+        }
+    }
+    return status;
 }
 
 void lp32::Core::readsym32(::LinkMap* handle) {

@@ -70,6 +70,25 @@ void LoadBlock::removeOverlay() {
     }
 }
 
+bool LoadBlock::CheckCanMmap(uint64_t header) {
+    /*
+     *  r-x
+     *  rwx
+     *  ...
+     *  --- // filter non-read
+     */
+    if (!(flags() & FLAG_R))
+        return false;
+
+    // filter .oat
+    if ((flags() & FLAG_W) && !(flags() & FLAG_X))
+        return false;
+
+    if (header != vaddr())
+        return false;
+    return true;
+}
+
 uint32_t LoadBlock::GetCRC32(int opt) {
     if (mOverlay && (opt & OPT_READ_OVERLAY)) {
         return mOverlay->GetCRC32();
