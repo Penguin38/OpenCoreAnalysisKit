@@ -272,7 +272,7 @@ Runtime Runtime::AnalysisInstance() {
 
         return true;
     };
-    CoreApi::ForeachLoadBlock(callback);
+    CoreApi::ForeachLoadBlock(callback, true, true);
 
     //maybe invalid
     if (!callee_methods[0])
@@ -308,7 +308,7 @@ Runtime Runtime::AnalysisInstance() {
         }
         return false;
     };
-    CoreApi::ForeachLoadBlock(match);
+    CoreApi::ForeachLoadBlock(match, true, true);
     return runtime;
 }
 

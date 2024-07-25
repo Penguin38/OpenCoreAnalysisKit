@@ -19,6 +19,6 @@
 
 namespace api {
 LoadBlock* Bridge::FindLoadBlock(uint64_t vaddr, bool check) {
-    return CoreApi::FindLoadBlock(vaddr, check);
+    return CoreApi::FindLoadBlock(vaddr, check, true);
 }
 } // namespace api

@@ -93,7 +93,7 @@ static SerializedLogBuffer AnalysisSerializedLogBuffer() {
         } while (buffer.Ptr() + SIZEOF(SerializedLogBuffer) < block->vaddr() + block->size());
         return false;
     };
-    CoreApi::ForeachLoadBlock(callback);
+    CoreApi::ForeachLoadBlock(callback, true, true);
     return serial;
 }
 

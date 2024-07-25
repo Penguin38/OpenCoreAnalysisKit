@@ -126,15 +126,25 @@ public:
         return Read(vaddr, size, buf, OPT_READ_ALL);
     }
     static bool Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt);
+
+    // default non-quick search load
     static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback) {
-        return ForeachLoadBlock(callback, true);
+        return ForeachLoadBlock(callback, true /** filter invalid */);
     }
-    static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
+    static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check) {
+        return ForeachLoadBlock(callback, check, false /** mLoad */);
+    }
+    static void ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check, bool quick);
+
+    // default quick search load
     static inline LoadBlock* FindLoadBlock(uint64_t vaddr) {
-        return FindLoadBlock(vaddr, true);
+        return FindLoadBlock(vaddr, true /** throw invalid */);
     }
     static inline LoadBlock* FindLoadBlock(uint64_t vaddr, bool check) {
-        LoadBlock* block = INSTANCE->findLoadBlock(vaddr);
+        return FindLoadBlock(vaddr, check, true /** mQuickLoad */);
+    }
+    static inline LoadBlock* FindLoadBlock(uint64_t vaddr, bool check, bool quick) {
+        LoadBlock* block = INSTANCE->findLoadBlock(vaddr, quick);
         if (check) {
             if (block && block->isValid())
                 return block;
@@ -165,20 +175,21 @@ public:
      *  | *----*  | *-|--* | ...
      *  M0 S1 < E1 <= M1 < S2 <= M2 < E2 <= M3 ...
      */
-    inline LoadBlock* findLoadBlock(uint64_t vaddr) {
-        if (mLoad.empty()) return nullptr;
+    inline LoadBlock* findLoadBlock(uint64_t vaddr, bool quick) {
+        std::vector<std::shared_ptr<LoadBlock>>& loads = getLoads(quick);
+        if (loads.empty()) return nullptr;
 
         int left = 0;
-        int right = mLoad.size();
+        int right = loads.size();
         uint64_t clocaddr = vaddr & getVabitsMask();
 
-        if (clocaddr < mLoad[left]->vaddr()
-                || clocaddr >= (mLoad[right - 1]->vaddr() + mLoad[right - 1]->size()))
+        if (clocaddr < loads[left]->vaddr()
+                || clocaddr >= (loads[right - 1]->vaddr() + loads[right - 1]->size()))
            return nullptr;
 
         while (left < right) {
             int mid = left + (right - left) / 2;
-            LoadBlock* block = mLoad[mid].get();
+            LoadBlock* block = loads[mid].get();
             if (block->vaddr() > clocaddr) {
                 right = mid;
             } else {
@@ -203,8 +214,11 @@ public:
     void foreachFile(std::function<bool (File *)> callback);
     void foreachAuxv(std::function<bool (Auxv *)> callback);
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
-    void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check);
+    void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check, bool quick);
     uint64_t getPageSize();
+    inline std::vector<std::shared_ptr<LoadBlock>>& getLoads(bool quick) {
+        return quick? mQuickLoad : mLoad;
+    }
     bool isRemote() { return mRemote; }
 protected:
     uint64_t pointer_mask;
@@ -226,6 +240,7 @@ private:
 
     std::unique_ptr<MemoryMap> mCore;
     std::vector<std::shared_ptr<LoadBlock>> mLoad;
+    std::vector<std::shared_ptr<LoadBlock>> mQuickLoad;
     std::vector<std::unique_ptr<NoteBlock>> mNote;
     std::vector<std::unique_ptr<LinkMap>> mLinkMap;
     std::function<void (LinkMap *)> mSysRootCallback;

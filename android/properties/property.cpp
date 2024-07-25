@@ -52,7 +52,7 @@ const char* android::Property::Get(const char *name, const char* def) {
         }
         return false;
     };
-    CoreApi::ForeachLoadBlock(callback);
+    CoreApi::ForeachLoadBlock(callback, true, true);
 
     if (result.Ptr())
         return result.value();
@@ -91,5 +91,5 @@ void android::Property::Foreach(std::function<void (android::PropInfo& info)> pr
         }
         return false;
     };
-    CoreApi::ForeachLoadBlock(callback);
+    CoreApi::ForeachLoadBlock(callback, true, true);
 }

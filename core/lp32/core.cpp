@@ -39,9 +39,6 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
             block->setTruncated(api->size() < (block->offset() + block->realSize()));
-            // if (!(block->flags() & Block::FLAG_R))
-            //     continue;
-
             block->setOriAddr(api->begin() + block->offset());
             block->setVabitsMask(CoreApi::GetVabitsMask());
             block->setPointMask(CoreApi::GetPointMask());
@@ -203,7 +200,7 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
         uint32_t current = addr + RoundDown(phdr[index].p_vaddr, CoreApi::GetPageSize());
         uint32_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), CoreApi::GetPageSize());
 
-        LoadBlock* block = api->findLoadBlock(current);
+        LoadBlock* block = api->findLoadBlock(current, false);
         if (!block) {
             LOGE("Not found LoadBlock(%x)\n", current);
             continue;
@@ -239,7 +236,7 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
                 uint32_t next = current + cur_size;
                 uint32_t next_page_offset = page_offset + cur_size;
 
-                LoadBlock* next_block = api->findLoadBlock(next);
+                LoadBlock* next_block = api->findLoadBlock(next, false);
                 if (!next_block) {
                     LOGE("Not found next LoadBlock(%x)\n", next);
                     break;

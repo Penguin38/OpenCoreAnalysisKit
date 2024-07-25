@@ -137,8 +137,8 @@ std::string& CoreApi::getName() {
 }
 
 bool CoreApi::NewLoadBlock(uint64_t begin, uint64_t size) {
-    if (INSTANCE->findLoadBlock(begin)
-            || INSTANCE->findLoadBlock(begin + size - 0x1))
+    if (INSTANCE->findLoadBlock(begin, false)
+            || INSTANCE->findLoadBlock(begin + size - 0x1, false))
         return false;
 
     std::shared_ptr<LoadBlock> block(new LoadBlock(Block::FLAG_R | Block::FLAG_W,  // flag
@@ -161,10 +161,13 @@ bool CoreApi::NewLoadBlock(uint64_t begin, uint64_t size) {
 }
 
 void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
-    mLoad.push_back(std::move(block));
+    mLoad.push_back(block);
+    if (block->flags() & Block::FLAG_R)
+        mQuickLoad.push_back(block);
 }
 
 void CoreApi::removeAllLoadBlock() {
+    mQuickLoad.clear();
     mLoad.clear();
 }
 
@@ -310,8 +313,8 @@ bool CoreApi::Read(uint64_t vaddr, uint64_t size, uint8_t* buf, int opt) {
     return true;
 }
 
-void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check) {
-    INSTANCE->foreachLoadBlock(callback, check);
+void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check, bool quick) {
+    INSTANCE->foreachLoadBlock(callback, check, quick);
 }
 
 uint64_t CoreApi::DlSym(const char* path, const char* symbol) {
@@ -349,21 +352,20 @@ void CoreApi::ForeachThread(std::function<bool (ThreadApi *)> callback) {
 }
 
 uint64_t CoreApi::v2r(uint64_t vaddr, int opt) {
-    for (const auto& block : mLoad) {
-        if (block->virtualContains(vaddr) && block->isValid()) {
-            uint64_t raddr = block->begin(opt);
-            if (raddr) {
-                return raddr + ((vaddr & block->VabitsMask()) - block->vaddr());
-            } else {
-                return 0x0;
-            }
+    LoadBlock* block = findLoadBlock(vaddr, true);
+    if (block && block->isValid()) {
+        uint64_t raddr = block->begin(opt);
+        if (raddr) {
+            return raddr + ((vaddr & block->VabitsMask()) - block->vaddr());
+        } else {
+            return 0x0;
         }
     }
     throw InvalidAddressException(vaddr);
 }
 
 uint64_t CoreApi::r2v(uint64_t raddr) {
-    for (const auto& block : mLoad) {
+    for (const auto& block : mQuickLoad) {
         if (block->realContains(raddr))
             return block->vaddr() + (raddr - block->begin());
     }
@@ -371,12 +373,8 @@ uint64_t CoreApi::r2v(uint64_t raddr) {
 }
 
 bool CoreApi::virtualValid(uint64_t vaddr) {
-    for (const auto& block : mLoad) {
-        if (block->virtualContains(vaddr)) {
-            return block->isValid();
-        }
-    }
-    return false;
+    LoadBlock* block = findLoadBlock(vaddr, true);
+    return block && block->isValid();
 }
 
 void CoreApi::addNoteBlock(std::unique_ptr<NoteBlock>& block) {
@@ -445,8 +443,8 @@ void CoreApi::foreachLinkMap(std::function<bool (LinkMap *)> callback) {
     }
 }
 
-void CoreApi::foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check) {
-    for (const auto& block : mLoad) {
+void CoreApi::foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check, bool quick) {
+    for (const auto& block : getLoads(quick)) {
         if (LIKELY(check) && !block->isValid())
             continue;
 

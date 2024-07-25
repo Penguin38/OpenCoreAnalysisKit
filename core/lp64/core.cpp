@@ -39,9 +39,6 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                                              phdr[num].p_memsz,
                                              phdr[num].p_align));
             block->setTruncated(api->size() < (block->offset() + block->realSize()));
-            // if (!(block->flags() & Block::FLAG_R))
-            //     continue;
-
             block->setOriAddr(api->begin() + block->offset());
             block->setVabitsMask(CoreApi::GetVabitsMask());
             block->setPointMask(CoreApi::GetPointMask());
@@ -203,7 +200,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
         uint64_t current = addr + RoundDown(phdr[index].p_vaddr, CoreApi::GetPageSize());
         uint64_t page_offset = RoundDown(phdr[index].p_offset + map->offset(), CoreApi::GetPageSize());
 
-        LoadBlock* block = api->findLoadBlock(current);
+        LoadBlock* block = api->findLoadBlock(current, false);
         if (!block) {
             LOGE("Not found LoadBlock(%lx)\n", current);
             continue;
@@ -239,7 +236,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
                 uint64_t next = current + cur_size;
                 uint64_t next_page_offset = page_offset + cur_size;
 
-                LoadBlock* next_block = api->findLoadBlock(next);
+                LoadBlock* next_block = api->findLoadBlock(next, false);
                 if (!next_block) {
                     LOGE("Not found next LoadBlock(%lx)\n", next);
                     break;

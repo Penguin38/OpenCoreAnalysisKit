@@ -80,7 +80,7 @@ int OatHeader::AnalysiOatVersion() {
         }
         return false;
     };
-    CoreApi::ForeachLoadBlock(callback);
+    CoreApi::ForeachLoadBlock(callback, true, true);
     return found_version;
 }
 
