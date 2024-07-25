@@ -91,17 +91,6 @@ public:
     }
 };
 
-class VersionCommand : public Command {
-public:
-    VersionCommand() : Command("version") {}
-    ~VersionCommand() {}
-    void usage() {}
-    int main(int /*argc*/, char* const * /*argv[]*/) {
-        LOGI("(%s) core-parser 1.0.0++\n", __TARGET_PARSER__);
-        return 0;
-    }
-};
-
 int command_preload(int argc, char* const argv[]) {
     int opt;
     int option_index = 0;
@@ -177,7 +166,6 @@ int main(int argc, char* const argv[]) {
     sigaction(SIGTERM, &stact, NULL);
 
     CommandManager::Init();
-    CommandManager::PushInlineCommand(new VersionCommand());
     CommandManager::PushInlineCommand(new QuitCommand());
 
     show_copyright();

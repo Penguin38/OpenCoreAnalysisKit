@@ -237,6 +237,8 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     } else {
         LOGI("  * r_debug: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, CoreApi::GetDebugPtr());
         LOGI("  * arm mode: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, !capstone::Disassember::GetArmMode() ? "arm" : "thumb");
+        LOGI("  * mLoad: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLoads(false).size());
+        LOGI("  * mQuickLoad: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLoads(true).size());
     }
     return 0;
 }
@@ -403,4 +405,5 @@ void EnvCommand::usage() {
     LOGI("Option:\n");
     LOGI("   --load: show code load segments\n");
     LOGI("   --arm <thumb|arm>\n");
+    LOGI("   --crc: check consistency of mmap file data.\n");
 }

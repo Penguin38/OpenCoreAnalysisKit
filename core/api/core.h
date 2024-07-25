@@ -102,6 +102,9 @@ public:
     static uint64_t GetVabitsMask();
     static uint64_t GetPageSize() { return INSTANCE->getPageSize(); }
     static bool IsRemote() { return INSTANCE->isRemote(); }
+    static std::vector<std::shared_ptr<LoadBlock>>& GetLoads(bool quick) {
+        return INSTANCE->getLoads(quick);
+    }
     static uint64_t GetReal(uint64_t vaddr) {
         return GetReal(vaddr, OPT_READ_ALL);
     }

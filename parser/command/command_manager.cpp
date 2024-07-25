@@ -53,6 +53,17 @@
 
 CommandManager* CommandManager::INSTANCE;
 
+class VersionCommand : public Command {
+public:
+    VersionCommand() : Command("version") {}
+    ~VersionCommand() {}
+    void usage() {}
+    int main(int /*argc*/, char* const * /*argv[]*/) {
+        LOGI("(%s) core-parser 1.0.1++\n", __TARGET_PARSER__);
+        return 0;
+    }
+};
+
 void CommandManager::Init() {
     INSTANCE = new CommandManager;
     // core
@@ -95,6 +106,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new RemoteCommand());
     CommandManager::PushInlineCommand(new FakeCommand());
     CommandManager::PushInlineCommand(new TimeCommand());
+    CommandManager::PushInlineCommand(new VersionCommand());
 }
 
 int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {

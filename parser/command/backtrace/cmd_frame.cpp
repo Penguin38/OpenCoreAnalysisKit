@@ -168,7 +168,7 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
                 LOGI(ANSI_COLOR_RED "\n      OAT CODE:\n" ANSI_COLOR_RESET);
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
                 NearAsm near_asm = NearAsmLength();
-                capstone::Disassember::Option opt(java_frame->GetFramePc() & CoreApi::GetVabitsMask() - near_asm.length, near_asm.count);
+                capstone::Disassember::Option opt((java_frame->GetFramePc() & CoreApi::GetVabitsMask()) - near_asm.length, near_asm.count);
                 if (CoreApi::GetMachine() == EM_ARM) {
                     opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
                 }
