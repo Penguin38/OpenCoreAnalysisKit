@@ -538,17 +538,17 @@ uint32_t CodeInfo::NativePc2DexPc(uint32_t native_pc) {
         for (int row = 0; row < map.NumRows(); row++) {
             uint32_t packed_native_pc = map.Get(row, StackMap::kColNumPackedNativePc);
             uint32_t current_native_pc = StackMap::UnpackNativePc(packed_native_pc);
+            dex_pc = map.Get(row, StackMap::kColNumDexPc);
             if (current_native_pc > native_pc)
                 break;
-            dex_pc = map.Get(row, StackMap::kColNumDexPc);
         }
     } else {
         for (int row = 0; row < number_of_stack_maps_; row++) {
             BitMemoryRegion bit_region = encoding_.GetStackMap().BitRegion(region_, row);
             uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
+            dex_pc = encoding_.GetStackMap().encoding.GetDexPcEncoding().Load(bit_region);
             if (current_native_pc > native_pc)
                 break;
-            dex_pc = encoding_.GetStackMap().encoding.GetDexPcEncoding().Load(bit_region);
         }
 
     }
@@ -572,9 +572,9 @@ void CodeInfo::NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegist
     for (int row = 0; row < number_of_stack_maps_; row++) {
         BitMemoryRegion bit_region = encoding_.GetStackMap().BitRegion(region_, row);
         uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
+        dex_register_map = encoding_.GetStackMap().encoding.GetDexRegisterMapEncoding().Load(bit_region);
         if (current_native_pc > native_pc)
             break;
-        dex_register_map = encoding_.GetStackMap().encoding.GetDexRegisterMapEncoding().Load(bit_region);
     }
     // TODO
 }
@@ -588,10 +588,10 @@ void CodeInfo::NativePc2VRegsV2(uint32_t native_pc, std::map<uint32_t, DexRegist
     for (int row = 0; row < map.NumRows(); row++) {
         uint32_t packed_native_pc = map.Get(row, StackMap::kColNumPackedNativePc);
         uint32_t current_native_pc = StackMap::UnpackNativePc(packed_native_pc);
-        if (current_native_pc > native_pc)
-            break;
         current_row = row;
         dex_register_map_index = map.Get(row, StackMap::kColNumDexRegisterMapIndex);
+        if (current_native_pc > native_pc)
+            break;
     }
 
     if (dex_register_map_index == BitTable::kNoValue) return;

@@ -44,6 +44,7 @@ public:
     std::map<uint32_t, DexRegisterInfo>& GetVRegs();
     std::map<uint32_t, DexRegisterInfo>& GetVRegsCache() { return vregs_cache; }
     QuickMethodFrameInfo GetFrameInfo();
+    static uint64_t ReturnPc2FramePc(uint64_t rpc);
 private:
     ArtMethod method = 0x0;
     OatQuickMethodHeader method_header = 0x0;

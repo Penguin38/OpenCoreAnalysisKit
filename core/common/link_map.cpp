@@ -102,7 +102,7 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
 
     LoadBlock* load = block();
     if (load) {
-        bool vdso = !strcmp(name(), "[vdso]");
+        bool vdso = !strcmp(name(), "[vdso]") || load->vaddr() == CoreApi::FindAuxv(AT_SYSINFO_EHDR);
         uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
         uint64_t nice_offset = 0;
         uint64_t nice_size = 0;

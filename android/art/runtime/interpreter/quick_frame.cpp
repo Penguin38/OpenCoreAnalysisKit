@@ -122,4 +122,23 @@ QuickMethodFrameInfo QuickFrame::GetFrameInfo() {
     }
 }
 
+uint64_t QuickFrame::ReturnPc2FramePc(uint64_t rpc) {
+    // ART OAT CODE
+    if (rpc) {
+        int machine = CoreApi::GetMachine();
+        switch (machine) {
+            // 1850ff | call dword ptr [eax + 0x18]
+            case EM_386: return rpc - 0x3;
+            // 2057ff | call qword ptr [rdi + 0x20]
+            case EM_X86_64: return rpc - 0x3;
+            // 47f0 | blx lr
+            case EM_ARM: return rpc - 0x2;
+            // d63f03c0 | blr x30
+            case EM_AARCH64: return rpc - 0x4;
+            case EM_RISCV: return rpc - 0x4;
+        }
+    }
+    return rpc;
+}
+
 } //namespace art

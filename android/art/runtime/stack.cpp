@@ -122,7 +122,7 @@ void StackVisitor::WalkStack() {
                     QuickFrame next_frame(cur_quick_frame_.Ptr() + frame_size, cur_quick_frame_);
                     prev_quick_frame_ = cur_quick_frame_;
                     cur_quick_frame_ = next_frame;
-                    cur_quick_frame_.SetFramePc(return_pc_addr.valueOf());
+                    cur_quick_frame_.SetFramePc(QuickFrame::ReturnPc2FramePc(return_pc_addr.valueOf()));
 
                     method = cur_quick_frame_.GetMethod();
                 }

@@ -86,7 +86,10 @@ void UnwindStack::FpBacktrace(Register& regs) {
 
         // FP CALLTRACE
         VisitFrame();
+        LoadBlock* vdso = CoreApi::FindLoadBlock(CoreApi::FindAuxv(AT_SYSINFO_EHDR));
         cur_frame_pc_ = regs.lr;
+        if (!vdso || !vdso->virtualContains(cur_frame_pc_))
+            cur_frame_pc_ -= 0x4;
         VisitFrame();
 
         api::MemoryRef fp = cur_frame_fp_;
@@ -96,6 +99,8 @@ void UnwindStack::FpBacktrace(Register& regs) {
 
         while (1) {
             cur_frame_pc_ = fp.value64Of(8);
+            if (!vdso || !vdso->virtualContains(cur_frame_pc_))
+                cur_frame_pc_ -= 0x4;
             cur_frame_fp_ = fp.value64Of();
 
             if (cur_frame_fp_ == fp.Ptr())
