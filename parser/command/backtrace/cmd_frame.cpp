@@ -20,6 +20,7 @@
 #include "base/utils.h"
 #include "common/elf.h"
 #include "command/env.h"
+#include "command/cmd_dex.h"
 #include "command/backtrace/cmd_frame.h"
 #include "command/backtrace/cmd_backtrace.h"
 #include "runtime/thread_list.h"
@@ -143,14 +144,18 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             art::ShadowFrame& shadow_frame = java_frame->GetShadowFrame();
             art::QuickFrame& quick_frame = java_frame->GetQuickFrame();
             art::DexFile& dex_file = method.GetDexFile();
+            std::string location = DexCommand::DexFileLocation(dex_file, false);
             uint64_t dex_pc_ptr = java_frame->GetDexPcPtr();
             LOGI(format.c_str(), frameid, dex_pc_ptr, method.ColorPrettyMethodOnlyNP().c_str());
             LOGI("  {\n");
+            LOGI("      Location: " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET, location.c_str());
+            if (Android::Sdk() >= Android::P)
+                LOGD("      IsCompact: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, dex_file.IsCompactDexFile() ? "true" : "false");
             LOGI("      art::ArtMethod: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, method.Ptr());
-            LOGI("      shadow_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, shadow_frame.Ptr());
-            LOGI("      quick_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, quick_frame.Ptr());
             LOGI("      dex_pc_ptr: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, dex_pc_ptr);
+            if (shadow_frame.Ptr()) LOGI("      shadow_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, shadow_frame.Ptr());
             if (quick_frame.Ptr()) {
+                LOGI("      quick_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, quick_frame.Ptr());
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
                 LOGI("      frame_pc: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, java_frame->GetFramePc());
                 LOGI("      method_header: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, method_header.Ptr());

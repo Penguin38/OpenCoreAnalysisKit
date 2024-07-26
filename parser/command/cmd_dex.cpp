@@ -87,6 +87,26 @@ int DexCommand::main(int argc, char* const argv[]) {
     return 0;
 }
 
+std::string DexCommand::DexFileLocation(art::DexFile& dex_file, bool dump_ori) {
+    std::string name;
+    if (dex_file.Ptr()) name = dex_file.GetLocation().c_str();
+    LoadBlock* block = CoreApi::FindLoadBlock(dex_file.data_begin(), false);
+    if (block) {
+        if (!dump_ori && block->isMmapBlock()) {
+            name = block->name();
+        } else {
+            art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
+            if (oat_dex_file.Ptr()) {
+                art::OatFile& oat_file = oat_dex_file.GetOatFile();
+                if (oat_file.Ptr() && block->virtualContains(oat_file.GetVdexBegin())) {
+                    name = oat_file.GetVdexFile().GetName();
+                }
+            }
+        }
+    }
+    return name;
+}
+
 void DexCommand::ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, art::DexFile& dex_file) {
     std::string name;
     if (dex_cache.Ptr()) {

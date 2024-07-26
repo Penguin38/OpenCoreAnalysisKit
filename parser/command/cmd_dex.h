@@ -30,6 +30,7 @@ public:
     void DexCachesDump_v33();
     void ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, art::DexFile& dex_file);
     void DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::DexFile& dex_file);
+    static std::string DexFileLocation(art::DexFile& dex_file, bool dump_ori);
 private:
     bool dump_ori = false;
     int num = 0;
