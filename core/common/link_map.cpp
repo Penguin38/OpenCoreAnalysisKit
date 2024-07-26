@@ -126,6 +126,8 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
 
         if (it != symbols.end()) {
             nice_offset = it->offset + l_addr();
+            if (CoreApi::GetMachine() == EM_ARM)
+                nice_offset &= (CoreApi::GetPointMask() - 1);
             nice_size = it->size;
             symbol.SetNiceMethod(it->symbol.data(), nice_offset, nice_size);
         }

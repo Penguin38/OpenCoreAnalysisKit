@@ -42,6 +42,7 @@ public:
     void ShowNativeFrameInfo(int number);
 private:
     bool java;
+    bool dump_all;
 };
 
 #endif // PARSER_COMMAND_BACKTRACE_CMD_FRAME_H_

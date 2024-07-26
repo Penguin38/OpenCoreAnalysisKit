@@ -40,16 +40,18 @@ int FrameCommand::main(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"java",    no_argument,       0,  'j'},
         {"native",  no_argument,       0,  'n'},
+        {"all",     no_argument,       0,  'a'},
     };
 
     java = false;
+    dump_all = false;
     if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
         art::Thread* current = art::Runtime::Current().GetThreadList().FindThreadByTid(Env::CurrentPid());
         if (current && !current->StackEmpty())
             java = true;
     }
 
-    while ((opt = getopt_long(argc, (char* const*)argv, "jn",
+    while ((opt = getopt_long(argc, (char* const*)argv, "jna",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'j':
@@ -58,6 +60,9 @@ int FrameCommand::main(int argc, char* const argv[]) {
             case 'n':
                 java = false;
                 break;
+            case 'a':
+                dump_all = true;
+                break;
         }
     }
 
@@ -65,10 +70,15 @@ int FrameCommand::main(int argc, char* const argv[]) {
     if (optind < argc) number = atoi(argv[optind]);
 
 #if defined(__AOSP_PARSER__)
-    if (java) {
+    if (dump_all) {
+        ShowNativeFrameInfo(number);
         ShowJavaFrameInfo(number);
     } else {
-        ShowNativeFrameInfo(number);
+        if (java) {
+            ShowJavaFrameInfo(number);
+        } else {
+            ShowNativeFrameInfo(number);
+        }
     }
 #else
     ShowNativeFrameInfo(number);
@@ -87,23 +97,23 @@ static NearAsm NearAsmLength() {
     switch (machine) {
         case EM_386:
             near_asm.length = 0x20;
-            near_asm.count = 10;
+            near_asm.count = 12;
             break;
         case EM_X86_64:
             near_asm.length = 0x20;
-            near_asm.count = 10;
+            near_asm.count = 12;
             break;
         case EM_ARM:
             near_asm.length = 0x20;
-            near_asm.count = 15;
+            near_asm.count = 16;
             break;
         case EM_AARCH64:
             near_asm.length = 0x24;
-            near_asm.count = 10;
+            near_asm.count = 12;
             break;
         case EM_RISCV:
             near_asm.length = 0x24;
-            near_asm.count = 10;
+            near_asm.count = 12;
             break;
     }
     return near_asm;
@@ -122,13 +132,13 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
     art::StackVisitor visitor(current, art::StackVisitor::StackWalkKind::kSkipInlinedFrames);
     visitor.WalkStack();
 
-    if (number > visitor.GetJavaFrames().size() - 1)
+    if (number > visitor.GetJavaFrames().size() - 1 && !dump_all)
         return;
 
     std::string format = BacktraceCommand::FormatJavaFrame("  ", visitor.GetJavaFrames().size());
     uint32_t frameid = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
-        if (number == frameid) {
+        if (dump_all || number == frameid) {
             art::ArtMethod& method = java_frame->GetMethod();
             art::ShadowFrame& shadow_frame = java_frame->GetShadowFrame();
             art::QuickFrame& quick_frame = java_frame->GetQuickFrame();
@@ -263,7 +273,7 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
         std::string format = BacktraceCommand::FormatNativeFrame("  ", unwind_stack->GetNativeFrames().size());
         uint32_t frameid = 0;
         for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
-            if (frameid == number) {
+            if (dump_all || frameid == number) {
                 std::string method_desc = native_frame->GetMethodName();
                 uint64_t cloc_pc = native_frame->GetFramePc() & CoreApi::GetVabitsMask();
                 uint64_t offset = cloc_pc - native_frame->GetMethodOffset();
@@ -293,7 +303,8 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                         capstone::Disassember::Dump("      ", native_frame->GetMethodOffset(), native_frame->GetMethodSize(), opt);
                     } else {
                         uint64_t near = 0x0;
-                        if (CoreApi::GetMachine() == EM_AARCH64)
+                        if (CoreApi::GetMachine() == EM_AARCH64
+                                || (CoreApi::GetMachine() == EM_ARM && !native_frame->IsThumbMode()))
                             near = near_asm.length - 4;
                         capstone::Disassember::Dump("      ", cloc_pc - near, near_asm.length, opt);
                     }
@@ -310,4 +321,5 @@ void FrameCommand::usage() {
     LOGI("Option:\n");
     LOGI("    --java|-j: show java frame info. (Default)\n");
     LOGI("    --native|-n: show native frame info.\n");
+    LOGI("    --all|-a: show all frame info.\n");
 }
