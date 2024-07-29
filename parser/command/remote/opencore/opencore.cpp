@@ -32,6 +32,7 @@
 #include <sys/prctl.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
+#include <sys/utsname.h>
 #include <memory>
 
 int Opencore::Dump(int argc, char* const argv[]) {
@@ -76,6 +77,9 @@ int Opencore::Dump(int argc, char* const argv[]) {
 
     std::unique_ptr<Opencore> impl;
     std::string type = machine ? machine : "";
+    if (!strcmp(machine, NONE_MACHINE)) {
+        type = DecodeMachine(pid);
+    }
     if (type == "arm64" || type == "ARM64") {
         impl = std::make_unique<arm64::Opencore>();
     } else if (type == "arm" || type == "ARM") {
@@ -254,8 +258,54 @@ void Opencore::StopTheThread(int tid) {
     waitpid(tid, &status, WUNTRACED);
 }
 
+bool Opencore::IsBit64(int pid) {
+    char filename[32];
+    lp64::Auxv vec[32];
+    snprintf(filename, sizeof(filename), "/proc/%d/auxv", pid);
+
+    FILE *fp = fopen(filename, "rb");
+    if (fp != nullptr) {
+        fread(&vec, sizeof(vec), 1, fp);
+        fclose(fp);
+    }
+
+    for (int index = 0; index < 32; ++index) {
+        if (vec[index].type == AT_PHENT
+                && vec[index].value == sizeof(Elf64_Phdr))
+            return true;
+        if (!vec[index].type)
+            break;
+    }
+    return false;
+}
+
+std::string Opencore::DecodeMachine(int pid) {
+    struct utsname buf;
+    if (!uname(&buf)) {
+        if (!strcmp(buf.machine, X86_64_MACHINE)) {
+            if (IsBit64(pid)) {
+                return X86_64_MACHINE;
+            } else {
+                return X86_MACHINE;
+            }
+        } else if (!strcmp(buf.machine, AARCH64_MACHINE)
+                || !strcmp(buf.machine, ARM64_MACHINE)) {
+            if (IsBit64(pid)) {
+                return ARM64_MACHINE;
+            } else {
+                return ARM_MACHINE;
+            }
+        } else {
+            LOGE("Not support machine %s\n", buf.machine);
+        }
+    } else {
+        LOGE("uname fail!\n");
+    }
+    return NONE_MACHINE;
+}
+
 void Opencore::Usage() {
-    LOGI("Usage: remote core -p <PID> -m <MACHINE> [Option]...\n");
+    LOGI("Usage: remote core -p <PID> [-m <MACHINE>] [Option]...\n");
     LOGI("Option:\n");
     LOGI("   --pid|-p <PID>\n");
     LOGI("   --dir|-d <DIR>\n");

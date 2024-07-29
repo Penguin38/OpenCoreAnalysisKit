@@ -134,6 +134,9 @@ int command_preload(int argc, char* const argv[]) {
         cmdline.append("remote core -p ");
         cmdline.append(std::to_string(pid));
         cmdline.append(" -m ");
+        if (!strcmp(machine, NONE_MACHINE)) {
+            machine = Opencore::DecodeMachine(pid).data();
+        }
         cmdline.append(machine);
         output = Env::CurrentDir();
         std::string file = std::to_string(pid) + ".core";

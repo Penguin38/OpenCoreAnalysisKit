@@ -24,7 +24,13 @@
 #include <vector>
 #include <map>
 
-#define NONE_MACHINE "NONE"
+#define NONE_MACHINE    "NONE"
+#define X86_64_MACHINE  "x86_64"
+#define X86_MACHINE     "x86"
+#define ARM64_MACHINE   "arm64"
+#define AARCH64_MACHINE "aarch64"
+#define ARM_MACHINE     "arm"
+
 #define ELFCOREMAGIC "CORE"
 #define NOTE_CORE_NAME_SZ 5
 #define ELFLINUXMAGIC "LINUX"
@@ -84,6 +90,8 @@ public:
     bool IsFilterSegment(char* flags, int inode, std::string segment, int offset);
     void StopTheWorld(int pid);
     void StopTheThread(int tid);
+    static bool IsBit64(int pid);
+    static std::string DecodeMachine(int pid);
 protected:
     int extra_note_filesz;
     std::vector<int> pids;
