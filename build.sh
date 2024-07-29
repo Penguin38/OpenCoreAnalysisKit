@@ -16,6 +16,10 @@
 #export BUILD_TYPE="Release"
 export BUILD_TYPE="Debug"
 export BUILD_PRODUCT="aosp"
+export BUILD_TARGET_PAGESIZE_4K="4K"
+export BUILD_TARGET_PAGESIZE_16K="16K"
+export BUILD_TARGET_PAGESIZE_LINUX=$BUILD_TARGET_PAGESIZE_4K
+export BUILD_TARGET_PAGESIZE_ANDROID=$BUILD_TARGET_PAGESIZE_4K
 export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
 
 ./capstone.sh
@@ -25,6 +29,7 @@ cmake -DCMAKE_C_COMPILER="clang-12" \
       -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_BUILD_TARGET=linux \
+      -DCMAKE_BUILD_TARGET_PAGESIZE=$BUILD_TARGET_PAGESIZE_LINUX \
       CMakeLists.txt \
       -B $INSTALL_OUTPUT/linux/bin
 
@@ -45,6 +50,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_BUILD_TARGET=android \
+      -DCMAKE_BUILD_TARGET_PAGESIZE=$BUILD_TARGET_PAGESIZE_ANDROID \
       CMakeLists.txt \
       -B $INSTALL_OUTPUT/android/bin
 
@@ -57,6 +63,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
       -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_BUILD_TARGET=android \
+      -DCMAKE_BUILD_TARGET_PAGESIZE=$BUILD_TARGET_PAGESIZE_ANDROID \
       CMakeLists.txt \
       -B $INSTALL_OUTPUT/emulator/bin
 
