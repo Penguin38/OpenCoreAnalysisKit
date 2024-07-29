@@ -230,11 +230,9 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix,
                 sprintf(valuehex, "0x%08x", value);
                 sb.append(valuehex);
             } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInRegister)) {
-                sb.append("r");
-                sb.append(std::to_string(value));
+                sb.append(art::QuickFrame::RegisterDesc(value, true));
             } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInRegisterHigh)) {
-                sb.append("r");
-                sb.append(std::to_string(value));
+                sb.append(art::QuickFrame::RegisterDesc(value, false));
                 sb.append("/hi");
             } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInFpuRegister)) {
                 sb.append("f");

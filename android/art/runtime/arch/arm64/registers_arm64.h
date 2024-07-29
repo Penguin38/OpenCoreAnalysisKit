@@ -112,6 +112,7 @@ enum WRegister {
   kNoWRegister = -1,
 };
 std::ostream& operator<<(std::ostream& os, const WRegister& rhs);
+const char* WRegisterName(const WRegister& rhs);
 
 // Values for FP DRegisters - double precision floating point.
 enum DRegister {

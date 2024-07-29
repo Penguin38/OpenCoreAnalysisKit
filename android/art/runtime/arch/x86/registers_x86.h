@@ -33,7 +33,8 @@ enum Register {
   EBP = 5,
   ESI = 6,
   EDI = 7,
-  kNumberOfCpuRegisters = 8,
+  EIP = 8,
+  kNumberOfCpuRegisters = 9,
   kFirstByteUnsafeRegister = 4,
   kNoRegister = -1  // Signals an illegal register.
 };

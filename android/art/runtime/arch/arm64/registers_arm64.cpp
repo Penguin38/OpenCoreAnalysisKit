@@ -51,6 +51,13 @@ std::ostream& operator<<(std::ostream& os, const XRegister& rhs) {
   return os;
 }
 
+const char* WRegisterName(const WRegister& rhs) {
+  if (rhs >= W0 && rhs < kNumberOfWRegisters) {
+    return kWRegisterNames[rhs];
+  }
+  return "";
+}
+
 std::ostream& operator<<(std::ostream& os, const WRegister& rhs) {
   if (rhs >= W0 && rhs < kNumberOfWRegisters) {
     os << kWRegisterNames[rhs];

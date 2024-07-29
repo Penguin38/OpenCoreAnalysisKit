@@ -25,6 +25,11 @@
 #include "runtime/handle_scope.h"
 #include "runtime/base/callee_save_type.h"
 #include "runtime/entrypoints/quick/callee_save_frame.h"
+#include "runtime/arch/x86_64/registers_x86_64.h"
+#include "runtime/arch/x86/registers_x86.h"
+#include "runtime/arch/arm64/registers_arm64.h"
+#include "runtime/arch/arm/registers_arm.h"
+#include "runtime/arch/riscv64/registers_riscv64.h"
 
 namespace art {
 
@@ -139,6 +144,40 @@ uint64_t QuickFrame::ReturnPc2FramePc(uint64_t rpc) {
         }
     }
     return rpc;
+}
+
+std::string QuickFrame::RegisterDesc(int idx, bool compat) {
+    std::string sb;
+    int machine = CoreApi::GetMachine();
+    switch (machine) {
+        case EM_386: {
+            sb = x86::RegisterName(static_cast<x86::Register>(idx));
+            if (sb.length()) return sb;
+        } break;
+        case EM_X86_64: {
+            sb = x86_64::RegisterName(static_cast<x86_64::Register>(idx));
+            if (sb.length()) return sb;
+        } break;
+        case EM_ARM: {
+            sb = arm::RegisterName(static_cast<arm::Register>(idx));
+            if (sb.length()) return sb;
+        } break;
+        case EM_AARCH64: {
+            if (!compat) {
+                sb = arm64::XRegisterName(static_cast<arm64::XRegister>(idx));
+            } else {
+                sb = arm64::WRegisterName(static_cast<arm64::WRegister>(idx));
+            }
+            if (sb.length()) return sb;
+        } break;
+        case EM_RISCV: {
+            sb = riscv64::XRegisterName(static_cast<riscv64::XRegister>(idx));
+            if (sb.length()) return sb;
+        } break;
+    }
+    sb.append("r");
+    sb.append(std::to_string(idx));
+    return sb;
 }
 
 } //namespace art

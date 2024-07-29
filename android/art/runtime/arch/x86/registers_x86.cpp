@@ -22,11 +22,11 @@ namespace art HIDDEN {
 namespace x86 {
 
 static const char* kRegisterNames[] = {
-  "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi",
+  "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "eip",
 };
 
 const char* RegisterName(const Register& rhs) {
-  if (rhs >= EAX && rhs <= EDI) {
+  if (rhs >= EAX && rhs <= EIP) {
     return kRegisterNames[rhs];
   }
   return "";

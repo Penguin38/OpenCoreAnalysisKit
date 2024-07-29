@@ -41,8 +41,9 @@ enum Register {
   R13 = 13,
   R14 = 14,
   R15 = 15,
-  kLastCpuRegister = 15,
-  kNumberOfCpuRegisters = 16,
+  RIP = 16,
+  kLastCpuRegister = 16,
+  kNumberOfCpuRegisters = 17,
   kNoRegister = -1  // Signals an illegal register.
 };
 std::ostream& operator<<(std::ostream& os, const Register& rhs);
