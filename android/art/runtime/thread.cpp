@@ -17,10 +17,13 @@
 #include "runtime/thread.h"
 #include "runtime/base/locks.h"
 #include "runtime/managed_stack.h"
+#include "runtime/monitor.h"
 #include "android.h"
 #include "cxx/string.h"
 #include "java/lang/Thread.h"
 #include "java/lang/ThreadGroup.h"
+#include "common/exception.h"
+#include "common/bit.h"
 #include <string>
 
 struct Thread_OffsetTable __Thread_offset__;
@@ -491,8 +494,49 @@ const char* Thread::GetName() {
     }
 }
 
-uint64_t Thread::GetWaitMonitor() {
-    return wait_monitor();
+api::MemoryRef& Thread::GetWaitMonitor() {
+    api::MemoryRef& wait_monitor_ = QUICK_CACHE(wait_monitor);
+#if defined(__PARSER_DEBUG__)
+    bool invalid = false;
+    Monitor monitor_ = wait_monitor_;
+    try {
+        BaseMutex monitor_lock_(monitor_.monitor_lock(), wait_monitor_);
+        if (monitor_lock_.Ptr() && !monitor_lock_.IsMutex()
+                || (monitor_.Ptr() && !monitor_.GetObject().IsValid()))
+            invalid = true;
+    } catch(InvalidAddressException e) {
+        invalid = true;
+    }
+
+    if (invalid) {
+        LOGD("wait_monitor_ invalid, do analysis ...\n");
+        bool found = false;
+        int count = 0;
+        uint64_t point_size = CoreApi::GetPointSize();
+        uint64_t endloop = RoundUp(Ptr(), 0x2000);
+        int loopcount = (endloop - Ptr()) / point_size;
+        do {
+            count++;
+            monitor_ = valueOf(OFFSET(Thread, wait_monitor_) + count * point_size);
+            monitor_.copyRef(this);
+            BaseMutex monitor_lock_(monitor_.monitor_lock(), monitor_);
+            try {
+                if (!monitor_.Ptr() || (monitor_lock_.IsMutex()
+                        && monitor_.GetObject().IsValid())) {
+                    LOGD(">>> 'wait_monitor_' = 0x%lx\n", monitor_.Ptr());
+                    found = true;
+                    break;
+                }
+            } catch(InvalidAddressException e) {}
+        } while(count < loopcount);
+        if (found) {
+            wait_monitor_ = monitor_;
+            wait_monitor_.copyRef(monitor_);
+            // __Thread_offset__.wait_monitor_ += count * point_size;
+        }
+    }
+#endif
+    return wait_monitor_;
 }
 
 mirror::Object Thread::GetMonitorEnterObject() {

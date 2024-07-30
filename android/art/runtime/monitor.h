@@ -21,6 +21,7 @@
 #include "runtime/mirror/object.h"
 
 struct Monitor_OffsetTable {
+    uint32_t monitor_lock_;
     uint32_t owner_;
     uint32_t obj_;
 };
@@ -40,6 +41,7 @@ public:
     static void Init28();
     static void Init29();
     static void Init30();
+    inline uint64_t monitor_lock() { return Ptr() + OFFSET(Monitor, monitor_lock_); }
     inline uint64_t owner() { return VALUEOF(Monitor, owner_); }
     inline uint64_t obj() { return VALUEOF(Monitor, obj_); }
 

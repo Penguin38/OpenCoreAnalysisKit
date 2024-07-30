@@ -162,7 +162,7 @@ public:
     uint32_t GetTid();
     const char* GetName();
     void DumpState();
-    uint64_t GetWaitMonitor();
+    api::MemoryRef& GetWaitMonitor();
     mirror::Object GetMonitorEnterObject();
     BaseMutex GetHeldMutex(uint32_t level);
     bool StackEmpty();
@@ -171,6 +171,7 @@ private:
     // quick memoryref cache
     tls_32bit_sized_values tls32_cache = 0x0;
     tls_ptr_sized_values tlsPtr_cache = 0x0;
+    DEFINE_QUICK_CACHE(api::MemoryRef, wait_monitor);
     FakeFrame fake_frame;
 };
 

@@ -25,11 +25,13 @@ namespace art {
 void Monitor::Init26() {
     if (CoreApi::Bits() == 64) {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 96,
             .obj_ = 108,
         };
     } else {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 60,
             .obj_ = 68,
         };
@@ -39,11 +41,13 @@ void Monitor::Init26() {
 void Monitor::Init28() {
     if (CoreApi::Bits() == 64) {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 88,
             .obj_ = 100,
         };
     } else {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 60,
             .obj_ = 68,
         };
@@ -53,11 +57,13 @@ void Monitor::Init28() {
 void Monitor::Init29() {
     if (CoreApi::Bits() == 64) {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 72,
             .obj_ = 84,
         };
     } else {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 52,
             .obj_ = 60,
         };
@@ -67,11 +73,13 @@ void Monitor::Init29() {
 void Monitor::Init30() {
     if (CoreApi::Bits() == 64) {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 48,
             .obj_ = 60,
         };
     } else {
         __Monitor_offset__ = {
+            .monitor_lock_ = 0,
             .owner_ = 36,
             .obj_ = 44,
         };
