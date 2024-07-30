@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/gc/space/bump_pointer_space.h"
 #include "runtime/runtime_globals.h"
 #include "cxx/vector.h"
@@ -53,16 +54,29 @@ void BumpPointerSpace::Init34() {
     }
 }
 
-cxx::deque& BumpPointerSpace::GetBlockSizes() {
+cxx::deque& BumpPointerSpace::GetBlockSizesCache() {
     if (!block_sizes_cache.Ptr()) {
         block_sizes_cache = block_sizes();
         block_sizes_cache.copyRef(this);
+        block_sizes_cache.setBlockSize(CoreApi::GetPointSize());
     }
     return block_sizes_cache;
 }
 
-#if 1
-void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
+std::deque<uint64_t>& BumpPointerSpace::GetBlockSizes() {
+    if (block_sizes_second_cache.empty()) {
+        cxx::deque& block_sizes_ = GetBlockSizesCache();
+        if (block_sizes_.size()) {
+            for (auto& value : block_sizes_) {
+                api::MemoryRef& block_size = value;
+                block_sizes_second_cache.push_back(block_size.valueOf());
+            }
+        }
+    }
+    return block_sizes_second_cache;
+}
+
+void BumpPointerSpace::SlowWalk(std::function<bool (mirror::Object& object)> visitor) {
     uint64_t pos = Begin();
     uint64_t end = End();
 
@@ -76,12 +90,17 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
             visitor(object);
             pos = GetNextObject(object);
         } else {
-            pos += kObjectAlignment;
+            pos = object.NextValidOffset(end);
         }
     }
 }
-#else
-void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor) {
+
+void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
+    if (Android::Sdk() < Android::VANILLA_ICE_CREAM) {
+        SlowWalk(visitor);
+        return;
+    }
+
     uint64_t pos = Begin();
     uint64_t end = End();
     uint64_t main_end = pos;
@@ -90,12 +109,13 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
     object_cache.Prepare(false);
 
     uint64_t main_block_size_tmp = main_block_size();
-    if (!GetBlockSizes().size()) {
+    std::deque<uint64_t>& block_sizes_ = GetBlockSizes();
+    if (!block_sizes_.size()) {
         main_block_size_tmp = end - pos;
     }
 
     main_end = Begin() + main_block_size_tmp;
-    if (!GetBlockSizes().size()) {
+    if (!block_sizes_.size()) {
         end = main_end;
     } else {
         // do nothing
@@ -107,33 +127,32 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
             visitor(object);
             pos = GetNextObject(object);
         } else {
-            pos += kObjectAlignment;
+            pos = object.NextValidOffset(main_end);
+            if (check && pos < main_end) LOGE("Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
         }
     }
 
     pos = main_end;
 
-    if (GetBlockSizes().size()) {
-        cxx::vector block_sizes_copy = GetBlockSizes().Ptr() + OFFSET(cxx_split_buffer, __begin_);
-        block_sizes_copy.copyRef(GetBlockSizes());
-        block_sizes_copy.SetEntrySize(CoreApi::GetPointSize());
+    if (block_sizes_.size()) {
+        for (const auto& block_size : block_sizes_) {
+            uint64_t cur_pos = pos;
+            uint64_t cur_end = pos + block_size;
 
-        for (const auto& value : block_sizes_copy) {
-            api::MemoryRef ref = value;
-            api::MemoryRef block_size = ref.valueOf();
-            mirror::Object obj(pos, object_cache);
-            mirror::Object end_obj(pos + block_size.valueOf(), object_cache);
-
-            while (obj.Ptr() < end_obj.Ptr() && obj.IsValid()) {
-                visitor(obj);
-                obj = GetNextObject(obj);
-                obj.copyRef(object_cache);
+            while (cur_pos < cur_end) {
+                mirror::Object object(cur_pos, object_cache);
+                if (object.IsValid()) {
+                    visitor(object);
+                    cur_pos = GetNextObject(object);
+                } else {
+                    cur_pos = object.NextValidOffset(cur_end);
+                    if (check && cur_pos < cur_end) LOGE("Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), cur_pos, GetName());
+                }
             }
-            pos += block_size.valueOf();
+            pos += block_size;
         }
     }
 }
-#endif
 
 } // namespace space
 } // namespace gc

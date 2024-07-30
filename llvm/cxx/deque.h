@@ -50,13 +50,49 @@ public:
     inline uint64_t __map() { return Ptr() + OFFSET(cxx_deque, __map_); }
     inline uint64_t __start() { return VALUEOF(cxx_deque, __start_); }
     inline uint64_t __size() { return VALUEOF(cxx_deque, __size_); }
+    inline uint64_t __block_size() { return block_size; }
+    void setBlockSize(int size) {
+        pointer_size = size;
+        block_size = pointer_size < 256 ? 4096 / pointer_size : 16;
+    }
+
+    class iterator {
+    public:
+        iterator(uint64_t _m, uint64_t _p, uint64_t _s) {
+            map = _m;
+            map.Prepare(false);
+            pointer = _p;
+            pointer.Prepare(false);
+            pointer_size = _s;
+            block_size = pointer_size < 256 ? 4096 / pointer_size : 16;
+        }
+        iterator(api::MemoryRef& ref, uint64_t _p, uint64_t _s) {
+            map = ref;
+            map.Prepare(false);
+            pointer = _p;
+            pointer.Prepare(false);
+            pointer_size = _s;
+            block_size = pointer_size < 256 ? 4096 / pointer_size : 16;
+        }
+        iterator& operator++();
+        bool operator==(iterator other) const;
+        bool operator!=(iterator other) const;
+        api::MemoryRef& operator*();
+    private:
+        api::MemoryRef map;
+        api::MemoryRef pointer;
+        uint64_t pointer_size;
+        uint64_t block_size;
+    };
 
     uint64_t size();
     split_buffer& Map();
-    uint64_t begin();
-    uint64_t end();
+    iterator begin();
+    iterator end();
 private:
     split_buffer __map_cache = 0x0;
+    uint64_t pointer_size;
+    uint64_t block_size;
 };
 
 } // namespace cxx

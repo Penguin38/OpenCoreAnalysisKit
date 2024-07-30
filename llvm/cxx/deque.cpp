@@ -47,13 +47,37 @@ split_buffer& deque::Map() {
     return __map_cache;
 }
 
-uint64_t deque::begin() {
-    return Map().__begin();
+deque::iterator deque::begin() {
+    api::MemoryRef __mp = Map().__begin() + (__start() / __block_size()) * pointer_size;
+    return deque::iterator(__mp, Map().empty() ? 0 : __mp.valueOf() + (__start() % __block_size()) * pointer_size, pointer_size);
 }
 
-uint64_t deque::end() {
-    return Map().__end();
+deque::iterator deque::end() {
+    uint64_t __p = size() + __start();
+    api::MemoryRef __mp = Map().__begin() + (__p / __block_size()) * pointer_size;
+    return deque::iterator(__mp, Map().empty() ? 0 : __mp.valueOf() + (__p % __block_size()) * pointer_size, pointer_size);
+}
+
+deque::iterator& deque::iterator::operator++() {
+    pointer.MovePtr(pointer_size);
+    if (pointer.Ptr() - map.valueOf() == block_size * pointer_size) {
+        map.MovePtr(CoreApi::GetPointSize());
+        pointer = map.valueOf();
+        pointer.Prepare(false);
+    }
+    return *this;
+}
+
+bool deque::iterator::operator==(deque::iterator other) const {
+    return pointer == other.pointer;
+}
+
+bool deque::iterator::operator!=(deque::iterator other) const {
+    return pointer != other.pointer;
+}
+
+api::MemoryRef& deque::iterator::operator*() {
+    return pointer;
 }
 
 } // namespace cxx
-

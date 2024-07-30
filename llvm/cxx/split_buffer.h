@@ -51,6 +51,8 @@ public:
     inline uint64_t __begin() { return VALUEOF(cxx_split_buffer, __begin_); }
     inline uint64_t __end() { return VALUEOF(cxx_split_buffer, __end_); }
     inline uint64_t __end_cap() { return VALUEOF(cxx_split_buffer, __end_cap_); }
+    inline uint64_t size() { return __end() - __begin(); }
+    inline bool empty() { return __end() == __begin(); }
 };
 
 } // namespace cxx

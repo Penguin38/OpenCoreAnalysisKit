@@ -19,6 +19,7 @@
 
 #include "runtime/gc/space/space.h"
 #include "cxx/deque.h"
+#include <deque>
 #include <functional>
 
 struct BumpPointerSpace_OffsetTable {
@@ -50,11 +51,16 @@ public:
 
     SpaceType GetType() { return kSpaceTypeBumpPointerSpace; }
     void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
+    void SlowWalk(std::function<bool (mirror::Object& object)> fn);
 
-    cxx::deque& GetBlockSizes();
+    cxx::deque& GetBlockSizesCache();
+    std::deque<uint64_t>& GetBlockSizes();
 private:
     // quick memoryref cache
     cxx::deque block_sizes_cache = 0x0;
+
+    // second cache
+    std::deque<uint64_t> block_sizes_second_cache;
 };
 
 } // namespace space
