@@ -14,8 +14,8 @@
 
 git submodule update --init --recursive
 
-cmake -DCMAKE_C_COMPILER="clang-12" \
-      -DCMAKE_CXX_COMPILER="clang++-12" \
+cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
+      -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
       capstone/CMakeLists.txt \
@@ -31,25 +31,17 @@ if [ -z $ANDROID_NDK ];then
     echo "    ./build.sh"
     exit
 fi
+for CURRENT_ANDROID_ABI in $BUILD_ANDROID_ABIS
+do
 cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-      -DANDROID_ABI="arm64-v8a" \
+      -DANDROID_ABI=$CURRENT_ANDROID_ABI \
       -DANDROID_NDK=$ANDROID_NDK \
       -DANDROID_PLATFORM=android-30 \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
       capstone/CMakeLists.txt \
-      -B $INSTALL_OUTPUT/android/capstone
+      -B $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/capstone
 
-make -C $INSTALL_OUTPUT/android/capstone -j8
-
-cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
-      -DANDROID_ABI="x86_64" \
-      -DANDROID_NDK=$ANDROID_NDK \
-      -DANDROID_PLATFORM=android-30 \
-      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-      capstone/CMakeLists.txt \
-      -B $INSTALL_OUTPUT/emulator/capstone
-
-make -C $INSTALL_OUTPUT/emulator/capstone -j8
+make -C $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/capstone -j8
+done
 fi
