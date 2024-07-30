@@ -45,7 +45,7 @@ export ANDROID_NDK=<path-to>
 Emulator version:
 ```
 $ adb root
-$ adb push <path-to>/output/aosp/debug/emulator/bin/core-parser /data/
+$ adb push <path-to>/output/aosp/debug/android/x86_64/bin/core-parser /data/
 $ adb shell
 ```
 
@@ -58,7 +58,7 @@ Option:
     --sdk <SDK>{ 26 ~ 35 }
 Exp:
   core-parser -c /tmp/tmp.core
-  core-parser -p 1 -m arm64
+  core-parser -p 1
 ```
 
 ```
@@ -468,7 +468,7 @@ Command:
     core  hook  rd  wd
     pause
 
-Usage: remote core -p <PID> -m <MACHINE> [Option]...
+Usage: remote core -p <PID> [-m <MACHINE>] [Option]...
 Option:
    --pid|-p <PID>
    --dir|-d <DIR>
@@ -515,7 +515,7 @@ core-parser> remote rd -p 1 7fb989794000 -e 7fb989794030
 core-parser> help fake
 Usage: fake <COMMAND> [option] ...
 Command:
-    core  map
+    core  map  stack
 
 Usage: fake core <Option> ...
 Option:
@@ -524,6 +524,8 @@ Option:
    --output|-o <COREFILE>
 
 Usage: fake map
+
+Usage: fake stack --pc <PC> --sp <SP> [--clean|-c]
 
 core-parser> fake core -r -o fake.core
 ```
