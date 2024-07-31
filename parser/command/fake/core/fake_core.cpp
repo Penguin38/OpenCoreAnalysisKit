@@ -57,10 +57,19 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
     }
 
     if (restore) {
-        if (CoreApi::Bits() == 64) {
-            lp64::Restore::execute(output);
+        std::string filename;
+        if (!output) {
+            if (!CoreApi::IsRemote()) {
+                filename = CoreApi::GetName();
+                filename.append(".fakecore");
+            }
         } else {
-            lp32::Restore::execute(output);
+            filename = output;
+        }
+        if (CoreApi::Bits() == 64) {
+            lp64::Restore::execute(filename.c_str());
+        } else {
+            lp32::Restore::execute(filename.c_str());
         }
     } else if (tomb) {
         // do nothing
