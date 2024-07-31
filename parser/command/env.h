@@ -25,6 +25,7 @@
 
 class Env {
 public:
+    Env() : pid(0) {}
     void init();
     void reset();
     bool setCurrentPid(int p);

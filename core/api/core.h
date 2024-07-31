@@ -163,7 +163,10 @@ public:
     }
 
     CoreApi() {}
-    CoreApi(std::unique_ptr<MemoryMap>& map) {
+    CoreApi(std::unique_ptr<MemoryMap>& map)
+            : pointer_mask(-1),
+              vabits_mask(-1),
+              page_size(0) {
         mCore = std::move(map);
     }
     virtual ~CoreApi();

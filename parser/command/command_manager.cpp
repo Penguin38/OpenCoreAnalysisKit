@@ -114,8 +114,8 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
     Command* command = FindCommand(cmd);
     if (command) {
         try {
-            ShellCommand* shell;
-            int position;
+            ShellCommand* shell = nullptr;
+            int position = 0;
             bool writeout = false;
             for (int i = 0; i < argc; ++i) {
                 if (!strcmp(argv[i], "|")) {

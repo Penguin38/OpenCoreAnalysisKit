@@ -25,13 +25,14 @@ namespace arm {
 
 class Opencore : public lp32::OpencoreImpl {
 public:
-    Opencore() : lp32::OpencoreImpl() {}
+    Opencore() : lp32::OpencoreImpl(),
+                 prnum(0), prstatus(nullptr) {}
     ~Opencore();
     void CreateCorePrStatus(int pid);
     void WriteCorePrStatus(FILE* fp);
     int getMachine() { return EM_ARM; }
 private:
-    int prnum = 0;
+    int prnum;
     Elf32_prstatus *prstatus;
 };
 

@@ -25,7 +25,10 @@ add_definitions(-D__${TARGET_BUILD_PLATFORM}__)
 string(TOUPPER "${CMAKE_BUILD_TYPE}" TARGET_BUILD_TYPE)
 add_definitions(-D__PARSER_${TARGET_BUILD_TYPE}__)
 
-set(AUTO_VAR_INIT_ZERO "-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -Wno-unused-command-line-argument")
+string(TOUPPER "${CMAKE_BUILD_TARGET_PAGESIZE}" TARGET_BUILD_PAGESIZE)
+#The program may have errors, but we still need to remove it because clang will no longer support it in the future.
+#Remove code comments if necessary.
+#set(AUTO_VAR_INIT_ZERO "-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang")
 if (TARGET_BUILD_TYPE STREQUAL "RELEASE")
 set(OPTIMIZED_LEVEL "-O3")
 else()
@@ -279,7 +282,7 @@ add_executable(core-parser
                parser/work/work_thread.cpp
                parser/core_parser.cpp)
 target_link_libraries(core-parser parser)
-if (${CMAKE_BUILD_TARGET_PAGESIZE} STREQUAL "16K")
+if (TARGET_BUILD_PAGESIZE STREQUAL "16K")
 target_link_options(core-parser PRIVATE "-Wl,-z,max-page-size=16384")
 endif()
 

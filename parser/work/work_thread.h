@@ -27,7 +27,7 @@ public:
     static constexpr int MAX_ARGC = 16;
     static void Stop(int signal) {}
 
-    WorkThread(std::string c) {
+    WorkThread(std::string c) : cmd(nullptr), argc(0) {
         cmdline = c;
         work = std::make_unique<std::thread>(runMain, this);
     }

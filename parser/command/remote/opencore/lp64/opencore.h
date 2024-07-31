@@ -25,7 +25,10 @@ namespace lp64 {
 
 class OpencoreImpl : public Opencore {
 public:
-    OpencoreImpl() : Opencore() {}
+    OpencoreImpl() : Opencore(),
+                     phdr(nullptr), phnum(0),
+                     auxv(nullptr), auxvnum(0),
+                     file(nullptr), fileslen(0) {}
     ~OpencoreImpl();
     bool DoCoredump(const char* filename);
     bool NeedFilterFile(const char* filename, int offset);

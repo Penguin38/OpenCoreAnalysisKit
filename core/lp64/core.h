@@ -26,12 +26,14 @@ namespace lp64 {
 
 class Auxv {
 public:
+    Auxv() : type(0), value(0) {}
     uint64_t type;
     uint64_t value;
 };
 
 class File {
 public:
+    File() : begin(0), end(0), offset(0) {}
     uint64_t begin;
     uint64_t end;
     uint64_t offset;
@@ -39,12 +41,15 @@ public:
 
 class Debug {
 public:
+    Debug() : version(0), map(0) {}
     uint64_t version;
     uint64_t map;
 };
 
 class LinkMap {
 public:
+    LinkMap() : addr(0), name(0),
+                ld(0), next(0), prev(0) {}
     uint64_t addr;
     uint64_t name;
     uint64_t ld;
@@ -54,6 +59,7 @@ public:
 
 class Dynamic {
 public:
+    Dynamic() : type(0), value(0) {}
     uint64_t type;
     uint64_t value;
 };

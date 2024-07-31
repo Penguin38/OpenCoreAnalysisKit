@@ -70,9 +70,9 @@ public:
     MemoryRef() : vaddr(0x0), block(nullptr) {}
     MemoryRef(uint64_t v) : vaddr(v), block(nullptr) {}
     MemoryRef(const MemoryRef& ref) : vaddr(ref.vaddr), block(ref.block) {}
-    MemoryRef(uint64_t v, LoadBlock* b) : vaddr(v) { checkCopyBlock(b); }
-    MemoryRef(uint64_t v, MemoryRef& ref) : vaddr(v) { copyRef(ref); }
-    MemoryRef(uint64_t v, MemoryRef* ref) : vaddr(v) { copyRef(ref); }
+    MemoryRef(uint64_t v, LoadBlock* b) : vaddr(v), block(nullptr) { checkCopyBlock(b); }
+    MemoryRef(uint64_t v, MemoryRef& ref) : vaddr(v), block(nullptr) { copyRef(ref); }
+    MemoryRef(uint64_t v, MemoryRef* ref) : vaddr(v), block(nullptr) { copyRef(ref); }
 
     inline void checkCopyBlock(LoadBlock* b) { if (b && b->virtualContains(vaddr)) block = b; }
     inline void copyRef(MemoryRef& ref) { checkCopyBlock(ref.block); }

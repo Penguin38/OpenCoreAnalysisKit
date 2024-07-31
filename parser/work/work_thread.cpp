@@ -23,6 +23,7 @@
 
 void WorkThread::prepare() {
     prctl(PR_SET_NAME, "parser:worker");
+    memset(argv, 0x0, sizeof(argv));
     std::unique_ptr<char> line(strdup(cmdline.c_str()));
     char* token = strtok(line.get(), SPLIT_TOKEN);
     while (token != nullptr) {

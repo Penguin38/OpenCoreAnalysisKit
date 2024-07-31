@@ -26,12 +26,14 @@ namespace lp32 {
 
 class Auxv {
 public:
+    Auxv() : type(0), value(0) {}
     uint32_t type;
     uint32_t value;
 };
 
 class File {
 public:
+    File() : begin(0), end(0), offset(0) {}
     uint32_t begin;
     uint32_t end;
     uint32_t offset;
@@ -39,12 +41,15 @@ public:
 
 class Debug {
 public:
+    Debug() : version(0), map(0) {}
     uint32_t version;
     uint32_t map;
 };
 
 class LinkMap {
 public:
+    LinkMap() : addr(0), name(0),
+                ld(0), next(0), prev(0) {}
     uint32_t addr;
     uint32_t name;
     uint32_t ld;
@@ -54,6 +59,7 @@ public:
 
 class Dynamic {
 public:
+    Dynamic() : type(0), value(0) {}
     uint32_t type;
     uint32_t value;
 };

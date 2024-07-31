@@ -357,9 +357,6 @@ void OpencoreImpl::Prepare(const char* filename) {
     LOGI("Coredump %s ...\n", filename);
     memset(&ehdr, 0, sizeof(Elf64_Ehdr));
     memset(&note, 0, sizeof(Elf64_Phdr));
-    phnum = 0;
-    auxvnum = 0;
-    fileslen = 0;
     pids.clear();
     buffer.clear();
     maps.clear();

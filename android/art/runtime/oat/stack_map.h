@@ -44,6 +44,14 @@ public:
 
     static uint32_t UnpackNativePc(uint32_t packed_native_pc);
 
+    StackMap() : kind(0),
+                 packed_native_pc(0),
+                 dex_pc(0),
+                 register_mask_index(0),
+                 stack_mask_index(0),
+                 inline_info_index(0),
+                 dex_register_mask_index(0),
+                 dex_register_map_index(0) {}
     uint32_t NumColumns() { return kNumStackMaps; }
     void Decode(BitMemoryReader& reader);
     void Dump(const char* prefix);
@@ -73,6 +81,7 @@ public:
     static void OatInit150();
     static void OatInit170();
 
+    RegisterMask() : value(0), shift(0) {}
     uint32_t NumColumns() { return kNumRegisterMasks; }
     void Decode(BitMemoryReader& reader);
     void Dump(const char* prefix);
@@ -90,6 +99,7 @@ public:
     static void OatInit150();
     static void OatInit170();
 
+    StackMask() : mask(0) {}
     uint32_t NumColumns() { return kNumStackMasks; }
     void Decode(BitMemoryReader& reader);
     void Dump(const char* prefix);
@@ -105,6 +115,12 @@ public:
     static void OatInit150();
     static void OatInit170();
 
+    InlineInfo() : is_last(0),
+                   dex_pc(0),
+                   method_info_index(0),
+                   art_method_hi(0),
+                   art_method_lo(0),
+                   number_of_dex_registers(0) {}
     uint32_t NumColumns() { return kNumInlineInfos; }
     void Decode(BitMemoryReader& reader);
     void Dump(const char* prefix);
@@ -131,6 +147,9 @@ public:
     static void OatInit170();
     static void OatInit225();
 
+    MethodInfo() : method_index(0),
+                   dex_file_index_kind(0),
+                   dex_file_index(0) {}
     uint32_t NumColumns() { return kNumMethodInfos; }
     void Decode(BitMemoryReader& reader);
     void Dump(const char* prefix);
@@ -150,6 +169,7 @@ public:
     static void OatInit150();
     static void OatInit170();
 
+    DexRegisterMask() : mask(0) {}
     uint32_t NumColumns() { return kNumDexRegisterMasks; }
     void Decode(BitMemoryReader& reader);
     void Dump(const char* prefix);
@@ -165,6 +185,7 @@ public:
     static void OatInit150();
     static void OatInit170();
 
+    DexRegisterMap() : catalogue_index(0) {}
     uint32_t NumColumns() { return kNumDexRegisterMaps; }
     void Decode(BitMemoryReader& reader);
     void Dump(const char* prefix);
@@ -200,7 +221,8 @@ public:
         kConstantLargeValue = 7,  // 0b111
     };
 
-    DexRegisterInfo() {}
+    DexRegisterInfo()
+        : kind(-2), packed_value(0) {}
     DexRegisterInfo(uint32_t k, uint32_t v)
         : kind(k), packed_value(v) {}
     DexRegisterInfo(Kind k, uint32_t v)
@@ -247,7 +269,7 @@ public:
     void Dump(const char* prefix, const char* name);
 private:
     uint32_t num_entries = 0;
-    uint32_t num_bytes;
+    uint32_t num_bytes = 0;
     uint32_t byte_offset = kInvalidOffset;
 };
 
@@ -376,7 +398,7 @@ public:
     inline uint32_t NumEntries() { return num_entries; }
     Encoding encoding;
 private:
-    uint32_t num_entries;
+    uint32_t num_entries = 0;
     uint32_t bit_offset = kInvalidOffset;
 };
 
@@ -477,7 +499,7 @@ private:
     void NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
     void NativePc2VRegsV2(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
 
-    uint64_t data_;
+    uint64_t data_ = 0;
     BitMemoryReader reader = 0;
     uint32_t flags_ = 0;                    // 171+
     uint32_t code_size_ = 0;                // 191+, The size of native PC range in bytes.
