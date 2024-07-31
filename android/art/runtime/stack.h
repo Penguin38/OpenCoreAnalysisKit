@@ -88,6 +88,7 @@ public:
     void WalkStack();
     bool VisitFrame();
     ArtMethod GetMethod();
+    ArtMethod GetTopMethod();
     QuickMethodFrameInfo GetQuickFrameInfo(QuickFrame& quick_frame);
     ~StackVisitor() { java_frames_.clear(); }
 private:
