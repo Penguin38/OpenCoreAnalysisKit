@@ -30,7 +30,7 @@ public:
     static int onLoggerChanged(int argc, char* const argv[]);
     static int showArtEnv(int argc, char* const argv[]);
     static int showCoreEnv(int argc, char* const argv[]);
-    static int showLoadEnv();
+    static int showLoadEnv(bool quick);
     static int clocLoadCRC32(int num);
 };
 

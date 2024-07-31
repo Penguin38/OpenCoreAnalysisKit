@@ -27,10 +27,8 @@ namespace space {
 // [0x10000000, 0x12c00000) rw Fake space
 class FakeSpace : public ContinuousMemMapAllocSpace {
 public:
-    static constexpr uint32_t FAKE_SPACE_PTR = 0x10000000;
-    static constexpr uint32_t FAKE_SPACE_BEGIN = 0x10010000;
-    static constexpr uint32_t FAKE_SPACE_END = 0x12c00000;
-    static constexpr uint32_t FAKE_SPACE_MEMSIZE = 0x2c00000;
+    static uint64_t FAKE_SPACE_PTR;
+    static constexpr uint32_t FAKE_SPACE_MEMSIZE = 0x2000000;
 
     FakeSpace() : ContinuousMemMapAllocSpace() {}
     FakeSpace(uint64_t v) : ContinuousMemMapAllocSpace(v) {}

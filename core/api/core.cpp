@@ -136,10 +136,33 @@ std::string& CoreApi::getName() {
     return mCore->getName();
 }
 
-bool CoreApi::NewLoadBlock(uint64_t begin, uint64_t size) {
-    if (INSTANCE->findLoadBlock(begin, false)
-            || INSTANCE->findLoadBlock(begin + size - 0x1, false))
-        return false;
+uint64_t CoreApi::NewLoadBlock(uint64_t size) {
+    return INSTANCE->newLoadBlock(size);
+}
+
+uint64_t CoreApi::newLoadBlock(uint64_t size) {
+    if (mLoad.empty()) return 0x0;
+
+    uint64_t begin = 0x0;
+    int idxInLoad = 0;
+    int idxInQuick = 0;
+    std::shared_ptr<LoadBlock> left = mLoad[0];
+    for (int idx = 1; idx < mLoad.size(); ++idx) {
+        std::shared_ptr<LoadBlock> right = mLoad[idx];
+        if (right->vaddr() - (left->vaddr() + left->size()) >= size) {
+            idxInLoad = idx;
+            begin = left->vaddr() + left->size();
+            break;
+        } else {
+            left = right;
+        }
+    }
+    if (!begin) return 0x0;
+
+    for (; idxInQuick < mQuickLoad.size(); ++idxInQuick) {
+        if (mQuickLoad[idxInQuick]->vaddr() > begin)
+            break;
+    }
 
     std::shared_ptr<LoadBlock> block(new LoadBlock(Block::FLAG_R | Block::FLAG_W,  // flag
                                                    0x0,      // offset
@@ -154,10 +177,11 @@ bool CoreApi::NewLoadBlock(uint64_t begin, uint64_t size) {
     block->setPointMask(CoreApi::GetPointMask());
 
     if (!block->newOverlay())
-        return false;
+        return 0x0;
 
-    INSTANCE->addLoadBlock(block);
-    return true;
+    mLoad.insert(mLoad.begin() + idxInLoad, block);
+    mQuickLoad.insert(mQuickLoad.begin() + idxInQuick, block);
+    return begin;
 }
 
 void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {

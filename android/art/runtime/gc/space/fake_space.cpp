@@ -23,9 +23,15 @@ namespace art {
 namespace gc {
 namespace space {
 
+uint64_t FakeSpace::FAKE_SPACE_PTR = 0x0;
+
 bool FakeSpace::Create() {
-    if (!CoreApi::NewLoadBlock(FAKE_SPACE_PTR, FAKE_SPACE_MEMSIZE))
+    FAKE_SPACE_PTR = CoreApi::NewLoadBlock(FAKE_SPACE_MEMSIZE);
+    if (!FAKE_SPACE_PTR)
         return false;
+
+    uint64_t FAKE_SPACE_BEGIN = FAKE_SPACE_PTR + 0x10000;
+    uint64_t FAKE_SPACE_END = FAKE_SPACE_PTR + FAKE_SPACE_MEMSIZE;
 
     // cxx::string Fake space
     uint64_t name_buf[3] = {0x707320656B614614ULL,

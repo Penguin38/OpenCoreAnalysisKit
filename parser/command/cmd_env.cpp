@@ -213,20 +213,22 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
         {"arm",    required_argument, 0, 2},
         {"crc",    no_argument,       0, 3},
         {"num",    required_argument, 0,'n'},
+        {"quick-load", no_argument,   0, 4},
     };
 
     bool crc = false;
     int num = 0;
-    while ((opt = getopt_long(argc, argv, "12:3:n:",
+    while ((opt = getopt_long(argc, argv, "12:3:4n:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 1: return showLoadEnv();
+            case 1: return showLoadEnv(false);
             case 2:
                 capstone::Disassember::SetArmMode(optarg);
                 return 0;
             case 3:
                 crc = true;
                 break;
+            case 4: return showLoadEnv(true);
             case 'n':
                 num = std::atoi(optarg);
                 break;
@@ -243,7 +245,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     return 0;
 }
 
-int EnvCommand::showLoadEnv() {
+int EnvCommand::showLoadEnv(bool quick) {
     if (!CoreApi::IsReady())
         return 0;
 
@@ -280,7 +282,7 @@ int EnvCommand::showLoadEnv() {
         return false;
     };
     LOGI(ANSI_COLOR_LIGHTRED "INDEX   REGION               FLAGS FILESZ      PATH\n" ANSI_COLOR_RESET);
-    CoreApi::ForeachLoadBlock(callback, false);
+    CoreApi::ForeachLoadBlock(callback, false, quick);
     return 0;
 }
 

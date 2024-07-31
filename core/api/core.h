@@ -157,7 +157,7 @@ public:
     }
     static uint64_t DlSym(const char* path, const char* symbol);
     static void ForeachThread(std::function<bool (ThreadApi *)> callback);
-    static bool NewLoadBlock(uint64_t begin, uint64_t size);
+    static uint64_t NewLoadBlock(uint64_t size);
     static void RegisterSysRootListener(std::function<void (LinkMap *)> fn) {
         INSTANCE->mSysRootCallback = fn;
     }
@@ -218,6 +218,7 @@ public:
     void foreachAuxv(std::function<bool (Auxv *)> callback);
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
     void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check, bool quick);
+    uint64_t newLoadBlock(uint64_t size);
     uint64_t getPageSize();
     inline std::vector<std::shared_ptr<LoadBlock>>& getLoads(bool quick) {
         return quick? mQuickLoad : mLoad;
