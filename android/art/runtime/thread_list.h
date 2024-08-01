@@ -59,7 +59,7 @@ public:
     void CleanCache() { list_second_cache.clear(); }
 private:
     // quick memoryref cache
-    cxx::list list_cache;
+    cxx::list list_cache = 0x0;
 
     // second cache
     std::list<std::unique_ptr<Thread>> list_second_cache;

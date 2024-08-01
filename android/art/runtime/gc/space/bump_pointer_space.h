@@ -36,7 +36,6 @@ namespace space {
 
 class BumpPointerSpace : public ContinuousMemMapAllocSpace {
 public:
-    BumpPointerSpace() : ContinuousMemMapAllocSpace() {}
     BumpPointerSpace(uint64_t v) : ContinuousMemMapAllocSpace(v) {}
     BumpPointerSpace(uint64_t v, LoadBlock* b) : ContinuousMemMapAllocSpace(v, b) {}
     BumpPointerSpace(const ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(ref) {}

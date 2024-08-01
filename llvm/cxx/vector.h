@@ -36,7 +36,6 @@ namespace cxx {
 
 class vector : public api::MemoryRef {
 public:
-    vector() {}
     vector(uint64_t v) : api::MemoryRef(v) {}
     vector(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     vector(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}

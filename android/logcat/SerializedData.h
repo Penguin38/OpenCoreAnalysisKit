@@ -34,7 +34,6 @@ public:
     static constexpr int FILTER_UID = 1 << 1;
     static constexpr int FILTER_TID = 1 << 2;
 
-    SerializedData() : api::MemoryRef() {}
     SerializedData(uint64_t v) : api::MemoryRef(v) {}
     SerializedData(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     SerializedData(const api::MemoryRef& ref) : api::MemoryRef(ref) {}

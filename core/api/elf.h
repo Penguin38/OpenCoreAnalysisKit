@@ -167,7 +167,7 @@ public:
 
     static void Init();
 private:
-    MemoryRef mDebug;
+    MemoryRef mDebug = 0x0;
 };
 
 } // namespace api

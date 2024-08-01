@@ -52,7 +52,6 @@ namespace cxx {
 
 class map : public api::MemoryRef {
 public:
-    map() : api::MemoryRef() {}
     map(uint64_t v) : api::MemoryRef(v) {}
     map(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     map(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
@@ -68,7 +67,6 @@ public:
 
     class pair : public api::MemoryRef {
     public:
-        pair() : api::MemoryRef() {}
         pair(uint64_t v) : api::MemoryRef(v) {}
         pair(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         pair(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}

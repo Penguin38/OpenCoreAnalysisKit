@@ -41,7 +41,6 @@ public:
     static constexpr uint64_t __short_mask = 0x1;
     static constexpr uint64_t __long_mask = 0x1ul;
 
-    string() {}
     string(uint64_t v) : api::MemoryRef(v) {}
     string(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     string(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}

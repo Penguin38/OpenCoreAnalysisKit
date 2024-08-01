@@ -105,7 +105,6 @@ namespace space {
 
 class LargeObjectSpace : public DiscontinuousSpace, AllocSpace {
 public:
-    LargeObjectSpace() : DiscontinuousSpace() {}
     LargeObjectSpace(uint64_t v) : DiscontinuousSpace(v) {}
     LargeObjectSpace(uint64_t v, LoadBlock* b) : DiscontinuousSpace(v, b) {}
     LargeObjectSpace(const DiscontinuousSpace& ref) : DiscontinuousSpace(ref) {}
@@ -128,7 +127,6 @@ public:
 
 class LargeObjectMapSpace : public LargeObjectSpace {
 public:
-    LargeObjectMapSpace() : LargeObjectSpace() {}
     LargeObjectMapSpace(uint64_t v) : LargeObjectSpace(v) {}
     LargeObjectMapSpace(uint64_t v, LoadBlock* b) : LargeObjectSpace(v, b) {}
     LargeObjectMapSpace(const LargeObjectSpace& ref) : LargeObjectSpace(ref) {}
@@ -169,7 +167,7 @@ public:
 
 private:
     // quick memoryref cache
-    cxx::map large_objects_cache;
+    cxx::map large_objects_cache = 0x0;
 };
 
 class AllocationInfo : public api::MemoryRef {
@@ -194,7 +192,6 @@ private:
 
 class FreeListSpace : public LargeObjectSpace {
 public:
-    FreeListSpace() : LargeObjectSpace() {}
     FreeListSpace(uint64_t v) : LargeObjectSpace(v) {}
     FreeListSpace(uint64_t v, LoadBlock* b) : LargeObjectSpace(v, b) {}
     FreeListSpace(const LargeObjectSpace& ref) : LargeObjectSpace(ref) {}
@@ -216,7 +213,7 @@ public:
     bool IsVaildSpace();
 private:
     // quick memoryref cache
-    api::MemoryRef allocation_info_cache;
+    api::MemoryRef allocation_info_cache = 0x0;
 };
 
 } // namespace space

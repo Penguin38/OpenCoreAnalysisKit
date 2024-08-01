@@ -41,7 +41,6 @@ namespace gc {
 
 class Heap : public api::MemoryRef {
 public:
-    Heap() : api::MemoryRef() {}
     Heap(uint64_t v) : api::MemoryRef(v) {}
     Heap(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     Heap(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
@@ -68,8 +67,8 @@ public:
     space::ContinuousSpace* FindContinuousSpaceFromObject(mirror::Object& object);
 private:
     // quick memoryref cache
-    cxx::vector continuous_spaces_cache;
-    cxx::vector discontinuous_spaces_cache;
+    cxx::vector continuous_spaces_cache = 0x0;
+    cxx::vector discontinuous_spaces_cache = 0x0;
 
     // second cache
     std::vector<std::unique_ptr<space::ContinuousSpace>> continuous_spaces_second_cache;

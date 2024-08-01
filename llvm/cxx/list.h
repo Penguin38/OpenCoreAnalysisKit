@@ -36,7 +36,6 @@ namespace cxx {
 
 class list : public api::MemoryRef {
 public:
-    list() {}
     list(uint64_t v) : api::MemoryRef(v) {}
     list(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     list(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
@@ -61,7 +60,7 @@ public:
         bool operator!=(iterator other) const;
         uint64_t operator*();
     private:
-        api::MemoryRef current;
+        api::MemoryRef current = 0x0;
     };
 
     iterator begin();

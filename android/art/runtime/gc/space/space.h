@@ -73,7 +73,6 @@ public:
     inline static const char* MEMMAP_SPACE = "mem map large object space";
     inline static const char* BUMP_POINTER_SPACE = "Bump pointer space";
 
-    Space() : api::MemoryRef() {}
     Space(uint64_t v) : api::MemoryRef(v) {}
     Space(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     Space(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
@@ -102,12 +101,11 @@ public:
 private:
     SpaceType type_cache = kSpaceTypeInvalidSpace;
     // quick memoryref cache
-    api::MemoryRef vtbl_cache;
+    api::MemoryRef vtbl_cache = 0x0;
 };
 
 class ContinuousSpace : public Space {
 public:
-    ContinuousSpace() : Space() {}
     ContinuousSpace(uint64_t v) : Space(v) {}
     ContinuousSpace(uint64_t v, LoadBlock* b) : Space(v, b) {}
     ContinuousSpace(const Space& ref) : Space(ref) {}
@@ -128,7 +126,6 @@ public:
 
 class DiscontinuousSpace : public Space {
 public:
-    DiscontinuousSpace() : Space() {}
     DiscontinuousSpace(uint64_t v) : Space(v) {}
     DiscontinuousSpace(uint64_t v, LoadBlock* b) : Space(v, b) {}
     DiscontinuousSpace(const Space& ref) : Space(ref) {}
@@ -138,7 +135,6 @@ public:
 
 class MemMapSpace : public ContinuousSpace {
 public:
-    MemMapSpace() : ContinuousSpace() {}
     MemMapSpace(uint64_t v) : ContinuousSpace(v) {}
     MemMapSpace(uint64_t v, LoadBlock* b) : ContinuousSpace(v, b) {}
     MemMapSpace(const ContinuousSpace& ref) : ContinuousSpace(ref) {}
@@ -150,7 +146,6 @@ class AllocSpace {};
 
 class ContinuousMemMapAllocSpace : public MemMapSpace, AllocSpace {
 public:
-    ContinuousMemMapAllocSpace() : MemMapSpace() {}
     ContinuousMemMapAllocSpace(uint64_t v) : MemMapSpace(v) {}
     ContinuousMemMapAllocSpace(uint64_t v, LoadBlock* b) : MemMapSpace(v, b) {}
     ContinuousMemMapAllocSpace(const MemMapSpace& ref) : MemMapSpace(ref) {}

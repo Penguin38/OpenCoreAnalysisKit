@@ -53,7 +53,6 @@ namespace art {
 
 class Runtime : public api::MemoryRef {
 public:
-    Runtime() : api::MemoryRef() {}
     Runtime(uint64_t v) : api::MemoryRef(v) {}
     Runtime(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     Runtime(const api::MemoryRef& ref) : api::MemoryRef(ref) {}

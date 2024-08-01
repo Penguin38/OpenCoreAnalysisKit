@@ -64,7 +64,7 @@ public:
     uint64_t PopCount();
     template <typename VisitorType> bool VisitChunks(VisitorType&& visitor);
 private:
-    api::MemoryRef data_;
+    api::MemoryRef data_ = 0x0;
     uint64_t bit_start_;
     uint64_t bit_size_;
 };

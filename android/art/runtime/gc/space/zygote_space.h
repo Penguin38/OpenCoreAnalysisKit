@@ -36,7 +36,6 @@ namespace space {
 
 class ZygoteSpace : public ContinuousMemMapAllocSpace {
 public:
-    ZygoteSpace() : ContinuousMemMapAllocSpace() {}
     ZygoteSpace(uint64_t v) : ContinuousMemMapAllocSpace(v) {}
     ZygoteSpace(uint64_t v, LoadBlock* b) : ContinuousMemMapAllocSpace(v, b) {}
     ZygoteSpace(const ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(ref) {}

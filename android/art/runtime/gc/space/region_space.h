@@ -63,7 +63,6 @@ namespace space {
 
 class RegionSpace : public ContinuousMemMapAllocSpace {
 public:
-    RegionSpace() : ContinuousMemMapAllocSpace() {}
     RegionSpace(uint64_t v) : ContinuousMemMapAllocSpace(v) {}
     RegionSpace(uint64_t v, LoadBlock* b) : ContinuousMemMapAllocSpace(v, b) {}
     RegionSpace(const ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(ref) {}
@@ -101,7 +100,6 @@ public:
 
     class Region : public api::MemoryRef {
     public:
-        Region() : api::MemoryRef() {}
         Region(uint64_t v) : api::MemoryRef(v) {}
         Region(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
         Region(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
@@ -132,7 +130,7 @@ public:
 
 private:
     // quick memoryref cache
-    accounting::ContinuousSpaceBitmap mark_bitmap_cache;
+    accounting::ContinuousSpaceBitmap mark_bitmap_cache = 0x0;
 };
 
 } // namespace space

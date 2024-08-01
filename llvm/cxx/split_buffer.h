@@ -37,7 +37,6 @@ namespace cxx {
 
 class split_buffer : public api::MemoryRef {
 public:
-    split_buffer() : api::MemoryRef() {}
     split_buffer(uint64_t v) : api::MemoryRef(v) {}
     split_buffer(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     split_buffer(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}

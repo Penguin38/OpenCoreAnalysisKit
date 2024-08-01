@@ -48,7 +48,6 @@ namespace cxx {
 
 class unordered_map : public api::MemoryRef {
 public:
-    unordered_map() {}
     unordered_map(uint64_t v) : api::MemoryRef(v) {}
     unordered_map(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     unordered_map(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
@@ -65,7 +64,6 @@ public:
 
     class pair : public api::MemoryRef {
     public:
-        pair() : api::MemoryRef() {}
         pair(uint64_t v) : api::MemoryRef(v) {}
         pair(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
         pair(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}

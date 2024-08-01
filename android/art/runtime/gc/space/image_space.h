@@ -36,7 +36,6 @@ namespace space {
 
 class ImageSpace : public MemMapSpace {
 public:
-    ImageSpace() : MemMapSpace() {}
     ImageSpace(uint64_t v) : MemMapSpace(v) {}
     ImageSpace(uint64_t v, LoadBlock* b) : MemMapSpace(v, b) {}
     ImageSpace(const MemMapSpace& ref) : MemMapSpace(ref) {}

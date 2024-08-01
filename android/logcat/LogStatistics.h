@@ -29,7 +29,6 @@ namespace android {
 
 class LogStatistics : public api::MemoryRef {
 public:
-    LogStatistics() : api::MemoryRef() {}
     LogStatistics(uint64_t v) : api::MemoryRef(v) {}
     LogStatistics(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     LogStatistics(const api::MemoryRef& ref) : api::MemoryRef(ref) {}

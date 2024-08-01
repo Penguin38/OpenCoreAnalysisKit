@@ -81,8 +81,8 @@ public:
     inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetDynsyms() { return dynsyms; }
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetCurrentSymbols();
 private:
-    api::MemoryRef addr_cache;
-    api::MemoryRef name_cache;
+    api::MemoryRef addr_cache = 0x0;
+    api::MemoryRef name_cache = 0x0;
     std::unordered_set<SymbolEntry, SymbolEntry::Hash> dynsyms;
 };
 

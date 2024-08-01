@@ -36,7 +36,6 @@ namespace accounting {
 
 class ContinuousSpaceBitmap : public api::MemoryRef {
 public:
-    ContinuousSpaceBitmap() : api::MemoryRef() {}
     ContinuousSpaceBitmap(uint64_t v) : api::MemoryRef(v) {}
     ContinuousSpaceBitmap(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     ContinuousSpaceBitmap(const api::MemoryRef& ref) : api::MemoryRef(ref) {}

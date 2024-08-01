@@ -37,7 +37,6 @@ namespace cxx {
 
 class deque : public api::MemoryRef {
 public:
-    deque() : api::MemoryRef() {}
     deque(uint64_t v) : api::MemoryRef(v) {}
     deque(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
     deque(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
@@ -79,8 +78,8 @@ public:
         bool operator!=(iterator other) const;
         api::MemoryRef& operator*();
     private:
-        api::MemoryRef map;
-        api::MemoryRef pointer;
+        api::MemoryRef map = 0x0;
+        api::MemoryRef pointer = 0x0;
         uint64_t pointer_size;
         uint64_t block_size;
     };

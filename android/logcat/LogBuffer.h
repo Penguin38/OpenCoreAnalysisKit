@@ -28,7 +28,6 @@ namespace android {
 
 class LogBuffer : public api::MemoryRef {
 public:
-    LogBuffer() : api::MemoryRef() {}
     LogBuffer(uint64_t v) : api::MemoryRef(v) {}
     LogBuffer(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     LogBuffer(const api::MemoryRef& ref) : api::MemoryRef(ref) {}

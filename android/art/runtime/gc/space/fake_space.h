@@ -30,7 +30,6 @@ public:
     static uint64_t FAKE_SPACE_PTR;
     static constexpr uint32_t FAKE_SPACE_MEMSIZE = 0x2000000;
 
-    FakeSpace() : ContinuousMemMapAllocSpace() {}
     FakeSpace(uint64_t v) : ContinuousMemMapAllocSpace(v) {}
     FakeSpace(uint64_t v, LoadBlock* b) : ContinuousMemMapAllocSpace(v, b) {}
     FakeSpace(const ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(ref) {}

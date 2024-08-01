@@ -40,7 +40,6 @@ namespace android {
 
 class SerializedLogBuffer : public api::MemoryRef {
 public:
-    SerializedLogBuffer() : api::MemoryRef() {}
     SerializedLogBuffer(uint64_t v) : api::MemoryRef(v) {}
     SerializedLogBuffer(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     SerializedLogBuffer(const api::MemoryRef& ref) : api::MemoryRef(ref) {}

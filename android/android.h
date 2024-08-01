@@ -192,7 +192,7 @@ private:
     std::string time;
     std::string debuggable;
 
-    art::Runtime instance_;
+    art::Runtime instance_ = 0x0;
     std::string realLibart;
     art::OatHeader oat_header_;
 protected:

@@ -48,7 +48,6 @@ public:
         // kImageMethodsCount,  // Number of elements in enum.
     };
 
-    ImageHeader() : api::MemoryRef() {}
     ImageHeader(uint64_t v) : api::MemoryRef(v) {}
     ImageHeader(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
     ImageHeader(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
