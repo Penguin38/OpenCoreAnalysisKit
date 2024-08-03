@@ -361,6 +361,7 @@ void Android::preLoad() {
     RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::Init35);
     RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::tls_ptr_sized_values::Init35);
     RegisterSdkListener(VANILLA_ICE_CREAM, art::OatDexFile::Init35);
+    RegisterSdkListener(VANILLA_ICE_CREAM, art::jit::JitCodeCache::Init35);
 
     // OAT
     RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);

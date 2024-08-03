@@ -88,6 +88,7 @@ public:
     static void Init29();
     static void Init30();
     static void Init31();
+    static void Init35();
     inline uint64_t code_map() { return VALUEOF(JitCodeCache, code_map_); }
     inline uint64_t exec_pages() { return Ptr() + OFFSET(JitCodeCache, exec_pages_); }
     inline uint64_t shared_region() { return Ptr() + OFFSET(JitCodeCache, shared_region_); }

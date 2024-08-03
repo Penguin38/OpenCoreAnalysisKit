@@ -135,6 +135,18 @@ void JitCodeCache::Init31() {
     }
 }
 
+void JitCodeCache::Init35() {
+    if (CoreApi::Bits() == 64) {
+        __JitCodeCache_offset__ = {
+            .shared_region_ = 40,
+            .private_region_ = 400,
+            .jni_stubs_map_ = 760,
+            .method_code_map_ = 784,
+            .zygote_map_ = 880,
+        };
+    }
+}
+
 void JitCodeCache::JniStubData::Init28() {
     if (CoreApi::Bits() == 64) {
         __JniStubData_offset__ = {
