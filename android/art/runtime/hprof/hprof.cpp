@@ -23,7 +23,8 @@
 #include "runtime/mirror/array.h"
 #include "runtime/runtime_globals.h"
 #include "android.h"
-#include "cxx/vector.h"
+#include <vector>
+#include <unordered_map>
 #include <stdio.h>
 
 namespace art {
@@ -524,10 +525,10 @@ private:
     size_t total_objects_ = 0u;
 
     HprofStringId next_string_id_ = 0x400000;
-    std::map<std::string, HprofStringId> strings_;
+    std::unordered_map<std::string, HprofStringId> strings_;
 
     HprofClassSerialNumber next_class_serial_number_ = 1;
-    std::map<mirror::Class, HprofClassSerialNumber> classes_;
+    std::unordered_map<mirror::Class, HprofClassSerialNumber, mirror::Class::Hash> classes_;
 };
 
 bool Hprof::AddRuntimeInternalObjectsField(mirror::Class& klass) {

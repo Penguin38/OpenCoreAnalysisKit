@@ -67,11 +67,11 @@ inline T& QUICK_CACHE(NAME) { \
 namespace api {
 class MemoryRef {
 public:
-    MemoryRef(uint64_t v) : vaddr(v) {}
+    MemoryRef(uint64_t v) : vaddr(v), block(0) {}
     MemoryRef(const MemoryRef& ref) : vaddr(ref.vaddr), block(ref.block) {}
-    MemoryRef(uint64_t v, LoadBlock* b) : vaddr(v) { checkCopyBlock(b); }
-    MemoryRef(uint64_t v, MemoryRef& ref) : vaddr(v) { copyRef(ref); }
-    MemoryRef(uint64_t v, MemoryRef* ref) : vaddr(v) { copyRef(ref); }
+    MemoryRef(uint64_t v, LoadBlock* b) : vaddr(v), block(0) { checkCopyBlock(b); }
+    MemoryRef(uint64_t v, MemoryRef& ref) : vaddr(v), block(0) { copyRef(ref); }
+    MemoryRef(uint64_t v, MemoryRef* ref) : vaddr(v), block(0) { copyRef(ref); }
 
     inline void checkCopyBlock(LoadBlock* b) { if (b && b->virtualContains(vaddr)) block = b; }
     inline void copyRef(MemoryRef& ref) { checkCopyBlock(ref.block); }
@@ -143,7 +143,7 @@ public:
     }
 private:
     uint64_t vaddr;
-    LoadBlock* block = nullptr;
+    LoadBlock* block;
 };
 } // namespace api
 

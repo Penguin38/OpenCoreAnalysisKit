@@ -28,6 +28,7 @@
 #include "dex/modifiers.h"
 #include "dex/dex_file.h"
 #include <string>
+#include <functional>
 
 struct Class_OffsetTable {
     uint32_t class_loader_;
@@ -80,12 +81,21 @@ public:
     Class(uint32_t v, api::MemoryRef& ref) : Object(v, ref) {}
     Class(uint32_t v, api::MemoryRef* ref) : Object(v, ref) {}
 
-    inline bool operator==(Object& ref) { return Ptr() == ref.Ptr(); }
-    inline bool operator!=(Object& ref) { return Ptr() != ref.Ptr(); }
+    inline bool operator==(Class& ref) { return Ptr() == ref.Ptr(); }
+    inline bool operator!=(Class& ref) { return Ptr() != ref.Ptr(); }
     inline bool operator==(uint32_t v) { return Ptr() == v; }
     inline bool operator!=(uint32_t v) { return Ptr() != v; }
+    inline bool operator==(const Class& ref) const { return Ptr() == ref.Ptr(); }
+    inline bool operator!=(const Class& ref) const { return Ptr() != ref.Ptr(); }
     inline bool operator<(const Class& ref) const { return Ptr() < ref.Ptr(); }
     inline bool operator>(const Class& ref) const { return Ptr() > ref.Ptr(); }
+
+    struct Hash {
+        std::size_t operator()(const Class& clazz) const {
+            std::hash<uint32_t> vaddr_hasher;
+            return vaddr_hasher(clazz.Ptr());
+        }
+    };
 
     static void Init();
     inline uint32_t class_loader() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, class_loader_)); }

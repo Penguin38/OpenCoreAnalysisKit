@@ -36,7 +36,10 @@ public:
 
     char* cmd;
     int argc;
-    char* argv[MAX_ARGC];
+    char* argv[MAX_ARGC] = {
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+    };
 private:
     const char* SPLIT_TOKEN = " \t\n\r";
     static void runMain(WorkThread* thread);
