@@ -98,6 +98,9 @@ static SerializedLogBuffer AnalysisSerializedLogBuffer() {
 }
 
 int LogcatCommand::main(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady())
+        return 0;
+
     if (CoreApi::Bits() != 64) {
         LOGE("Not support logcat on bit32 system.\n");
         return 0;

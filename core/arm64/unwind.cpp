@@ -86,7 +86,7 @@ void UnwindStack::FpBacktrace(Register& regs) {
 
         // FP CALLTRACE
         VisitFrame();
-        LoadBlock* vdso = CoreApi::FindLoadBlock(CoreApi::FindAuxv(AT_SYSINFO_EHDR));
+        LoadBlock* vdso = CoreApi::FindLoadBlock(CoreApi::FindAuxv(AT_SYSINFO_EHDR), false);
         cur_frame_pc_ = regs.lr;
         if (!vdso || !vdso->virtualContains(cur_frame_pc_))
             cur_frame_pc_ -= 0x4;
