@@ -81,7 +81,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
             auto callback = [&](ThreadApi *api) -> bool {
                 uint64_t frame_pc = api->GetFramePC();
                 File* file = CoreApi::FindFile(frame_pc);
-                LOGI("%s%-4d   Thread " ANSI_COLOR_YELLOW "%-10d " ANSI_COLOR_CYAN "ax%lx  " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET,
+                LOGI("%s%-4d   Thread " ANSI_COLOR_YELLOW "%-10d " ANSI_COLOR_CYAN "0x%lx  " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET,
                         api->pid() == Env::CurrentPid() ? "*" : " ",
                         index, api->pid(), frame_pc, file? file->name().c_str() : "");
                 ++index;
