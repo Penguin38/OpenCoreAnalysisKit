@@ -163,7 +163,7 @@ void OpencoreImpl::WriteCoreHeader(FILE* fp) {
 void OpencoreImpl::WriteCoreNoteHeader(FILE* fp) {
     note.p_filesz += sizeof(lp64::Auxv) * auxvnum + sizeof(Elf64_Nhdr) + 8;
     note.p_filesz += extra_note_filesz;
-    note.p_filesz += sizeof(lp64::File) * phnum + sizeof(Elf64_Nhdr) + 8 + 2 * 8 + fileslen;
+    note.p_filesz += sizeof(lp64::File) * phnum + sizeof(Elf64_Nhdr) + 8 + 2 * 8 + RoundUp(fileslen, 4);
     fwrite((void *)&note, sizeof(Elf64_Phdr), 1, fp);
 }
 
@@ -203,7 +203,7 @@ void OpencoreImpl::WriteCoreAUXV(FILE* fp) {
 void OpencoreImpl::WriteNtFile(FILE* fp) {
     Elf64_Nhdr elf_nhdr;
     elf_nhdr.n_namesz = NOTE_CORE_NAME_SZ;
-    elf_nhdr.n_descsz = sizeof(lp64::File) * phnum + 2 * 8 + fileslen;
+    elf_nhdr.n_descsz = sizeof(lp64::File) * phnum + 2 * 8 + RoundUp(fileslen, 4);
     elf_nhdr.n_type = NT_FILE;
 
     char magic[8];
@@ -228,8 +228,9 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
 
 void OpencoreImpl::AlignNoteSegment(FILE* fp) {
     memset(zero, 0x0, align_size);
-    uint64_t offset = RoundUp(note.p_offset + note.p_filesz, align_size);
-    uint64_t size = offset - (note.p_offset + note.p_filesz);
+    uint64_t align_filesz = note.p_filesz - RoundUp(fileslen, 4) + fileslen;
+    uint64_t offset = RoundUp(note.p_offset + align_filesz, align_size);
+    uint64_t size = offset - (note.p_offset + align_filesz);
     fwrite(zero, size, 1, fp);
 }
 
