@@ -251,6 +251,11 @@ Runtime& Runtime::Current() {
 }
 
 Runtime Runtime::AnalysisInstance() {
+    if (!Android::IsSdkReady()) {
+        LOGE("Please command \"env config --sdk <SDK>!!\"\n");
+        return 0x0;
+    }
+
     Runtime runtime = 0x0;
     uint64_t callee_methods[6] = {0x0};
     uint32_t sizeof_callee_methods = sizeof(callee_methods);
