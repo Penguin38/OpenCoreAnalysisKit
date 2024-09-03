@@ -246,9 +246,9 @@ bool JitCodeCache::PrivateRegionContainsPc(uint64_t pc) {
 
 bool JitCodeCache::ContainsPc(uint64_t pc) {
     if (Android::Sdk() >= Android::R) {
-        return PrivateRegionContainsPc(pc) && GetSharedRegion().IsInExecSpace(pc);
+        return PrivateRegionContainsPc(pc) || GetSharedRegion().IsInExecSpace(pc);
     } else if (Android::Sdk() >= Android::Q) {
-        return GetExecPages().HasAddress(pc) && GetZygoteExecPages().HasAddress(pc);
+        return GetExecPages().HasAddress(pc) || GetZygoteExecPages().HasAddress(pc);
     } else {
         return GetCodeMap().HasAddress(pc);
     }
