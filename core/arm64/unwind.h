@@ -27,6 +27,7 @@ public:
     UnwindStack(ThreadApi* thread) : api::UnwindStack(thread) {}
     void WalkStack();
     void FpBacktrace(Register& regs);
+    void OnlyFpBackStack(uint64_t fp);
     uint64_t GetUContext();
     void DumpContextRegister(const char* prefix);
 };

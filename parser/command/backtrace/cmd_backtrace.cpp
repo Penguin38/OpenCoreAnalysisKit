@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "api/core.h"
 #include "api/unwind.h"
+#include "arm64/unwind.h"
 #include "base/utils.h"
 #include "common/elf.h"
 #include "common/exception.h"
@@ -37,6 +38,7 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
     int pid = Env::CurrentPid();
     dump_all = false;
     dump_detail = false;
+    dump_fps.clear();
 
     int opt;
     int option_index = 0;
@@ -44,9 +46,10 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"all",    no_argument,       0,  'a'},
         {"detail", no_argument,       0,  'd'},
+        {"fp",     required_argument, 0,  'f'},
     };
 
-    while ((opt = getopt_long(argc, (char* const*)argv, "ad",
+    while ((opt = getopt_long(argc, (char* const*)argv, "adf:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'a':
@@ -55,6 +58,14 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
             case 'd':
                 dump_detail = true;
                 break;
+            case 'f': {
+                std::unique_ptr<char> newpath(strdup(optarg));
+                char *token = strtok(newpath.get(), ":");
+                while (token != nullptr) {
+                    dump_fps.push_back(Utils::atol(token));
+                    token = strtok(nullptr, ":");
+                }
+            } break;
         }
     }
 
@@ -157,7 +168,7 @@ void BacktraceCommand::DumpTrace() {
         DumpNativeStack(record->thread, record->api);
 #if defined(__AOSP_PARSER__)
         try {
-            DumpJavaStack(record->thread);
+            DumpJavaStack(record->thread, record->api);
         } catch(InvalidAddressException e) {
             LOGI(ANSI_COLOR_RED "  (STACK MAYBE INCOIMPLETE)\n" ANSI_COLOR_RESET);
         }
@@ -275,7 +286,7 @@ static void DumpJavaFrameState(const char* prefix, art::Thread* thread, art::Jav
     }
 }
 
-void BacktraceCommand::DumpJavaStack(void *th) {
+void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
     if (!th) return;
 
     art::Thread* thread = reinterpret_cast<art::Thread*>(th);
@@ -284,7 +295,32 @@ void BacktraceCommand::DumpJavaStack(void *th) {
 
     std::string format = FormatJavaFrame("  ", visitor.GetJavaFrames().size());
     uint32_t frameid = 0;
+    uint32_t subjni = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
+        art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
+        if (dump_detail && prev_quick_frame.Ptr() && prev_quick_frame.GetMethod().IsRuntimeMethod()) {
+            art::ArtMethod& prev_method = prev_quick_frame.GetMethod();
+            if (frameid) {
+                LOGI(ANSI_COLOR_LIGHTRED "    <<JNI INTERFACE CALL JAVA METHOD>>\n" ANSI_COLOR_RESET);
+                if (CoreApi::GetMachine() == EM_AARCH64 && dump_fps.size() > subjni) {
+                    std::unique_ptr<arm64::UnwindStack> unwind_stack = std::make_unique<arm64::UnwindStack>(api);
+                    unwind_stack->OnlyFpBackStack(dump_fps[subjni]);
+                    std::string sub_format = FormatJNINativeFrame("      ", unwind_stack->GetNativeFrames().size());
+                    uint32_t sub_frameid = 0;
+                    for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
+                        std::string method_desc = native_frame->GetMethodName();
+                        uint64_t offset = (native_frame->GetFramePc() & CoreApi::GetVabitsMask()) - native_frame->GetMethodOffset();
+                        if (offset && native_frame->GetMethodOffset())
+                            method_desc.append("+").append(Utils::ToHex(offset));
+                        LOGI(sub_format.c_str(), sub_frameid, native_frame->GetFramePc(), method_desc.c_str());
+                        ++sub_frameid;
+                    }
+                }
+                subjni++;
+            }
+            LOGI(ANSI_COLOR_LIGHTRED "    %s\n" ANSI_COLOR_RESET, prev_method.GetName());
+        }
+
         LOGI(format.c_str(), frameid, java_frame->GetDexPcPtr(),
              dump_detail ? java_frame->GetMethod().ColorPrettyMethodOnlyNP().c_str()
                          : java_frame->GetMethod().ColorPrettyMethodSimple().c_str());
@@ -315,6 +351,29 @@ std::string BacktraceCommand::FormatJavaFrame(const char* prefix, uint64_t size)
     format.append(std::to_string(num));
     format.append("lx  ");
     format.append(ANSI_COLOR_LIGHTYELLOW);
+    format.append("%s\n");
+    format.append(ANSI_COLOR_RESET);
+    return format;
+}
+
+std::string BacktraceCommand::FormatJNINativeFrame(const char* prefix, uint64_t size) {
+    std::string format;
+    format.append(prefix);
+    format.append("JNI: #%0");
+    int num = 0;
+    uint64_t current = size;
+    do {
+        current = current / 10;
+        ++num;
+    } while(current != 0);
+    format.append(std::to_string(num));
+    format.append("d  ");
+    format.append(ANSI_COLOR_CYAN);
+    format.append("%0");
+    num = CoreApi::Bits() / 4;
+    format.append(std::to_string(num));
+    format.append("lx  ");
+    format.append(ANSI_COLOR_YELLOW);
     format.append("%s\n");
     format.append(ANSI_COLOR_RESET);
     return format;

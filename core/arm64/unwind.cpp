@@ -91,8 +91,18 @@ void UnwindStack::FpBacktrace(Register& regs) {
         if (!vdso || !vdso->virtualContains(cur_frame_pc_))
             cur_frame_pc_ -= 0x4;
         VisitFrame();
+    } catch(InvalidAddressException e) {
+        // do nothing
+    }
 
-        api::MemoryRef fp = cur_frame_fp_;
+    OnlyFpBackStack(cur_frame_fp_);
+}
+
+void UnwindStack::OnlyFpBackStack(uint64_t curfp) {
+    try {
+        LoadBlock* vdso = CoreApi::FindLoadBlock(CoreApi::FindAuxv(AT_SYSINFO_EHDR), false);
+
+        api::MemoryRef fp = curfp;
         fp.Prepare(false);
         LoadBlock* block = fp.Block();
         if (!block) return;
