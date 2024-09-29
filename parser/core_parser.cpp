@@ -72,6 +72,7 @@ void show_parser_usage() {
     LOGI("    --pid|-p <PID>\n");
     LOGI("    --machine|-m <ARCH>{ arm64, arm, x86_64, x86, riscv64 }\n");
     LOGI("    --sdk <SDK>{ 26 ~ 35 }\n");
+    LOGI("    --non-quick: no filter non-read vma.\n");
     LOGI("Exp:\n");
     LOGI("  core-parser -c /tmp/tmp.core\n");
     LOGI("  core-parser -p 1 -m arm64\n");
@@ -99,6 +100,7 @@ int command_preload(int argc, char* const argv[]) {
         {"sdk",   required_argument,       0,  1 },
         {"pid",   required_argument,       0, 'p'},
         {"machine", required_argument,     0, 'm'},
+        {"non-quick", no_argument,         0,  2 },
         {"help",  no_argument,             0, 'h'},
         {0,       0,                       0,  0 },
     };
@@ -121,6 +123,9 @@ int command_preload(int argc, char* const argv[]) {
                 break;
             case 'p':
                 pid = atoi(optarg);
+                break;
+            case 2:
+                CoreApi::QUICK_LOAD_ENABLED = false;
                 break;
             case 'h':
                 show_parser_usage();

@@ -227,6 +227,7 @@ public:
         return quick? mQuickLoad : mLoad;
     }
     bool isRemote() { return mRemote; }
+    static bool QUICK_LOAD_ENABLED;
 protected:
     uint64_t pointer_mask;
     uint64_t vabits_mask;

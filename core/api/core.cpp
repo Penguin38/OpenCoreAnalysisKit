@@ -32,6 +32,7 @@
 #include <iostream>
 
 CoreApi* CoreApi::INSTANCE = nullptr;
+bool CoreApi::QUICK_LOAD_ENABLED = true;
 
 void CoreApi::Init() {
     api::Elf::Init();
@@ -186,7 +187,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t size) {
 
 void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
     mLoad.push_back(block);
-    if (block->flags() & Block::FLAG_R)
+    if (block->flags() & Block::FLAG_R || !QUICK_LOAD_ENABLED)
         mQuickLoad.push_back(block);
 }
 

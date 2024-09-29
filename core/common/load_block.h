@@ -45,8 +45,6 @@ public:
         return 0x0;
     }
     inline bool isValid() {
-        if (!(flags() & FLAG_R))
-            return false;
         if ((isValidBlock() || mMmap || mOverlay))
             return true;
         return false;
