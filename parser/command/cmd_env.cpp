@@ -83,12 +83,16 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
                     Env::Dump();
                 break;
             case 0:
-                current_sdk = atoi(optarg);
-                Android::OnSdkChanged(current_sdk);
+                if (Android::IsReady()) {
+                    current_sdk = atoi(optarg);
+                    Android::OnSdkChanged(current_sdk);
+                }
                 break;
             case 1:
-                current_oat = atoi(optarg);
-                Android::OnOatChanged(current_oat);
+                if (Android::IsReady()) {
+                    current_oat = atoi(optarg);
+                    Android::OnOatChanged(current_oat);
+                }
                 break;
         }
     }
@@ -134,7 +138,7 @@ int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
 }
 
 int EnvCommand::showArtEnv(int argc, char* const argv[]) {
-    if (!Android::IsReady())
+    if (!CoreApi::IsReady() || !Android::IsReady())
         return 0;
 
     art::Runtime& runtime = Android::GetRuntime();
@@ -373,12 +377,11 @@ int EnvCommand::dumpEnv() {
     if (CoreApi::IsReady()) {
         CoreApi::Dump();
         Env::Dump();
-    }
 
-    if (Android::IsReady()) {
-        Android::Dump();
+        if (Android::IsReady()) {
+            Android::Dump();
+        }
     }
-
     return 0;
 }
 
