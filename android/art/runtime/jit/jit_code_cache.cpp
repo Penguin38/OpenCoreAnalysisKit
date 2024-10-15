@@ -259,8 +259,10 @@ uint64_t JitCodeCache::GetJniStubCode(ArtMethod& method) {
         JniStubsMapPair pair = value;
         JniStubData data = pair.second();
         cxx::vector methods_(data.methods(), data);
+        methods_.SetEntrySize(CoreApi::GetPointSize());
         for (const auto& m : methods_) {
-            if (m == method.Ptr()) {
+            api::MemoryRef ref = m;
+            if (ref.valueOf() == method.Ptr()) {
                 return data.code();
             }
         }
