@@ -187,7 +187,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t size) {
 
 void CoreApi::addLoadBlock(std::shared_ptr<LoadBlock>& block) {
     mLoad.push_back(block);
-    if (block->flags() & Block::FLAG_R || !QUICK_LOAD_ENABLED)
+    if (!QUICK_LOAD_ENABLED || block->flags())
         mQuickLoad.push_back(block);
 }
 

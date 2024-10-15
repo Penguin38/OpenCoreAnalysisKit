@@ -71,16 +71,16 @@ void LoadBlock::removeOverlay() {
 }
 
 bool LoadBlock::CheckCanMmap(uint64_t header) {
-    /*
-     *  r-x
-     *  rwx
-     *  ...
-     *  --- // filter non-read
-     */
-    if (!(flags() & FLAG_R))
+    /** --- */
+    if (!flags())
+        return false;
+
+    /** -?- */
+    if (!(flags() & FLAG_R) && !(flags() & FLAG_X))
         return false;
 
     // filter .oat
+    /** rw- */
     if ((flags() & FLAG_W) && !(flags() & FLAG_X))
         return false;
 
