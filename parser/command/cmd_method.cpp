@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "base/macros.h"
 #include "command/cmd_method.h"
+#include "command/backtrace/cmd_frame.h"
 #include "command/command_manager.h"
 #include "base/utils.h"
 #include "dalvik_vm_bytecode.h"
@@ -210,11 +211,30 @@ void MethodCommand::Oatdump() {
         }
         LOGI(ANSI_COLOR_RED "OAT CODE:\n" ANSI_COLOR_RESET);
         LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
-        capstone::Disassember::Option opt(method_header.GetCodeStart(), -1);
-        if (CoreApi::GetMachine() == EM_ARM) {
-            opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
+        if (method_header.IsOptimized()) {
+            capstone::Disassember::Option opt(method_header.GetCodeStart(), -1);
+            if (CoreApi::GetMachine() == EM_ARM) {
+                opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, capstone::Disassember::Option::MODE_THUMB);
+            }
+            uint64_t subid = 0;
+            std::vector<art::GeneralStackMap> submaps;
+            method_header.NativeStackMaps(submaps);
+            art::dex::CodeItem item = method.GetCodeItem();
+            uint64_t start = method_header.GetCodeStart();
+            uint64_t code_size = 0;
+            for (const auto& stack : submaps) {
+                capstone::Disassember::Dump("  ", start, stack.native_pc - code_size, opt);
+                LOGI("    GeneralStackMap[%lu] (NativePc=0x%lx DexPc=0x%lx)\n",
+                        subid++, stack.native_pc + method_header.GetCodeStart(),
+                        item.Ptr() ? item.Ptr() + item.code_offset_ + 0x2 * stack.dex_pc : 0x0);
+                std::map<uint32_t, art::DexRegisterInfo> vregs;
+                method_header.NativePc2VRegs(start - method_header.GetCodeStart(), vregs);
+                FrameCommand::ShowJavaFrameRegister("      ", vregs);
+                start = stack.native_pc + method_header.GetCodeStart();
+                code_size = stack.native_pc;
+            }
+            capstone::Disassember::Dump("  ", start, method_header.GetCodeSize() - code_size, opt);
         }
-        capstone::Disassember::Dump("  ", method_header.GetCodeStart(), method_header.GetCodeSize(), opt);
     }
 }
 

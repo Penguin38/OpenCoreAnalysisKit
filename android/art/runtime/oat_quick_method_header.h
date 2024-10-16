@@ -94,6 +94,7 @@ public:
     bool IsNterpMethodHeader();
     uint32_t NativePc2DexPc(uint32_t native_pc);
     void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
+    void NativeStackMaps(std::vector<GeneralStackMap>& maps);
     void Dump(const char* prefix);
 private:
     // quick memoryref cache

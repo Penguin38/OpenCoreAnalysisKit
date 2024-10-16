@@ -30,6 +30,12 @@ class ArtMethod;
 
 static constexpr uint32_t kFrameSlotSize = 4;
 
+class GeneralStackMap {
+public:
+    uint32_t native_pc;
+    uint32_t dex_pc;
+};
+
 class StackMap : public BitTable {
 public:
     enum Kind {
@@ -485,6 +491,7 @@ public:
 
     uint32_t NativePc2DexPc(uint32_t native_pc);
     void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
+    void NativeStackMaps(std::vector<GeneralStackMap>& maps);
     void ExtendNumRegister(ArtMethod& method);
 
     void Dump(const char* prefix);

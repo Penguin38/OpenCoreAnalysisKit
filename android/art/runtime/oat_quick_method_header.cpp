@@ -194,6 +194,11 @@ void OatQuickMethodHeader::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t,
     code_info.NativePc2VRegs(native_pc, vregs);
 }
 
+void OatQuickMethodHeader::NativeStackMaps(std::vector<GeneralStackMap>& maps) {
+    CodeInfo code_info = CodeInfo::Decode(GetOptimizedCodeInfoPtr());
+    code_info.NativeStackMaps(maps);
+}
+
 void OatQuickMethodHeader::Dump(const char* prefix) {
     LOGI("%sOatQuickMethodHeader(0x%lx)\n", prefix, Ptr());
     LOGI("%s  code_offset: 0x%lx\n", prefix, GetCodeStart());
