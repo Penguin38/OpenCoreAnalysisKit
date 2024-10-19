@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "api/core.h"
 #include "common/load_block.h"
 #include "base/utils.h"
 
@@ -86,6 +87,10 @@ bool LoadBlock::CheckCanMmap(uint64_t header) {
 
     if (header != vaddr())
         return false;
+
+    if (vaddr() == CoreApi::FindAuxv(AT_SYSINFO_EHDR))
+        return false;
+
     return true;
 }
 
