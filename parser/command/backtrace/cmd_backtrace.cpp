@@ -298,8 +298,8 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
     uint32_t subjni = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
         art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
-        if (dump_detail && prev_quick_frame.Ptr() && prev_quick_frame.GetMethod().IsRuntimeMethod()) {
-            art::ArtMethod& prev_method = prev_quick_frame.GetMethod();
+        if (dump_detail && (prev_quick_frame.Ptr() && prev_quick_frame.GetMethod().IsRuntimeMethod()
+                || java_frame->GetMethod().IsNative())) {
             if (frameid) {
                 LOGI(ANSI_COLOR_LIGHTRED "    <<JNI INTERFACE CALL JAVA METHOD>>\n" ANSI_COLOR_RESET);
                 if (CoreApi::GetMachine() == EM_AARCH64 && dump_fps.size() > subjni) {
@@ -318,7 +318,14 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
                 }
                 subjni++;
             }
-            LOGI(ANSI_COLOR_LIGHTRED "    %s\n" ANSI_COLOR_RESET, prev_method.GetName());
+
+            if (java_frame->GetMethod().IsNative()) {
+                LOGI(ANSI_COLOR_LIGHTRED "    <<%s.%s>>\n" ANSI_COLOR_RESET,
+                    java_frame->GetMethod().GetDeclaringClass().PrettyDescriptor().c_str(), java_frame->GetMethod().GetName());
+            } else {
+                art::ArtMethod& prev_method = prev_quick_frame.GetMethod();
+                LOGI(ANSI_COLOR_LIGHTRED "    %s\n" ANSI_COLOR_RESET, prev_method.GetName());
+            }
         }
 
         LOGI(format.c_str(), frameid, java_frame->GetDexPcPtr(),

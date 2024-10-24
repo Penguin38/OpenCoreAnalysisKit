@@ -593,7 +593,7 @@ void Thread::DumpState() {
             mutexes.append(" ");
         }
     }
-    LOGI(ANSI_COLOR_BLUE "  | mutexes=0x%lx held=%s\n" ANSI_COLOR_RESET, GetTlsPtr().held_mutexes(), mutexes.c_str());
+    LOGI(ANSI_COLOR_BLUE "  | mutexes=0x%lx held=" ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET, GetTlsPtr().held_mutexes(), mutexes.c_str());
 }
 
 } //namespace art
