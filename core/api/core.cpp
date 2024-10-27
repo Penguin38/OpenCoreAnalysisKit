@@ -237,6 +237,10 @@ void CoreApi::Dump() {
     LOGI("  * Remote: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, IsRemote()? "true" : "false");
 }
 
+void CoreApi::CleanCache() {
+    INSTANCE->removeAllLinkMap();
+}
+
 void CoreApi::ForeachFile(std::function<bool (File *)> callback) {
     INSTANCE->foreachFile(callback);
 }

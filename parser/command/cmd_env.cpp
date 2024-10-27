@@ -218,11 +218,12 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
         {"crc",    no_argument,       0, 3},
         {"num",    required_argument, 0,'n'},
         {"quick-load", no_argument,   0, 4},
+        {"clean-cache",   no_argument, 0, 'c'},
     };
 
     bool crc = false;
     int num = 0;
-    while ((opt = getopt_long(argc, argv, "12:3:4n:",
+    while ((opt = getopt_long(argc, argv, "12:3:4n:c",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1: return showLoadEnv(false);
@@ -236,6 +237,9 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
             case 'n':
                 num = std::atoi(optarg);
                 break;
+            case 'c':
+                CoreApi::CleanCache();
+                return 0;
         }
     }
     if (crc) {
@@ -245,6 +249,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
         LOGI("  * arm mode: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, !capstone::Disassember::GetArmMode() ? "arm" : "thumb");
         LOGI("  * mLoad: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLoads(false).size());
         LOGI("  * mQuickLoad: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLoads(true).size());
+        LOGI("  * mLinkMap: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLinkMaps().size());
     }
     return 0;
 }
@@ -411,4 +416,5 @@ void EnvCommand::usage() {
     LOGI("   --load: show code load segments\n");
     LOGI("   --arm <thumb|arm>\n");
     LOGI("   --crc: check consistency of mmap file data.\n");
+    LOGI("   --clean-cache|-c: clean link_map cache\n");
 }

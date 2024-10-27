@@ -105,6 +105,9 @@ public:
     static std::vector<std::shared_ptr<LoadBlock>>& GetLoads(bool quick) {
         return INSTANCE->getLoads(quick);
     }
+    static std::vector<std::unique_ptr<LinkMap>>& GetLinkMaps() {
+        return INSTANCE->mLinkMap;
+    }
     static uint64_t GetReal(uint64_t vaddr) {
         return GetReal(vaddr, OPT_READ_ALL);
     }
@@ -115,6 +118,7 @@ public:
     static ThreadApi* FindThread(int tid);
     static void Init();
     static void Dump();
+    static void CleanCache();
     static void ForeachFile(std::function<bool (File *)> callback);
     static void ForeachAuxv(std::function<bool (Auxv *)> callback);
     static void ForeachLinkMap(std::function<bool (LinkMap *)> callback);
