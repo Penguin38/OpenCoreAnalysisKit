@@ -42,6 +42,7 @@
 #include "command/cmd_logcat.h"
 #include "command/cmd_dumpsys.h"
 #include "command/cmd_env.h"
+#include "command/cmd_cxx.h"
 #include "command/cmd_shell.h"
 #include "command/remote/cmd_remote.h"
 #include "command/fake/cmd_fake.h"
@@ -99,6 +100,7 @@ void CommandManager::Init() {
 
     // other
     CommandManager::PushInlineCommand(new EnvCommand());
+    CommandManager::PushInlineCommand(new CxxCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
     INSTANCE->plugin = new PluginCommand();
     CommandManager::PushInlineCommand(INSTANCE->plugin);
