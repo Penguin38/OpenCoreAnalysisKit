@@ -58,7 +58,7 @@ cxx::deque& BumpPointerSpace::GetBlockSizesCache() {
     if (!block_sizes_cache.Ptr()) {
         block_sizes_cache = block_sizes();
         block_sizes_cache.copyRef(this);
-        block_sizes_cache.setBlockSize(CoreApi::GetPointSize());
+        block_sizes_cache.SetBlockSize(CoreApi::GetPointSize());
     }
     return block_sizes_cache;
 }

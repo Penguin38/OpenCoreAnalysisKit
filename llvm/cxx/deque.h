@@ -50,7 +50,7 @@ public:
     inline uint64_t __start() { return VALUEOF(cxx_deque, __start_); }
     inline uint64_t __size() { return VALUEOF(cxx_deque, __size_); }
     inline uint64_t __block_size() { return block_size; }
-    void setBlockSize(int size) {
+    void SetBlockSize(int size) {
         pointer_size = size;
         block_size = pointer_size < 256 ? 4096 / pointer_size : 16;
     }

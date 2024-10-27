@@ -127,8 +127,26 @@ int CxxCommand::DumpCxxList(int argc, char* const argv[]) {
 }
 
 int CxxCommand::DumpCxxDeque(int argc, char* const argv[]) {
-    uint64_t addr = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
+    int block_size = CoreApi::GetPointSize();
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"block-size",       required_argument, 0,  'b'},
+    };
+
+    while ((opt = getopt_long(argc, argv, "b:",
+                long_options, &option_index)) != -1) {
+        switch(opt) {
+            case 'b':
+                block_size = atoi(optarg);
+                break;
+        }
+    }
+
+    uint64_t addr = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
     cxx::deque target = addr;
+    target.SetBlockSize(block_size);
     int idx = 0;
     for (const auto& value : target) {
         LOGI("[%d] 0x%lx\n", idx++, value.Ptr());
