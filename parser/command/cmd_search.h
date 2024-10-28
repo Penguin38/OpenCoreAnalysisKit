@@ -42,6 +42,7 @@ private:
     bool regex;
     bool instof;
     bool show;
+    bool format_hex;
 };
 
 #endif // PARSER_COMMAND_CMD_SEARCH_H_

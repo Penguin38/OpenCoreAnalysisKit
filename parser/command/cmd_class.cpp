@@ -32,6 +32,7 @@ int ClassCommand::main(int argc, char* const argv[]) {
 
     dump_all = !(argc > 1)? true : false;
     show_flag = 0;
+    format_hex = false;
     int opt;
     int option_index = 0;
     optind = 0; // reset
@@ -39,10 +40,11 @@ int ClassCommand::main(int argc, char* const argv[]) {
         {"method",  no_argument,       0,  'm'},
         {"static",  no_argument,       0,  's'},
         {"impl",    no_argument,       0,  'i'},
-        {"field",  no_argument,        0,  'f'},
+        {"field",   no_argument,       0,  'f'},
+        {"hex",     no_argument,       0,  'x'},
     };
 
-    while ((opt = getopt_long(argc, argv, "msif",
+    while ((opt = getopt_long(argc, argv, "msifx",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'm':
@@ -56,6 +58,9 @@ int ClassCommand::main(int argc, char* const argv[]) {
                 break;
             case 'f':
                 show_flag |= SHOW_FIELD;
+                break;
+            case 'x':
+                format_hex = true;
                 break;
         }
     }
@@ -129,7 +134,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
         Android::ForeachStaticField(current, print_static_field);
         std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
         for (auto& field : fields) {
-            PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field);
+            PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field, format_hex);
         }
         fields.clear();
     }

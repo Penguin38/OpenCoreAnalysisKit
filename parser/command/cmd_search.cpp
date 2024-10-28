@@ -46,13 +46,15 @@ int SearchCommand::main(int argc, char* const argv[]) {
         {"zygote",     no_argument,     0,   1 },
         {"image",      no_argument,     0,   2 },
         {"fake",       no_argument,     0,   3 },
+        {"hex",        no_argument,     0,  'x'},
     };
 
     type_flag = 0;
     each_flag = 0;
     regex = false;
     show = false;
-    while ((opt = getopt_long(argc, argv, "ocrsi",
+    format_hex = false;
+    while ((opt = getopt_long(argc, argv, "ocrsix",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
@@ -71,6 +73,9 @@ int SearchCommand::main(int argc, char* const argv[]) {
             case 'i':
                 regex = false;
                 instof = true;
+                break;
+            case 'x':
+                format_hex = true;
                 break;
             case 0:
                 each_flag |= Android::EACH_APP_OBJECTS;
@@ -129,9 +134,14 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
         if (show) {
             int argc = 2;
             std::string address = Utils::ToHex(object.Ptr());
-            char* argv[2] = {
+            char* argv[3] = {
                 const_cast<char*>("p"),
-                const_cast<char*>(address.c_str())};
+                const_cast<char*>(address.c_str()),
+                const_cast<char*>(""),};
+            if (format_hex) {
+                argc++;
+                argv[2] = const_cast<char*>("--hex");
+            }
             CommandManager::Execute(argv[0], argc, argv);
         }
     }

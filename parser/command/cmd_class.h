@@ -46,6 +46,7 @@ public:
 private:
     uint64_t total_classes;
     bool dump_all;
+    bool format_hex;
     int show_flag;
 };
 
