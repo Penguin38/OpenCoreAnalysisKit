@@ -265,6 +265,11 @@ void Elf::ReadSymbols(LinkMap* handle) {
     api::MemoryRef tables = 0x0;
     Elfx_Sym symbols = 0x0;
 
+    if (!handle->block()) {
+        LOGD("Not found block [%s].\n", handle->name());
+        return;
+    }
+
     if (handle->block()->virtualContains(strtab)) {
         tables = strtab;
     } else {
