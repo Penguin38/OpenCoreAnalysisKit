@@ -379,9 +379,10 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
         !class_linker.IsQuickToInterpreterBridge(existing_entry_point) &&
         existing_entry_point != GetInvokeObsoleteMethodStub()) {
         OatQuickMethodHeader method_header = OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
-        if (method_header.Contains(pc)) {
-            return method_header;
-        }
+        try {
+            if (method_header.Contains(pc))
+                return method_header;
+        } catch (InvalidAddressException e) {}
     }
 
     if (Android::Sdk() > Android::Q) {

@@ -50,8 +50,10 @@ void CacheHelper::EntryPointDump() {
 void CacheHelper::NterpDump() {
     Android::OatPrepare();
     LOGI("  * ExecuteNterpImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, ExecuteNterpImplEntryPoint());
-    LOGI("  * art::OatQuickMethodHeader::NterpWithClinitImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, NterpWithClinitImpl().Ptr());
-    LOGI("  * art::OatQuickMethodHeader::NterpImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, NterpImpl().Ptr());
+    LOGI("  * art::OatQuickMethodHeader::NterpWithClinitImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx  [0x%lx]\n" ANSI_COLOR_RESET,
+            NterpWithClinitImpl().Ptr(), NterpWithClinitImpl().valueOf(CoreApi::GetPointSize()));
+    LOGI("  * art::OatQuickMethodHeader::NterpImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%lx  [0x%lx]\n" ANSI_COLOR_RESET,
+            NterpImpl().Ptr(), NterpImpl().valueOf(CoreApi::GetPointSize()));
     LOGI("  * art::OatQuickMethodHeader::NterpMethodHeader: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, NterpMethodHeader().Ptr());
 }
 
