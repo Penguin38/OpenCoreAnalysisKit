@@ -211,6 +211,7 @@ public:
         return nullptr;
     }
     void removeAllLoadBlock();
+    void removeAllBindMap();
     inline uint64_t v2r(uint64_t vaddr, int opt);
     inline uint64_t r2v(uint64_t raddr);
     inline bool virtualValid(uint64_t vaddr);

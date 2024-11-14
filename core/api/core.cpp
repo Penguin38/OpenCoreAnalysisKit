@@ -196,6 +196,12 @@ void CoreApi::removeAllLoadBlock() {
     mLoad.clear();
 }
 
+void CoreApi::removeAllBindMap() {
+    for (const auto& block : mLoad) {
+        block->bind(nullptr);
+    }
+}
+
 uint64_t CoreApi::GetReal(uint64_t vaddr, int opt) {
     return INSTANCE->v2r(vaddr, opt);
 }
@@ -222,6 +228,7 @@ void CoreApi::addLinkMap(uint64_t map) {
 }
 
 void CoreApi::removeAllLinkMap() {
+    removeAllBindMap();
     mLinkMap.clear();
 }
 
