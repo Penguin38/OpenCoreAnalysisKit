@@ -67,9 +67,9 @@ int FakeCommand::main(int argc, char* const argv[]) {
 }
 
 void FakeCommand::usage() {
-    LOGI("Usage: fake <COMMAND> [option] ...\n");
+    LOGI("Usage: fake <COMMAND> [OPTION...]\n");
     LOGI("Command:\n");
-    LOGI("    core  map  stack\n");
+    LOGI("    core    map    stack\n");
     ENTER();
     FakeCore::Usage();
     ENTER();

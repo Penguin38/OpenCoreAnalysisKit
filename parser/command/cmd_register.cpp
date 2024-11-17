@@ -40,5 +40,5 @@ int RegisterCommand::main(int argc, char* const argv[]) {
 }
 
 void RegisterCommand::usage() {
-    LOGI("Usage: register [tid]");
+    LOGI("Usage: register [TID]\n");
 }

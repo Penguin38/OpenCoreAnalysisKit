@@ -114,9 +114,30 @@ void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
 }
 
 void LinkMapCommand::usage() {
-    LOGI("Usage: map [option..]\n");
+    LOGI("Usage: map [OPTION]\n");
     LOGI("Option:\n");
-    LOGI("  --ori|-o: show origin link map.\n");
-    LOGI("  --sym|-s <NUM>: show link map current symbols.\n");
+    LOGI("    -o, --ori         show origin link map\n");
+    LOGI("    -s, --sym <NUM>   show link map current symbols\n");
+    ENTER();
+    LOGI("core-parser> map\n");
+    LOGI("NUM LINKMAP       REGION                   FLAGS NAME\n");
+    LOGI("  1 0x791af2b6d0e0  [5a224127f000, 5a2241282000)  r--  /system/bin/app_process64 [*]\n");
+    LOGI("  2 0x791af2dd90e0  [791af2cbd000, 791af2cfd000)  r--  /system/bin/linker64 [*]\n");
+    LOGI("  3 0x791af2b6d330  [7ffc73ae7000, 7ffc73ae8000)  r-x  [vdso] [*]\n");
+    LOGI("  4 0x791af2b6d580  [791af0e08000, 791af0eb3000)  r--  /system/lib64/libandroid_runtime.so [*]\n");
+    LOGI("  ...\n");
+    ENTER();
+    LOGI("core-parser> map --sym 3\n");
+    LOGI("VADDR             SIZE              INFO              NAME\n");
+    LOGI("00007ffc73ae7a10  000000000000002a  0000000000000022  getcpu\n");
+    LOGI("00007ffc73ae77c0  00000000000001de  0000000000000022  clock_gettime\n");
+    LOGI("00007ffc73ae77a0  0000000000000015  0000000000000012  __vdso_time\n");
+    LOGI("00007ffc73ae7610  000000000000018a  0000000000000022  gettimeofday\n");
+    LOGI("00007ffc73ae7a10  000000000000002a  0000000000000012  __vdso_getcpu\n");
+    LOGI("00007ffc73ae79a0  0000000000000047  0000000000000022  clock_getres\n");
+    LOGI("00007ffc73ae77a0  0000000000000015  0000000000000022  time\n");
+    LOGI("00007ffc73ae79a0  0000000000000047  0000000000000012  __vdso_clock_getres\n");
+    LOGI("00007ffc73ae77c0  00000000000001de  0000000000000012  __vdso_clock_gettime\n");
+    LOGI("00007ffc73ae7610  000000000000018a  0000000000000012  __vdso_gettimeofday\n");
 }
 

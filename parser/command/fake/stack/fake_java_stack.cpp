@@ -80,5 +80,7 @@ int FakeJavaStack::OptionJavaStack(int argc, char* const argv[]) {
 }
 
 void FakeJavaStack::Usage() {
-    LOGI("Usage: fake stack --pc <PC> --sp <SP> [--clean|-c]\n");
+    LOGI("Usage: fake stack --pc <PC> --sp <SP> [OPTION]\n");
+    LOGI("Option:\n");
+    LOGI("    -c, --clean    clean fake java stack pc, sp\n");
 }

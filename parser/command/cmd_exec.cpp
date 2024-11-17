@@ -26,5 +26,9 @@ int ExecCommand::main(int argc, char* const argv[]) {
 }
 
 void ExecCommand::usage() {
-    LOGI("Usage: exec /system/bin/app_process64\n");
+    LOGI("Usage: exec <EXEC_PATH>\n");
+    ENTER();
+    LOGI("core-parser> exec /system/bin/app_process64\n");
+    LOGI("Mmap segment [60969cb26000, 60969cb28000) /system/bin/app_process64 [0]\n");
+    LOGI("Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]\n");
 }

@@ -435,9 +435,39 @@ void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::M
 }
 
 void PrintCommand::usage() {
-    LOGI("Usage: print|p <OBJECT> [option...]\n");
+    LOGI("Usage: print|p <OBJECT> [OPTION..]\n");
     LOGI("Option:\n");
-    LOGI("    --binary|-b: show object memory.\n");
-    LOGI("    --ref|-r <deep>: show object's ref.\n");
-    LOGI("    --format|-f: format dump.\n");
+    LOGI("    -b, --binary       show object memory\n");
+    LOGI("    -r, --ref <DEEP>   show object's ref\n");
+    LOGI("    -f, --format       object format dump\n");
+    LOGI("    -x, --hex          basic type hex print\n");
+    ENTER();
+    LOGI("core-parser> p 0x12c00000\n");
+    LOGI("Size: 0x18\n");
+    LOGI("Object Name: java.lang.ref.WeakReference\n");
+    LOGI("  // extends java.lang.ref.Reference\n");
+    LOGI("    [0x14] volatile java.lang.Object referent = 0x12c00018\n");
+    LOGI("    [0x10] java.lang.ref.Reference queueNext = 0x0\n");
+    LOGI("    [0x0c] final java.lang.ref.ReferenceQueue queue = 0x0\n");
+    LOGI("    [0x08] java.lang.ref.Reference pendingNext = 0x0\n");
+    LOGI("  // extends java.lang.Object\n");
+    LOGI("    [0x04] private transient int shadow$_monitor_ = 0\n");
+    LOGI("    [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f819828\n");
+    ENTER();
+    LOGI("core-parser> p 0x12c00000 -b -r 1 -x\n");
+    LOGI("Size: 0x18\n");
+    LOGI("Object Name: java.lang.ref.WeakReference\n");
+    LOGI("  // extends java.lang.ref.Reference\n");
+    LOGI("    [0x14] volatile java.lang.Object referent = 0x12c00018\n");
+    LOGI("    [0x10] java.lang.ref.Reference queueNext = 0x0\n");
+    LOGI("    [0x0c] final java.lang.ref.ReferenceQueue queue = 0x0\n");
+    LOGI("    [0x08] java.lang.ref.Reference pendingNext = 0x0\n");
+    LOGI("  // extends java.lang.Object\n");
+    LOGI("    [0x04] private transient int shadow$_monitor_ = 0x0\n");
+    LOGI("    [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f819828\n");
+    LOGI("Reference:\n");
+    LOGI("  --> 0x7010eac0 com.android.internal.os.BinderInternal\n");
+    LOGI("Binary:\n");
+    LOGI("12c00000: 000000006f819828  0000000000000000  (..o............\n");
+    LOGI("12c00010: 12c0001800000000  00000000704662b0  .........bFp....\n");
 }

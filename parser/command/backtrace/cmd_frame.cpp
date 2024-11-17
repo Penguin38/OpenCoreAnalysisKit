@@ -320,9 +320,44 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
 }
 
 void FrameCommand::usage() {
-    LOGI("Usage: frame|f <NUM> [option..]\n");
+    LOGI("Usage: frame|f <NUM> [OPTION..]\n");
     LOGI("Option:\n");
-    LOGI("    --java|-j: show java frame info. (Default)\n");
-    LOGI("    --native|-n: show native frame info.\n");
-    LOGI("    --all|-a: show all frame info.\n");
+    LOGI("    -j, --java       show java frame info (default)\n");
+    LOGI("    -n, --native     show native frame info\n");
+    LOGI("    -a, --all        show all frame info\n");
+    ENTER();
+    LOGI("core-parser> f 6 -j\n");
+    LOGI("  JavaKt: #6  000079185a704980  com.android.internal.os.ZygoteInit.main(java.lang.String[])\n");
+    LOGI("  {\n");
+    LOGI("      Location: /system/framework/framework.jar!classes3.dex\n");
+    LOGI("      art::ArtMethod: 0x70b509c0\n");
+    LOGI("      dex_pc_ptr: 0x79185a704980\n");
+    LOGI("      quick_frame: 0x7ffc73acdc70\n");
+    LOGI("      frame_pc: 0x71907dd5\n");
+    LOGI("      method_header: 0x719075d8\n");
+    ENTER();
+    LOGI("      DEX CODE:\n");
+    LOGI("      0x79185a704976: 106e c34e 0002           | invoke-virtual {v2}, void com.android.internal.os.ZygoteServer.closeServerSocket() // method@49998\n");
+    LOGI("      0x79185a70497c: 0038 0005                | if-eqz v0, 0x79185a704986 //+5\n");
+    LOGI("      0x79185a704980: 1072 ebbe 0000           | invoke-interface {v0}, void java.lang.Runnable.run() // method@60350\n");
+    ENTER();
+    LOGI("      OAT CODE:\n");
+    LOGI("      0x71907db5:                   2057ff | call qword ptr [rdi + 0x20]\n");
+    LOGI("      0x71907db8:                     db85 | test ebx, ebx\n");
+    LOGI("      0x71907dba:             00000018840f | je 0x71907dd8\n");
+    LOGI("      0x71907dc0:                   de8948 | mov rsi, rbx\n");
+    LOGI("      0x71907dc3:                     3e8b | mov edi, dword ptr [rsi]\n");
+    LOGI("      0x71907dc5:               0000ebbeb8 | mov eax, 0xebbe\n");
+    LOGI("      0x71907dca:           00000080bf8b48 | mov rdi, qword ptr [rdi + 0x80]\n");
+    LOGI("      0x71907dd1:                 207f8b48 | mov rdi, qword ptr [rdi + 0x20]\n");
+    LOGI("      0x71907dd5:                   2057ff | call qword ptr [rdi + 0x20]\n");
+    LOGI("      0x71907dd8:                 78c48348 | add rsp, 0x78\n");
+    LOGI("      0x71907ddc:                       5b | pop rbx\n");
+    LOGI("      0x71907ddd:                       5d | pop rbp\n");
+    LOGI("      {\n");
+    LOGI("          rcx = 0x0000000012c5a298    rdx = 0x0000000013040218    rbx = 0x0000000000000004    rbp = 0x0000000012c5f340    \n");
+    LOGI("          rsi = 0x0000000000000000    r8 = 0x000079185a9cb7f1    r9 = 0x0000000071bd5fb8    r12 = 0x00000000705d9d70    \n");
+    LOGI("          r13 = 0x0000000071be62f0    r14 = 0x0000000000000000    r15 = 0x0000000071907dd8\n");
+    LOGI("      }\n");
+    LOGI("  }\n");
 }

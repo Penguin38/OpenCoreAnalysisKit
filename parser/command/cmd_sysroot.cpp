@@ -64,5 +64,25 @@ int SysRootCommand::main(int argc, char* const argv[]) {
 }
 
 void SysRootCommand::usage() {
-    LOGI("Usage: sysroot /system:/apex:/vendor --[map|dex]\n");
+    LOGI("Usage: sysroot <DIR_PATH>[:<PATH>:<PATH>] [OPTION]\n");
+    LOGI("Option:\n");
+    LOGI("    --map   set sysroot link_map\n");
+    LOGI("    --dex   set sysroot dex_cache\n");
+    ENTER();
+    LOGI("core-parser> sysroot /system:/apex --map\n");
+    LOGI("Mmap segment [60969cb26000, 60969cb28000) /system/bin/app_process64 [0]\n");
+    LOGI("Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]\n");
+    LOGI("Mmap segment [75dc65a44000, 75dc65a8b000) /system/bin/linker64 [0]\n");
+    LOGI("Mmap segment [75dc65a8b000, 75dc65b8e000) /system/bin/linker64 [46000]\n");
+    LOGI("Mmap segment [75dc4d4f8000, 75dc4d5d5000) /system/lib64/libandroid_runtime.so [0]\n");
+    LOGI("...\n");
+    ENTER();
+    LOGI("core-parser> sysroot /system:/apex --dex\n");
+    LOGI("Mmap segment [75dc65357000, 75dc6539f000) /system/framework/ext.jar [0]\n");
+    LOGI("Mmap segment [75d9a7c00000, 75d9a7fb8000) /system/framework/telephony-common.jar [0]\n");
+    LOGI("Mmap segment [75dc658c1000, 75dc658c2000) /system/framework/framework-graphics.jar [0]\n");
+    LOGI("Mmap segment [75d9a8f9a000, 75d9a90e8000) /system/framework/framework.jar [24d8000]\n");
+    LOGI("Mmap segment [75d9a856d000, 75d9a8600000) /system/framework/ims-common.jar [0]\n");
+    LOGI("Mmap segment [75d9a3fa8000, 75d9a4975000) /system/framework/framework.jar [11a8000]\n");
+    LOGI("...\n");
 }

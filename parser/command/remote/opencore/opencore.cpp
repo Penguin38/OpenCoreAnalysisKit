@@ -305,19 +305,33 @@ std::string Opencore::DecodeMachine(int pid) {
 }
 
 void Opencore::Usage() {
-    LOGI("Usage: remote core -p <PID> [-m <MACHINE>] [Option]...\n");
+    LOGI("Usage: remote core -p <PID> [-m <MACHINE>] [OPTION...]\n");
     LOGI("Option:\n");
-    LOGI("   --pid|-p <PID>\n");
-    LOGI("   --dir|-d <DIR>\n");
-    LOGI("   --machine|-m <Machine>\n");
+    LOGI("    -p, --pid <PID>           set target pid\n");
+    LOGI("    -d, --dir <DIR>           set target dir\n");
+    LOGI("    -m, --machine <Machine>   set target machine\n");
     LOGI("Machine:\n");
     LOGI("     { arm64, arm, x86_64, x86, riscv64 }\n");
-    LOGI("   --output|-o <COREFILE>\n");
-    LOGI("   --filter|-f <Filter>\n");
+    LOGI("    -o, --output <COREFILE>   set coredump filename\n");
+    LOGI("    -f, --filter <Filter>     set coredump ignore filter\n");
     LOGI("Filter: (0x19 default)\n");
-    LOGI("     0x01: filter-special-vma\n");
+    LOGI("     0x01: filter-special-vma (default)\n");
     LOGI("     0x02: filter-file-vma\n");
     LOGI("     0x04: filter-shared-vma\n");
-    LOGI("     0x08: filter-sanitizer-shadow-vma\n");
-    LOGI("     0x10: filter-non-read-vma\n");
+    LOGI("     0x08: filter-sanitizer-shadow-vma (default)\n");
+    LOGI("     0x10: filter-non-read-vma (default)\n");
+    ENTER();
+    LOGI("core-parser> remote core -p 1 -m x86_64 -d /data -f 0x18\n");
+    LOGI("Coredump /data/core.init_1_1718900269 ...\n");
+    LOGI("Finish done.\n");
+    LOGI("core-parser> core /data/core.init_1_1718900269\n");
+    LOGI("Core load (0x7256f0c21090) /data/core.init_1_1718900269\n");
+    LOGI("Core env: /data/core.init_1_1718900269\n");
+    LOGI("  * Machine: x86_64\n");
+    LOGI("  * Bits: 64\n");
+    LOGI("  * PointSize: 8\n");
+    LOGI("  * PointMask: 0xffffffffffffffff\n");
+    LOGI("  * VabitsMask: 0xffffffffffffffff\n");
+    LOGI("  * Thread: 1\n");
+    LOGI("  ...\n");
 }

@@ -29,7 +29,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"tomb",        required_argument, 0, 't'},
-        {"restore",     no_argument,       0, 'r'},
+        {"rebuild",     no_argument,       0, 'r'},
         {"output",      required_argument, 0, 'o'},
     };
 
@@ -78,9 +78,12 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
 }
 
 void FakeCore::Usage() {
-    LOGI("Usage: fake core <Option> ...\n");
+    LOGI("Usage: fake core <OPTION...>\n");
     LOGI("Option:\n");
-    LOGI("   --tomb|-t <TOMBSTONE>\n");
-    LOGI("   --restore|-r: rebuild current environment core.\n");
-    LOGI("   --output|-o <COREFILE>\n");
+    LOGI("    -t, --tomb <TOMBSTONE>    build tombstone fakecore\n");
+    LOGI("    -r, --rebuild             rebuild current environment core.\n");
+    LOGI("    -o, --output <COREFILE>   set current fakecore path\n");
+    ENTER();
+    LOGI("core-parser> fake core -r\n");
+    LOGI("FakeCore: saved [core.opencore.tester_6118_Thread-2_6146_1720691326.fakecore]\n");
 }

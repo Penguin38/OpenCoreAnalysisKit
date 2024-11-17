@@ -201,10 +201,36 @@ void DexCommand::DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::Dex
 }
 
 void DexCommand::usage() {
-    LOGI("Usage: dex [Option]..\n");
+    LOGI("Usage: dex [OPTIONE...]\n");
     LOGI("Option:\n");
-    LOGI("    --origin:-o: show dex origin name\n");
-    LOGI("    --app: dex unpack from app\n");
-    LOGI("    --num:-n: dex unpack with num\n");
-    LOGI("    --dir:-d: unpack output path\n");
+    LOGI("    -o, --origin           show dex origin name\n");
+    LOGI("        --app              dex unpack from app\n");
+    LOGI("    -n, --num <NUM>        dex unpack with num\n");
+    LOGI("    -d, --dir <DIR_PATH>   unpack output path\n");
+    ENTER();
+    LOGI("core-parser> dex\n");
+    LOGI("NUM DEXCACHE    REGION                   FLAGS NAME\n");
+    LOGI("  1 0x6f79ca38  [79185c1ac000, 79185c66a000)  r--  /apex/com.android.art/javalib/core-oj.jar [*]\n");
+    LOGI("  2 0x6fa28ad8  [791af2506000, 791af25a8000)  r--  /apex/com.android.art/javalib/core-libart.jar [*]\n");
+    LOGI("  3 0x6fa838b8  [79185bf30000, 79185c1ac000)  r--  /apex/com.android.art/javalib/core-icu4j.jar [*]\n");
+    LOGI("  4 0x6fb4f5e0  [791af2425000, 791af2488000)  r--  /apex/com.android.art/javalib/okhttp.jar [*]\n");
+    LOGI("  5 0x6fb86100  [791af2166000, 791af22bd000)  r--  /apex/com.android.art/javalib/bouncycastle.jar [*]\n");
+    LOGI("  6 0x6fbca100  [79185be08000, 79185bf30000)  r--  /apex/com.android.art/javalib/apache-xml.jar [*]\n");
+    LOGI("  7 0x701332b8  [79185b4dc000, 79185be08000)  r--  /system/framework/framework.jar [*]\n");
+    LOGI("  8 0x70133328  [79185aba9000, 79185b4dc000)  r--  /system/framework/framework.jar!classes2.dex [*]\n");
+    LOGI("  9 0x70133398  [79185a2b7000, 79185aba9000)  r--  /system/framework/framework.jar!classes3.dex [*]\n");
+    LOGI(" 10 0x70133408  [79185a193000, 79185a2b7000)  r--  /system/framework/framework.jar!classes4.dex [*]\n");
+    LOGI(" ...\n");
+    LOGI(" 23 0x71c550b0  [791af11b1000, 791af11bf000)  r--  /apex/com.android.tethering/javalib/framework-tethering.jar [*]\n");
+    LOGI(" 24 0x13055198  [791804f7c000, 791805174000)  r--  /data/app/~~Wsw9iRlteEkzqfH0HmhjZA==/penguin.opencore.tester-ATGDVXhbp2-xRwHf7iCsqQ==/base.apk [*]\n");
+    LOGI(" 25 0x130b1718  [791848aee000, 791848b21000)  r--  /data/app/~~Wsw9iRlteEkzqfH0HmhjZA==/penguin.opencore.tester-ATGDVXhbp2-xRwHf7iCsqQ==/base.apk!classes2.dex [*]\n");
+    LOGI(" 26 0x13050b80  [791aedbfc000, 791aedbff000)  r--  /data/app/~~Wsw9iRlteEkzqfH0HmhjZA==/penguin.opencore.tester-ATGDVXhbp2-xRwHf7iCsqQ==/base.apk!classes3.dex [*]\n");
+    ENTER();
+    LOGI("core-parser> dex --app\n");
+    LOGI("Saved [./base.apk_0xc65c568b].\n");
+    LOGI("Saved [./base.apk!classes2.dex_0x9758703].\n");
+    LOGI("Saved [./base.apk!classes3.dex_0x4edd148b].\n");
+    ENTER();
+    LOGI("core-parser> dex -n 7\n");
+    LOGI("Saved [./framework.jar_0x347a29fd].\n");
 }

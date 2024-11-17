@@ -218,15 +218,41 @@ int TopCommand::main(int argc, char* const argv[]) {
 }
 
 void TopCommand::usage() {
-    LOGI("Usage: top <NUM> [Option]...\n");
+    LOGI("Usage: top <NUM> [OPTION] [TYPE]\n");
     LOGI("Option:\n");
-    LOGI("    --alloc|-a: order by allocation\n");
-    LOGI("    --shallow|-s: order by shallow\n");
-    LOGI("    --native|-n: order by native\n");
-    LOGI("    --display|-d: show class name\n");
-    LOGI("    --app:\n");
-    LOGI("    --zygote:\n");
-    LOGI("    --image:\n");
-    LOGI("    --fake:\n");
+    LOGI("    -a, --alloc     order by allocation\n");
+    LOGI("    -s, --shallow   order by shallow\n");
+    LOGI("    -n, --native    order by native\n");
+    LOGI("    -d, --display   show class name\n");
+    LOGI("Type: {--app, --zygote, --image, --fake}\n");
+    ENTER();
+    LOGI("core-parser> top 10 -d\n");
+    LOGI("Address       Allocations      ShallowSize        NativeSize     ClassName\n");
+    LOGI("TOTAL              136939          8045084            108415\n");
+    LOGI("------------------------------------------------------------\n");
+    LOGI("0x6f817d58          43562          2629504                 0     java.lang.String\n");
+    LOGI("0x6f7fdd30          14281          1405792                 0     long[]\n");
+    LOGI("0x6f7992c0          12084           479956                 0     java.lang.Object[]\n");
+    LOGI("0x6f824fd0           9405           225720                 0     java.util.HashMap$Node\n");
+    LOGI("0x6f7fda18           4689          1033816                 0     int[]\n");
+    LOGI("0x6f7fa7b0           3457           110624                 0     java.lang.ref.SoftReference\n");
+    LOGI("0x6f835118           3381            40572                 0     java.lang.Integer\n");
+    LOGI("0x6f8420e8           2684            85888                 0     java.util.LinkedHashMap$LinkedHashMapEntry\n");
+    LOGI("0x6fab25d0           2293            45860                 0     android.icu.util.CaseInsensitiveString\n");
+    LOGI("0x6f865b80           1859            37180                 0     java.util.ArrayList\n");
+    ENTER();
+    LOGI("core-parser> top 10 -d -s --app\n");
+    LOGI("Address       Allocations      ShallowSize        NativeSize     ClassName\n");
+    LOGI("TOTAL                7592          1943315            104175\n");
+    LOGI("------------------------------------------------------------\n");
+    LOGI("0x6f7fda18            322           561344                 0     int[]\n");
+    LOGI("0x6f817d58           1504           509408                 0     java.lang.String\n");
+    LOGI("0x6f799100              9           299177                 0     byte[]\n");
+    LOGI("0x6f7fd688             18           247138                 0     char[]\n");
+    LOGI("0x6f7fdd30            390           113576                 0     long[]\n");
+    LOGI("0x6f7992c0            577            27196                 0     java.lang.Object[]\n");
+    LOGI("0x6f865b80            335             6700                 0     java.util.ArrayList\n");
+    LOGI("0x6f79ba88            174             6264                 0     sun.misc.Cleaner\n");
+    LOGI("0x70101c18            258             6192                 0     android.graphics.Rect\n");
+    LOGI("0x70360328             40             5600                 0     android.animation.ObjectAnimator\n");
 }
-

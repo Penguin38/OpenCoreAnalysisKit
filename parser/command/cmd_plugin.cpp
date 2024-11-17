@@ -100,8 +100,14 @@ void PluginCommand::ShowEnv() {
 }
 
 void PluginCommand::usage() {
-    LOGI("Usage: plugin <PATH> [Option]");
+    LOGI("Usage: plugin <PATH> [Option]\n");
     LOGI("Option:\n");
-    LOGI("    --unload|-u: remove extend library.\n");
-    LOGI("    --reload|-r: reload extend library.\n");
+    LOGI("    -u, --unload   remove extend library\n");
+    LOGI("    -r, --reload   reload extend library\n");
+    ENTER();
+    LOGI("core-parser> plugin plugin-simple.so\n");
+    LOGI("Linker env...\n");
+    LOGI("env new command \"simple\"\n");
+    LOGI("core-parser> simple\n");
+    LOGI("command simple!\n");
 }

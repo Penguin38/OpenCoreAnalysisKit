@@ -44,4 +44,6 @@ int GetPropCommand::main(int argc, char* const argv[]) {
 
 void GetPropCommand::usage() {
     LOGI("Usage: getprop [NAME]\n");
+    LOGI("core-parser> getprop ro.build.description\n");
+    LOGI("sdk_gphone_x86_64-userdebug 11 RSR1.210722.013.A2 10067904 dev-keys\n");
 }

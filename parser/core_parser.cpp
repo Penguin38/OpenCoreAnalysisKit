@@ -66,16 +66,16 @@ void show_compat_android_version() {
 }
 
 void show_parser_usage() {
-    LOGI("Usage: core-parser [Option..]\n");
+    LOGI("Usage: core-parser [OPTION]\n");
     LOGI("Option:\n");
-    LOGI("    --core|-c <COREFILE>\n");
-    LOGI("    --pid|-p <PID>\n");
-    LOGI("    --machine|-m <ARCH>{ arm64, arm, x86_64, x86, riscv64 }\n");
-    LOGI("    --sdk <SDK>{ 26 ~ 35 }\n");
-    LOGI("    --non-quick: no filter non-read vma.\n");
+    LOGI("    -c, --core <COREFILE>    load core-parser from corefile\n");
+    LOGI("    -p, --pid <PID>          load core-parser from target process\n");
+    LOGI("    -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64\n");
+    LOGI("        --sdk <SDK>          sdk support 26 ~ 35\n");
+    LOGI("        --non-quick          load core-parser no filter non-read vma.\n");
     LOGI("Exp:\n");
-    LOGI("  core-parser -c /tmp/tmp.core\n");
-    LOGI("  core-parser -p 1 -m arm64\n");
+    LOGI("    core-parser -c /tmp/tmp.core\n");
+    LOGI("    core-parser -p 1 -m arm64\n");
 }
 
 class QuitCommand : public Command {

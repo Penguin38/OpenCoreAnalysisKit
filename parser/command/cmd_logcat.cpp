@@ -209,10 +209,21 @@ int LogcatCommand::main(int argc, char* const argv[]) {
 }
 
 void LogcatCommand::usage() {
-    LOGI("Usage: logcat [option]...\n");
+    LOGI("Usage: logcat [OPTION]...\n");
     LOGI("Option:\n");
-    LOGI("    -b, --buffer=<buffer> {main, radio, events, system, crash, kernel}\n");
-    LOGI("    -p, --pid=<pid>\n");
-    LOGI("    -u, --uid=<uid>\n");
-    LOGI("    -t, --tid=<tid>\n");
+    LOGI("    -b, --buffer <BUFFER>  collect only from buffers\n");
+    LOGI("Buffer:{main, radio, events, system, crash, kernel}\n");
+    LOGI("    -p, --pid <PID>        collect only from pid\n");
+    LOGI("    -u, --uid <UID>        collect only from uid\n");
+    LOGI("    -t, --tid <TID>        collect only from tid\n");
+    ENTER();
+    LOGI("core-parser> logcat -b crash -p 11770\n");
+    LOGI("--------- beginning of crash\n");
+    LOGI("2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: FATAL EXCEPTION: FinalizerWatchdogDaemon\n");
+    LOGI("2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: Process: com.demo.app, PID: 11770\n");
+    LOGI("2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: java.util.concurrent.TimeoutException: android.content.res.ApkAssets.finalize() timed out after 40 seconds\n");
+    LOGI("2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Daemons$Daemon.isRunning(Unknown Source:0)\n");
+    LOGI("2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:286)\n");
+    LOGI("2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Daemons$Daemon.run(Daemons.java:140)\n");
+    LOGI("2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Thread.run(Thread.java:1012)\n");
 }

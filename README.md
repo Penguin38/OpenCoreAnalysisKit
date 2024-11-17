@@ -50,15 +50,16 @@ $ adb shell
 ```
 
 ```
-Usage: core-parser [Option..]
+Usage: core-parser [OPTION]
 Option:
-    --core|-c <COREFILE>
-    --pid|-p <PID>
-    --machine|-m <ARCH>{ arm64, arm, x86_64, x86, riscv64 }
-    --sdk <SDK>{ 26 ~ 35 }
+    -c, --core <COREFILE>    load core-parser from corefile
+    -p, --pid <PID>          load core-parser from target process
+    -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64
+        --sdk <SDK>          sdk support 26 ~ 35
+        --non-quick          load core-parser no filter non-read vma.
 Exp:
-  core-parser -c /tmp/tmp.core
-  core-parser -p 1
+    core-parser -c /tmp/tmp.core
+    core-parser -p 1 -m arm64
 ```
 
 ```
@@ -112,225 +113,419 @@ core-parser>
 core-parser> help
         core          exec       sysroot          mmap          auxv
         file           map          read         write      register
-      thread     backtrace         frame       getprop         print
-       hprof        search         class           top         space
-         dex        method        logcat       dumpsys           env
-       shell        plugin          help        remote          fake
-        time       version          quit
+      thread     backtrace         frame   disassemble       getprop
+       print         hprof        search         class           top
+       space           dex        method        logcat       dumpsys
+         env           cxx         shell        plugin          help
+      remote          fake          time       version          quit
 ```
 
 ```
+core-parser> help space
+Usage: space [OPTION] [TYPE]
+Option:
+    -c, --check   check space bad object.
+Type: {--app, --zygote, --image, --fake}
+
 core-parser> space
 TYPE   REGION                  ADDRESS             NAME
   5  [0x12c00000, 0x2ac00000)  0x75db0d608820  main space (region space)
   0  [0x70209000, 0x7033d840)  0x75dbad608430  /system/framework/x86_64/boot.art
   0  [0x704c2000, 0x704dfc88)  0x75dbad6086f0  /system/framework/x86_64/boot-core-libart.art
-  0  [0x7050b000, 0x7051c7f8)  0x75dbad60c370  /system/framework/x86_64/boot-okhttp.art
-  0  [0x70535000, 0x70553e58)  0x75dbad60a690  /system/framework/x86_64/boot-bouncycastle.art
-  0  [0x70573000, 0x705738a8)  0x75dbad608f30  /system/framework/x86_64/boot-apache-xml.art
-  0  [0x70574000, 0x70b01618)  0x75dbad60bf50  /system/framework/x86_64/boot-framework.art
-  0  [0x71244000, 0x71244310)  0x75dbad608c70  /system/framework/x86_64/boot-framework-graphics.art
-  0  [0x71245000, 0x71253bd8)  0x75dbad60ac10  /system/framework/x86_64/boot-ext.art
-  0  [0x71264000, 0x712ea210)  0x75dbad60a950  /system/framework/x86_64/boot-telephony-common.art
-  0  [0x713b1000, 0x713f4ee8)  0x75dbad60aed0  /system/framework/x86_64/boot-voip-common.art
-  0  [0x71451000, 0x7146d790)  0x75dbad609610  /system/framework/x86_64/boot-ims-common.art
-  0  [0x7149a000, 0x7154a300)  0x75dbad609e50  /system/framework/x86_64/boot-core-icu4j.art
-  0  [0x725ee000, 0x728ca4a8)  0x75dbad60a7f0  /system/framework/x86_64/boot-framework-adservices.art
-  2  [0x72c6b000, 0x7328a000)  0x75db8d621f90  Zygote space
-  1  [0x7328a000, 0x73292000)  0x75dacd61c990  non moving space
-  4  [0x40006000, 0x56e5d000)  0x75db2d609650  mem map large object space
+  ...
+
+core-parser> space --check --app
+ERROR: Region:[0x12c00000, 0x12c00018) main space (region space) has bad object!!
 ```
 
 ```
 core-parser> help top
-Usage: top <NUM> [--alloc|-a] [--shallow|-s] [--native|-n] [--display|-d] [--app|--zygote|--image]
-core-parser> top 20 -d --app -n
-Address       Allocations       ShallowSize       NativeSize     ClassName
-TOTAL               12772        189066695            116563
+Usage: top <NUM> [OPTION] [TYPE]
+Option:
+    -a, --alloc     order by allocation
+    -s, --shallow   order by shallow
+    -n, --native    order by native
+    -d, --display   show class name
+Type: {--app, --zygote, --image, --fake}
+
+core-parser> top 10 -d
+Address       Allocations      ShallowSize        NativeSize     ClassName
+TOTAL              136939          8045084            108415
 ------------------------------------------------------------
-0x70579788              2              100             52682     android.graphics.Bitmap
-0x70584650             37              629             37000     android.os.BinderProxy
-0x70577540             36             1296              3564     android.graphics.Typeface
-0x7067fc68             31              992              3069     android.graphics.RenderNode
-0x7067e2f8             21             2289              2079     android.graphics.Paint
-0x707f8330             16             2240              1584     android.text.TextPaint
-0x705be4a8              3               96              1536     android.view.SurfaceControl$Transaction
-0x70584488              3               96              1500     android.os.Binder
-0x70674c68              9              288               891     android.content.res.ResourcesImpl$ThemeImpl
-0x705980a0              9              144               891     android.graphics.Matrix
-0x7059f6d8              8              416               792     android.graphics.RecordingCanvas
-0x70598410              6               96               594     android.graphics.Path
-0x708f3248              1               36               500     android.window.WindowOnBackInvokedDispatcher$OnBackInvokedCallbackWrapper
-0x708cd7b8              1               81               500     android.view.inputmethod.RemoteInputConnectionImpl
-0x708cd5d0              1               36               500     android.view.inputmethod.RemoteInputConnectionImpl$1
-0x708cd3d8              1               36               500     android.view.inputmethod.InputMethodManager$2
-0x708cbfc8              1               36               500     android.view.accessibility.AccessibilityManager$1
-0x708cbe20              1               32               500     android.view.WindowManagerGlobal$1
-0x708cbc00              1               40               500     android.view.ViewRootImpl$W
-0x70823c90              1               40               500     android.os.storage.StorageManager$ObbActionListener
+0x6f817d58          43562          2629504                 0     java.lang.String
+0x6f7fdd30          14281          1405792                 0     long[]
+0x6f7992c0          12084           479956                 0     java.lang.Object[]
+0x6f824fd0           9405           225720                 0     java.util.HashMap$Node
+0x6f7fda18           4689          1033816                 0     int[]
+0x6f7fa7b0           3457           110624                 0     java.lang.ref.SoftReference
+0x6f835118           3381            40572                 0     java.lang.Integer
+0x6f8420e8           2684            85888                 0     java.util.LinkedHashMap$LinkedHashMapEntry
+0x6fab25d0           2293            45860                 0     android.icu.util.CaseInsensitiveString
+0x6f865b80           1859            37180                 0     java.util.ArrayList
+
+core-parser> top 10 -d -s --app
+Address       Allocations      ShallowSize        NativeSize     ClassName
+TOTAL                7592          1943315            104175
+------------------------------------------------------------
+0x6f7fda18            322           561344                 0     int[]
+0x6f817d58           1504           509408                 0     java.lang.String
+0x6f799100              9           299177                 0     byte[]
+0x6f7fd688             18           247138                 0     char[]
+0x6f7fdd30            390           113576                 0     long[]
+0x6f7992c0            577            27196                 0     java.lang.Object[]
+0x6f865b80            335             6700                 0     java.util.ArrayList
+0x6f79ba88            174             6264                 0     sun.misc.Cleaner
+0x70101c18            258             6192                 0     android.graphics.Rect
+0x70360328             40             5600                 0     android.animation.ObjectAnimator
 ```
 
 ```
 core-parser> help hprof
-Usage: hprof <FILE> [option]
-       option:
-              --visible|-v
-              --quick|-q
-core-parser> hprof /data/test.hprof
-hprof: heap dump /data/test.hprof starting...
-hprof: heap dump completed, scan objects (526126).
-hprof: saved [/data/test.hprof].
+Usage: hprof <FILE> [OPTION]
+Option:
+    -v, --visible     show hprof detail
+    -q, --quick       fast dump hprof
+
+core-parser> hprof /tmp/1.hprof
+hprof: heap dump /tmp/1.hprof starting...
+hprof: heap dump completed, scan objects (306330).
+hprof: saved [/tmp/1.hprof].
 ```
 
 ```
 core-parser> help thread
-Usage: thread [tid] [options]
-Options:
-  --native|-n: show local threads.
-  --java|-j: show java threads.
-  --all|-a: show all thread.
+Usage: thread [TID] [OPTION]
+Option:
+    -n, --native    show local threads
+    -j, --java      show jvm threads
+    -a, --all       show all thread
+
 core-parser> thread -a
- Id   Tid    Status                          Name
-*1    6422   Native                          "main"
- 6    6431   WaitingInMainSignalCatcherLoop  "Signal Catcher"
- 7    6432   Native                          "perfetto_hprof_listener"
- 8    6434   Native                          "Jit thread pool worker thread 0"
- 9    6436   Waiting                         "ReferenceQueueDaemon"
- 10   6438   Sleeping                        "FinalizerWatchdogDaemon"
- 11   6437   Waiting                         "FinalizerDaemon"
- 12   6435   WaitingPerformingGc             "HeapTaskDaemon"
- 13   6440   Native                          "binder:6422_1"
- 14   6441   Native                          "binder:6422_2"
- 15   6433   WaitingInMainDebuggerLoop       "ADB-JDWP Connection Control Thread"
- 16   6442   Native                          "binder:6422_3"
- 17   6445   Native                          "Profile Saver"
- 18   6446   Native                          "opencore-bg"
- 19   6448   Native                          "RenderThread"
- 20   6457   Native                          "SurfaceSyncGroupTimer"
- 21   6459   Native                          "hwuiTask0"
- 22   6460   Native                          "hwuiTask1"
- 23   6461   Native                          "binder:6422_4"
- 24   6464   Native                          "binder:6422_5"
- 2    6550   Waiting                         "Thread-2"
- ---  6462   NotAttachJVM
+ ID   TID    STATUS                          NAME
+*1    6118   Runnable                        "main"
+ 2    6125   Native                          "Runtime worker thread 0"
+ 3    6128   Native                          "Runtime worker thread 3"
+ 4    6126   Native                          "Runtime worker thread 1"
+ 5    6129   WaitingInMainSignalCatcherLoop  "Signal Catcher"
+ 6    6127   Native                          "Runtime worker thread 2"
+...
+
+core-parser> thread -n
+ ID     TARGET TID        FRAME
+*1      Thread 6118       0x79185c88945f  /apex/com.android.art/lib64/libart.so
+ 2      Thread 6125       0x791aef6632a8  /apex/com.android.runtime/lib64/bionic/libc.so
+ 3      Thread 6126       0x791aef6632a8  /apex/com.android.runtime/lib64/bionic/libc.so
+ 4      Thread 6127       0x791aef6632a8  /apex/com.android.runtime/lib64/bionic/libc.so
+...
+
+core-parser> thread
+Current thread is 6118
+
+core-parser> thread 6133
+Current thread is 6133
 ```
 
 ```
 core-parser> help p
-Usage: print|p object -[br]
+Usage: print|p <OBJECT> [OPTION..]
+Option:
+    -b, --binary       show object memory
+    -r, --ref <DEEP>   show object's ref
+    -f, --format       object format dump
+    -x, --hex          basic type hex print
+
 core-parser> p 0x12c00000
-Size: 0x28
-Padding: 0x1
-Object Name: android.os.MessageQueue
-    [0x24] private boolean mBlocked = true
-    [0x08] private android.util.SparseArray mFileDescriptorRecords = 0x0
-    [0x0c] private final java.util.ArrayList mIdleHandlers = 0x12e62918
-    [0x10] android.os.Message mMessages = 0x0
-    [0x20] private int mNextBarrierToken = 0x18
-    [0x14] private android.os.MessageQueue$IdleHandler[] mPendingIdleHandlers = 0x12e62930
-    [0x18] private long mPtr = 0x75daed63b7d0
-    [0x25] private final boolean mQuitAllowed = false
-    [0x26] private boolean mQuitting = false
-  extends java.lang.Object
-    [0x00] private transient java.lang.Class shadow$_klass_ = 0x70780340
-    [0x04] private transient int shadow$_monitor_ = 0x10000000
+Size: 0x18
+Object Name: java.lang.ref.WeakReference
+  // extends java.lang.ref.Reference
+    [0x14] volatile java.lang.Object referent = 0x12c00018
+    [0x10] java.lang.ref.Reference queueNext = 0x0
+    [0x0c] final java.lang.ref.ReferenceQueue queue = 0x0
+    [0x08] java.lang.ref.Reference pendingNext = 0x0
+  // extends java.lang.Object
+    [0x04] private transient int shadow$_monitor_ = 0
+    [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f819828
+
+core-parser> p 0x12c00000 -b -r 1 -x
+Size: 0x18
+Object Name: java.lang.ref.WeakReference
+  // extends java.lang.ref.Reference
+    [0x14] volatile java.lang.Object referent = 0x12c00018
+    [0x10] java.lang.ref.Reference queueNext = 0x0
+    [0x0c] final java.lang.ref.ReferenceQueue queue = 0x0
+    [0x08] java.lang.ref.Reference pendingNext = 0x0
+  // extends java.lang.Object
+    [0x04] private transient int shadow$_monitor_ = 0x0
+    [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f819828
+Reference:
+  --> 0x7010eac0 com.android.internal.os.BinderInternal
+Binary:
+12c00000: 000000006f819828  0000000000000000  (..o............
+12c00010: 12c0001800000000  00000000704662b0  .........bFp....
 ```
 
 ```
 core-parser> help search
-Usage: search [CLASSNAME] [-r|--regex] [-i|--instanceof] [-o|--object] [-c|--class] [-s|--show]
-core-parser> search MainActivity -r
-[1] 0x12c00cb0 penguin.opencore.tester.MainActivity$4
-[2] 0x12c00db0 penguin.opencore.tester.MainActivity$4
-[3] 0x12c0aba8 penguin.opencore.tester.MainActivity
-[4] 0x12d3cbc0 penguin.opencore.tester.MainActivity$1
-[5] 0x12d3cca8 penguin.opencore.tester.MainActivity$2
-[6] 0x12d3cd90 penguin.opencore.tester.MainActivity$3
-[7] 0x12d3ce78 penguin.opencore.tester.MainActivity
+Usage: search <CLASSNAME> [OPTION..] [TYPE]
+Option:
+    -r, --regex        regular expression search
+    -i, --instanceof   search by instance of class
+    -o, --object       only search object
+    -c, --class        only search class
+    -p, --print        object print detail
+    -x, --hex          basic type hex print
+Type: {--app, --zygote, --image, --fake}
+
+core-parser> search android.app.Activity -i -o --app --print
+[1] 0x13050cc8 penguin.opencore.tester.MainActivity
+Size: 0x130
+Object Name: penguin.opencore.tester.MainActivity
+  // extends androidx.appcompat.app.AppCompatActivity
+    [0x12c] private android.content.res.Resources mResources = 0x0
+    [0x128] private androidx.appcompat.app.AppCompatDelegate mDelegate = 0x130520b8
+  // extends androidx.fragment.app.FragmentActivity
+    [0x125] boolean mStopped = false
+    [0x124] boolean mStartedIntentSenderFromFragment = false
+    [0x123] boolean mStartedActivityFromFragment = false
+    [0x122] boolean mResumed = true
+    [0x121] boolean mRequestedPermissionsFromFragment = false
+    [0x120] boolean mCreated = true
+    [0x11c] int mNextCandidateRequestIndex = 0
+    [0x118] androidx.collection.SparseArrayCompat mPendingFragmentActivityResults = 0x13052188
+    [0x114] final androidx.fragment.app.FragmentController mFragments = 0x13052178
+    [0x110] final androidx.lifecycle.LifecycleRegistry mFragmentLifecycleRegistry = 0x13052150
+    ...
 ```
 
 ```
 core-parser> help class
-Usage: class [CLASSNAME] [Option..]
+Usage: class [CLASSNAME] [OPTION]
 Option:
-    --method|-m: show class method
-    --impl|-i: show class implements class
-    --static|-s: show static field
-    --field|-f: show instance field
+    -m, --method       show class method
+    -i, --impl         show class implements class
+    -s, --static       show static field
+    -f, --field        show instance field
+    -x, --hex          basic type hex print
 
-core-parser> class java.lang.Object
-[0x7024aa78]
-public class java.lang.Object {
+core-parser> class android.net.wifi.WifiNetworkSpecifier
+[0x71c530a0]
+public final class android.net.wifi.WifiNetworkSpecifier extends android.net.NetworkSpecifier {
+  // Implements:
+    android.os.Parcelable
+
+  // Class static fields:
+    [0x104] private final static java.lang.String TAG = 0x0
+    [0x100] public final static android.os.Parcelable$Creator CREATOR = 0x0
+
   // Object instance fields:
-    [0x00] private transient java.lang.Class shadow$_klass_
-    [0x04] private transient int shadow$_monitor_
+    [0x010] public final android.net.wifi.WifiConfiguration wifiConfiguration
+    [0x00c] public final android.os.PatternMatcher ssidPatternMatcher
+    [0x008] public final android.util.Pair bssidPatternMatcher
+
+  // extends android.net.NetworkSpecifier
+
+  // extends java.lang.Object
+    [0x004] private transient int shadow$_monitor_
+    [0x000] private transient java.lang.Class shadow$_klass_
 
   // Methods:
-    [0x70416968] public void java.lang.Object.<init>()
-    [0x70416988] static int java.lang.Object.identityHashCode(java.lang.Object)
-    [0x704169a8] private static native int java.lang.Object.identityHashCodeNative(java.lang.Object)
-    [0x704169c8] private native java.lang.Object java.lang.Object.internalClone()
-    [0x704169e8] protected java.lang.Object java.lang.Object.clone()
-    [0x70416a08] public boolean java.lang.Object.equals(java.lang.Object)
-    [0x70416a28] protected void java.lang.Object.finalize()
-    [0x70416a48] public final java.lang.Class java.lang.Object.getClass()
-    [0x70416a68] public int java.lang.Object.hashCode()
-    [0x70416a88] public final native void java.lang.Object.notify()
-    [0x70416aa8] public final native void java.lang.Object.notifyAll()
-    [0x70416ac8] public java.lang.String java.lang.Object.toString()
-    [0x70416ae8] public final void java.lang.Object.wait()
-    [0x70416b08] public final void java.lang.Object.wait(long)
-    [0x70416b28] public final native void java.lang.Object.wait(long, int)
-}
+    [0x791af097e8c8] static void android.net.wifi.WifiNetworkSpecifier.<clinit>()
+    [0x791af097e8f0] public void android.net.wifi.WifiNetworkSpecifier.<init>()
+    [0x791af097e918] public void android.net.wifi.WifiNetworkSpecifier.<init>(android.os.PatternMatcher, android.util.Pair, android.net.wifi.WifiConfiguration)
+    [0x791af097e940] public boolean android.net.wifi.WifiNetworkSpecifier.canBeSatisfiedBy(android.net.NetworkSpecifier)
+    [0x791af097e968] public int android.net.wifi.WifiNetworkSpecifier.describeContents()
+    [0x791af097e990] public boolean android.net.wifi.WifiNetworkSpecifier.equals(java.lang.Object)
+    [0x791af097e9b8] public int android.net.wifi.WifiNetworkSpecifier.hashCode()
+    [0x791af097e9e0] public java.lang.String android.net.wifi.WifiNetworkSpecifier.toString()
+    [0x791af097ea08] public void android.net.wifi.WifiNetworkSpecifier.writeToParcel(android.os.Parcel, int)
+
+core-parser> class android.net.wifi.WifiNetworkSpecifier -f -s
+[0x71c530a0]
+public final class android.net.wifi.WifiNetworkSpecifier extends android.net.NetworkSpecifier {
+  // Class static fields:
+    [0x104] private final static java.lang.String TAG = 0x0
+    [0x100] public final static android.os.Parcelable$Creator CREATOR = 0x0
+
+  // Object instance fields:
+    [0x010] public final android.net.wifi.WifiConfiguration wifiConfiguration
+    [0x00c] public final android.os.PatternMatcher ssidPatternMatcher
+    [0x008] public final android.util.Pair bssidPatternMatcher
+
+  // extends android.net.NetworkSpecifier
+
+  // extends java.lang.Object
+    [0x004] private transient int shadow$_monitor_
+    [0x000] private transient java.lang.Class shadow$_klass_
+
+core-parser> class android.net.wifi.WifiNetworkSpecifier -m | grep desc
+    [0x791af097e968] public int android.net.wifi.WifiNetworkSpecifier.describeContents()
 ```
 
 ```
 core-parser> help method
-Usage: method <ArtMethod> [option..]
+Usage: method <ART_METHOD> [OPTIONE...]
 Option:
-    --dex-dump: show dalvik byte codes
-    --oat-dump: show oat machine codes
-    --binary|-b: show ArtMethod memory
-    --inst|-i: show instpc byte code
-    --num|-n: maxline num
-core-parser> method 0x70416a48 --dex-dump -b
-public final java.lang.Class java.lang.Object.getClass() [dex_method_idx=3089]
+    --dex-dump        show dalvik byte codes
+    -i, --inst <PC>   only dex-dump, show instpc byte code
+    -n, --num <NUM>   only dex-dump, show maxline num
+    --oat-dump        show oat machine codes
+        --pc <PC>     only oat-dump
+    -b, --binary      show ArtMethod memory
+    -v, --verbaose    show more info
+
+core-parser> method 0x70b509c0 -v --dex-dump --oat-dump
+public static void com.android.internal.os.ZygoteInit.main(java.lang.String[]) [dex_method_idx=49967]
+Location      : /system/framework/framework.jar!classes3.dex
+CodeItem      : 0x79185a704704
+Registers     : 19
+Ins           : 1
+Outs          : 4
+Insns size    : 0x167
 DEX CODE:
-  0x75d9a86fde44: 1054 0628                | iget-object v0, v1, Ljava/lang/Object;.shadow$_klass_:Ljava/lang/Class; // field@1576
-  0x75d9a86fde48: 0011                     | return-object v0
-Binary:
-70416a48: 503800117024aa78  0000000300000c11  x.$p..8P........
-70416a58: 000075d9a86fde34  000075d9a9591b50  4.o..u..P.Y..u..
-
+  0x79185a704714: 0108 0012                | move-object/from16 v1, v18
+  0x79185a704718: 001a 07bc                | const-string v0, "--socket-name=" // string@1980
+  0x79185a70471c: 021a 0791                | const-string v2, "--abi-list=" // string@1937
+  0x79185a704720: 031a 8897                | const-string v3, "Zygote" // string@34967
+  0x79185a704724: 0412                     | const/4 v4, #+0
+  0x79185a704726: 0071 e9ef 0000           | invoke-static {}, void dalvik.system.ZygoteHooks.startZygoteNoThreadCreation() // method@59887
+  ...
+OatQuickMethodHeader(0x719075d8)
+  code_offset: 0x719075e0
+  code_size: 0x944
+  vmap_table_offset: 0x74d2f2
+    CodeInfo BitSize=7614 FrameSize:0xb0 CoreSpillMask:0x1f028 FpSpillMask:0x0 NumberOfDexRegisters:19
+      StackMap BitSize=3600 Rows=75 Bits={Kind=1 PackedNativePc=0xc DexPc=0x9 RegisterMaskIndex=4 StackMaskIndex=5 InlineInfoIndex=4 DexRegisterMaskIndex=5 DexRegisterMapIndex=8}
+      RegisterMask BitSize=247 Rows=13 Bits={Value=15 Shift=4}
+      StackMask BitSize=893 Rows=19 Bits={Mask=47}
+      InlineInfo BitSize=130 Rows=10 Bits={IsLast=1 DexPc=4 MethodInfoIndex=3 ArtMethodHi=0 ArtMethodLo=0 NumberOfDexRegisters=5}
+      MethodInfo BitSize=112 Rows=7 Bits={MethodIndex=16}
+      DexRegisterMask BitSize=744 Rows=31 Bits={Mask=24}
+      DexRegisterMap BitSize=906 Rows=151 Bits={CatalogueIndex=6}
+      DexRegisterInfo BitSize=702 Rows=39 Bits={Kind=3 PackedValue=15}
+  QuickMethodFrameInfo
+    frame_size_in_bytes: 0xb0
+    core_spill_mask: 0x1f028 (rbx, rbp, r12, r13, r14, r15, rip)
+    fp_spill_mask: 0x0 
+OAT CODE:
+  [0x719075e0, 0x71907f24]
+  0x719075e0:         ffffe00024848548 | test qword ptr [rsp - 0x2000], rax
+    GeneralStackMap[0] (NativePc=0x719075e8 DexPc=0x79185a704714)
+  0x719075e8:                     5741 | push r15
+  0x719075ea:                     5641 | push r14
+  0x719075ec:                     5541 | push r13
+  0x719075ee:                     5441 | push r12
+  0x719075f0:                       55 | push rbp
+  0x719075f1:                       53 | push rbx
+  0x719075f2:                 78ec8348 | sub rsp, 0x78
+  0x719075f6:                 243c8948 | mov qword ptr [rsp], rdi
+  0x719075fa:           000000b824b489 | mov dword ptr [rsp + 0xb8], esi
+  0x71907601:     0000000000253c836665 | cmp word ptr gs:[0], 0
+  0x7190760b:             00000893850f | jne 0x71907ea4
+  0x71907611:                   f38948 | mov rbx, rsi
+  0x71907614:             fecf453e2d8d | lea ebp, [rip - 0x130bac2]
+  0x7190761a:                 34246c89 | mov dword ptr [rsp + 0x34], ebp
+  ...
 ```
 
 ```
+core-parser> help dex
+Usage: dex [OPTIONE...]
+Option:
+    -o, --origin           show dex origin name
+        --app              dex unpack from app
+    -n, --num <NUM>        dex unpack with num
+    -d, --dir <DIR_PATH>   unpack output path
+
 core-parser> dex
-DEXCACHE    REGION                   FLAGS NAME
-0x12d3f050  [75dc65711000, 75dc65714000)  r--  /data/app/~~oKR0P01OBRNtuKZwiy0k7A==/penguin.opencore.tester-Oa4B9U4RQb20If694Ti0qQ==/base.apk!classes3.dex [*]
-0x12d3c728  [75dc52779000, 75dc527ac000)  r--  /data/app/~~oKR0P01OBRNtuKZwiy0k7A==/penguin.opencore.tester-Oa4B9U4RQb20If694Ti0qQ==/base.apk!classes2.dex [*]
-0x725ee800  [75dc654d0000, 75dc654d2000)  r--  /apex/com.android.sdkext/javalib/framework-sdkextensions.jar [*]
-0x12c217d8  [75d942208000, 75d942400000)  r--  /data/app/~~oKR0P01OBRNtuKZwiy0k7A==/penguin.opencore.tester-Oa4B9U4RQb20If694Ti0qQ==/base.apk [*]
-0x725ee790  [75dc65495000, 75dc65499000)  r--  /apex/com.android.scheduling/javalib/framework-scheduling.jar [*]
-0x725ee720  [75dc64e52000, 75dc64e87000)  r--  /apex/com.android.permission/javalib/framework-permission-s.jar [*]
-0x725ee6b0  [75dc658bb000, 75dc658bc000)  r--  /apex/com.android.permission/javalib/framework-permission.jar [*]
-0x725ee640  [75dc651f0000, 75dc65208000)  r--  /apex/com.android.os.statsd/javalib/framework-statsd.jar [*]
-0x725ee870  [75d9a779d000, 75d9a7931000)  r--  /apex/com.android.tethering/javalib/framework-connectivity.jar [*]
+NUM DEXCACHE    REGION                   FLAGS NAME
+  1 0x6f79ca38  [79185c1ac000, 79185c66a000)  r--  /apex/com.android.art/javalib/core-oj.jar [*]
+  2 0x6fa28ad8  [791af2506000, 791af25a8000)  r--  /apex/com.android.art/javalib/core-libart.jar [*]
+  3 0x6fa838b8  [79185bf30000, 79185c1ac000)  r--  /apex/com.android.art/javalib/core-icu4j.jar [*]
+  4 0x6fb4f5e0  [791af2425000, 791af2488000)  r--  /apex/com.android.art/javalib/okhttp.jar [*]
+  5 0x6fb86100  [791af2166000, 791af22bd000)  r--  /apex/com.android.art/javalib/bouncycastle.jar [*]
+  6 0x6fbca100  [79185be08000, 79185bf30000)  r--  /apex/com.android.art/javalib/apache-xml.jar [*]
+  7 0x701332b8  [79185b4dc000, 79185be08000)  r--  /system/framework/framework.jar [*]
+  8 0x70133328  [79185aba9000, 79185b4dc000)  r--  /system/framework/framework.jar!classes2.dex [*]
+  9 0x70133398  [79185a2b7000, 79185aba9000)  r--  /system/framework/framework.jar!classes3.dex [*]
+ 10 0x70133408  [79185a193000, 79185a2b7000)  r--  /system/framework/framework.jar!classes4.dex [*]
+ ...
+ 23 0x71c550b0  [791af11b1000, 791af11bf000)  r--  /apex/com.android.tethering/javalib/framework-tethering.jar [*]
+ 24 0x13055198  [791804f7c000, 791805174000)  r--  /data/app/~~Wsw9iRlteEkzqfH0HmhjZA==/penguin.opencore.tester-ATGDVXhbp2-xRwHf7iCsqQ==/base.apk [*]
+ 25 0x130b1718  [791848aee000, 791848b21000)  r--  /data/app/~~Wsw9iRlteEkzqfH0HmhjZA==/penguin.opencore.tester-ATGDVXhbp2-xRwHf7iCsqQ==/base.apk!classes2.dex [*]
+ 26 0x13050b80  [791aedbfc000, 791aedbff000)  r--  /data/app/~~Wsw9iRlteEkzqfH0HmhjZA==/penguin.opencore.tester-ATGDVXhbp2-xRwHf7iCsqQ==/base.apk!classes3.dex [*]
+
+core-parser> dex --app
+Saved [./base.apk_0xc65c568b].
+Saved [./base.apk!classes2.dex_0x9758703].
+Saved [./base.apk!classes3.dex_0x4edd148b].
+
+core-parser> dex -n 7
+Saved [./framework.jar_0x347a29fd].
 ```
 
 ```
+core-parser> help map
+Usage: map [OPTION]
+Option:
+    -o, --ori         show origin link map
+    -s, --sym <NUM>   show link map current symbols
+
 core-parser> map
-LINKMAP       REGION                   FLAGS NAME
-0x75dc659080e0  [60969cb26000, 60969cb28000)  r--  /system/bin/app_process64 [*]
-0x75dc65b9e210  [75dc65a44000, 75dc65a8b000)  r--  /system/bin/linker64 [*]
-0x75dc65908338  [7ffe0b188000, 7ffe0b189000)  r-x  [vdso] [*]
-0x75dc65908590  [75dc4d4f8000, 75dc4d5d5000)  r--  /system/lib64/libandroid_runtime.so [*]
-0x75dc659087e8  [75dc522d6000, 75dc52338000)  r--  /system/lib64/libbinder.so [*]
+NUM LINKMAP       REGION                   FLAGS NAME
+  1 0x791af2b6d0e0  [5a224127f000, 5a2241282000)  r--  /system/bin/app_process64 [*]
+  2 0x791af2dd90e0  [791af2cbd000, 791af2cfd000)  r--  /system/bin/linker64 [*]
+  3 0x791af2b6d330  [7ffc73ae7000, 7ffc73ae8000)  r-x  [vdso] [*]
+  4 0x791af2b6d580  [791af0e08000, 791af0eb3000)  r--  /system/lib64/libandroid_runtime.so [*]
+  ...
+
+core-parser> map --sym 3
+VADDR             SIZE              INFO              NAME
+00007ffc73ae7a10  000000000000002a  0000000000000022  getcpu
+00007ffc73ae77c0  00000000000001de  0000000000000022  clock_gettime
+00007ffc73ae77a0  0000000000000015  0000000000000012  __vdso_time
+00007ffc73ae7610  000000000000018a  0000000000000022  gettimeofday
+00007ffc73ae7a10  000000000000002a  0000000000000012  __vdso_getcpu
+00007ffc73ae79a0  0000000000000047  0000000000000022  clock_getres
+00007ffc73ae77a0  0000000000000015  0000000000000022  time
+00007ffc73ae79a0  0000000000000047  0000000000000012  __vdso_clock_getres
+00007ffc73ae77c0  00000000000001de  0000000000000012  __vdso_clock_gettime
+00007ffc73ae7610  000000000000018a  0000000000000012  __vdso_gettimeofday
+```
+
+```
+core-parser> help disas
+Usage: disassemble|disas <SYMBOL> [OPTION]
+Option:
+    --origin    disassemble from corefile
+    --mmap      disassemble from file mmap
+    --overlay   disassemble form overwirte
+
+core-parser> disas __vdso_getcpu
+LIB: [vdso]
+__vdso_getcpu:
+  0x7ffc73ae7a10:                       55 | push rbp
+  0x7ffc73ae7a11:                   e58948 | mov rbp, rsp
+  0x7ffc73ae7a14:               0000007bb8 | mov eax, 0x7b
+  0x7ffc73ae7a19:                   c0030f | lsl eax, eax
+  0x7ffc73ae7a1c:                       90 | nop
+  0x7ffc73ae7a1d:                   ff8548 | test rdi, rdi
+  0x7ffc73ae7a20:                     0a74 | je 0x7ffc73ae7a2c
+  0x7ffc73ae7a22:                     c189 | mov ecx, eax
+  0x7ffc73ae7a24:             00000fffe181 | and ecx, 0xfff
+  0x7ffc73ae7a2a:                     0f89 | mov dword ptr [rdi], ecx
+  0x7ffc73ae7a2c:                   f68548 | test rsi, rsi
+  0x7ffc73ae7a2f:                     0574 | je 0x7ffc73ae7a36
+  0x7ffc73ae7a31:                   0ce8c1 | shr eax, 0xc
+  0x7ffc73ae7a34:                     0689 | mov dword ptr [rsi], eax
+  0x7ffc73ae7a36:                     c031 | xor eax, eax
+  0x7ffc73ae7a38:                       5d | pop rbp
+  0x7ffc73ae7a39:                       c3 | ret
 ```
 
 ```
 core-parser> help exec
-Usage: exec /system/bin/app_process64
+Usage: exec <EXEC_PATH>
+
 core-parser> exec /system/bin/app_process64
 Mmap segment [60969cb26000, 60969cb28000) /system/bin/app_process64 [0]
 Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]
@@ -338,15 +533,20 @@ Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]
 
 ```
 core-parser> help sysroot
-Usage: sysroot /system:/apex:/vendor --[map|dex]
-core-parser> sysroot /system --map
+Usage: sysroot <DIR_PATH>[:<PATH>:<PATH>] [OPTION]
+Option:
+    --map   set sysroot link_map
+    --dex   set sysroot dex_cache
+
+core-parser> sysroot /system:/apex --map
 Mmap segment [60969cb26000, 60969cb28000) /system/bin/app_process64 [0]
 Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]
 Mmap segment [75dc65a44000, 75dc65a8b000) /system/bin/linker64 [0]
 Mmap segment [75dc65a8b000, 75dc65b8e000) /system/bin/linker64 [46000]
 Mmap segment [75dc4d4f8000, 75dc4d5d5000) /system/lib64/libandroid_runtime.so [0]
 ...
-core-parser> sysroot /system --dex
+
+core-parser> sysroot /system:/apex --dex
 Mmap segment [75dc65357000, 75dc6539f000) /system/framework/ext.jar [0]
 Mmap segment [75d9a7c00000, 75d9a7fb8000) /system/framework/telephony-common.jar [0]
 Mmap segment [75dc658c1000, 75dc658c2000) /system/framework/framework-graphics.jar [0]
@@ -358,18 +558,54 @@ Mmap segment [75d9a3fa8000, 75d9a4975000) /system/framework/framework.jar [11a80
 
 ```
 core-parser> help wd
-Usage: write|wd <Address> <Option>
+Usage: write|wd <ADDRESS> <OPTION>
 Option:
-    --string|-s <STRING>:
-    --value|-v <VALUE>:
-core-parser> wd 75d9a3fa8000 -v 0x0
-New overlay [75d9a3fa8000, 75d9a4975000)
+    -s, --string <STRING>   overwrite string at dist address
+    -v, --value <VALUE>     overwrite value at dis address
+
+core-parser> p 0x71edf4f8 -b
+Size: 0x28
+Object Name: java.lang.String
+    [0x10] virutal char[] values = "AES128-GCM-SHA256"
+    [0x0c] private int hash = -1058959256
+    [0x08] private final int count = 17
+  // extends java.lang.Object
+    [0x04] private transient int shadow$_monitor_ = 536870912
+    [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f817d58
+Binary:
+71edf4f8: 200000006f817d58  c0e1906800000022  X}.o...."...h...
+71edf508: 472d383231534541  35324148532d4d43  AES128-GCM-SHA25
+71edf518: 0000000000000036  200000006f817d58  6.......X}.o....
+
+core-parser> wd 71edf508 -s PenguinLetsGo
+New overlay [71bd5000, 71eea000)
+core-parser> p 0x71edf4f8 -b
+Size: 0x28
+Object Name: java.lang.String
+    [0x10] virutal char[] values = "PenguinLetsGo"
+    [0x0c] private int hash = -1058959256
+    [0x08] private final int count = 17
+  // extends java.lang.Object
+    [0x04] private transient int shadow$_monitor_ = 536870912
+    [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f817d58
+Binary:
+71edf4f8: 200000006f817d58  c0e1906800000022  X}.o...."...h...
+71edf508: 4c6e6975676e6550  3532006f47737465  PenguinLetsGo.25
+71edf518: 0000000000000036  200000006f817d58  6.......X}.o....
 ```
 
 ```
 core-parser> help rd
-Usage: read|rd begin [-e end] [--opt] [-f path]
-         opt: --origin --mmap --overlay
+Usage: read|rd <BEGIN_ADDR> [OPTION..]
+Priority: overlay > mmap > origin
+Option:
+    -e, --end <END_ADDR>   read [BEGIN, END) memory content
+        --origin           read memory content from corefile
+        --mmap             read memory content from file mmap
+        --overlay          read memory content form overwirte
+    -i, --inst             read memory content convert asm code
+    -f, --file <PATH>      read memory binary save to output file
+
 core-parser> rd 75d9a3fa8000 -e 75d9a3fa8020
 75d9a3fa8000: 0000000000000000  0202020202020202  ................
 75d9a3fa8010: 0202020202020202  0230020202020202  ..............0.
@@ -377,6 +613,23 @@ core-parser> rd 75d9a3fa8000 -e 75d9a3fa8020
 core-parser> rd 75d9a3fa8000 -e 75d9a3fa8020 --origin
 75d9a3fa8000: 0202020202020202  0202020202020202  ................
 75d9a3fa8010: 0202020202020202  0230020202020202  ..............0.
+
+core-parser> rd 0x71907db5 -e 0x71907ddd -i
+0x71907db5:                   2057ff | call qword ptr [rdi + 0x20]
+0x71907db8:                     db85 | test ebx, ebx
+0x71907dba:             00000018840f | je 0x71907dd8
+0x71907dc0:                   de8948 | mov rsi, rbx
+0x71907dc3:                     3e8b | mov edi, dword ptr [rsi]
+0x71907dc5:               0000ebbeb8 | mov eax, 0xebbe
+0x71907dca:           00000080bf8b48 | mov rdi, qword ptr [rdi + 0x80]
+0x71907dd1:                 207f8b48 | mov rdi, qword ptr [rdi + 0x20]
+0x71907dd5:                   2057ff | call qword ptr [rdi + 0x20]
+0x71907dd8:                 78c48348 | add rsp, 0x78
+0x71907ddc:                       5b | pop rbx
+0x71907ddd:                       5d | pop rbp
+
+core-parser> rd 791804999000 -e 7918049ac000 -f libGLESv2_emulation.so
+Saved [libGLESv2_emulation.so].
 ```
 
 ```
@@ -405,88 +658,115 @@ core-parser> auxv
 ```
 
 ```
-core-parser> file
-[12c00000, 2ac00000)  00000000  [anon:dalvik-main space (region space)]
-[40006000, 40017000)  00000000  [anon:dalvik-large object space allocation]
-[40018000, 40029000)  00000000  [anon:dalvik-large object space allocation]
-[40033000, 40044000)  00000000  [anon:dalvik-large object space allocation]
-[4004f000, 40093000)  00000000  [anon:dalvik-large object space allocation]
-...
+core-parser> help file
+Usage: file [ADDRESS]
+
+core-parser> file | grep app_process
+[5a224127f000, 5a2241282000)  0000000000000000  /system/bin/app_process64
+[5a2241282000, 5a2241286000)  0000000000002000  /system/bin/app_process64
+[5a2241286000, 5a2241288000)  0000000000005000  /system/bin/app_process64
+[5a2241288000, 5a2241289000)  0000000000006000  /system/bin/app_process64
+
+core-parser> file 0x71907dc5
+[71224000, 71b89000)  0000000000203000  /system/framework/x86_64/boot-framework.oat
 ```
 
 ```
-core-parser> thread 3962
-Current thread is 3962
+core-parser> help bt
+Usage: backtrace|bt [PID..] [OPTION]
+Option:
+    -a, --all           show thread stack.
+    -d, --detail        show more info.
+        --fp <FP_REG>   only support arm64
 
 core-parser> bt
-"HeapTaskDaemon" tid=9 WaitingForTaskProcessor
-  | group="system" daemon=1 prio=5 target=0x701b1058
-  | sysTid=3962 sCount=0 flags=0 obj=0x12c11530 self=0x70ef11c6b140
-  | stack=0x70ed38d4c000-0x70ed38d4e000 stackSize=0x102cf0 handle=0x70ed38e4ecf0
-  | held mutexes=
-  rax 0xfffffffffffffdfc  rbx 0x000070ee11c58da0  rcx 0x000070f053bd3dc8  rdx 0x000000000000000a
-  r8  0x0000000000000000  r9  0xb4e7000000000000  r10 0x000070ed38e4e770  r11 0x0000000000000246
-  r12 0x000070ed38e4e770  r13 0x000000000000000a  r14 0x000070ef11c6b140  r15 0x0000000000000000
-  rdi 0x000070ee11c58db0  rsi 0x0000000000000080
-  rbp 0x000070ee11c58db0  rsp 0x000070ed38e4e748  rip 0x000070f053bd3dc8  flags 0x0000000000000246
+"main" sysTid=6118 Runnable
+  | group="main" daemon=0 prio=5 target=0x0
+  | tid=1 sCount=0 flags=0 obj=0x71bdaeb8 self=0x7919cce70380
+  | stack=0x7ffc732d1000-0x7ffc732d3000 stackSize=0x800000 handle=0x791af2dde4f8
+  | mutexes=0x7919cce70b30 held="mutator lock"(shared held)
+  rax 0x0000000000000000  rbx 0x0000000000000000  rcx 0x0000000000000000  rdx 0x0000000000000000
+  r8  0x0000000000000002  r9  0x00007919cce70380  r10 0x0000000000000001  r11 0x0000000000000029
+  r12 0x000079192ce6b090  r13 0x00007919cce70380  r14 0x0000000000000002  r15 0x0000000070897508
+  rdi 0x000079192ce6b090  rsi 0x0000000070d05730
+  rbp 0x000000000000f9e1  rsp 0x00007ffc73acc290  rip 0x000079185c88945f  flags 0x0000000000010246
   ds 0x00000000  es 0x00000000  fs 0x00000000  gs 0x00000000  cs 0x00000033  ss 0x0000002b
-  JavaKt: #0  0000000000000000  dalvik.system.VMRuntime.runHeapTasks()
-  JavaKt: #1  000070ed9f07bea6  java.lang.Daemons$HeapTaskDaemon.runInternal()
-  JavaKt: #2  000070ed9f07b4f2  java.lang.Daemons$Daemon.run()
-  JavaKt: #3  000070ed9f1d1740  java.lang.Thread.run()
+  Native: #0  000079185c88945f
+  JavaKt: #0  000079185af57268  android.os.ThreadLocalWorkSource.getToken
+  JavaKt: #1  000079185af57290  android.os.ThreadLocalWorkSource.setUid
+  JavaKt: #2  000079185af3fdba  android.os.Looper.loop
+  JavaKt: #3  000079185b67d8d6  android.app.ActivityThread.main
+  JavaKt: #4  0000000000000000  java.lang.reflect.Method.invoke
+  JavaKt: #5  000079185a700626  com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run
+  JavaKt: #6  000079185a704980  com.android.internal.os.ZygoteInit.main
+```
 
-core-parser> f 3
-  JavaKt: #3  000070ed9f1d1740  java.lang.Thread.run()
+```
+core-parser> help frame
+Usage: frame|f <NUM> [OPTION..]
+Option:
+    -j, --java       show java frame info (default)
+    -n, --native     show native frame info
+    -a, --all        show all frame info
+
+core-parser> f 6 -j
+  JavaKt: #6  000079185a704980  com.android.internal.os.ZygoteInit.main(java.lang.String[])
   {
-      art::ArtMethod: 0x7011b230
-      shadow_frame: 0x0
-      quick_frame: 0x70ed38e4e9f0
-      dex_pc_ptr: 0x70ed9f1d1740
-      frame_pc: 0x70ed9f96a7e6
-      method_header: 0x70ed9f96038c
+      Location: /system/framework/framework.jar!classes3.dex
+      art::ArtMethod: 0x70b509c0
+      dex_pc_ptr: 0x79185a704980
+      quick_frame: 0x7ffc73acdc70
+      frame_pc: 0x71907dd5
+      method_header: 0x719075d8
 
       DEX CODE:
-      0x70ed9f1d1738: 1054 05fd                | iget-object v0, v1, Ljava/lang/Thread;.target:Ljava/lang/Runnable; // field@1533
-      0x70ed9f1d173c: 0038 0005                | if-eqz v0, 0x70ed9f1d1746 //+5
-      0x70ed9f1d1740: 1072 0c2d 0000           | invoke-interface {v0}, void java.lang.Runnable.run() // method@3117
-      {
-          v0 = 0x701b1058    v1 = 0x12c11530
-      }
+      0x79185a704976: 106e c34e 0002           | invoke-virtual {v2}, void com.android.internal.os.ZygoteServer.closeServerSocket() // method@49998
+      0x79185a70497c: 0038 0005                | if-eqz v0, 0x79185a704986 //+5
+      0x79185a704980: 1072 ebbe 0000           | invoke-interface {v0}, void java.lang.Runnable.run() // method@60350
 
       OAT CODE:
+      0x71907db5:                   2057ff | call qword ptr [rdi + 0x20]
+      0x71907db8:                     db85 | test ebx, ebx
+      0x71907dba:             00000018840f | je 0x71907dd8
+      0x71907dc0:                   de8948 | mov rsi, rbx
+      0x71907dc3:                     3e8b | mov edi, dword ptr [rsi]
+      0x71907dc5:               0000ebbeb8 | mov eax, 0xebbe
+      0x71907dca:           00000080bf8b48 | mov rdi, qword ptr [rdi + 0x80]
+      0x71907dd1:                 207f8b48 | mov rdi, qword ptr [rdi + 0x20]
+      0x71907dd5:                   2057ff | call qword ptr [rdi + 0x20]
+      0x71907dd8:                 78c48348 | add rsp, 0x78
+      0x71907ddc:                       5b | pop rbx
+      0x71907ddd:                       5d | pop rbp
       {
-          rbx = 0x000070ed38e4ea98    rbp = 0x000070ed9f1d1740    r12 = 0x000070ed38e4ea18    r13 = 0x000070ed9f960a80
-          r14 = 0x000070ed38e4ea10    r15 = 0x000070ed9f96a7e6
+          rcx = 0x0000000012c5a298    rdx = 0x0000000013040218    rbx = 0x0000000000000004    rbp = 0x0000000012c5f340
+          rsi = 0x0000000000000000    r8 = 0x000079185a9cb7f1    r9 = 0x0000000071bd5fb8    r12 = 0x00000000705d9d70
+          r13 = 0x0000000071be62f0    r14 = 0x0000000000000000    r15 = 0x0000000071907dd8
       }
   }
 ```
 
 ```
 core-parser> help remote
-Usage: remote <COMMAND> [option] ...
+Usage: remote <COMMAND> [OPTION...]
 Command:
-    core  hook  rd  wd
-    pause
+    core    hook    rd    wd
+    pause   setprop
 
-Usage: remote core -p <PID> [-m <MACHINE>] [Option]...
+Usage: remote core -p <PID> [-m <MACHINE>] [OPTION...]
 Option:
-   --pid|-p <PID>
-   --dir|-d <DIR>
-   --machine|-m <Machine>
+    -p, --pid <PID>           set target pid
+    -d, --dir <DIR>           set target dir
+    -m, --machine <Machine>   set target machine
 Machine:
      { arm64, arm, x86_64, x86, riscv64 }
-   --output|-o <COREFILE>
-   --filter|-f <Filter>
-Filter:
-     0x01: filter-special-vma
+    -o, --output <COREFILE>   set coredump filename
+    -f, --filter <Filter>     set coredump ignore filter
+Filter: (0x19 default)
+     0x01: filter-special-vma (default)
      0x02: filter-file-vma
      0x04: filter-shared-vma
-     0x08: filter-sanitizer-shadow-vma
-     0x10: filter-non-read-vma
-
-remote rd -p <PID> <BEGIN> -e <END>
-remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>
-remote pause <PID ...> [-a]
+     0x08: filter-sanitizer-shadow-vma (default)
+     0x10: filter-non-read-vma (default)
 
 core-parser> remote core -p 1 -m x86_64 -d /data -f 0x18
 Coredump /data/core.init_1_1718900269 ...
@@ -501,47 +781,179 @@ Core env: /data/core.init_1_1718900269
   * VabitsMask: 0xffffffffffffffff
   * Thread: 1
   ...
-```
 
-```
+remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>
 core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo
+
+remote rd -p <PID> <BEGIN_ADDR> -e <END_ADDR>
 core-parser> remote rd -p 1 7fb989794000 -e 7fb989794030
 7fb989794000: 4c6e6975676e6550  0000006f47737465  PenguinLetsGo...
 7fb989794010: 00000001003e0003  0000000000068ab0  ..>.............
 7fb989794020: 0000000000000040  0000000000198c20  @...............
+
+remote pause <PID ...> [-a]
 ```
 
 ```
 core-parser> help fake
-Usage: fake <COMMAND> [option] ...
+Usage: fake <COMMAND> [OPTION...]
 Command:
-    core  map  stack
+    core    map    stack
 
-Usage: fake core <Option> ...
+Usage: fake core <OPTION...>
 Option:
-   --tomb|-t <TOMBSTONE>
-   --restore|-r: rebuild current environment core.
-   --output|-o <COREFILE>
+    -t, --tomb <TOMBSTONE>    build tombstone fakecore
+    -r, --rebuild             rebuild current environment core.
+    -o, --output <COREFILE>   set current fakecore path
+
+core-parser> fake core -r
+FakeCore: saved [core.opencore.tester_6118_Thread-2_6146_1720691326.fakecore]
 
 Usage: fake map
 
-Usage: fake stack --pc <PC> --sp <SP> [--clean|-c]
+Usage: fake stack --pc <PC> --sp <SP> [OPTION]
+Option:
+    -c, --clean    clean fake java stack pc, sp
+```
 
-core-parser> fake core -r -o fake.core
+```
+core-parser> help env
+Usage: env <COMMAND> [OPTION] ...
+Command:
+    config  logger  art  core
+
+Usage: env config <OPTION> ..
+Option:
+        --sdk <VERSION>   set current sdk version
+        --oat <VERSION>   set current oat version
+    -p, --pid <PID>       set current thread
+
+core-parser> env config --sdk 30
+Switch android(30) env.
+
+Usage: env logger <LEVEL>
+Level:
+        --debug           set current logger level to debug
+        --info            set current logger level to info
+        --warn            set current logger level to warn
+        --error           set current logger level to error
+        --fatal           set current logger level to fatal
+
+core-parser> env logger
+Current logger level error
+
+Usage: env art [OPTION] ...
+Option:
+    -c, --clean-cache     clean art::Runtime cache
+    -e, --entry-points    show art quick entry points
+    -n, --nterp           show art nterp cache
+
+core-parser> env art
+  * LIB: /apex/com.android.art/lib64/libart.so
+  * art::OatHeader::kOatVersion: 183
+  * art::Runtime: 0x79196ce69360
+  * art::gc::Heap: 0x79196ce6d3c0
+  *     continuous_spaces_: 0x79196ce6d3c0
+  *     discontinuous_spaces_: 0x79196ce6d3d8
+  * art::MonitorPool: 0x7918cce64ae0
+  * art::ThreadList: 0x7919dce69430
+  *     list_: 0x7919dce6b430
+  * art::ClassLinker: 0x79192ce6b090
+  *     dex_caches_: 0x79192ce6b0c8
+  * art::JavaVMExt: 0x79192ce68310
+  *     globals_: 0x79192ce68350
+  *     weak_globals_: 0x79192ce683d8
+  * art::jit::Jit: 0x79193ce73a70
+  *     code_cache_: 0x79196ce6ad20
+
+Usage: env core [OPTION]...
+Option:
+        --load            show corefile load segments
+        --quick-load      show corefile quick load segments
+        --arm <thumb|arm> set arm disassemble mode
+        --crc             check consistency of mmap file data
+    -c, --clean-cache     clean link_map cache
+
+core-parser> env core
+  * r_debug: 0x791af2dd7bf0
+  * arm mode: thumb
+  * mLoad: 1985
+  * mQuickLoad: 1802
+  * mLinkMap: 271
 ```
 
 ```
 core-parser> help logcat
-Usage: logcat [option]...
+Usage: logcat [OPTION]...
 Option:
-    -b, --buffer=<buffer> {main, radio, events, system, crash, kernel}
-    -p, --pid=<pid>
-    -u, --uid=<uid>
-    -t, --tid=<tid>
+    -b, --buffer <BUFFER>  collect only from buffers
+Buffer:{main, radio, events, system, crash, kernel}
+    -p, --pid <PID>        collect only from pid
+    -u, --uid <UID>        collect only from uid
+    -t, --tid <TID>        collect only from tid
+
+core-parser> logcat -b crash -p 11770
+--------- beginning of crash
+2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: FATAL EXCEPTION: FinalizerWatchdogDaemon
+2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: Process: com.demo.app, PID: 11770
+2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: java.util.concurrent.TimeoutException: android.content.res.ApkAssets.finalize() timed out after 40 seconds
+2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Daemons$Daemon.isRunning(Unknown Source:0)
+2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:286)
+2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Daemons$Daemon.run(Daemons.java:140)
+2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Thread.run(Thread.java:1012)
+```
+
+```
+core-parser> help getprop
+Usage: getprop [NAME]
+core-parser> getprop ro.build.description
+sdk_gphone_x86_64-userdebug 11 RSR1.210722.013.A2 10067904 dev-keys
+```
+
+```
+core-parser> help cxx
+Usage: cxx <TYPE> <ADDR> [OPTION]
+Type:
+    string          vector    map
+    unordered_map   list      deque
+Option:
+    -e, --entry-size    only list set entry-size
+    -b, block-size      only deque set block-size
+
+core-parser> cxx string 0x79191ce66ed8
+/apex/com.android.art/javalib/x86_64/boot-okhttp.art
+
+core-parser> cxx list 0x7919dce6b430 --entry-size 8
+[0] 0x79187ce8b9e0
+[1] 0x79187cea2450
+[2] 0x79187ce9d6e0
+[3] 0x79187ceb0580
+[4] 0x79187ceac3b0
+[5] 0x79187ce8c940
+[6] 0x79187ce984f0
+[7] 0x79187ceac1a0
+[8] 0x79187ceac830
+[9] 0x79187ceba570
+[10] 0x79187cea1400
+[11] 0x79187ceab7e0
+[12] 0x79187ce9e7f0
+[13] 0x79187ceab6f0
+[14] 0x79187ce99ed0
+[15] 0x79187ceabbd0
+[16] 0x79187ceaefc0
+[17] 0x79187ceaf590
+[18] 0x79187ceaed50
+[19] 0x79187ce8bc80
 ```
 
 # Plugin
 ```
+core-parser> help plugin
+Usage: plugin <PATH> [Option]
+Option:
+    -u, --unload   remove extend library
+    -r, --reload   reload extend library
+
 core-parser> plugin plugin-simple.so
 Linker env...
 env new command "simple"

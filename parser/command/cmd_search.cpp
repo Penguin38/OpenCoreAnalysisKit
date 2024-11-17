@@ -40,7 +40,8 @@ int SearchCommand::main(int argc, char* const argv[]) {
         {"object",   no_argument,       0,  'o'},
         {"class",    no_argument,       0,  'c'},
         {"regex",    no_argument,       0,  'r'},
-        {"show",     no_argument,       0,  's'},
+        {"print",     no_argument,      0,  'p'},
+        {"show",      no_argument,      0,  's'},
         {"instanceof",  no_argument,    0,  'i'},
         {"app",        no_argument,     0,   0 },
         {"zygote",     no_argument,     0,   1 },
@@ -54,7 +55,7 @@ int SearchCommand::main(int argc, char* const argv[]) {
     regex = false;
     show = false;
     format_hex = false;
-    while ((opt = getopt_long(argc, argv, "ocrsix",
+    while ((opt = getopt_long(argc, argv, "ocrpixs",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
@@ -68,6 +69,9 @@ int SearchCommand::main(int argc, char* const argv[]) {
                 instof = false;
                 break;
             case 's':
+                show = true;
+                break;
+            case 'p':
                 show = true;
                 break;
             case 'i':
@@ -102,7 +106,6 @@ int SearchCommand::main(int argc, char* const argv[]) {
         each_flag |= Android::EACH_IMAGE_OBJECTS;
         each_flag |= Android::EACH_FAKE_OBJECTS;
     }
-
     auto callback = [&](art::mirror::Object& object) -> bool {
         return SearchObjects(classname, object);
     };
@@ -150,16 +153,34 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
 }
 
 void SearchCommand::usage() {
-    LOGI("Usage: search <CLASSNAME> [Option]..\n");
+    LOGI("Usage: search <CLASSNAME> [OPTION..] [TYPE]\n");
     LOGI("Option:\n");
-    LOGI("    --regex|-r:\n");
-    LOGI("    --instanceof|-i:\n");
-    LOGI("    --object|-o:\n");
-    LOGI("    --class|-c:\n");
-    LOGI("    --show|-s:\n");
-    LOGI("    --app:\n");
-    LOGI("    --zygote:\n");
-    LOGI("    --image:\n");
-    LOGI("    --fake:\n");
+    LOGI("    -r, --regex        regular expression search\n");
+    LOGI("    -i, --instanceof   search by instance of class\n");
+    LOGI("    -o, --object       only search object\n");
+    LOGI("    -c, --class        only search class\n");
+    LOGI("    -p, --print        object print detail\n");
+    LOGI("    -x, --hex          basic type hex print\n");
+    LOGI("Type: {--app, --zygote, --image, --fake}\n");
+    ENTER();
+    LOGI("core-parser> search android.app.Activity -i -o --app --print\n");
+    LOGI("[1] 0x13050cc8 penguin.opencore.tester.MainActivity\n");
+    LOGI("Size: 0x130\n");
+    LOGI("Object Name: penguin.opencore.tester.MainActivity\n");
+    LOGI("  // extends androidx.appcompat.app.AppCompatActivity\n");
+    LOGI("    [0x12c] private android.content.res.Resources mResources = 0x0\n");
+    LOGI("    [0x128] private androidx.appcompat.app.AppCompatDelegate mDelegate = 0x130520b8\n");
+    LOGI("  // extends androidx.fragment.app.FragmentActivity\n");
+    LOGI("    [0x125] boolean mStopped = false\n");
+    LOGI("    [0x124] boolean mStartedIntentSenderFromFragment = false\n");
+    LOGI("    [0x123] boolean mStartedActivityFromFragment = false\n");
+    LOGI("    [0x122] boolean mResumed = true\n");
+    LOGI("    [0x121] boolean mRequestedPermissionsFromFragment = false\n");
+    LOGI("    [0x120] boolean mCreated = true\n");
+    LOGI("    [0x11c] int mNextCandidateRequestIndex = 0\n");
+    LOGI("    [0x118] androidx.collection.SparseArrayCompat mPendingFragmentActivityResults = 0x13052188\n");
+    LOGI("    [0x114] final androidx.fragment.app.FragmentController mFragments = 0x13052178\n");
+    LOGI("    [0x110] final androidx.lifecycle.LifecycleRegistry mFragmentLifecycleRegistry = 0x13052150\n");
+    LOGI("    ...\n");
 }
 

@@ -47,5 +47,14 @@ int FileCommand::main(int argc, char* const argv[]) {
 }
 
 void FileCommand::usage() {
-    LOGI("Usage: file [virtaul address]\n");
+    LOGI("Usage: file [ADDRESS]\n");
+    ENTER();
+    LOGI("core-parser> file | grep app_process\n");
+    LOGI("[5a224127f000, 5a2241282000)  0000000000000000  /system/bin/app_process64\n");
+    LOGI("[5a2241282000, 5a2241286000)  0000000000002000  /system/bin/app_process64\n");
+    LOGI("[5a2241286000, 5a2241288000)  0000000000005000  /system/bin/app_process64\n");
+    LOGI("[5a2241288000, 5a2241289000)  0000000000006000  /system/bin/app_process64\n");
+    ENTER();
+    LOGI("core-parser> file 0x71907dc5\n");
+    LOGI("[71224000, 71b89000)  0000000000203000  /system/framework/x86_64/boot-framework.oat\n");
 }

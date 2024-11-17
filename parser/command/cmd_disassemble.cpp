@@ -111,5 +111,30 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
 }
 
 void DisassembleCommand::usage() {
-    LOGI("Usage: disassemble|disas <SYM> [Option...]\n");
+    LOGI("Usage: disassemble|disas <SYMBOL> [OPTION]\n");
+    LOGI("Option:\n");
+    LOGI("    --origin    disassemble from corefile\n");
+    LOGI("    --mmap      disassemble from file mmap\n");
+    LOGI("    --overlay   disassemble form overwirte\n");
+    ENTER();
+    LOGI("core-parser> disas __vdso_getcpu\n");
+    LOGI("LIB: [vdso]\n");
+    LOGI("__vdso_getcpu:\n");
+    LOGI("  0x7ffc73ae7a10:                       55 | push rbp\n");
+    LOGI("  0x7ffc73ae7a11:                   e58948 | mov rbp, rsp\n");
+    LOGI("  0x7ffc73ae7a14:               0000007bb8 | mov eax, 0x7b\n");
+    LOGI("  0x7ffc73ae7a19:                   c0030f | lsl eax, eax\n");
+    LOGI("  0x7ffc73ae7a1c:                       90 | nop \n");
+    LOGI("  0x7ffc73ae7a1d:                   ff8548 | test rdi, rdi\n");
+    LOGI("  0x7ffc73ae7a20:                     0a74 | je 0x7ffc73ae7a2c\n");
+    LOGI("  0x7ffc73ae7a22:                     c189 | mov ecx, eax\n");
+    LOGI("  0x7ffc73ae7a24:             00000fffe181 | and ecx, 0xfff\n");
+    LOGI("  0x7ffc73ae7a2a:                     0f89 | mov dword ptr [rdi], ecx\n");
+    LOGI("  0x7ffc73ae7a2c:                   f68548 | test rsi, rsi\n");
+    LOGI("  0x7ffc73ae7a2f:                     0574 | je 0x7ffc73ae7a36\n");
+    LOGI("  0x7ffc73ae7a31:                   0ce8c1 | shr eax, 0xc\n");
+    LOGI("  0x7ffc73ae7a34:                     0689 | mov dword ptr [rsi], eax\n");
+    LOGI("  0x7ffc73ae7a36:                     c031 | xor eax, eax\n");
+    LOGI("  0x7ffc73ae7a38:                       5d | pop rbp\n");
+    LOGI("  0x7ffc73ae7a39:                       c3 | ret \n");
 }

@@ -210,15 +210,22 @@ int RemoteCommand::OptionPause(int argc, char* const argv[]) {
 }
 
 void RemoteCommand::usage() {
-    LOGI("Usage: remote <COMMAND> [option] ...\n");
+    LOGI("Usage: remote <COMMAND> [OPTION...]\n");
     LOGI("Command:\n");
-    LOGI("    core  hook  rd  wd\n");
-    LOGI("    pause\n");
+    LOGI("    core    hook    rd    wd\n");
+    LOGI("    pause   setprop\n");
     ENTER();
     Opencore::Usage();
     ENTER();
     // Hook::Usage();
-    LOGI("remote rd -p <PID> <BEGIN> -e <END>\n");
     LOGI("remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>\n");
+    LOGI("core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo\n");
+    ENTER();
+    LOGI("remote rd -p <PID> <BEGIN_ADDR> -e <END_ADDR>\n");
+    LOGI("core-parser> remote rd -p 1 7fb989794000 -e 7fb989794030\n");
+    LOGI("7fb989794000: 4c6e6975676e6550  0000006f47737465  PenguinLetsGo...\n");
+    LOGI("7fb989794010: 00000001003e0003  0000000000068ab0  ..>.............\n");
+    LOGI("7fb989794020: 0000000000000040  0000000000198c20  @...............\n");
+    ENTER();
     LOGI("remote pause <PID ...> [-a]\n");
 }

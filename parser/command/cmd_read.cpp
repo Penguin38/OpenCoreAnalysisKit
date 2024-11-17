@@ -127,7 +127,39 @@ void ReadCommand::saveBinary(char* path, uint64_t* real, uint64_t size) {
 }
 
 void ReadCommand::usage() {
-    LOGI("Usage: read|rd begin [-e end] [--opt] [-f path]\n");
-    LOGI("         opt: --origin --mmap --overlay\n");
+    LOGI("Usage: read|rd <BEGIN_ADDR> [OPTION..]\n");
+    LOGI("Priority: overlay > mmap > origin\n");
+    LOGI("Option:\n");
+    LOGI("    -e, --end <END_ADDR>   read [BEGIN, END) memory content\n");
+    LOGI("        --origin           read memory content from corefile\n");
+    LOGI("        --mmap             read memory content from file mmap\n");
+    LOGI("        --overlay          read memory content form overwirte\n");
+    LOGI("    -i, --inst             read memory content convert asm code\n");
+    LOGI("    -f, --file <PATH>      read memory binary save to output file\n");
+    ENTER();
+    LOGI("core-parser> rd 75d9a3fa8000 -e 75d9a3fa8020\n");
+    LOGI("75d9a3fa8000: 0000000000000000  0202020202020202  ................\n");
+    LOGI("75d9a3fa8010: 0202020202020202  0230020202020202  ..............0.\n");
+    ENTER();
+    LOGI("core-parser> rd 75d9a3fa8000 -e 75d9a3fa8020 --origin\n");
+    LOGI("75d9a3fa8000: 0202020202020202  0202020202020202  ................\n");
+    LOGI("75d9a3fa8010: 0202020202020202  0230020202020202  ..............0.\n");
+    ENTER();
+    LOGI("core-parser> rd 0x71907db5 -e 0x71907ddd -i\n");
+    LOGI("0x71907db5:                   2057ff | call qword ptr [rdi + 0x20]\n");
+    LOGI("0x71907db8:                     db85 | test ebx, ebx\n");
+    LOGI("0x71907dba:             00000018840f | je 0x71907dd8\n");
+    LOGI("0x71907dc0:                   de8948 | mov rsi, rbx\n");
+    LOGI("0x71907dc3:                     3e8b | mov edi, dword ptr [rsi]\n");
+    LOGI("0x71907dc5:               0000ebbeb8 | mov eax, 0xebbe\n");
+    LOGI("0x71907dca:           00000080bf8b48 | mov rdi, qword ptr [rdi + 0x80]\n");
+    LOGI("0x71907dd1:                 207f8b48 | mov rdi, qword ptr [rdi + 0x20]\n");
+    LOGI("0x71907dd5:                   2057ff | call qword ptr [rdi + 0x20]\n");
+    LOGI("0x71907dd8:                 78c48348 | add rsp, 0x78\n");
+    LOGI("0x71907ddc:                       5b | pop rbx\n");
+    LOGI("0x71907ddd:                       5d | pop rbp\n");
+    ENTER();
+    LOGI("core-parser> rd 791804999000 -e 7918049ac000 -f libGLESv2_emulation.so\n");
+    LOGI("Saved [libGLESv2_emulation.so].\n");
 }
 

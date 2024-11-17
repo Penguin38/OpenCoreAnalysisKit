@@ -391,30 +391,70 @@ int EnvCommand::dumpEnv() {
 }
 
 void EnvCommand::usage() {
-    LOGI("Usage: env <COMMAND> [option] ...\n");
+    LOGI("Usage: env <COMMAND> [OPTION] ...\n");
     LOGI("Command:\n");
     LOGI("    config  logger  art  core\n");
     ENTER();
-    LOGI("Usage: env config <option> ..\n");
+
+    LOGI("Usage: env config <OPTION> ..\n");
     LOGI("Option:\n");
-    LOGI("   --sdk: <VERSION>\n");
-    LOGI("   --oat: <VERSION>\n");
-    LOGI("   --pid|-p <PID>\n");
+    LOGI("        --sdk <VERSION>   set current sdk version\n");
+    LOGI("        --oat <VERSION>   set current oat version\n");
+    LOGI("    -p, --pid <PID>       set current thread\n");
     ENTER();
-    LOGI("Usage: env logger <option>\n");
-    LOGI("Option:\n");
-    LOGI("   --[debug|info|warn|error|fatal]\n");
+    LOGI("core-parser> env config --sdk 30\n");
+    LOGI("Switch android(30) env.\n");
     ENTER();
-    LOGI("Usage: env art [option] ...\n");
-    LOGI("Option:\n");
-    LOGI("   --clean-cache|-c: clean art::Runtime cache\n");
-    LOGI("   --entry-points|-e: show art quick entry points\n");
-    LOGI("   --nterp|-n: show art nterp cache\n");
+
+    LOGI("Usage: env logger <LEVEL>\n");
+    LOGI("Level:\n");
+    LOGI("        --debug           set current logger level to debug\n");
+    LOGI("        --info            set current logger level to info\n");
+    LOGI("        --warn            set current logger level to warn\n");
+    LOGI("        --error           set current logger level to error\n");
+    LOGI("        --fatal           set current logger level to fatal\n");
     ENTER();
-    LOGI("Usage: env core [option]...\n");
+    LOGI("core-parser> env logger\n");
+    LOGI("Current logger level error\n");
+    ENTER();
+
+    LOGI("Usage: env art [OPTION] ...\n");
     LOGI("Option:\n");
-    LOGI("   --load: show code load segments\n");
-    LOGI("   --arm <thumb|arm>\n");
-    LOGI("   --crc: check consistency of mmap file data.\n");
-    LOGI("   --clean-cache|-c: clean link_map cache\n");
+    LOGI("    -c, --clean-cache     clean art::Runtime cache\n");
+    LOGI("    -e, --entry-points    show art quick entry points\n");
+    LOGI("    -n, --nterp           show art nterp cache\n");
+    ENTER();
+    LOGI("core-parser> env art\n");
+    LOGI("  * LIB: /apex/com.android.art/lib64/libart.so\n");
+    LOGI("  * art::OatHeader::kOatVersion: 183\n");
+    LOGI("  * art::Runtime: 0x79196ce69360\n");
+    LOGI("  * art::gc::Heap: 0x79196ce6d3c0\n");
+    LOGI("  *     continuous_spaces_: 0x79196ce6d3c0\n");
+    LOGI("  *     discontinuous_spaces_: 0x79196ce6d3d8\n");
+    LOGI("  * art::MonitorPool: 0x7918cce64ae0\n");
+    LOGI("  * art::ThreadList: 0x7919dce69430\n");
+    LOGI("  *     list_: 0x7919dce6b430\n");
+    LOGI("  * art::ClassLinker: 0x79192ce6b090\n");
+    LOGI("  *     dex_caches_: 0x79192ce6b0c8\n");
+    LOGI("  * art::JavaVMExt: 0x79192ce68310\n");
+    LOGI("  *     globals_: 0x79192ce68350\n");
+    LOGI("  *     weak_globals_: 0x79192ce683d8\n");
+    LOGI("  * art::jit::Jit: 0x79193ce73a70\n");
+    LOGI("  *     code_cache_: 0x79196ce6ad20\n");
+    ENTER();
+
+    LOGI("Usage: env core [OPTION]...\n");
+    LOGI("Option:\n");
+    LOGI("        --load            show corefile load segments\n");
+    LOGI("        --quick-load      show corefile quick load segments\n");
+    LOGI("        --arm <thumb|arm> set arm disassemble mode\n");
+    LOGI("        --crc             check consistency of mmap file data\n");
+    LOGI("    -c, --clean-cache     clean link_map cache\n");
+    ENTER();
+    LOGI("core-parser> env core\n");
+    LOGI("  * r_debug: 0x791af2dd7bf0\n");
+    LOGI("  * arm mode: thumb\n");
+    LOGI("  * mLoad: 1985\n");
+    LOGI("  * mQuickLoad: 1802\n");
+    LOGI("  * mLinkMap: 271\n");
 }

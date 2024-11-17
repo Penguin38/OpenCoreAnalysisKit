@@ -59,8 +59,13 @@ int HprofCommand::main(int argc, char* const argv[]) {
 }
 
 void HprofCommand::usage() {
-    LOGI("Usage: hprof <FILE> [option]\n");
-    LOGI("       option:\n");
-    LOGI("              --visible|-v\n");
-    LOGI("              --quick|-q\n");
+    LOGI("Usage: hprof <FILE> [OPTION]\n");
+    LOGI("Option:\n");
+    LOGI("    -v, --visible     show hprof detail\n");
+    LOGI("    -q, --quick       fast dump hprof\n");
+    ENTER();
+    LOGI("core-parser> hprof /tmp/1.hprof\n");
+    LOGI("hprof: heap dump /tmp/1.hprof starting...\n");
+    LOGI("hprof: heap dump completed, scan objects (306330).\n");
+    LOGI("hprof: saved [/tmp/1.hprof].\n");
 }

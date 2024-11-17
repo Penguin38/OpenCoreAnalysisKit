@@ -126,11 +126,35 @@ int ThreadCommand::main(int argc, char* const argv[]) {
 }
 
 void ThreadCommand::usage() {
-    LOGI("Usage: thread [tid] [options]\n");
-    LOGI("Options:\n");
-    LOGI("  --native|-n: show local threads.\n");
+    LOGI("Usage: thread [TID] [OPTION]\n");
+    LOGI("Option:\n");
+    LOGI("    -n, --native    show local threads\n");
 #if defined(__AOSP_PARSER__)
-    LOGI("  --java|-j: show java threads.\n");
-    LOGI("  --all|-a: show all thread.\n");
+    LOGI("    -j, --java      show jvm threads\n");
+    LOGI("    -a, --all       show all thread\n");
+    ENTER();
+    LOGI("core-parser> thread -a\n");
+    LOGI(" ID   TID    STATUS                          NAME\n");
+    LOGI("*1    6118   Runnable                        \"main\"\n");
+    LOGI(" 2    6125   Native                          \"Runtime worker thread 0\"\n");
+    LOGI(" 3    6128   Native                          \"Runtime worker thread 3\"\n");
+    LOGI(" 4    6126   Native                          \"Runtime worker thread 1\"\n");
+    LOGI(" 5    6129   WaitingInMainSignalCatcherLoop  \"Signal Catcher\"\n");
+    LOGI(" 6    6127   Native                          \"Runtime worker thread 2\"\n");
+    LOGI("...\n");
 #endif
+    ENTER();
+    LOGI("core-parser> thread -n\n");
+    LOGI(" ID     TARGET TID        FRAME\n");
+    LOGI("*1      Thread 6118       0x79185c88945f  /apex/com.android.art/lib64/libart.so\n");
+    LOGI(" 2      Thread 6125       0x791aef6632a8  /apex/com.android.runtime/lib64/bionic/libc.so\n");
+    LOGI(" 3      Thread 6126       0x791aef6632a8  /apex/com.android.runtime/lib64/bionic/libc.so\n");
+    LOGI(" 4      Thread 6127       0x791aef6632a8  /apex/com.android.runtime/lib64/bionic/libc.so\n");
+    LOGI("...\n");
+    ENTER();
+    LOGI("core-parser> thread\n");
+    LOGI("Current thread is 6118\n");
+    ENTER();
+    LOGI("core-parser> thread 6133\n");
+    LOGI("Current thread is 6133\n");
 }

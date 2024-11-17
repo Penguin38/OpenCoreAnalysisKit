@@ -85,10 +85,10 @@ int MmapCommand::main(int argc, char* const argv[]) {
 }
 
 void MmapCommand::usage() {
-    LOGI("Usage: mmap <ADDR> <OPT>\n");
-    LOGI("       option:\n");
-    LOGI("         [--file|-f] <FILE>\n");
-    LOGI("         [--offset|-o] <OFFSET>\n");
-    LOGI("         --remove-mmap\n");
-    LOGI("         --remove-overlay\n");
+    LOGI("Usage: mmap <ADDR> <OPTION>\n");
+    LOGI("Option:\n");
+    LOGI("    -f, --file <PATH>        extend mmap file path\n");
+    LOGI("    -o, --offset <OFFSET>    set file mmap offset\n");
+    LOGI("         --remove-mmap       remove mmap file segment\n");
+    LOGI("         --remove-overlay    remove overwrite segment\n");
 }

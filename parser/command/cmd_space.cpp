@@ -102,11 +102,18 @@ int SpaceCommand::main(int argc, char* const argv[]) {
 }
 
 void SpaceCommand::usage() {
-    LOGI("Usage: space [Option]\n");
+    LOGI("Usage: space [OPTION] [TYPE]\n");
     LOGI("Option:\n");
-    LOGI("  --check|-c: check space bad object.\n");
-    LOGI("  --app:\n");
-    LOGI("  --zygote:\n");
-    LOGI("  --image:\n");
-    LOGI("  --fake:\n");
+    LOGI("    -c, --check   check space bad object.\n");
+    LOGI("Type: {--app, --zygote, --image, --fake}\n");
+    ENTER();
+    LOGI("core-parser> space\n");
+    LOGI("TYPE   REGION                  ADDRESS             NAME\n");
+    LOGI("  5  [0x12c00000, 0x2ac00000)  0x75db0d608820  main space (region space)\n");
+    LOGI("  0  [0x70209000, 0x7033d840)  0x75dbad608430  /system/framework/x86_64/boot.art\n");
+    LOGI("  0  [0x704c2000, 0x704dfc88)  0x75dbad6086f0  /system/framework/x86_64/boot-core-libart.art\n");
+    LOGI("  ...\n");
+    ENTER();
+    LOGI("core-parser> space --check --app\n");
+    LOGI("ERROR: Region:[0x12c00000, 0x12c00018) main space (region space) has bad object!!\n");
 }

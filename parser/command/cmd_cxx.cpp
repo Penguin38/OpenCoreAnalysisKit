@@ -156,5 +156,35 @@ int CxxCommand::DumpCxxDeque(int argc, char* const argv[]) {
 
 void CxxCommand::usage() {
     LOGI("Usage: cxx <TYPE> <ADDR> [OPTION]\n");
-    LOGI("Type: {string, vector, map, unordered_map, list, deque}\n");
+    LOGI("Type:\n");
+    LOGI("    string          vector    map\n");
+    LOGI("    unordered_map   list      deque\n");
+    LOGI("Option:\n");
+    LOGI("    -e, --entry-size    only list set entry-size\n");
+    LOGI("    -b, block-size      only deque set block-size\n");
+    ENTER();
+    LOGI("core-parser> cxx string 0x79191ce66ed8\n");
+    LOGI("/apex/com.android.art/javalib/x86_64/boot-okhttp.art\n");
+    ENTER();
+    LOGI("core-parser> cxx list 0x7919dce6b430 --entry-size 8\n");
+    LOGI("[0] 0x79187ce8b9e0\n");
+    LOGI("[1] 0x79187cea2450\n");
+    LOGI("[2] 0x79187ce9d6e0\n");
+    LOGI("[3] 0x79187ceb0580\n");
+    LOGI("[4] 0x79187ceac3b0\n");
+    LOGI("[5] 0x79187ce8c940\n");
+    LOGI("[6] 0x79187ce984f0\n");
+    LOGI("[7] 0x79187ceac1a0\n");
+    LOGI("[8] 0x79187ceac830\n");
+    LOGI("[9] 0x79187ceba570\n");
+    LOGI("[10] 0x79187cea1400\n");
+    LOGI("[11] 0x79187ceab7e0\n");
+    LOGI("[12] 0x79187ce9e7f0\n");
+    LOGI("[13] 0x79187ceab6f0\n");
+    LOGI("[14] 0x79187ce99ed0\n");
+    LOGI("[15] 0x79187ceabbd0\n");
+    LOGI("[16] 0x79187ceaefc0\n");
+    LOGI("[17] 0x79187ceaf590\n");
+    LOGI("[18] 0x79187ceaed50\n");
+    LOGI("[19] 0x79187ce8bc80\n");
 }

@@ -410,8 +410,30 @@ std::string BacktraceCommand::FormatNativeFrame(const char* prefix, uint64_t siz
 }
 
 void BacktraceCommand::usage() {
-    LOGI("Usage: backtrace|bt [PID..] [option..]\n");
+    LOGI("Usage: backtrace|bt [PID..] [OPTION]\n");
     LOGI("Option:\n");
-    LOGI("    --all|-a: show thread stack.\n");
-    LOGI("    --detail|-d: show more info.\n");
+    LOGI("    -a, --all           show thread stack.\n");
+    LOGI("    -d, --detail        show more info.\n");
+    LOGI("        --fp <FP_REG>   only support arm64\n");
+    ENTER();
+    LOGI("core-parser> bt\n");
+    LOGI("\"main\" sysTid=6118 Runnable\n");
+    LOGI("  | group=\"main\" daemon=0 prio=5 target=0x0\n");
+    LOGI("  | tid=1 sCount=0 flags=0 obj=0x71bdaeb8 self=0x7919cce70380\n");
+    LOGI("  | stack=0x7ffc732d1000-0x7ffc732d3000 stackSize=0x800000 handle=0x791af2dde4f8\n");
+    LOGI("  | mutexes=0x7919cce70b30 held=\"mutator lock\"(shared held) \n");
+    LOGI("  rax 0x0000000000000000  rbx 0x0000000000000000  rcx 0x0000000000000000  rdx 0x0000000000000000  \n");
+    LOGI("  r8  0x0000000000000002  r9  0x00007919cce70380  r10 0x0000000000000001  r11 0x0000000000000029  \n");
+    LOGI("  r12 0x000079192ce6b090  r13 0x00007919cce70380  r14 0x0000000000000002  r15 0x0000000070897508  \n");
+    LOGI("  rdi 0x000079192ce6b090  rsi 0x0000000070d05730  \n");
+    LOGI("  rbp 0x000000000000f9e1  rsp 0x00007ffc73acc290  rip 0x000079185c88945f  flags 0x0000000000010246  \n");
+    LOGI("  ds 0x00000000  es 0x00000000  fs 0x00000000  gs 0x00000000  cs 0x00000033  ss 0x0000002b\n");
+    LOGI("  Native: #0  000079185c88945f  \n");
+    LOGI("  JavaKt: #0  000079185af57268  android.os.ThreadLocalWorkSource.getToken\n");
+    LOGI("  JavaKt: #1  000079185af57290  android.os.ThreadLocalWorkSource.setUid\n");
+    LOGI("  JavaKt: #2  000079185af3fdba  android.os.Looper.loop\n");
+    LOGI("  JavaKt: #3  000079185b67d8d6  android.app.ActivityThread.main\n");
+    LOGI("  JavaKt: #4  0000000000000000  java.lang.reflect.Method.invoke\n");
+    LOGI("  JavaKt: #5  000079185a700626  com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run\n");
+    LOGI("  JavaKt: #6  000079185a704980  com.android.internal.os.ZygoteInit.main\n");
 }
