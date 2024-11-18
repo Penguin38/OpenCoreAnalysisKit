@@ -29,6 +29,7 @@ public:
     static constexpr int FLAG_R = (1 << 2);    /* Segment is readable */
 
     inline uint64_t vaddr() { return mVaddr; }
+    inline uint64_t paddr() { return mPaddr; }
     inline uint32_t flags() { return mFlags; }
     inline uint64_t offset() { return mOffset; }
     inline uint64_t size() { return mMemSize; }

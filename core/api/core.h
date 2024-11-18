@@ -105,6 +105,9 @@ public:
     static std::vector<std::shared_ptr<LoadBlock>>& GetLoads(bool quick) {
         return INSTANCE->getLoads(quick);
     }
+    static std::vector<std::unique_ptr<NoteBlock>>& GetNotes() {
+        return INSTANCE->getNotes();
+    }
     static std::vector<std::unique_ptr<LinkMap>>& GetLinkMaps() {
         return INSTANCE->mLinkMap;
     }
@@ -230,6 +233,9 @@ public:
     uint64_t getPageSize();
     inline std::vector<std::shared_ptr<LoadBlock>>& getLoads(bool quick) {
         return quick? mQuickLoad : mLoad;
+    }
+    inline std::vector<std::unique_ptr<NoteBlock>>& getNotes() {
+        return mNote;
     }
     bool isRemote() { return mRemote; }
     static bool QUICK_LOAD_ENABLED;
