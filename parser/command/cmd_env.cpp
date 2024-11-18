@@ -218,6 +218,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
         {"crc",    no_argument,       0, 3},
         {"num",    required_argument, 0,'n'},
         {"quick-load", no_argument,   0, 4},
+        {"note",   no_argument,       0, 5},
         {"clean-cache",   no_argument, 0, 'c'},
     };
 
@@ -234,6 +235,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
                 crc = true;
                 break;
             case 4: return showLoadEnv(true);
+            case 5: return showNoteEnv();
             case 'n':
                 num = std::atoi(optarg);
                 break;
@@ -247,6 +249,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     } else {
         LOGI("  * r_debug: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, CoreApi::GetDebugPtr());
         LOGI("  * arm mode: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, !capstone::Disassember::GetArmMode() ? "arm" : "thumb");
+        LOGI("  * mNote: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetNotes().size());
         LOGI("  * mLoad: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLoads(false).size());
         LOGI("  * mQuickLoad: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLoads(true).size());
         LOGI("  * mLinkMap: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLinkMaps().size());
@@ -292,6 +295,20 @@ int EnvCommand::showLoadEnv(bool quick) {
     };
     LOGI(ANSI_COLOR_LIGHTRED "INDEX   REGION               FLAGS FILESZ      PATH\n" ANSI_COLOR_RESET);
     CoreApi::ForeachLoadBlock(callback, false, quick);
+    return 0;
+}
+
+int EnvCommand::showNoteEnv() {
+    if (!CoreApi::IsReady())
+        return 0;
+
+    int index = 0;
+    LOGI(ANSI_COLOR_LIGHTRED "INDEX   OFFSET        FILESZ\n" ANSI_COLOR_RESET);
+    for (const auto& note : CoreApi::GetNotes()) {
+        LOGI("  %-5d 0x%08lx    0x%08lx [*]%s\n", index,
+                note->offset(), note->realSize(), note->isOverlayBlock()? "(OVERLAY)" : "");
+        ++index;
+    }
     return 0;
 }
 
@@ -445,6 +462,7 @@ void EnvCommand::usage() {
 
     LOGI("Usage: env core [OPTION]...\n");
     LOGI("Option:\n");
+    LOGI("        --note            show corefile note segments\n");
     LOGI("        --load            show corefile load segments\n");
     LOGI("        --quick-load      show corefile quick load segments\n");
     LOGI("        --arm <thumb|arm> set arm disassemble mode\n");
@@ -454,6 +472,7 @@ void EnvCommand::usage() {
     LOGI("core-parser> env core\n");
     LOGI("  * r_debug: 0x791af2dd7bf0\n");
     LOGI("  * arm mode: thumb\n");
+    LOGI("  * mNote: 1\n");
     LOGI("  * mLoad: 1985\n");
     LOGI("  * mQuickLoad: 1802\n");
     LOGI("  * mLinkMap: 271\n");

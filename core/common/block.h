@@ -17,16 +17,23 @@
 #ifndef CORE_COMMON_BLOCK_H_
 #define CORE_COMMON_BLOCK_H_
 
+#include "base/memory_map.h"
 #include <stdint.h>
 #include <sys/types.h>
 #include <iostream>
 #include <string>
+#include <memory>
 
 class Block {
 public:
     static constexpr int FLAG_X = (1 << 0);    /* Segment is executable */
     static constexpr int FLAG_W = (1 << 1);    /* Segment is writable */
     static constexpr int FLAG_R = (1 << 2);    /* Segment is readable */
+
+    static constexpr int OPT_READ_OR = (1 << 0);
+    static constexpr int OPT_READ_MMAP = (1 << 1);
+    static constexpr int OPT_READ_OVERLAY = (1 << 2);
+    static constexpr int OPT_READ_ALL = OPT_READ_OR | OPT_READ_MMAP | OPT_READ_OVERLAY;
 
     inline uint64_t vaddr() { return mVaddr; }
     inline uint64_t paddr() { return mPaddr; }
@@ -45,7 +52,9 @@ public:
               mFileSize(filesz), mMemSize(memsz), mAlign(align),
               mOriAddr(0x0), mTruncated(false), mFake(false) {}
 
-    ~Block() {}
+    ~Block() {
+        mOverlay.reset();
+    }
     void setOriAddr(uint64_t addr) { if (isValidBlock()) mOriAddr = addr; }
     void setTruncated(bool truncated) { mTruncated = truncated; }
     void setFake(bool fake) { mFake = fake; }
@@ -71,6 +80,15 @@ public:
         }
         return sb;
     }
+
+    virtual bool newOverlay() { return false; }
+    virtual void setOverlay(uint64_t addr, void *buf, uint64_t size) {}
+    virtual void removeOverlay() {}
+    inline bool isOverlayBlock() { return mOverlay != nullptr; }
+    inline void setOverlayMemoryMap(std::unique_ptr<MemoryMap>& map) { mOverlay = std::move(map); }
+protected:
+    std::unique_ptr<MemoryMap> mOverlay;
+
 private:
     //  program member
     uint32_t mFlags;

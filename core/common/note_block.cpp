@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#include "note_block.h"
+#include "logger/log.h"
+#include "common/note_block.h"
+#include "base/utils.h"
 
 void NoteBlock::addAuxvItem(uint64_t type, uint64_t value) {
     std::unique_ptr<Auxv> auxv = std::make_unique<Auxv>(type, value);
@@ -31,6 +33,29 @@ void NoteBlock::addThreadItem(void *thread) {
     if (thread) {
         std::unique_ptr<ThreadApi> api(reinterpret_cast<ThreadApi *>(thread));
         mThread.push_back(std::move(api));
+    }
+}
+
+bool NoteBlock::newOverlay() {
+    if (!mOverlay) {
+        std::unique_ptr<MemoryMap> map(MemoryMap::MmapMem(begin(), realSize()));
+        if (map) {
+            mOverlay = std::move(map);
+            LOGI("New note overlay [%lx, %lx)\n", offset(), offset() + realSize());
+        }
+    }
+    return mOverlay != 0x0;
+}
+
+void NoteBlock::setOverlay(uint64_t addr, void *buf, uint64_t size) {
+    if (newOverlay())
+        memcpy(reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - offset())), buf, size);
+}
+
+void NoteBlock::removeOverlay() {
+    if (mOverlay) {
+        LOGI("Remove note overlay [%lx, %lx)\n", offset(), offset() + realSize());
+        mOverlay.reset();
     }
 }
 

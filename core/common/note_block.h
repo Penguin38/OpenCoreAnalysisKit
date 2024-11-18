@@ -21,6 +21,7 @@
 #include "common/auxv.h"
 #include "common/file.h"
 #include "api/thread.h"
+#include "base/macros.h"
 #include <memory>
 #include <vector>
 
@@ -30,6 +31,18 @@ public:
             uint64_t filesz, uint64_t memsz, uint64_t align)
             : Block(f, off, va, pa, filesz, memsz, align) {}
 
+    inline uint64_t begin() { return begin(OPT_READ_ALL); }
+    inline uint64_t begin(int opt) {
+        if (UNLIKELY(mOverlay && (opt & OPT_READ_OVERLAY)))
+            return mOverlay->data();
+        if (LIKELY(oraddr() && (opt & OPT_READ_OR)))
+            return oraddr();
+        return 0x0;
+    }
+
+    bool newOverlay();
+    void setOverlay(uint64_t addr, void *buf, uint64_t size);
+    void removeOverlay();
     void addAuxvItem(uint64_t type, uint64_t value);
     void addFileItem(uint64_t begin, uint64_t end, uint64_t offset, uint64_t pos);
     void addThreadItem(void *thread);

@@ -91,7 +91,7 @@ int Restore::execute(const char* output) {
     // reset num
     num = 0;
     for (const auto& note : notes) {
-        fwrite(reinterpret_cast<void *>(note->oraddr()), tmp[num].p_filesz, 1, fp);
+        fwrite(reinterpret_cast<void *>(note->begin()), tmp[num].p_filesz, 1, fp);
         current_filesz += tmp[num].p_filesz;
         if (!IS_ALIGNED(current_filesz, ELF_PAGE_SIZE)) {
             uint32_t aliged_size = RoundUp(current_filesz, ELF_PAGE_SIZE) - current_filesz;

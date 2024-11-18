@@ -29,11 +29,6 @@ class LinkMap;
 
 class LoadBlock : public Block {
 public:
-    static constexpr int OPT_READ_OR = (1 << 0);
-    static constexpr int OPT_READ_MMAP = (1 << 1);
-    static constexpr int OPT_READ_OVERLAY = (1 << 2);
-    static constexpr int OPT_READ_ALL = OPT_READ_OR | OPT_READ_MMAP | OPT_READ_OVERLAY;
-
     inline uint64_t begin() { return begin(OPT_READ_ALL); }
     inline uint64_t begin(int opt) {
         if (UNLIKELY(mOverlay && (opt & OPT_READ_OVERLAY)))
@@ -73,7 +68,7 @@ public:
         mVabitsMask = 0x0;
         mPointMask = 0x0;
         mCRC32 = 0x0;
-        mMap = nullptr;
+        mLinkMap = nullptr;
     }
 
     void setMmapFile(const char* file, uint64_t offset);
@@ -82,7 +77,6 @@ public:
     void removeMmap();
     void removeOverlay();
     inline bool isMmapBlock() { return mMmap != nullptr; }
-    inline bool isOverlayBlock() { return mOverlay != nullptr; }
     inline std::string& name() { return mMmap->getName(); }
     inline void setVabitsMask(uint64_t mask) { mVabitsMask = mask; }
     inline void setPointMask(uint64_t mask) { mPointMask = mask; }
@@ -90,25 +84,22 @@ public:
     inline uint64_t PointMask() { return mPointMask; }
     inline uint64_t GetMmapOffset() { return mMmap->offset(); }
     inline void setMmapMemoryMap(std::unique_ptr<MemoryMap>& map) { mMmap = std::move(map); }
-    inline void setOverlayMemoryMap(std::unique_ptr<MemoryMap>& map) { mOverlay = std::move(map); }
     inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetSymbols() { return mSymbols; }
     bool CheckCanMmap(uint64_t header);
     uint32_t GetCRC32(int opt);
-    void bind(LinkMap* map) { mMap = map; }
-    LinkMap* handle() { return mMap; }
+    void bind(LinkMap* map) { mLinkMap = map; }
+    LinkMap* handle() { return mLinkMap; }
 
     ~LoadBlock() {
         mSymbols.clear();
-        mOverlay.reset();
         mMmap.reset();
     }
 private:
     uint64_t mVabitsMask;
     uint64_t mPointMask;
     uint32_t mCRC32;
-    LinkMap* mMap;
+    LinkMap* mLinkMap;
     std::unique_ptr<MemoryMap> mMmap;
-    std::unique_ptr<MemoryMap> mOverlay;
     std::unordered_set<SymbolEntry, SymbolEntry::Hash> mSymbols;
 };
 
