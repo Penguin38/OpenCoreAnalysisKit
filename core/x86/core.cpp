@@ -30,7 +30,7 @@ bool Core::load() {
         switch(type) {
             case NT_PRSTATUS:
                 Elf32_prstatus* prs = reinterpret_cast<Elf32_prstatus *>(pos);
-                ThreadInfo* thread = new ThreadInfo(prs->pr_pid);
+                ThreadInfo* thread = new ThreadInfo(prs->pr_pid, pos);
                 memcpy(&thread->reg, &prs->pr_reg, sizeof(Register));
                 return thread;
         }

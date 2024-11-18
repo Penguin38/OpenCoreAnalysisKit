@@ -71,8 +71,11 @@ public:
 class ThreadInfo : public ThreadApi {
 public:
     ThreadInfo(int tid) : ThreadApi(tid) {}
+    ThreadInfo(int tid, uint64_t prs) : ThreadApi(tid, prs) {}
     ~ThreadInfo() {}
     void RegisterDump(const char* prefix) { return reg.Dump(prefix); }
+    void RegisterSet(const char* command);
+    uint64_t RegisterGet(const char* regs);
     Register& GetRegs() { return reg; }
     uint64_t GetFramePC() { return GetRegs().rip; }
     uint64_t GetFrameSP() { return GetRegs().rsp; }

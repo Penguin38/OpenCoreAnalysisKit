@@ -20,17 +20,34 @@
 #include <vector>
 #include <memory>
 
+class NoteBlock;
+
 class ThreadApi {
 public:
+    struct RegsMap {
+        const char* regs;
+        int offset;
+        int size;
+    };
+
     inline int pid() { return mPid; }
+    inline uint64_t prs() { return mPrs; }
+    inline NoteBlock* block() { return mBlock; }
 
     ThreadApi(int tid) : mPid(tid) {}
+    ThreadApi(int tid, uint64_t prs) : mPid(tid), mPrs(prs) {}
+    void Bind(NoteBlock* block) { mBlock = block; }
+
     virtual ~ThreadApi() {}
     virtual void RegisterDump(const char* prefix) = 0;
+    virtual void RegisterSet(const char* command) = 0;
+    virtual uint64_t RegisterGet(const char* regs) = 0;
     virtual uint64_t GetFramePC() = 0;
     virtual uint64_t GetFrameSP() = 0;
 private:
+    NoteBlock* mBlock;
     int mPid;
+    uint64_t mPrs;
 };
 
 #endif // CORE_API_THREAD_H_

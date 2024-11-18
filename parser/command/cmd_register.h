@@ -21,7 +21,11 @@
 
 class RegisterCommand : public Command {
 public:
-    RegisterCommand() : Command("register") {}
+    static constexpr int REGS_DUMP = 0;
+    static constexpr int REGS_SET = 1;
+    static constexpr int REGS_GET = 2;
+
+    RegisterCommand() : Command("register", "regs") {}
     ~RegisterCommand() {}
     int main(int argc, char* const argv[]);
     void usage();

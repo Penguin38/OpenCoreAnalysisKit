@@ -71,14 +71,19 @@ add_library(core STATIC
             core/lp32/core.cpp
             core/arm64/core.cpp
             core/arm64/unwind.cpp
+            core/arm64/thread_info.cpp
             core/arm/core.cpp
             core/arm/unwind.cpp
+            core/arm/thread_info.cpp
             core/riscv64/core.cpp
             core/riscv64/unwind.cpp
+            core/riscv64/thread_info.cpp
             core/x86_64/core.cpp
             core/x86_64/unwind.cpp
+            core/x86_64/thread_info.cpp
             core/x86/core.cpp
             core/x86/unwind.cpp
+            core/x86/thread_info.cpp
             core/common/elf.cpp
             core/common/note_block.cpp
             core/common/load_block.cpp

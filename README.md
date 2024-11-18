@@ -746,6 +746,17 @@ core-parser> f 6 -j
 ```
 
 ```
+core-parser> help regs
+Usage: register|regs [TID] [OPTION...]
+Option:
+    -s, --set <REGS>=<VALUE>    overwrite register value
+    -g, --get <REGS>            get target register value
+
+core-parser> regs --set rip=0x00000074e414e2a0
+New note overlay [7d6d8, 104073)
+```
+
+```
 core-parser> help remote
 Usage: remote <COMMAND> [OPTION...]
 Command:

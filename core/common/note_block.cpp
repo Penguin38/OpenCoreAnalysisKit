@@ -32,6 +32,7 @@ void NoteBlock::addFileItem(uint64_t begin, uint64_t end, uint64_t offset, uint6
 void NoteBlock::addThreadItem(void *thread) {
     if (thread) {
         std::unique_ptr<ThreadApi> api(reinterpret_cast<ThreadApi *>(thread));
+        api->Bind(this);
         mThread.push_back(std::move(api));
     }
 }
@@ -49,7 +50,7 @@ bool NoteBlock::newOverlay() {
 
 void NoteBlock::setOverlay(uint64_t addr, void *buf, uint64_t size) {
     if (newOverlay())
-        memcpy(reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - offset())), buf, size);
+        memcpy(reinterpret_cast<uint64_t *>(mOverlay->data() + (addr - oraddr())), buf, size);
 }
 
 void NoteBlock::removeOverlay() {
