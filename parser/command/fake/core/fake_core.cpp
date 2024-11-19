@@ -19,6 +19,7 @@
 #include "command/fake/core/fake_core.h"
 #include "command/fake/core/lp64/restore.h"
 #include "command/fake/core/lp32/restore.h"
+#include "tombstone/tombstone.h"
 #include <unistd.h>
 #include <getopt.h>
 
@@ -72,6 +73,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
             lp32::Restore::execute(filename.c_str());
         }
     } else if (tomb) {
+        android::Tombstone tombstone(tomb_file);
         // do nothing
     }
     return 0;

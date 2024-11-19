@@ -218,7 +218,10 @@ add_library(android STATIC
             android/logcat/LogBuffer.cpp
             android/logcat/SerializedLogBuffer.cpp
             android/logcat/SerializedData.cpp
-            android/logcat/LogStatistics.cpp)
+            android/logcat/LogStatistics.cpp
+
+            # tombstone
+            android/tombstone/tombstone.cpp)
 target_link_libraries(android core llvm)
 
 set(LINKER_PTHREAD "")
