@@ -28,6 +28,7 @@ public:
     uint64_t GetFramePc() { return frame_pc; }
     std::string& GetMethodName() { return frame_symbol.GetMethod(); }
     std::string& GetMethodSymbol() { return frame_symbol.GetSymbol(); }
+    LinkMap* GetLinkMap() { return map; }
     uint64_t GetMethodOffset();
     uint64_t GetMethodSize();
     std::string GetLibrary();
