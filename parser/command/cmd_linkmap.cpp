@@ -98,7 +98,7 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
                 pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
                 block->convertFlags().c_str(), name.c_str(), valid.c_str());
     } else {
-        LOGW("%3d 0x%lx  [%lx, %lx)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->begin(), map->name());
+        LOGW("%3d 0x%lx  [%lx, ----)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->name());
     }
 }
 
