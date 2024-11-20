@@ -90,7 +90,13 @@ void UnwindStack::FpBacktrace(Register& regs) {
         cur_frame_pc_ = regs.lr;
         if (!vdso || !vdso->virtualContains(cur_frame_pc_))
             cur_frame_pc_ -= 0x4;
-        VisitFrame();
+
+        api::MemoryRef fp = cur_frame_fp_;
+        fp.Prepare(false);
+        LoadBlock* block = fp.Block();
+        if (!block || (regs.lr != fp.value64Of(8)))
+            VisitFrame();
+
     } catch(InvalidAddressException e) {
         // do nothing
     }
