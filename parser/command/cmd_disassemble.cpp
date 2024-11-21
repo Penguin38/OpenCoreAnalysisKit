@@ -115,7 +115,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
         std::unique_ptr<NativeFrame> frame = std::make_unique<NativeFrame>(0, 0, Utils::atol(symbol));
         frame->Decode();
         symbol = frame->GetMethodSymbol().data();
-        callback(frame->GetLinkMap());
+        if (frame->GetLinkMap()) callback(frame->GetLinkMap());
     }
 
     return 0;
