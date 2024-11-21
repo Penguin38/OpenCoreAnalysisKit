@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-#include "llvm.h"
-#include "cxx/string.h"
-#include "cxx/vector.h"
-#include "cxx/map.h"
-#include "cxx/list.h"
-#include "cxx/unordered_map.h"
-#include "cxx/deque.h"
-#include "cxx/split_buffer.h"
+#include "api/core.h"
 #include "cxx/mutex.h"
 
-void LLVM::Init() {
-    cxx::string::Init();
-    cxx::vector::Init();
-    cxx::map::Init();
-    cxx::map::pair::Init();
-    cxx::list::Init();
-    cxx::unordered_map::Init();
-    cxx::deque::Init();
-    cxx::split_buffer::Init();
-    cxx::mutex::Init();
+struct cxx_mutex_OffsetTable __cxx_mutex_offset__;
+struct cxx_mutex_SizeTable __cxx_mutex_size__;
+
+namespace cxx {
+
+void mutex::Init() {
+    __cxx_mutex_offset__ = {
+        .__m_ = 0,
+    };
+
+    if (CoreApi::Bits() == 64) {
+        __cxx_mutex_size__ = {
+            .THIS = 40,
+        };
+    } else {
+        __cxx_mutex_size__ = {
+            .THIS = 16,
+        };
+    }
 }
+
+} // namespace cxx

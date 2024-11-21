@@ -101,7 +101,8 @@ add_library(llvm STATIC
             llvm/cxx/list.cpp
             llvm/cxx/unordered_map.cpp
             llvm/cxx/deque.cpp
-            llvm/cxx/split_buffer.cpp)
+            llvm/cxx/split_buffer.cpp
+            llvm/cxx/mutex.cpp)
 target_link_libraries(llvm core)
 
 include_directories(android)
