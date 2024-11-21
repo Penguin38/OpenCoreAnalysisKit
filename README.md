@@ -116,8 +116,9 @@ core-parser> help
       thread     backtrace         frame   disassemble       getprop
        print         hprof        search         class           top
        space           dex        method        logcat       dumpsys
-         env           cxx         shell        plugin          help
-      remote          fake          time       version          quit
+     fdtrack           env           cxx         scudo         shell
+      plugin          help        remote          fake          time
+     version          quit
 ```
 
 ```

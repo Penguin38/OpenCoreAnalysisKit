@@ -222,7 +222,11 @@ add_library(android STATIC
             android/logcat/LogStatistics.cpp
 
             # tombstone
-            android/tombstone/tombstone.cpp)
+            android/tombstone/tombstone.cpp
+
+            # fdtrack
+            android/fdtrack/fdtrack.cpp
+            android/unwindstack/Unwinder.cpp)
 target_link_libraries(android core llvm)
 
 set(LINKER_PTHREAD "")
@@ -262,10 +266,12 @@ add_library(parser STATIC
             parser/command/cmd_method.cpp
             parser/command/cmd_logcat.cpp
             parser/command/cmd_dumpsys.cpp
+            parser/command/cmd_fdtrack.cpp
             parser/command/cmd_env.cpp
             parser/command/cmd_shell.cpp
             parser/command/cmd_plugin.cpp
             parser/command/cmd_cxx.cpp
+            parser/command/cmd_scudo.cpp
             parser/command/remote/cmd_remote.cpp
             parser/command/remote/opencore/opencore.cpp
             parser/command/remote/opencore/lp64/opencore.cpp

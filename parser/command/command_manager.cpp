@@ -43,6 +43,8 @@
 #include "command/cmd_dumpsys.h"
 #include "command/cmd_env.h"
 #include "command/cmd_cxx.h"
+#include "command/cmd_fdtrack.h"
+#include "command/cmd_scudo.h"
 #include "command/cmd_shell.h"
 #include "command/remote/cmd_remote.h"
 #include "command/fake/cmd_fake.h"
@@ -96,11 +98,13 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new MethodCommand());
     CommandManager::PushInlineCommand(new LogcatCommand());
     CommandManager::PushInlineCommand(new DumpsysCommand());
+    CommandManager::PushInlineCommand(new FdtrackCommand());
 #endif
 
     // other
     CommandManager::PushInlineCommand(new EnvCommand());
     CommandManager::PushInlineCommand(new CxxCommand());
+    CommandManager::PushInlineCommand(new ScudoCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
     INSTANCE->plugin = new PluginCommand();
     CommandManager::PushInlineCommand(INSTANCE->plugin);

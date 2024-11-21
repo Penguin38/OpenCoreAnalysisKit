@@ -20,6 +20,8 @@
 #include "common/bit.h"
 #include "common/elf.h"
 #include "android.h"
+#include "fdtrack/fdtrack.h"
+#include "unwindstack/Unwinder.h"
 #include "properties/property.h"
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/string.h"
@@ -204,6 +206,8 @@ void Android::init() {
 
 void Android::preLoad() {
     android::Property::Init();
+    android::FdEntry::Init();
+    unwindstack::FrameData::Init();
 
     art::ArtField::Init();
     art::LengthPrefixedArray::Init();
