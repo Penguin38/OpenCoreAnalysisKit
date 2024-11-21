@@ -33,9 +33,12 @@ bool Env::setCurrentPid(int p) {
 void Env::init() {
     auto callback = [&](ThreadApi *api) -> bool {
         pid = api->pid();
+        if (CoreApi::IsRemote())
+            remote_pid = pid;
         return true;
     };
     CoreApi::ForeachThread(callback);
+
 }
 
 void Env::Init() {
@@ -43,10 +46,6 @@ void Env::Init() {
         INSTANCE = new Env();
         INSTANCE->init();
     }
-}
-
-void Env::reset() {
-    setCurrentPid(0);
 }
 
 void Env::Clean() {

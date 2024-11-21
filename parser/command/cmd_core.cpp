@@ -22,7 +22,11 @@
 #include "api/core.h"
 
 int CoreCommand::Load(const char* path) {
-    bool ret = CoreApi::Load(path);
+    return Load(path, false);
+}
+
+int CoreCommand::Load(const char* path, bool remote) {
+    bool ret = CoreApi::Load(path, remote);
     if (ret) {
         CoreApi::Init();
         CoreApi::Dump();

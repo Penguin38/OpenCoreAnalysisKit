@@ -26,6 +26,7 @@ public:
     int main(int argc, char* const argv[]);
     void usage();
     static int Load(const char* path);
+    static int Load(const char* path, bool remote);
 };
 
 #endif // PARSER_COMMAND_CMD_CORE_H_

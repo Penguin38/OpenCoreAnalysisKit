@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "base/utils.h"
+#include "api/core.h"
 #include "command/env.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/opencore/x86_64/opencore.h"
@@ -48,6 +49,8 @@ int Opencore::Dump(int argc, char* const argv[]) {
     };
 
     int pid = 0;
+    if (CoreApi::IsRemote())
+        pid = Env::CurrentRemotePid();
     int filter = FILTER_SPECIAL_VMA
                | FILTER_SANITIZER_SHADOW_VMA
                | FILTER_NON_READ_VMA;

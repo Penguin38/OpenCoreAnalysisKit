@@ -16,8 +16,10 @@
 
 #include "logger/log.h"
 #include "base/utils.h"
+#include "api/core.h"
 #include "common/bit.h"
 #include "common/elf.h"
+#include "command/env.h"
 #include "command/remote/cmd_remote.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/hook.h"
@@ -68,6 +70,8 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     };
 
     int pid = 0;
+    if (CoreApi::IsRemote())
+        pid = Env::CurrentRemotePid();
     uint64_t end = 0;
     while ((opt = getopt_long(argc, argv, "p:e:",
                 long_options, &option_index)) != -1) {
@@ -108,10 +112,10 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     int count = RoundUp((end - begin) / 8, 2);
     if (begin >= end || !count) {
         std::string ascii = Utils::ConvertAscii(*value, 8);
-        LOGI("%lx: %016lx  %s\n", begin, (*value), ascii.c_str());
+        LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %s\n", begin, (*value), ascii.c_str());
     } else {
         for (int i = 0; i < count && i < 512; i += 2) {
-            LOGI("%lx: %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
+            LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
                     Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
         }
     }
@@ -130,6 +134,8 @@ int RemoteCommand::OptionWrite(int argc, char* const argv[]) {
     };
 
     int pid = 0;
+    if (CoreApi::IsRemote())
+        pid = Env::CurrentRemotePid();
     char* buf = nullptr;
     uint64_t value = 0x0;
     while ((opt = getopt_long(argc, argv, "s:v:p:",

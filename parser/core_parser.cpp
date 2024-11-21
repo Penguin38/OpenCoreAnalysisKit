@@ -109,6 +109,7 @@ int command_preload(int argc, char* const argv[]) {
     char* machine = const_cast<char *>(NONE_MACHINE);
     int current_sdk = 0;
     int pid = 0;
+    bool remote = false;
     while ((opt = getopt_long(argc, argv, "c:1:p:m:h",
                 long_options, &option_index)) != -1) {
         switch (opt) {
@@ -122,6 +123,7 @@ int command_preload(int argc, char* const argv[]) {
                 machine = optarg;
                 break;
             case 'p':
+                remote = true;
                 pid = atoi(optarg);
                 break;
             case 2:
@@ -154,7 +156,7 @@ int command_preload(int argc, char* const argv[]) {
     }
 
     if (corefile) {
-        if (CoreCommand::Load(corefile)) {
+        if (CoreCommand::Load(corefile, remote)) {
 #if defined(__AOSP_PARSER__)
             if (current_sdk) Android::OnSdkChanged(current_sdk);
 #endif

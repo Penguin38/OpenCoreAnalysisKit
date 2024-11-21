@@ -44,6 +44,10 @@ bool CoreApi::IsReady() {
 }
 
 bool CoreApi::Load(const char* corefile) {
+    return Load(corefile, false);
+}
+
+bool CoreApi::Load(const char* corefile, bool remote) {
     UnLoad();
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(corefile));
     if (map) {
@@ -79,8 +83,10 @@ bool CoreApi::Load(const char* corefile) {
                 break;
         }
 
-        if (INSTANCE)
+        if (INSTANCE) {
+            INSTANCE->mRemote = remote;
             return INSTANCE->load();
+        }
     }
     return false;
 }

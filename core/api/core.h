@@ -90,6 +90,7 @@ class CoreApi {
 public:
     static bool IsReady();
     static bool Load(const char* corefile);
+    static bool Load(const char* corefile, bool remote);
     static void UnLoad();
     static uint64_t GetBegin() { return INSTANCE->begin(); }
     static uint64_t GetDebugPtr() { return INSTANCE->r_debug_ptr(); }
@@ -101,7 +102,7 @@ public:
     static uint64_t GetPointMask();
     static uint64_t GetVabitsMask();
     static uint64_t GetPageSize() { return INSTANCE->getPageSize(); }
-    static bool IsRemote() { return INSTANCE->isRemote(); }
+    static bool IsRemote() { return IsReady() && INSTANCE->isRemote(); }
     static std::vector<std::shared_ptr<LoadBlock>>& GetLoads(bool quick) {
         return INSTANCE->getLoads(quick);
     }

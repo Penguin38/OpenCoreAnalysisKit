@@ -60,10 +60,8 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
     if (restore) {
         std::string filename;
         if (!output) {
-            if (!CoreApi::IsRemote()) {
-                filename = CoreApi::GetName();
-                filename.append(".fakecore");
-            }
+            filename = CoreApi::GetName();
+            filename.append(".fakecore");
         } else {
             filename = output;
         }
