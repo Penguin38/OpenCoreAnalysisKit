@@ -764,7 +764,7 @@ Command:
     core    hook    rd    wd
     pause   setprop
 
-Usage: remote core -p <PID> [-m <MACHINE>] [OPTION...]
+Usage: remote core [-p <PID>] [-m <MACHINE>] [OPTION...]
 Option:
     -p, --pid <PID>           set target pid
     -d, --dir <DIR>           set target dir
@@ -794,10 +794,10 @@ Core env: /data/core.init_1_1718900269
   * Thread: 1
   ...
 
-remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>
+remote wd [-p <PID>] <ADDRESS> [-s|-v] <VALUE>
 core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo
 
-remote rd -p <PID> <BEGIN_ADDR> -e <END_ADDR>
+remote rd [-p <PID>] <BEGIN_ADDR> -e <END_ADDR>
 core-parser> remote rd -p 1 7fb989794000 -e 7fb989794030
 7fb989794000: 4c6e6975676e6550  0000006f47737465  PenguinLetsGo...
 7fb989794010: 00000001003e0003  0000000000068ab0  ..>.............
@@ -929,33 +929,28 @@ Type:
     string          vector    map
     unordered_map   list      deque
 Option:
-    -e, --entry-size    only list set entry-size
+    -e, --entry-size    only vector set entry-size
     -b, block-size      only deque set block-size
 
 core-parser> cxx string 0x79191ce66ed8
 /apex/com.android.art/javalib/x86_64/boot-okhttp.art
 
-core-parser> cxx list 0x7919dce6b430 --entry-size 8
-[0] 0x79187ce8b9e0
-[1] 0x79187cea2450
-[2] 0x79187ce9d6e0
-[3] 0x79187ceb0580
-[4] 0x79187ceac3b0
-[5] 0x79187ce8c940
-[6] 0x79187ce984f0
-[7] 0x79187ceac1a0
-[8] 0x79187ceac830
-[9] 0x79187ceba570
-[10] 0x79187cea1400
-[11] 0x79187ceab7e0
-[12] 0x79187ce9e7f0
-[13] 0x79187ceab6f0
-[14] 0x79187ce99ed0
-[15] 0x79187ceabbd0
-[16] 0x79187ceaefc0
-[17] 0x79187ceaf590
-[18] 0x79187ceaed50
-[19] 0x79187ce8bc80
+core-parser> cxx vector 0x79196ce6d3c0 --entry-size 8
+[0] 0x7918cce67d80
+[1] 0x7918cce67d88
+[2] 0x7918cce67d90
+[3] 0x7918cce67d98
+[4] 0x7918cce67da0
+[5] 0x7918cce67da8
+[6] 0x7918cce67db0
+[7] 0x7918cce67db8
+[8] 0x7918cce67dc0
+[9] 0x7918cce67dc8
+[10] 0x7918cce67dd0
+[11] 0x7918cce67dd8
+[12] 0x7918cce67de0
+[13] 0x7918cce67de8
+[14] 0x7918cce67df0
 ```
 
 # Plugin

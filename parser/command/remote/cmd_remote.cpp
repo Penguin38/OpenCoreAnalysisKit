@@ -224,10 +224,10 @@ void RemoteCommand::usage() {
     Opencore::Usage();
     ENTER();
     // Hook::Usage();
-    LOGI("remote wd -p <PID> <ADDRESS> [-s|-v] <VALUE>\n");
+    LOGI("remote wd [-p <PID>] <ADDRESS> [-s|-v] <VALUE>\n");
     LOGI("core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo\n");
     ENTER();
-    LOGI("remote rd -p <PID> <BEGIN_ADDR> -e <END_ADDR>\n");
+    LOGI("remote rd [-p <PID>] <BEGIN_ADDR> -e <END_ADDR>\n");
     LOGI("core-parser> remote rd -p 1 7fb989794000 -e 7fb989794030\n");
     LOGI("7fb989794000: 4c6e6975676e6550  0000006f47737465  PenguinLetsGo...\n");
     LOGI("7fb989794010: 00000001003e0003  0000000000068ab0  ..>.............\n");

@@ -308,7 +308,7 @@ std::string Opencore::DecodeMachine(int pid) {
 }
 
 void Opencore::Usage() {
-    LOGI("Usage: remote core -p <PID> [-m <MACHINE>] [OPTION...]\n");
+    LOGI("Usage: remote core [-p <PID>] [-m <MACHINE>] [OPTION...]\n");
     LOGI("Option:\n");
     LOGI("    -p, --pid <PID>           set target pid\n");
     LOGI("    -d, --dir <DIR>           set target dir\n");
