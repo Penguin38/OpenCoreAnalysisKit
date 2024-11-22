@@ -815,7 +815,8 @@ Command:
 Usage: fake core <OPTION...>
 Option:
     -t, --tomb <TOMBSTONE>    build tombstone fakecore
-    -r, --rebuild             rebuild current environment core.
+    -r, --rebuild             rebuild current environment core
+    -m, --map                 overlay linkmap's name on rebuild
     -o, --output <COREFILE>   set current fakecore path
 
 core-parser> fake core -r

@@ -15,17 +15,9 @@
  */
 
 #include "logger/log.h"
-#include "api/core.h"
 #include "command/fake/map/fake_map.h"
 
 int FakeLinkMap::OptionMap(int argc, char* const argv[]) {
-    auto callback = [&](LinkMap* map) -> bool {
-        if (map->l_name()) {
-            CoreApi::Write(map->l_name(), (void *)map->name(), strlen(map->name()) + 1);
-        }
-        return false;
-    };
-    CoreApi::ForeachLinkMap(callback);
     return 0;
 }
 

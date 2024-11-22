@@ -32,14 +32,16 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         {"tomb",        required_argument, 0, 't'},
         {"rebuild",     no_argument,       0, 'r'},
         {"output",      required_argument, 0, 'o'},
+        {"map",         no_argument,       0, 'm'},
     };
 
     bool tomb = false;
     char* tomb_file = nullptr;
     bool restore = false;
     char* output = nullptr;
+    bool need_overlay_map = false;
 
-    while ((opt = getopt_long(argc, argv, "t:ro:",
+    while ((opt = getopt_long(argc, argv, "t:ro:m",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 't':
@@ -54,10 +56,24 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
             case 'o':
                 output = optarg;
                 break;
+            case 'm':
+                need_overlay_map = true;
+                break;
         }
     }
 
     if (restore) {
+        if (need_overlay_map) {
+            auto callback = [&](LinkMap* map) -> bool {
+                if (map->l_name()) {
+                    CoreApi::Write(map->l_name(),
+                                   (void *)map->name(),
+                                   strlen(map->name()) + 1);
+                }
+                return false;
+            };
+            CoreApi::ForeachLinkMap(callback);
+        }
         std::string filename;
         if (!output) {
             filename = CoreApi::GetName();
@@ -81,7 +97,8 @@ void FakeCore::Usage() {
     LOGI("Usage: fake core <OPTION...>\n");
     LOGI("Option:\n");
     LOGI("    -t, --tomb <TOMBSTONE>    build tombstone fakecore\n");
-    LOGI("    -r, --rebuild             rebuild current environment core.\n");
+    LOGI("    -r, --rebuild             rebuild current environment core\n");
+    LOGI("    -m, --map                 overlay linkmap's name on rebuild\n");
     LOGI("    -o, --output <COREFILE>   set current fakecore path\n");
     ENTER();
     LOGI("core-parser> fake core -r\n");
