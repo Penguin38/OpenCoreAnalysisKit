@@ -15,6 +15,7 @@
  */
 
 #include "runtime/thread_list.h"
+#include "common/exception.h"
 
 struct ThreadList_OffsetTable __ThreadList_offset__;
 struct ThreadList_SizeTable __ThreadList_size__;
@@ -37,11 +38,14 @@ cxx::list& ThreadList::GetListCache() {
 
 std::list<std::unique_ptr<Thread>>& ThreadList::GetList() {
     if (!list_second_cache.size()) {
-        for (const auto& value : GetListCache()) {
-            api::MemoryRef ref = value;
-            std::unique_ptr<Thread> thread = std::make_unique<Thread>(ref.valueOf());
-            list_second_cache.push_back(std::move(thread));
-        }
+        try {
+            for (const auto& value : GetListCache()) {
+                api::MemoryRef ref = value;
+                std::unique_ptr<Thread> thread = std::make_unique<Thread>(ref.valueOf());
+                if (thread->IsValid())
+                    list_second_cache.push_back(std::move(thread));
+            }
+        } catch (InvalidAddressException e) {}
     }
     return list_second_cache;
 }
