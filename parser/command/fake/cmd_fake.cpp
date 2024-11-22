@@ -18,6 +18,7 @@
 #include "command/fake/cmd_fake.h"
 #include "command/fake/core/fake_core.h"
 #include "command/fake/map/fake_map.h"
+#include "command/fake/load/fake_load_block.h"
 #include "command/fake/stack/fake_java_stack.h"
 #include <unistd.h>
 #include <getopt.h>
@@ -33,6 +34,7 @@ static FakeOption fake_option[] = {
     { "core", FakeCore::OptionCore, true },
     { "map", FakeLinkMap::OptionMap, false },
     { "stack", FakeJavaStack::OptionJavaStack, false },
+    { "load", FakeLoadBlock::OptionLoad, false },
 };
 
 bool FakeCommand::prepare(int argc, char* const argv[]) {
@@ -69,11 +71,12 @@ int FakeCommand::main(int argc, char* const argv[]) {
 void FakeCommand::usage() {
     LOGI("Usage: fake <COMMAND> [OPTION...]\n");
     LOGI("Command:\n");
-    LOGI("    core    map    stack\n");
+    LOGI("    core    map    load    stack\n");
     ENTER();
     FakeCore::Usage();
     ENTER();
     FakeLinkMap::Usage();
+    FakeLoadBlock::Usage();
     ENTER();
     FakeJavaStack::Usage();
 }

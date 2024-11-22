@@ -77,26 +77,9 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
         } else {
             name = map->name();
         }
-        std::string valid;
-        if (block->isValid()) {
-            valid.append("[*]");
-            if (block->isOverlayBlock()) {
-                valid.append("(OVERLAY)");
-            } else if (block->isMmapBlock()) {
-                valid.append("(MMAP");
-                if (block->GetMmapOffset()) {
-                    valid.append(" ");
-                    valid.append(Utils::ToHex(block->GetMmapOffset()));
-                }
-                valid.append(")");
-            }
-        } else {
-            valid.append("[EMPTY]");
-        }
-
         LOGI("%3d " ANSI_COLOR_YELLOW "0x%lx" ANSI_COLOR_CYAN "  [%lx, %lx)" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
                 pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
-                block->convertFlags().c_str(), name.c_str(), valid.c_str());
+                block->convertFlags().c_str(), name.c_str(), block->convertValids().c_str());
     } else {
         LOGW("%3d 0x%lx  [%lx, ----)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->name());
     }

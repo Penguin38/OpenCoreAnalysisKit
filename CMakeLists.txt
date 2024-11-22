@@ -287,6 +287,7 @@ add_library(parser STATIC
             parser/command/fake/core/lp64/restore.cpp
             parser/command/fake/core/lp32/restore.cpp
             parser/command/fake/map/fake_map.cpp
+            parser/command/fake/load/fake_load_block.cpp
             parser/command/fake/stack/fake_java_stack.cpp
             parser/command/backtrace/cmd_backtrace.cpp
             parser/command/backtrace/cmd_frame.cpp)

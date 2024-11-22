@@ -21,6 +21,7 @@
 #include "common/syment.h"
 #include "base/memory_map.h"
 #include "base/macros.h"
+#include "base/utils.h"
 #include <string>
 #include <memory>
 #include <unordered_set>
@@ -60,6 +61,29 @@ public:
             return (raddr >= oraddr() && raddr < (oraddr() + size()));
         }
         return false;
+    }
+
+    inline std::string convertValids() {
+        std::string valid;
+        if (isValid()) {
+            valid.append("[*]");
+            if (isMmapBlock()) {
+                valid.append("(MMAP");
+                if (GetMmapOffset()) {
+                    valid.append(" ");
+                    valid.append(Utils::ToHex(GetMmapOffset()));
+                }
+                valid.append(")");
+            }
+            if (isOverlayBlock()) {
+                valid.append("(OVERLAY)");
+                if (isFake())
+                    valid.append("(FAKE)");
+            }
+        } else {
+            valid.append("[EMPTY]");
+        }
+        return valid;
     }
 
     LoadBlock(uint32_t f, uint64_t off, uint64_t va, uint64_t pa,

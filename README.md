@@ -810,7 +810,7 @@ remote pause <PID ...> [-a]
 core-parser> help fake
 Usage: fake <COMMAND> [OPTION...]
 Command:
-    core    map    stack
+    core    map    load    stack
 
 Usage: fake core <OPTION...>
 Option:
@@ -823,6 +823,13 @@ core-parser> fake core -r
 FakeCore: saved [core.opencore.tester_6118_Thread-2_6146_1720691326.fakecore]
 
 Usage: fake map
+Usage: fake load <OPTION>
+Option:
+    -v, --vaddr      if vaddr is NULL, then parser chooses address
+    -s, --size       set load block size
+
+core-parser> fake load --vaddr 7fd10b0000 --size 0x4000
+New overlay [7fd10b0000, 7fd10b4000)
 
 Usage: fake stack --pc <PC> --sp <SP> [OPTION]
 Option:

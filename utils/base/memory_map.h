@@ -27,23 +27,26 @@ public:
     static MemoryMap* MmapFile(const char* file, uint64_t off);
     static MemoryMap* MmapFile(const char* file, uint64_t size, uint64_t off);
     static MemoryMap* MmapMem(uint64_t addr, uint64_t size);
+    static MemoryMap* MmapMem(uint64_t addr, uint64_t size, uint64_t realSize);
     static MemoryMap* MmapZeroMem(uint64_t size);
     inline uint64_t data() { return reinterpret_cast<uint64_t>(mBegin); }
     inline uint64_t size() { return mSize; }
     inline uint64_t offset() { return mOffset; }
+    inline uint64_t realSize() { return mMaxSize; }
     inline std::string& getName() { return mName; }
     uint32_t GetCRC32();
     ~MemoryMap();
 private:
     static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);
-    MemoryMap(void *m, uint64_t s, uint64_t off)
-        : mBegin(m), mSize(s), mOffset(off), mCRC32(0x0) {}
+    MemoryMap(void *m, uint64_t s, uint64_t off, uint64_t max)
+        : mBegin(m), mSize(s), mOffset(off), mCRC32(0x0), mMaxSize(max) {}
 
     std::string mName;
     void* mBegin;
     uint64_t mSize;
     uint64_t mOffset;
     uint32_t mCRC32;
+    uint64_t mMaxSize;
 };
 
 #endif  // UTILS_BASE_MEMORY_MAP_H_

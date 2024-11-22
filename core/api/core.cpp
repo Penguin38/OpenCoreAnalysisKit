@@ -22,6 +22,7 @@
 #include "riscv64/core.h"
 #include "x86_64/core.h"
 #include "x86/core.h"
+#include "common/bit.h"
 #include "common/elf.h"
 #include "common/exception.h"
 #include "base/utils.h"
@@ -143,32 +144,79 @@ std::string& CoreApi::getName() {
     return mCore->getName();
 }
 
-uint64_t CoreApi::NewLoadBlock(uint64_t size) {
-    return INSTANCE->newLoadBlock(size);
+uint64_t CoreApi::NewLoadBlock(uint64_t vaddr, uint64_t size) {
+    return INSTANCE->newLoadBlock(vaddr, size);
 }
 
-uint64_t CoreApi::newLoadBlock(uint64_t size) {
-    if (mLoad.empty()) return 0x0;
-
-    uint64_t begin = 0x0;
+uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size) {
     int idxInLoad = 0;
     int idxInQuick = 0;
-    std::shared_ptr<LoadBlock> left = mLoad[0];
-    for (int idx = 1; idx < mLoad.size(); ++idx) {
-        std::shared_ptr<LoadBlock> right = mLoad[idx];
-        if (right->vaddr() - (left->vaddr() + left->size()) >= size) {
-            idxInLoad = idx;
-            begin = left->vaddr() + left->size();
-            break;
-        } else {
-            left = right;
-        }
-    }
-    if (!begin) return 0x0;
 
-    for (; idxInQuick < mQuickLoad.size(); ++idxInQuick) {
-        if (mQuickLoad[idxInQuick]->vaddr() > begin)
-            break;
+    uint64_t begin = RoundUp(vaddr & getVabitsMask(), ELF_PAGE_SIZE);
+    uint64_t size = RoundUp(old_size, ELF_PAGE_SIZE);
+
+    if (!size) {
+        LOGE("Can not fake malloc size 0x%lx\n", size);
+        return 0;
+    }
+
+    if (mLoad.empty()) {
+        if (!begin) begin = FAKE_LOAD_BEGIN;
+        if ((begin + size) > getVabitsMask()) {
+            LOGE("Can not fake malloc size 0x%lx\n", size);
+            return 0;
+        }
+    } else {
+        LoadBlock* block = findLoadBlock(begin, false);
+        if (block) {
+            LOGE("Can not fake malloc vaddr 0x%lx\n", begin);
+            return 0;
+        }
+
+        if (begin) {
+            for (; idxInLoad < mLoad.size(); ++idxInLoad) {
+                if (mLoad[idxInLoad]->vaddr() > begin || idxInLoad == mLoad.size() - 1) {
+                    uint64_t endaddr = mLoad[idxInLoad]->vaddr();
+                    if (idxInLoad == mLoad.size() - 1)
+                        endaddr = getVabitsMask();
+                    if ((begin + size) > endaddr) {
+                        LOGE("Can not fake malloc vaddr 0x%lx, size(0x%lx) bigger.\n", begin, size);
+                        return 0;
+                    }
+                    break;
+                }
+            }
+
+            for (; idxInQuick < mQuickLoad.size(); ++idxInQuick) {
+                if (mQuickLoad[idxInQuick]->vaddr() > begin)
+                    break;
+            }
+        } else {
+            std::shared_ptr<LoadBlock> left = mLoad[0];
+            if (FAKE_LOAD_BEGIN + size <= left->vaddr()) {
+                begin = FAKE_LOAD_BEGIN;
+            } else {
+                for (int idx = 1; idx < mLoad.size(); ++idx) {
+                    std::shared_ptr<LoadBlock> right = mLoad[idx];
+                    if (right->vaddr() - (left->vaddr() + left->size()) >= size) {
+                        idxInLoad = idx;
+                        begin = left->vaddr() + left->size();
+                        break;
+                    } else {
+                        left = right;
+                    }
+                }
+                if (!begin) {
+                    LOGE("Can not fake malloc size 0x%lx\n", size);
+                    return 0x0;
+                }
+
+                for (; idxInQuick < mQuickLoad.size(); ++idxInQuick) {
+                    if (mQuickLoad[idxInQuick]->vaddr() > begin)
+                        break;
+                }
+            }
+        }
     }
 
     std::shared_ptr<LoadBlock> block(new LoadBlock(Block::FLAG_R | Block::FLAG_W,  // flag

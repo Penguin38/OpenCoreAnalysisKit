@@ -272,25 +272,9 @@ int EnvCommand::showLoadEnv(bool quick) {
         } else {
             name.append("[]");
         }
-        std::string valid;
-        if (block->isValid()) {
-            valid.append("[*]");
-            if (block->isOverlayBlock()) {
-                valid.append("(OVERLAY)");
-            } else if (block->isMmapBlock()) {
-                valid.append("(MMAP");
-                if (block->GetMmapOffset()) {
-                    valid.append(" ");
-                    valid.append(Utils::ToHex(block->GetMmapOffset()));
-                }
-                valid.append(")");
-            }
-        } else {
-            valid.append("[EMPTY]");
-        }
         LOGI("  %-5d " ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %s  %010lx  ""%s"" %s\n",
                 index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
-                block->realSize(), name.c_str(), valid.c_str());
+                block->realSize(), name.c_str(), block->convertValids().c_str());
         return false;
     };
     LOGI(ANSI_COLOR_LIGHTRED "INDEX   REGION               FLAGS FILESZ      PATH\n" ANSI_COLOR_RESET);

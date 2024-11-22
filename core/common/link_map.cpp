@@ -93,6 +93,7 @@ const char* LinkMap::name() {
 }
 
 LoadBlock* LinkMap::block() {
+    GetAddrCache().Prepare(false);
     return GetAddrCache().Block();
 }
 

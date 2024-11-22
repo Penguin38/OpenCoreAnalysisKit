@@ -88,6 +88,8 @@ static constexpr int OPT_READ_ALL = LoadBlock::OPT_READ_ALL;
 
 class CoreApi {
 public:
+    static constexpr uint64_t FAKE_LOAD_BEGIN = 0x100000;
+
     static bool IsReady();
     static bool Load(const char* corefile);
     static bool Load(const char* corefile, bool remote);
@@ -165,7 +167,10 @@ public:
     }
     static uint64_t DlSym(const char* path, const char* symbol);
     static void ForeachThread(std::function<bool (ThreadApi *)> callback);
-    static uint64_t NewLoadBlock(uint64_t size);
+    static uint64_t NewLoadBlock(uint64_t size) {
+        return NewLoadBlock(0x0, size);
+    }
+    static uint64_t NewLoadBlock(uint64_t vaddr, uint64_t size);
     static void RegisterSysRootListener(std::function<void (LinkMap *)> fn) {
         INSTANCE->mSysRootCallback = fn;
     }
@@ -230,7 +235,7 @@ public:
     void foreachAuxv(std::function<bool (Auxv *)> callback);
     void foreachLinkMap(std::function<bool (LinkMap *)> callback);
     void foreachLoadBlock(std::function<bool (LoadBlock *)> callback, bool check, bool quick);
-    uint64_t newLoadBlock(uint64_t size);
+    uint64_t newLoadBlock(uint64_t vaddr, uint64_t size);
     uint64_t getPageSize();
     inline std::vector<std::shared_ptr<LoadBlock>>& getLoads(bool quick) {
         return quick? mQuickLoad : mLoad;

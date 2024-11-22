@@ -32,42 +32,52 @@ MemoryMap* MemoryMap::MmapFile(const char* file, uint64_t off) {
     if (stat(file, &sb) == -1)
         return nullptr;
 
+    if (off >= sb.st_size)
+        return nullptr;
+
     return MmapFile(file, sb.st_size - off, off);
 }
 
 MemoryMap* MemoryMap::MmapFile(const char* file, uint64_t size, uint64_t off) {
-    int fd;
-    struct stat sb;
-
-    fd = open(file, O_RDONLY);
+    int fd = open(file, O_RDONLY);
     if (fd == -1)
         return nullptr;
 
     MemoryMap *map = MmapFile(fd, size, off);
     close(fd);
-    if (map) {
-        map->mName = file;
-    }
+    if (map) map->mName = file;
     return map;
 }
 
 MemoryMap* MemoryMap::MmapFile(int fd, uint64_t size, uint64_t off) {
     MemoryMap *map = nullptr;
+    struct stat sb;
     if (fd > 0) {
+        if (fstat(fd, &sb) == -1)
+            return nullptr;
+
+        if (off >= sb.st_size)
+            return nullptr;
+
         void* mem = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, off);
         if (mem != MAP_FAILED) {
-            map = new MemoryMap(mem, size, off);
+            uint64_t real_size = std::min(size, sb.st_size - off);
+            map = new MemoryMap(mem, size, off, real_size);
         }
     }
     return map;
 }
 
 MemoryMap* MemoryMap::MmapMem(uint64_t addr, uint64_t size) {
+    return MmapMem(addr, size, size);
+}
+
+MemoryMap* MemoryMap::MmapMem(uint64_t addr, uint64_t size, uint64_t realSize) {
     MemoryMap *map = nullptr;
     void* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, 0, 0);
     if (mem != MAP_FAILED) {
-        map = new MemoryMap(mem, size, 0);
-        memcpy(mem, reinterpret_cast<void *>(addr), size);
+        map = new MemoryMap(mem, size, 0, size);
+        memcpy(mem, reinterpret_cast<void *>(addr), realSize);
     }
     return map;
 }
@@ -76,7 +86,7 @@ MemoryMap* MemoryMap::MmapZeroMem(uint64_t size) {
     MemoryMap *map = nullptr;
     void* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, 0, 0);
     if (mem != MAP_FAILED) {
-        map = new MemoryMap(mem, size, 0);
+        map = new MemoryMap(mem, size, 0, size);
         memset(mem, 0x0, size);
     }
     return map;

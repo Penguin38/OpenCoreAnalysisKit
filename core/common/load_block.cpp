@@ -22,8 +22,12 @@
 void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, size(), offset));
     if (map) {
-        mMmap = std::move(map);
         LOGI("Mmap segment [%lx, %lx) %s [%lx]\n", vaddr(), vaddr() + size(), file, offset);
+        if (isFake() || isOverlayBlock())
+            memcpy(reinterpret_cast<uint64_t *>(mOverlay->data()),
+                   reinterpret_cast<uint64_t *>(map->data()),
+                   map->realSize());
+        mMmap = std::move(map);
     }
 }
 
@@ -31,7 +35,8 @@ bool LoadBlock::newOverlay() {
     if (!mOverlay) {
         std::unique_ptr<MemoryMap> map;
         if (isValid()) {
-            std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapMem(begin(), size()));
+            std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapMem(
+                begin(), size(), !isMmapBlock()? size() : mMmap->realSize()));
             map = std::move(tmp);
         } else {
             std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapZeroMem(size()));
@@ -72,6 +77,10 @@ void LoadBlock::removeOverlay() {
 }
 
 bool LoadBlock::CheckCanMmap(uint64_t header) {
+    /** fake load */
+    if (isFake())
+        return true;
+
     /** --- */
     if (!flags())
         return false;
