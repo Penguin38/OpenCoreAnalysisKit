@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+#include "logger/log.h"
 #include "api/core.h"
 #include "android.h"
+#include "common/exception.h"
 #include "runtime/gc/space/region_space.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/object.h"
@@ -217,7 +219,11 @@ void RegionSpace::WalkInternal(std::function<bool (mirror::Object& object)> visi
         } else if (r.IsLargeTail()) {
             // Do nothing.
         } else {
-            WalkNonLargeRegion(visitor, r, check);
+            try {
+                WalkNonLargeRegion(visitor, r, check);
+            } catch (InvalidAddressException e) {
+                LOGW("[0x%lx] Region:[0x%lx, 0x%lx) walkspace exception!\n", r.Ptr(), pos, top);
+            }
         }
     }
 }
