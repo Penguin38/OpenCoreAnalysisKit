@@ -152,12 +152,12 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
             if (Android::Sdk() >= Android::P)
                 LOGD("      IsCompact: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, dex_file.IsCompactDexFile() ? "true" : "false");
             LOGI("      art::ArtMethod: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, method.Ptr());
-            LOGI("      dex_pc_ptr: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, dex_pc_ptr);
+            if (dex_pc_ptr) LOGI("      dex_pc_ptr: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, dex_pc_ptr);
             if (shadow_frame.Ptr()) LOGI("      shadow_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, shadow_frame.Ptr());
             if (quick_frame.Ptr()) {
                 LOGI("      quick_frame: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, quick_frame.Ptr());
                 art::OatQuickMethodHeader& method_header = java_frame->GetMethodHeader();
-                LOGI("      frame_pc: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, java_frame->GetFramePc());
+                if (java_frame->GetFramePc()) LOGI("      frame_pc: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, java_frame->GetFramePc());
                 LOGI("      method_header: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, method_header.Ptr());
             }
 
