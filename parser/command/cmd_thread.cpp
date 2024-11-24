@@ -100,16 +100,17 @@ int ThreadCommand::main(int argc, char* const argv[]) {
             };
             CoreApi::ForeachThread(callback);
 
-            LOGI(ANSI_COLOR_LIGHTRED " ID   TID    STATUS                          NAME\n" ANSI_COLOR_RESET);
+            LOGI(ANSI_COLOR_LIGHTRED " ID   TID    STATUS                          ADDRESS              NAME\n" ANSI_COLOR_RESET);
             art::ThreadList& thread_list = art::Runtime::Current().GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
                 int tid = thread->GetTid();
                 auto it = std::find(threads.begin(), threads.end(), tid);
                 LOGI("%s%-4d " ANSI_COLOR_LIGHTYELLOW "%-6d " ANSI_COLOR_LIGHTCYAN "%-31s "
-                               ANSI_COLOR_RESET "\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" %s\n",
+                               ANSI_COLOR_RESET ANSI_COLOR_LIGHTMAGENTA "0x%-16lx" ANSI_COLOR_RESET
+                               "   \"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" %s\n",
                         tid == Env::CurrentPid() ? "*" : " ",
-                        thread->GetThreadId(), tid, thread->GetStateDescriptor(), thread->GetName(),
-                        it != threads.end() ? "" : "(NOT EXIST THREAD)");
+                        thread->GetThreadId(), tid, thread->GetStateDescriptor(), thread->Ptr(),
+                        thread->GetName(), it != threads.end() ? "" : "(NOT EXIST THREAD)");
                 if (it != threads.end()) threads.erase(it);
             }
 
