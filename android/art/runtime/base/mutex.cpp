@@ -135,6 +135,7 @@ static BaseMutex::LockTable kLockTable[] = {
     {"thread suspend count lock",                  "Mutex"},
     {"unexpected signal lock",                     "Mutex"},
     {"logging lock",                               "Mutex"},
+    {"a monitor lock",                             "Mutex"},
 };
 
 api::MemoryRef& BaseMutex::GetVTBL() {
@@ -184,11 +185,17 @@ bool BaseMutex::IsSpecialMutex(const char* type, uint32_t off) {
              * |sf| 0  0| 1  0  0  1  0  1|  hw | --- imm16 --- | --- Rd --- |
              *      opc
              *
+             * 0x320003e0 --> orr w0, wzr, #1
              */
             int retry = 2;
             do {
                 uint32_t inst = instptr[0];
                 if (inst == 0xaa1f03e0 || inst == 0x2a1f03e0) {
+                    break;
+                }
+
+                if (inst == 0x320003e0) {
+                    ret = true;
                     break;
                 }
 
