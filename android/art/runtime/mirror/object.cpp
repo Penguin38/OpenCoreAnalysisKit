@@ -158,11 +158,11 @@ uint32_t Object::GetLockOwnerThreadId() {
 }
 
 bool Object::IsValid() {
-    Class klass_ = GetClass();
-    if (klass_.Ptr() == 0x0 || klass_.Ptr() == 0xBADDB01D)
-        return false;
-
     try {
+        Class klass_ = GetClass();
+        if (klass_.Ptr() == 0x0 || klass_.Ptr() == 0xBADDB01D)
+            return false;
+
         if (LIKELY(klass_.IsClass())
                 && LIKELY(!(SizeOf() < kObjectAlignment)))
             return true;
