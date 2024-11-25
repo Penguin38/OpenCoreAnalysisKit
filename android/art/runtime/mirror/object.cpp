@@ -29,6 +29,9 @@ struct Object_SizeTable __Object_size__;
 namespace art {
 namespace mirror {
 
+static constexpr uint32_t kPoisonDeadObject = 0xBADDB01D;
+static constexpr int32_t kValidObjectSize = 1 * 1024 * 1024; // 1M
+
 void Object::Init() {
     __Object_offset__ = {
         .klass_ = 0,
@@ -160,12 +163,37 @@ uint32_t Object::GetLockOwnerThreadId() {
 bool Object::IsValid() {
     try {
         Class klass_ = GetClass();
-        if (klass_.Ptr() == 0x0 || klass_.Ptr() == 0xBADDB01D)
+        if (klass_.Ptr() == 0x0 || klass_.Ptr() == kPoisonDeadObject)
             return false;
 
         if (LIKELY(klass_.IsClass())
-                && LIKELY(!(SizeOf() < kObjectAlignment)))
+                && LIKELY(!((int64_t)SizeOf() < (int64_t)kObjectAlignment)))
             return true;
+    } catch (InvalidAddressException e) {
+        // do nothing
+    }
+    return false;
+}
+
+bool Object::IsNonLargeValid() {
+    try {
+        Class klass_ = GetClass();
+        if (klass_.Ptr() == 0x0 || klass_.Ptr() == kPoisonDeadObject)
+            return false;
+
+        if (LIKELY(klass_.IsClass())) {
+            int64_t thiz_size = SizeOf();
+            if (LIKELY(!(thiz_size < (int64_t)kObjectAlignment))
+                    && LIKELY(thiz_size < kValidObjectSize /** 1MB*/)) {
+                return true;
+            } else {
+                if (LIKELY(!(thiz_size < kValidObjectSize)))
+                    LOGD("This bad object (%lx) too large.\n", Ptr());
+                if (LIKELY(!!(thiz_size < (int64_t)kObjectAlignment)))
+                    LOGD("This bad object (%lx) too small.\n", Ptr());
+                return false;
+            }
+        }
     } catch (InvalidAddressException e) {
         // do nothing
     }

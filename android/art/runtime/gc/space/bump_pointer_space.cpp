@@ -123,7 +123,7 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
 
     while (pos < main_end) {
         mirror::Object object(pos, object_cache);
-        if (object.IsValid()) {
+        if (object.IsNonLargeValid()) {
             visitor(object);
             pos = GetNextObject(object);
         } else {
@@ -141,7 +141,7 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
 
             while (cur_pos < cur_end) {
                 mirror::Object object(cur_pos, object_cache);
-                if (object.IsValid()) {
+                if (object.IsNonLargeValid()) {
                     visitor(object);
                     cur_pos = GetNextObject(object);
                 } else {

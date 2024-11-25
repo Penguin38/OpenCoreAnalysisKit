@@ -38,7 +38,7 @@ void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool
 
     while (pos < top) {
         mirror::Object object(pos, object_cache);
-        if (object.IsValid()) {
+        if (object.IsNonLargeValid()) {
             visitor(object);
             pos = GetNextObject(object);
         } else {

@@ -100,7 +100,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
             do {
                 uint64_t shift = __builtin_ctzll(left_edge);
                 mirror::Object obj(ptr_base + shift * kObjectAlignment, heap_begin_ref);
-                if (obj.IsValid()) {
+                if (obj.IsNonLargeValid()) {
                     visitor(obj);
                 } else if (check) {
                     LOGE("0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
@@ -118,7 +118,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
                 do {
                     uint64_t shift = __builtin_ctzll(w);
                     mirror::Object obj(ptr_base + shift * kObjectAlignment, heap_begin_ref);
-                    if (obj.IsValid()) {
+                    if (obj.IsNonLargeValid()) {
                         visitor(obj);
                     } else if (check) {
                         LOGE("0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
@@ -149,7 +149,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
         do {
             uint64_t shift = __builtin_ctzll(right_edge);
             mirror::Object obj(ptr_base + shift * kObjectAlignment, heap_begin_ref);
-            if (obj.IsValid()) {
+            if (obj.IsNonLargeValid()) {
                 visitor(obj);
             } else if (check) {
                 LOGE("0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);

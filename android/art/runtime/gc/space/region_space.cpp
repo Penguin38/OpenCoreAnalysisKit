@@ -245,7 +245,7 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
     } else {
         while (pos < top) {
             mirror::Object object(pos, object_cache);
-            if (object.IsValid()) {
+            if (object.IsNonLargeValid()) {
                 visitor(object);
                 pos = GetNextObject(object);
             } else {

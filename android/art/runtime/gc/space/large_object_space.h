@@ -183,7 +183,7 @@ public:
 
     inline bool IsFree() { return (alloc_size() & kFlagFree) != 0; }
     inline uint32_t AlignSize() { return alloc_size() & kFlagsMask; }
-    inline void MoveNexInfo() { MovePtr(AlignSize() * SIZEOF(AllocationInfo)); }
+    inline void MoveNexInfo() { MovePtr((AlignSize() ? AlignSize() : 1) * SIZEOF(AllocationInfo)); }
 private:
     static constexpr uint32_t kFlagFree = 0x80000000;
     static constexpr uint32_t kFlagZygote = 0x40000000;

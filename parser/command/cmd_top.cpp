@@ -18,6 +18,7 @@
 #include "runtime/mirror/class.h"
 #include "command/command_manager.h"
 #include "command/cmd_top.h"
+#include "common/exception.h"
 #include "sun/misc/Cleaner.h"
 #include "libcore/util/NativeAllocationRegistry.h"
 #include "api/core.h"
@@ -123,7 +124,12 @@ int TopCommand::main(int argc, char* const argv[]) {
 
         return false;
     };
-    Android::ForeachObjects(callback, flag, false);
+
+    try {
+        Android::ForeachObjects(callback, flag, false);
+    } catch(InvalidAddressException e) {
+        LOGW("The statistical process was interrupted!\n");
+    }
 
     LOGI(ANSI_COLOR_LIGHTRED "Address       Allocations      ShallowSize        NativeSize     %s\n" ANSI_COLOR_RESET, show ? "ClassName" : "");
     art::mirror::Class cur_max_thiz = 0;

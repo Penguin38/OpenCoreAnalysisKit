@@ -75,6 +75,7 @@ public:
     bool IsDexCache();
     uint64_t SizeOf();
     bool IsValid();
+    bool IsNonLargeValid();
     uint64_t NextValidOffset(uint64_t max);
     uint32_t GetLockWord();
     uint32_t GetLockOwnerThreadId();
