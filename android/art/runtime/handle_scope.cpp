@@ -23,12 +23,27 @@ struct HandleScope_SizeTable __HandleScope_size__;
 
 namespace art {
 
-void HandleScope::Init() {
+void HandleScope::Init26() {
     if (CoreApi::Bits() == 64) {
         __HandleScope_size__ = {
             .THIS = 12,
         };
     } else {
+        __HandleScope_size__ = {
+            .THIS = 8,
+        };
+    }
+}
+
+void HandleScope::Init34() {
+    if (CoreApi::Bits() == 64) {
+        __HandleScope_size__ = {
+            .THIS = 16,
+        };
+    } else {
+        __HandleScope_size__ = {
+            .THIS = 12,
+        };
     }
 }
 

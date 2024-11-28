@@ -219,7 +219,6 @@ void Android::preLoad() {
     art::ShadowFrame::Init();
     art::StandardDexFile::CodeItem::Init();
     art::CompactDexFile::CodeItem::Init();
-    art::HandleScope::Init();
     art::MonitorPool::Init();
     art::Mutex::Init();
     art::ReaderWriterMutex::Init();
@@ -245,6 +244,7 @@ void Android::preLoad() {
 
     // preLoadLater listener
     // 26
+    RegisterSdkListener(O, art::HandleScope::Init26);
     RegisterSdkListener(O, art::DexFile::Init26);
     RegisterSdkListener(O, art::Runtime::Init26);
     RegisterSdkListener(O, art::gc::Heap::Init26);
@@ -350,6 +350,7 @@ void Android::preLoad() {
     RegisterSdkListener(TIRAMISU, art::Thread::tls_ptr_sized_values::Init33);
 
     // 34
+    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::HandleScope::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Runtime::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::DexFile::Init34);
     RegisterSdkListener(UPSIDE_DOWN_CAKE, art::ImageHeader::Init34);
