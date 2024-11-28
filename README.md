@@ -182,7 +182,7 @@ TOTAL                7592          1943315            104175
 
 ```
 core-parser> help hprof
-Usage: hprof <FILE> [OPTION]
+Usage: hprof [<FILE>] [OPTION]
 Option:
     -v, --visible     show hprof detail
     -q, --quick       fast dump hprof

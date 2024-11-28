@@ -26,14 +26,10 @@ int HprofCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
-    if (!(argc > 1)) {
-        LOGE("Please enter <FILE>\n");
-        return 0;
-    }
-
-    int opt;
     bool visible = false;
     bool quick = false;
+
+    int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
@@ -54,12 +50,20 @@ int HprofCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    art::hprof::DumpHeap(argv[optind], visible, quick);
+    std::string filename;
+    if (!(optind < argc)) {
+        filename = CoreApi::GetName();
+        filename.append(".hprof");
+    } else {
+        filename = argv[optind];
+    }
+
+    art::hprof::DumpHeap(filename.c_str(), visible, quick);
     return 0;
 }
 
 void HprofCommand::usage() {
-    LOGI("Usage: hprof <FILE> [OPTION]\n");
+    LOGI("Usage: hprof [<FILE>] [OPTION]\n");
     LOGI("Option:\n");
     LOGI("    -v, --visible     show hprof detail\n");
     LOGI("    -q, --quick       fast dump hprof\n");
