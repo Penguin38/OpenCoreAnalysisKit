@@ -67,7 +67,7 @@ cxx::vector& Heap::GetContinuousSpacesCache() {
 
 #if defined(__PARSER_DEBUG__)
         if (!(continuous_spaces_cache.size() > 2 && continuous_spaces_cache.size() < 64)) {
-            LOGE("continuous_spaces_ invalid, do analysis ...\n");
+            LOGD("continuous_spaces_ invalid, do analysis ...\n");
             bool found = false;
             int count = 0;
             uint64_t point_size = CoreApi::GetPointSize();
@@ -75,7 +75,7 @@ cxx::vector& Heap::GetContinuousSpacesCache() {
             int loopcount = (endloop - continuous_spaces_cache.Ptr()) / point_size;
             do {
                 if (continuous_spaces_cache.size() > 2 && continuous_spaces_cache.size() < 64) {
-                    LOGI(">>> 'continuous_spaces_' = 0x%lx\n", continuous_spaces_cache.Ptr());
+                    LOGD(">>> 'continuous_spaces_' = 0x%lx\n", continuous_spaces_cache.Ptr());
                     found = true;
                     break;
                 }
@@ -96,7 +96,7 @@ cxx::vector& Heap::GetDiscontinuousSpacesCache() {
 
 #if defined(__PARSER_DEBUG__)
         if (!(discontinuous_spaces_cache.size() < 8)) {
-            LOGE("discontinuous_spaces_ invalid, do analysis ...\n");
+            LOGD("discontinuous_spaces_ invalid, do analysis ...\n");
             bool found = false;
             int count = 0;
             uint64_t point_size = CoreApi::GetPointSize();
@@ -104,7 +104,7 @@ cxx::vector& Heap::GetDiscontinuousSpacesCache() {
             int loopcount = (endloop - discontinuous_spaces_cache.Ptr()) / point_size;
             do {
                 if (discontinuous_spaces_cache.size() < 8) {
-                    LOGI(">>> 'discontinuous_spaces_' = 0x%lx\n", discontinuous_spaces_cache.Ptr());
+                    LOGD(">>> 'discontinuous_spaces_' = 0x%lx\n", discontinuous_spaces_cache.Ptr());
                     found = true;
                     break;
                 }
