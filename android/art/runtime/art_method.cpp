@@ -32,6 +32,15 @@ struct PtrSizedFields_OffsetTable __PtrSizedFields_offset__;
 
 namespace art {
 
+void ArtMethod::Init() {
+    Android::RegisterSdkListener(Android::O, art::ArtMethod::Init26);
+    Android::RegisterSdkListener(Android::P, art::ArtMethod::Init28);
+    Android::RegisterSdkListener(Android::S, art::ArtMethod::Init31);
+
+    Android::RegisterSdkListener(Android::O, art::ArtMethod::PtrSizedFields::Init26);
+    Android::RegisterSdkListener(Android::P, art::ArtMethod::PtrSizedFields::Init28);
+}
+
 void ArtMethod::Init26() {
     __ArtMethod_offset__ = {
         .declaring_class_ = 0,
@@ -263,7 +272,7 @@ bool ArtMethod::HasCodeItem() {
                        !IsAbstract(access_flags) &&
                        !IsRuntimeMethod() &&
                        !IsProxyMethod();
-    if (Android::Sdk() > Android::UPSIDE_DOWN_CAKE)
+    if (Android::Sdk() > Android::U)
         status_flag &= !IsDefaultConflicting(access_flags);
     return status_flag;
 }

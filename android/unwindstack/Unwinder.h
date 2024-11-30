@@ -33,23 +33,28 @@ struct FrameData_SizeTable {
 extern struct FrameData_OffsetTable __FrameData_offset__;
 extern struct FrameData_SizeTable __FrameData_size__;
 
-namespace unwindstack {
+namespace android {
 
-class FrameData : public api::MemoryRef {
+class UnwindStack {
 public:
-    FrameData(uint64_t v) : api::MemoryRef(v) {}
-    FrameData(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
-    FrameData(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
-    FrameData(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
-    FrameData(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
-
     static void Init();
-    inline uint64_t pc() { return value64Of(OFFSET(FrameData, pc)); }
-    inline uint64_t function_name() { return VALUEOF(FrameData, function_name); }
-    inline uint64_t function_offset() { return value64Of(OFFSET(FrameData, function_offset)); }
-    std::string GetMethod();
+
+    class FrameData : public api::MemoryRef {
+    public:
+        FrameData(uint64_t v) : api::MemoryRef(v) {}
+        FrameData(uint64_t v, LoadBlock* b) : api::MemoryRef(v, b) {}
+        FrameData(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+        FrameData(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
+        FrameData(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+
+        static void Init();
+        inline uint64_t pc() { return value64Of(OFFSET(FrameData, pc)); }
+        inline uint64_t function_name() { return VALUEOF(FrameData, function_name); }
+        inline uint64_t function_offset() { return value64Of(OFFSET(FrameData, function_offset)); }
+        std::string GetMethod();
+    };
 };
 
-} // namespace unwindstack
+} // namespace android
 
 #endif  // ANDROID_UNWIND_STACK_UNWINDER_H_

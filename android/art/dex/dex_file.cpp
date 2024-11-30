@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "logger/log.h"
 #include "dex/dex_file.h"
 #include "base/leb128.h"
@@ -24,6 +25,13 @@ struct DexFile_OffsetTable __DexFile_offset__;
 struct DexFile_SizeTable __DexFile_size__;
 
 namespace art {
+
+void DexFile::Init() {
+    Android::RegisterSdkListener(Android::O, art::DexFile::Init26);
+    Android::RegisterSdkListener(Android::P, art::DexFile::Init28);
+    Android::RegisterSdkListener(Android::Q, art::DexFile::Init29);
+    Android::RegisterSdkListener(Android::U, art::DexFile::Init34);
+}
 
 void DexFile::Init26() {
     if (CoreApi::Bits() == 64) {

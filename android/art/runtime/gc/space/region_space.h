@@ -69,6 +69,7 @@ public:
     RegionSpace(uint64_t v, ContinuousMemMapAllocSpace& ref) : ContinuousMemMapAllocSpace(v, ref) {}
     RegionSpace(uint64_t v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
+    static void Init();
     static void Init26();
     static void Init28();
     static void Init29();

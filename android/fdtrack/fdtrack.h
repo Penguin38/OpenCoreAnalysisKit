@@ -40,6 +40,7 @@ public:
     static inline const char* FD_TRACK_STACK_TRACES = "_ZL12stack_traces";
     static constexpr uint32_t kFdTableSize = 4096;
 
+    static void Init();
     static const char* GetPath();
 };
 

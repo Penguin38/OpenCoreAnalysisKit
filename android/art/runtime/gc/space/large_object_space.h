@@ -111,6 +111,7 @@ public:
     LargeObjectSpace(uint64_t v, DiscontinuousSpace& ref) : DiscontinuousSpace(v, ref) {}
     LargeObjectSpace(uint64_t v, DiscontinuousSpace* ref) : DiscontinuousSpace(v, ref) {}
 
+    static void Init();
     static void Init26();
     static void Init29();
     static void Init30();

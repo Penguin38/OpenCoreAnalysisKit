@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/gc/space/large_object_space.h"
 #include "runtime/runtime_globals.h"
 #include <string.h>
@@ -35,6 +36,25 @@ struct FreeListSpace_SizeTable __FreeListSpace_size__;
 namespace art {
 namespace gc {
 namespace space {
+
+void LargeObjectSpace::Init() {
+    art::gc::space::LargeObjectMapSpace::LargeObject::Init();
+    art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
+    art::gc::space::AllocationInfo::Init();
+
+    Android::RegisterSdkListener(Android::O, art::gc::space::LargeObjectSpace::Init26);
+    Android::RegisterSdkListener(Android::Q, art::gc::space::LargeObjectSpace::Init29);
+    Android::RegisterSdkListener(Android::R, art::gc::space::LargeObjectSpace::Init30);
+
+    Android::RegisterSdkListener(Android::O, art::gc::space::LargeObjectMapSpace::Init26);
+    Android::RegisterSdkListener(Android::P, art::gc::space::LargeObjectMapSpace::Init28);
+    Android::RegisterSdkListener(Android::Q, art::gc::space::LargeObjectMapSpace::Init29);
+    Android::RegisterSdkListener(Android::R, art::gc::space::LargeObjectMapSpace::Init30);
+
+    Android::RegisterSdkListener(Android::O, art::gc::space::FreeListSpace::Init26);
+    Android::RegisterSdkListener(Android::Q, art::gc::space::FreeListSpace::Init29);
+    Android::RegisterSdkListener(Android::R, art::gc::space::FreeListSpace::Init30);
+}
 
 void LargeObjectSpace::Init26() {
     if (CoreApi::Bits() == 64) {

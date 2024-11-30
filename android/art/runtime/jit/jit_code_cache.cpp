@@ -29,6 +29,20 @@ struct ZygoteMap_OffsetTable __ZygoteMap_offset__;
 namespace art {
 namespace jit {
 
+void JitCodeCache::Init() {
+    Android::RegisterSdkListener(Android::O, art::jit::JitCodeCache::Init26);
+    Android::RegisterSdkListener(Android::P, art::jit::JitCodeCache::Init28);
+    Android::RegisterSdkListener(Android::Q, art::jit::JitCodeCache::Init29);
+    Android::RegisterSdkListener(Android::R, art::jit::JitCodeCache::Init30);
+    Android::RegisterSdkListener(Android::S, art::jit::JitCodeCache::Init31);
+    Android::RegisterSdkListener(Android::V, art::jit::JitCodeCache::Init35);
+
+    Android::RegisterSdkListener(Android::P, art::jit::JitCodeCache::JniStubData::Init28);
+    Android::RegisterSdkListener(Android::P, art::jit::JitCodeCache::JniStubsMapPair::Init28);
+
+    Android::RegisterSdkListener(Android::R, art::jit::ZygoteMap::Init30);
+}
+
 void ZygoteMap::Init30() {
     if (CoreApi::Bits() == 64) {
         __ZygoteMap_offset__ = {

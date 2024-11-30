@@ -42,6 +42,7 @@ public:
     ContinuousSpaceBitmap(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     ContinuousSpaceBitmap(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init();
     static void Init26();
     static void Init29();
     inline uint64_t bitmap_begin() { return VALUEOF(ContinuousSpaceBitmap, bitmap_begin_); }

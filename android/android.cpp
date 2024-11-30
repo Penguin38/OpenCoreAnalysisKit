@@ -61,6 +61,7 @@
 #include "dex/compact_dex_file.h"
 #include "base/length_prefixed_array.h"
 #include "base/mem_map.h"
+#include "logcat/log.h"
 
 Android* Android::INSTANCE = nullptr;
 
@@ -206,8 +207,9 @@ void Android::init() {
 
 void Android::preLoad() {
     android::Property::Init();
-    android::FdEntry::Init();
-    unwindstack::FrameData::Init();
+    android::Logcat::Init();
+    android::FdTrack::Init();
+    android::UnwindStack::Init();
 
     art::ArtField::Init();
     art::LengthPrefixedArray::Init();
@@ -217,11 +219,9 @@ void Android::preLoad() {
     art::MemMap::Init();
     art::ManagedStack::Init();
     art::ShadowFrame::Init();
-    art::StandardDexFile::CodeItem::Init();
-    art::CompactDexFile::CodeItem::Init();
+    art::StandardDexFile::Init();
+    art::CompactDexFile::Init();
     art::MonitorPool::Init();
-    art::Mutex::Init();
-    art::ReaderWriterMutex::Init();
 
     art::mirror::Object::Init();
     art::mirror::Class::Init();
@@ -238,165 +238,32 @@ void Android::preLoad() {
 
     art::gc::space::Space::Init();
     art::gc::space::ContinuousSpace::Init();
-    art::gc::space::LargeObjectMapSpace::LargeObject::Init();
-    art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
-    art::gc::space::AllocationInfo::Init();
 
-    // preLoadLater listener
-    // 26
-    RegisterSdkListener(O, art::HandleScope::Init26);
-    RegisterSdkListener(O, art::DexFile::Init26);
-    RegisterSdkListener(O, art::Runtime::Init26);
-    RegisterSdkListener(O, art::gc::Heap::Init26);
-    RegisterSdkListener(O, art::Thread::Init26);
-    RegisterSdkListener(O, art::Thread::tls_ptr_sized_values::Init26);
-    RegisterSdkListener(O, art::Thread::tls_32bit_sized_values::Init26);
-    RegisterSdkListener(O, art::ImageHeader::Init26);
-    RegisterSdkListener(O, art::mirror::DexCache::Init26);
-    RegisterSdkListener(O, art::gc::space::RegionSpace::Init26);
-    RegisterSdkListener(O, art::gc::space::RegionSpace::Region::Init26);
-    RegisterSdkListener(O, art::gc::space::LargeObjectSpace::Init26);
-    RegisterSdkListener(O, art::gc::space::LargeObjectMapSpace::Init26);
-    RegisterSdkListener(O, art::gc::space::BumpPointerSpace::Init26);
-    RegisterSdkListener(O, art::JavaVMExt::Init26);
-    RegisterSdkListener(O, art::IndirectReferenceTable::Init26);
-    RegisterSdkListener(O, art::ClassLinker::Init26);
-    RegisterSdkListener(O, art::ClassLinker::DexCacheData::Init26);
-    RegisterSdkListener(O, art::IrtEntry::Init26);
-    RegisterSdkListener(O, art::ArtMethod::Init26);
-    RegisterSdkListener(O, art::ArtMethod::PtrSizedFields::Init26);
-    RegisterSdkListener(O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
-    RegisterSdkListener(O, art::jit::Jit::Init26);
-    RegisterSdkListener(O, art::jit::JitCodeCache::Init26);
-    RegisterSdkListener(O, art::OatDexFile::Init26);
-    RegisterSdkListener(O, art::LockLevel::Init26);
-    RegisterSdkListener(O, art::Monitor::Init26);
-    RegisterSdkListener(O, art::BaseMutex::Init26);
-    RegisterSdkListener(O, art::gc::space::FreeListSpace::Init26);
+    art::HandleScope::Init();
+    art::DexFile::Init();
+    art::Runtime::Init();
+    art::gc::Heap::Init();
+    art::Thread::Init();
+    art::ImageHeader::Init();
+    art::mirror::DexCache::Init();
+    art::gc::space::RegionSpace::Init();
+    art::gc::space::LargeObjectSpace::Init();
+    art::gc::space::BumpPointerSpace::Init();
+    art::JavaVMExt::Init();
+    art::IndirectReferenceTable::Init();
+    art::ClassLinker::Init();
+    art::ArtMethod::Init();
+    art::gc::accounting::ContinuousSpaceBitmap::Init();
+    art::jit::Jit::Init();
+    art::jit::JitCodeCache::Init();
+    art::jit::JitMemoryRegion::Init();
+    art::OatDexFile::Init();
+    art::BaseMutex::Init();
+    art::LockLevel::Init();
+    art::Monitor::Init();
 
-    // 28
-    RegisterSdkListener(P, art::DexFile::Init28);
-    RegisterSdkListener(P, art::Runtime::Init28);
-    RegisterSdkListener(P, art::Thread::Init28);
-    RegisterSdkListener(P, art::Thread::tls_ptr_sized_values::Init28);
-    RegisterSdkListener(P, art::ImageHeader::Init28);
-    RegisterSdkListener(P, art::gc::space::RegionSpace::Init28);
-    RegisterSdkListener(P, art::gc::space::LargeObjectMapSpace::Init28);
-    RegisterSdkListener(P, art::ClassLinker::Init28);
-    RegisterSdkListener(P, art::ClassLinker::DexCacheData::Init28);
-    RegisterSdkListener(P, art::ArtMethod::Init28);
-    RegisterSdkListener(P, art::ArtMethod::PtrSizedFields::Init28);
-    RegisterSdkListener(P, art::jit::Jit::Init28);
-    RegisterSdkListener(P, art::jit::JitCodeCache::Init28);
-    RegisterSdkListener(P, art::jit::JitCodeCache::JniStubData::Init28);
-    RegisterSdkListener(P, art::jit::JitCodeCache::JniStubsMapPair::Init28);
-    RegisterSdkListener(P, art::OatDexFile::Init28);
-    RegisterSdkListener(P, art::LockLevel::Init28);
-    RegisterSdkListener(P, art::Monitor::Init28);
-
-    // 29
-    RegisterSdkListener(Q, art::DexFile::Init29);
-    RegisterSdkListener(Q, art::Runtime::Init29);
-    RegisterSdkListener(Q, art::Thread::Init29);
-    RegisterSdkListener(Q, art::Thread::tls_ptr_sized_values::Init29);
-    RegisterSdkListener(Q, art::ImageHeader::Init29);
-    RegisterSdkListener(Q, art::gc::space::RegionSpace::Init29);
-    RegisterSdkListener(Q, art::gc::space::RegionSpace::Region::Init29);
-    RegisterSdkListener(Q, art::gc::space::LargeObjectSpace::Init29);
-    RegisterSdkListener(Q, art::gc::space::LargeObjectMapSpace::Init29);
-    RegisterSdkListener(Q, art::JavaVMExt::Init29);
-    RegisterSdkListener(Q, art::IndirectReferenceTable::Init29);
-    RegisterSdkListener(Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
-    RegisterSdkListener(Q, art::jit::Jit::Init29);
-    RegisterSdkListener(Q, art::jit::JitCodeCache::Init29);
-    RegisterSdkListener(Q, art::LockLevel::Init29);
-    RegisterSdkListener(Q, art::Monitor::Init29);
-    RegisterSdkListener(Q, art::BaseMutex::Init29);
-    RegisterSdkListener(Q, art::gc::space::FreeListSpace::Init29);
-
-    // 30 base
-    RegisterSdkListener(R, art::Runtime::Init30);
-    RegisterSdkListener(R, art::mirror::DexCache::Init30);
-    RegisterSdkListener(R, art::Thread::Init30);
-    RegisterSdkListener(R, art::Thread::tls_ptr_sized_values::Init30);
-    RegisterSdkListener(R, art::ImageHeader::Init30);
-    RegisterSdkListener(R, art::gc::space::RegionSpace::Init30);
-    RegisterSdkListener(R, art::gc::space::LargeObjectSpace::Init30);
-    RegisterSdkListener(R, art::gc::space::LargeObjectMapSpace::Init30);
-    RegisterSdkListener(R, art::jit::JitCodeCache::Init30);
-    RegisterSdkListener(R, art::jit::JitMemoryRegion::Init30);
-    RegisterSdkListener(R, art::jit::ZygoteMap::Init30);
-    RegisterSdkListener(R, art::LockLevel::Init30);
-    RegisterSdkListener(R, art::Monitor::Init30);
-    RegisterSdkListener(R, art::gc::space::FreeListSpace::Init30);
-
-    // 31
-    RegisterSdkListener(S, art::Runtime::Init31);
-    RegisterSdkListener(S, art::ImageHeader::Init31);
-    RegisterSdkListener(S, art::Thread::Init31);
-    RegisterSdkListener(S, art::Thread::tls_32bit_sized_values::Init31);
-    RegisterSdkListener(S, art::gc::space::RegionSpace::Init31);
-    RegisterSdkListener(S, art::JavaVMExt::Init31);
-    RegisterSdkListener(S, art::ArtMethod::Init31);
-    RegisterSdkListener(S, art::jit::JitCodeCache::Init31);
-    RegisterSdkListener(S, art::OatDexFile::Init31);
-
-    // 33
-    RegisterSdkListener(TIRAMISU, art::Runtime::Init33);
-    RegisterSdkListener(TIRAMISU, art::Thread::Init33);
-    RegisterSdkListener(TIRAMISU, art::JavaVMExt::Init33);
-    RegisterSdkListener(TIRAMISU, art::ClassLinker::DexCacheData::Init33);
-    RegisterSdkListener(TIRAMISU, art::IrtEntry::Init33);
-    RegisterSdkListener(TIRAMISU, art::Thread::tls_ptr_sized_values::Init33);
-
-    // 34
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::HandleScope::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Runtime::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::DexFile::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::ImageHeader::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::Thread::tls_ptr_sized_values::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::JavaVMExt::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::IndirectReferenceTable::Init34);
-    RegisterSdkListener(UPSIDE_DOWN_CAKE, art::gc::space::BumpPointerSpace::Init34);
-
-    // 35 For test
-    // RegisterSdkListener(VANILLA_ICE_CREAM, art::gc::Heap::Init35);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::ImageHeader::Init35);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::Init35);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::Thread::tls_ptr_sized_values::Init35);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::OatDexFile::Init35);
-    RegisterSdkListener(VANILLA_ICE_CREAM, art::jit::JitCodeCache::Init35);
-
-    // OAT
-    RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);
-    RegisterOatListener(150, art::CodeInfo::OatInit150);
-    RegisterOatListener(150, art::StackMap::OatInit150);
-    RegisterOatListener(150, art::RegisterMask::OatInit150);
-    RegisterOatListener(150, art::StackMask::OatInit150);
-    RegisterOatListener(150, art::InlineInfo::OatInit150);
-    RegisterOatListener(150, art::MethodInfo::OatInit150);
-    RegisterOatListener(150, art::DexRegisterMask::OatInit150);
-    RegisterOatListener(150, art::DexRegisterMap::OatInit150);
-    RegisterOatListener(150, art::DexRegisterInfo::OatInit150);
-    RegisterOatListener(150, art::CodeInfo::OatInit150);
-    RegisterOatListener(156, art::OatQuickMethodHeader::OatInit156);
-    RegisterOatListener(158, art::OatQuickMethodHeader::OatInit158);
-    RegisterOatListener(170, art::StackMap::OatInit170);
-    RegisterOatListener(170, art::RegisterMask::OatInit170);
-    RegisterOatListener(170, art::StackMask::OatInit170);
-    RegisterOatListener(170, art::InlineInfo::OatInit170);
-    RegisterOatListener(170, art::MethodInfo::OatInit170);
-    RegisterOatListener(170, art::DexRegisterMask::OatInit170);
-    RegisterOatListener(170, art::DexRegisterMap::OatInit170);
-    RegisterOatListener(170, art::DexRegisterInfo::OatInit170);
-    RegisterOatListener(171, art::CodeInfo::OatInit171);
-    RegisterOatListener(172, art::CodeInfo::OatInit172);
-    RegisterOatListener(191, art::CodeInfo::OatInit191);
-    RegisterOatListener(192, art::OatQuickMethodHeader::OatInit192);
-    RegisterOatListener(225, art::MethodInfo::OatInit225);
-    RegisterOatListener(238, art::OatQuickMethodHeader::OatInit238);
-    RegisterOatListener(239, art::OatQuickMethodHeader::OatInit239);
+    art::CodeInfo::Init();
+    art::OatQuickMethodHeader::Init();
 }
 
 void Android::preLoadLater() {

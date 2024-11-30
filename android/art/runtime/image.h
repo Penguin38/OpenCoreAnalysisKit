@@ -57,6 +57,7 @@ public:
     inline bool operator==(ImageHeader& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(ImageHeader& ref) { return Ptr() != ref.Ptr(); }
 
+    static void Init();
     static void Init26();
     static void Init28();
     static void Init29();

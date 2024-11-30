@@ -15,12 +15,20 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/monitor.h"
 #include "runtime/lock_word.h"
 
 struct Monitor_OffsetTable __Monitor_offset__;
 
 namespace art {
+
+void Monitor::Init() {
+    Android::RegisterSdkListener(Android::O, art::Monitor::Init26);
+    Android::RegisterSdkListener(Android::P, art::Monitor::Init28);
+    Android::RegisterSdkListener(Android::Q, art::Monitor::Init29);
+    Android::RegisterSdkListener(Android::R, art::Monitor::Init30);
+}
 
 void Monitor::Init26() {
     if (CoreApi::Bits() == 64) {

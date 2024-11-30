@@ -26,6 +26,16 @@ struct Runtime_SizeTable __Runtime_size__;
 
 namespace art {
 
+void Runtime::Init() {
+    Android::RegisterSdkListener(Android::O, art::Runtime::Init26);
+    Android::RegisterSdkListener(Android::P, art::Runtime::Init28);
+    Android::RegisterSdkListener(Android::Q, art::Runtime::Init29);
+    Android::RegisterSdkListener(Android::R, art::Runtime::Init30);
+    Android::RegisterSdkListener(Android::S, art::Runtime::Init31);
+    Android::RegisterSdkListener(Android::T, art::Runtime::Init33);
+    Android::RegisterSdkListener(Android::U, art::Runtime::Init34);
+}
+
 void Runtime::Init26() {
     if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {

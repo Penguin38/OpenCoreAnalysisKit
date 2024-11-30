@@ -48,7 +48,7 @@ int FdtrackCommand::main(int argc, char* const argv[]) {
         uint32_t frameid = 0;
         LOGI("fd %d:\n", fd);
         for (const auto& value : backtrace) {
-            unwindstack::FrameData frame = value;
+            android::UnwindStack::FrameData frame = value;
             std::string method_desc = frame.GetMethod();
             uint64_t offset = frame.function_offset();
             if (offset) method_desc.append("+").append(Utils::ToHex(offset));

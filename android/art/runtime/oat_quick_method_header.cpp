@@ -31,6 +31,15 @@ uint32_t OatQuickMethodHeader::kIsCodeInfoMask = 0x40000000;
 uint32_t OatQuickMethodHeader::kCodeInfoMask = 0x3FFFFFFF;
 uint32_t OatQuickMethodHeader::kCodeSizeMask = 0x3FFFFFFF;
 
+void OatQuickMethodHeader::Init() {
+    Android::RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);
+    Android::RegisterOatListener(156, art::OatQuickMethodHeader::OatInit156);
+    Android::RegisterOatListener(158, art::OatQuickMethodHeader::OatInit158);
+    Android::RegisterOatListener(192, art::OatQuickMethodHeader::OatInit192);
+    Android::RegisterOatListener(238, art::OatQuickMethodHeader::OatInit238);
+    Android::RegisterOatListener(239, art::OatQuickMethodHeader::OatInit239);
+}
+
 void OatQuickMethodHeader::OatInit124() {
     kCodeSizeMask   = ~kShouldDeoptimizeMask;
 

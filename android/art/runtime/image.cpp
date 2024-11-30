@@ -22,6 +22,16 @@ struct ImageHeader_SizeTable __ImageHeader_size__;
 
 namespace art {
 
+void ImageHeader::Init() {
+    Android::RegisterSdkListener(Android::O, art::ImageHeader::Init26);
+    Android::RegisterSdkListener(Android::P, art::ImageHeader::Init28);
+    Android::RegisterSdkListener(Android::Q, art::ImageHeader::Init29);
+    Android::RegisterSdkListener(Android::R, art::ImageHeader::Init30);
+    Android::RegisterSdkListener(Android::S, art::ImageHeader::Init31);
+    Android::RegisterSdkListener(Android::U, art::ImageHeader::Init34);
+    Android::RegisterSdkListener(Android::V, art::ImageHeader::Init35);
+}
+
 void ImageHeader::Init26() {
     __ImageHeader_offset__ = {
         .image_methods_ = 152,

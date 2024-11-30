@@ -61,6 +61,7 @@ public:
 
     static constexpr uint32_t kShouldDeoptimizeMask = 0x80000000;
 
+    static void Init();
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit156(); // Remove frame info from OatQuickMethodHeader.
     static void OatInit158(); // Move MethodInfo to CodeInfo.

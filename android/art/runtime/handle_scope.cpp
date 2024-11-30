@@ -16,12 +16,18 @@
 
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/mirror/object.h"
 #include "runtime/handle_scope.h"
 
 struct HandleScope_SizeTable __HandleScope_size__;
 
 namespace art {
+
+void HandleScope::Init() {
+    Android::RegisterSdkListener(Android::O, art::HandleScope::Init26);
+    Android::RegisterSdkListener(Android::U, art::HandleScope::Init34);
+}
 
 void HandleScope::Init26() {
     if (CoreApi::Bits() == 64) {

@@ -215,6 +215,7 @@ add_library(android STATIC
             android/services/com/android/server/am/ActivityManagerService.cpp
 
             # logcat
+            android/logcat/log.cpp
             android/logcat/event_logtags.cpp
             android/logcat/LogBuffer.cpp
             android/logcat/SerializedLogBuffer.cpp

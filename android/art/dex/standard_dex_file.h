@@ -51,6 +51,8 @@ public:
     StandardDexFile(const DexFile& ref) : DexFile(ref) {}
     StandardDexFile(uint64_t v, DexFile* ref) : DexFile(v, ref) {}
 
+    static void Init();
+
     class CodeItem : public dex::CodeItem {
     public:
         CodeItem(uint64_t v) : dex::CodeItem(v) {}

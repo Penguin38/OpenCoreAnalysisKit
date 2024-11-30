@@ -15,12 +15,17 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/jit/jit_memory_region.h"
 
 struct JitMemoryRegion_OffsetTable __JitMemoryRegion_offset__;
 
 namespace art {
 namespace jit {
+
+void JitMemoryRegion::Init() {
+    Android::RegisterSdkListener(Android::R, art::jit::JitMemoryRegion::Init30);
+}
 
 void JitMemoryRegion::Init30() {
     if (CoreApi::Bits() == 64) {

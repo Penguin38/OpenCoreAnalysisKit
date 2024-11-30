@@ -21,6 +21,10 @@ struct StandardDexFile_CodeItem_SizeTable __StandardDexFile_CodeItem_size__;
 
 namespace art {
 
+void StandardDexFile::Init() {
+    art::StandardDexFile::CodeItem::Init();
+}
+
 void StandardDexFile::CodeItem::Init() {
     __StandardDexFile_CodeItem_offset__ = {
         .registers_size_ = 0,

@@ -63,7 +63,7 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
 
     int opt;
     int option_index = 0;
-    int current_sdk = Android::UPSIDE_DOWN_CAKE;
+    int current_sdk = Android::V;
     int current_pid = Env::CurrentPid();
     int current_oat = 0;
     optind = 0; // reset
@@ -190,7 +190,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     }
     LOGI("  * art::ClassLinker: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetClassLinker().Ptr());
     if (runtime.GetClassLinker().Ptr()) {
-        if (Android::Sdk() < Android::TIRAMISU) {
+        if (Android::Sdk() < Android::T) {
             LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData().Ptr());
         } else {
             LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData_v33().Ptr());

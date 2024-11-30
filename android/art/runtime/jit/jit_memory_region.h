@@ -36,6 +36,7 @@ public:
     JitMemoryRegion(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     JitMemoryRegion(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init();
     static void Init30();
     inline uint64_t exec_pages() { return Ptr() + OFFSET(JitMemoryRegion, exec_pages_); }
 

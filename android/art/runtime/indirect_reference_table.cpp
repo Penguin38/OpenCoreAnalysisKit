@@ -24,6 +24,15 @@ struct IndirectReferenceTable_OffsetTable __IndirectReferenceTable_offset__;
 
 namespace art {
 
+void IndirectReferenceTable::Init() {
+    Android::RegisterSdkListener(Android::O, art::IndirectReferenceTable::Init26);
+    Android::RegisterSdkListener(Android::Q, art::IndirectReferenceTable::Init29);
+    Android::RegisterSdkListener(Android::U, art::IndirectReferenceTable::Init34);
+
+    Android::RegisterSdkListener(Android::O, art::IrtEntry::Init26);
+    Android::RegisterSdkListener(Android::T, art::IrtEntry::Init33);
+}
+
 void IrtEntry::Init26() {
     __IrtEntry_offset__ = {
         .serial_ = 0,
@@ -93,7 +102,7 @@ void IndirectReferenceTable::Init34() {
 }
 
 uint32_t IndirectReferenceTable::DecodeIndex(uint64_t uref) {
-    if (Android::Sdk() < Android::TIRAMISU) {
+    if (Android::Sdk() < Android::T) {
         return static_cast<uint32_t>((uref >> kKindBits) >> kSerialBits);
     } else {
         return static_cast<uint32_t>((uref >> kKindBits) >> kIRTSerialBits);
@@ -104,7 +113,7 @@ mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
     mirror::Object object = 0x0;
     uint64_t top_index_ = 0x0;
 
-    if (Android::Sdk() < Android::TIRAMISU) {
+    if (Android::Sdk() < Android::T) {
         top_index_ = segment_state();
     } else {
         top_index_ = top_index();
@@ -114,7 +123,7 @@ mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
         IrtEntry entry = table();
         entry.MovePtr(SIZEOF(IrtEntry) * idx);
         api::MemoryRef ref = entry.references();
-        if (Android::Sdk() < Android::TIRAMISU) {
+        if (Android::Sdk() < Android::T) {
             object = ref.value32Of(entry.serial() * sizeof(uint32_t));
         } else {
             object = ref.value32Of();

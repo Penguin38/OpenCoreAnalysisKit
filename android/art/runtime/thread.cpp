@@ -35,6 +35,28 @@ struct Thread_tls_ptr_sized_values_SizeTable __Thread_tls_ptr_sized_values_size_
 
 namespace art {
 
+void Thread::Init() {
+    Android::RegisterSdkListener(Android::O, art::Thread::Init26);
+    Android::RegisterSdkListener(Android::P, art::Thread::Init28);
+    Android::RegisterSdkListener(Android::Q, art::Thread::Init29);
+    Android::RegisterSdkListener(Android::R, art::Thread::Init30);
+    Android::RegisterSdkListener(Android::S, art::Thread::Init31);
+    Android::RegisterSdkListener(Android::T, art::Thread::Init33);
+    Android::RegisterSdkListener(Android::U, art::Thread::Init34);
+    Android::RegisterSdkListener(Android::V, art::Thread::Init35);
+
+    Android::RegisterSdkListener(Android::O, art::Thread::tls_ptr_sized_values::Init26);
+    Android::RegisterSdkListener(Android::P, art::Thread::tls_ptr_sized_values::Init28);
+    Android::RegisterSdkListener(Android::Q, art::Thread::tls_ptr_sized_values::Init29);
+    Android::RegisterSdkListener(Android::R, art::Thread::tls_ptr_sized_values::Init30);
+    Android::RegisterSdkListener(Android::T, art::Thread::tls_ptr_sized_values::Init33);
+    Android::RegisterSdkListener(Android::U, art::Thread::tls_ptr_sized_values::Init34);
+    Android::RegisterSdkListener(Android::V, art::Thread::tls_ptr_sized_values::Init35);
+
+    Android::RegisterSdkListener(Android::O, art::Thread::tls_32bit_sized_values::Init26);
+    Android::RegisterSdkListener(Android::S, art::Thread::tls_32bit_sized_values::Init31);
+}
+
 void Thread::Init26() {
     if (CoreApi::Bits() == 64) {
         __Thread_offset__ = {
@@ -393,7 +415,7 @@ uint16_t Thread::GetFlags() {
 
 ThreadState Thread::GetState() {
     uint32_t state_and_flags = GetTls32().state_and_flags();
-    if (Android::Sdk() < Android::TIRAMISU) {
+    if (Android::Sdk() < Android::T) {
         return static_cast<ThreadState>((state_and_flags >> 16) & 0xFF);
     } else {
         return static_cast<ThreadState>((state_and_flags >> 24) & 0xFF);
@@ -486,7 +508,7 @@ const char* Thread::GetName() {
     if (!ref.Ptr())
         return "<Unknown>";
 
-    if (Android::Sdk() < Android::TIRAMISU) {
+    if (Android::Sdk() < Android::T) {
         cxx::string name = ref;
         return name.c_str();
     } else {

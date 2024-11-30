@@ -21,6 +21,10 @@ struct CompactDexFile_CodeItem_SizeTable __CompactDexFile_CodeItem_size__;
 
 namespace art {
 
+void CompactDexFile::Init() {
+    art::CompactDexFile::CodeItem::Init();
+}
+
 void CompactDexFile::CodeItem::Init() {
     __CompactDexFile_CodeItem_offset__ = {
         .fields_ = 0,

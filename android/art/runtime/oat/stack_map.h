@@ -465,6 +465,7 @@ public:
         kHasInlineInfo = 1 << 0,
     };
 
+    static void Init();
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit150(); // Add method frame info to CodeInfo.
     static void OatInit171(); // Optimize stack maps: add fast path for no inline info.

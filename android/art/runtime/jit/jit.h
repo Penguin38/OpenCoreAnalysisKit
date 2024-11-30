@@ -36,6 +36,7 @@ public:
     Jit(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     Jit(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init();
     static void Init26();
     static void Init28();
     static void Init29();

@@ -64,6 +64,7 @@ public:
     inline bool operator==(uint32_t v) { return Ptr() == v; }
     inline bool operator!=(uint32_t v) { return Ptr() != v; }
 
+    static void Init();
     static void Init26();
     static void Init30();
     inline uint32_t class_loader() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(DexCache, class_loader_)); }

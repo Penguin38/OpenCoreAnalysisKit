@@ -50,6 +50,7 @@ public:
     inline bool operator==(Heap& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(Heap& ref) { return Ptr() != ref.Ptr(); }
 
+    static void Init();
     static void Init26();
     static void Init35();
     inline uint64_t continuous_spaces() { return Ptr() + OFFSET(Heap, continuous_spaces_); }

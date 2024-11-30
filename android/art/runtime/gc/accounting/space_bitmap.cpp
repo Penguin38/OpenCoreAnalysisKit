@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/runtime_globals.h"
 
@@ -23,6 +24,11 @@ struct ContinuousSpaceBitmap_OffsetTable __ContinuousSpaceBitmap_offset__;
 namespace art {
 namespace gc {
 namespace accounting {
+
+void ContinuousSpaceBitmap::Init() {
+    Android::RegisterSdkListener(Android::O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
+    Android::RegisterSdkListener(Android::Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
+}
 
 void ContinuousSpaceBitmap::Init26() {
     if (CoreApi::Bits() == 64) {

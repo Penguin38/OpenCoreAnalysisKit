@@ -15,12 +15,18 @@
  */
 
 #include "runtime/mirror/dex_cache.h"
+#include "android.h"
 
 struct DexCache_OffsetTable __DexCache_offset__;
 struct DexCache_SizeTable __DexCache_size__;
 
 namespace art {
 namespace mirror {
+
+void DexCache::Init() {
+    Android::RegisterSdkListener(Android::O, art::mirror::DexCache::Init26);
+    Android::RegisterSdkListener(Android::R, art::mirror::DexCache::Init30);
+}
 
 void DexCache::Init26() {
     __DexCache_offset__ = {

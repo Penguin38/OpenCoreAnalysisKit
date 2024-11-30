@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "common/bit.h"
 #include "common/exception.h"
 #include "runtime/gc/heap.h"
@@ -30,6 +31,11 @@ struct Heap_SizeTable __Heap_size__;
 
 namespace art {
 namespace gc {
+
+void Heap::Init() {
+    Android::RegisterSdkListener(Android::O, art::gc::Heap::Init26);
+    // Android::RegisterSdkListener(Android::V, art::gc::Heap::Init35);
+}
 
 void Heap::Init26() {
     if (CoreApi::Bits() == 64) {

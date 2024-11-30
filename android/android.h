@@ -44,9 +44,9 @@ public:
     static constexpr int R = 30; // base target
     static constexpr int S = 31;
     static constexpr int S_V2 = 32;
-    static constexpr int TIRAMISU = 33;
-    static constexpr int UPSIDE_DOWN_CAKE = 34;
-    static constexpr int VANILLA_ICE_CREAM = 35;
+    static constexpr int T = 33;
+    static constexpr int U = 34;
+    static constexpr int V = 35;
 
     enum BasicType {
         basic_object = 2,

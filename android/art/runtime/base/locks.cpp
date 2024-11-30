@@ -15,11 +15,19 @@
  */
 
 #include "runtime/base/locks.h"
+#include "android.h"
 
 namespace art {
 
 uint8_t LockLevel::kMonitorLock = 56;
 uint8_t LockLevel::kLockLevelCount = 78;
+
+void LockLevel::Init() {
+    Android::RegisterSdkListener(Android::O, art::LockLevel::Init26);
+    Android::RegisterSdkListener(Android::P, art::LockLevel::Init28);
+    Android::RegisterSdkListener(Android::Q, art::LockLevel::Init29);
+    Android::RegisterSdkListener(Android::R, art::LockLevel::Init30);
+}
 
 void LockLevel::Init26() {
     kMonitorLock = 49;

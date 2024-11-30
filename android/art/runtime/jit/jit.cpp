@@ -15,12 +15,19 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/jit/jit.h"
 
 struct Jit_OffsetTable __Jit_offset__;
 
 namespace art {
 namespace jit {
+
+void Jit::Init() {
+    Android::RegisterSdkListener(Android::O, art::jit::Jit::Init26);
+    Android::RegisterSdkListener(Android::P, art::jit::Jit::Init28);
+    Android::RegisterSdkListener(Android::Q, art::jit::Jit::Init29);
+}
 
 void Jit::Init26() {
     if (CoreApi::Bits() == 64) {

@@ -26,6 +26,15 @@ struct DexCacheData_SizeTable __DexCacheData_size__;
 
 namespace art {
 
+void ClassLinker::Init() {
+    Android::RegisterSdkListener(Android::O, art::ClassLinker::Init26);
+    Android::RegisterSdkListener(Android::P, art::ClassLinker::Init28);
+
+    Android::RegisterSdkListener(Android::O, art::ClassLinker::DexCacheData::Init26);
+    Android::RegisterSdkListener(Android::P, art::ClassLinker::DexCacheData::Init28);
+    Android::RegisterSdkListener(Android::T, art::ClassLinker::DexCacheData::Init33);
+}
+
 void ClassLinker::Init26() {
     if (CoreApi::Bits() == 64) {
         __ClassLinker_offset__ = {
@@ -99,7 +108,7 @@ void ClassLinker::DexCacheData::Init33() {
 }
 
 uint32_t ClassLinker::GetDexCacheCount() {
-    if (Android::Sdk() < Android::TIRAMISU) {
+    if (Android::Sdk() < Android::T) {
         return GetDexCachesData().size();
     } else {
         return GetDexCachesData_v33().size();
@@ -131,7 +140,7 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
     Runtime& runtime = art::Runtime::Current();
     JavaVMExt& vm = runtime.GetJavaVM();
 
-    if (Android::Sdk() < Android::TIRAMISU) {
+    if (Android::Sdk() < Android::T) {
         for (const auto& value : GetDexCachesData()) {
             // std::list<DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
             std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(value);

@@ -26,6 +26,11 @@ namespace art {
 namespace gc {
 namespace space {
 
+void BumpPointerSpace::Init() {
+    Android::RegisterSdkListener(Android::O, art::gc::space::BumpPointerSpace::Init26);
+    Android::RegisterSdkListener(Android::U, art::gc::space::BumpPointerSpace::Init34);
+}
+
 void BumpPointerSpace::Init26() {
     if (CoreApi::Bits() == 64) {
         __BumpPointerSpace_offset__ = {
@@ -96,7 +101,7 @@ void BumpPointerSpace::SlowWalk(std::function<bool (mirror::Object& object)> vis
 }
 
 void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
-    if (Android::Sdk() < Android::VANILLA_ICE_CREAM) {
+    if (Android::Sdk() < Android::V) {
         SlowWalk(visitor);
         return;
     }

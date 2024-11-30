@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "arm64/inst/constant.h"
 #include "arm/inst/constant.h"
 #include "common/elf.h"
@@ -25,6 +26,14 @@ struct Mutex_OffsetTable __Mutex_offset__;
 struct ReaderWriterMutex_OffsetTable __ReaderWriterMutex_offset__;
 
 namespace art {
+
+void BaseMutex::Init() {
+    Android::RegisterSdkListener(Android::O, art::BaseMutex::Init26);
+    Android::RegisterSdkListener(Android::Q, art::BaseMutex::Init29);
+
+    art::Mutex::Init();
+    art::ReaderWriterMutex::Init();
+}
 
 void BaseMutex::Init26() {
     if (CoreApi::Bits() == 64) {

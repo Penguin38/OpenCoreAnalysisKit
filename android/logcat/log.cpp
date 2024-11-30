@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_ART_RUNTIME_BASE_LOCKS_H_
-#define ANDROID_ART_RUNTIME_BASE_LOCKS_H_
+#include "logcat/log.h"
+#include "android.h"
+#include "logcat/LogBuffer.h"
+#include "logcat/LogStatistics.h"
+#include "logcat/SerializedData.h"
+#include "logcat/SerializedLogBuffer.h"
 
-#include <stdint.h>
+namespace android {
 
-namespace art {
+void Logcat::Init() {
+    android::LogBuffer::Init();
+    android::LogStatistics::Init();
+    android::SerializedData::Init();
 
-class LockLevel {
-public:
-    static uint8_t kMonitorLock;
-    static uint8_t kLockLevelCount;
-    static void Init();
-    static void Init26();
-    static void Init28();
-    static void Init29();
-    static void Init30();
-};
+    Android::RegisterSdkListener(Android::S, android::SerializedLogBuffer::Init31);
+}
 
-} // namespace art
-
-#endif // ANDROID_ART_RUNTIME_BASE_LOCKS_H_
+} // namespace android

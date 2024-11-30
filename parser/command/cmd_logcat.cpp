@@ -161,12 +161,9 @@ int LogcatCommand::main(int argc, char* const argv[]) {
 
     if (!dump_flag) dump_flag = DUMP_MAIN | DUMP_SYSTEM | DUMP_CRASH | DUMP_KERNEL;
 
-    LogStatistics::Init();
-    SerializedData::Init();
     uint32_t point_size = CoreApi::GetPointSize();
 
     if (Android::Sdk() >= Android::S) {
-        SerializedLogBuffer::Init31();
         SerializedLogBuffer log_buffer = AnalysisSerializedLogBuffer();
         if (!log_buffer.Ptr()) {
             LOGE("Not found SerializedLogBuffer!\n");
@@ -203,7 +200,6 @@ int LogcatCommand::main(int argc, char* const argv[]) {
             PrintSerializedLogBuf("--------- beginning of kernel", kernel_logs, filter, id);
         }
     } else {
-        LogBuffer::Init();
     }
     return 0;
 }

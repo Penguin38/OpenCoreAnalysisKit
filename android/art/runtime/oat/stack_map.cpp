@@ -70,6 +70,39 @@ uint32_t DexRegisterInfo::kNumDexRegisterInfos = 2;
 uint32_t DexRegisterInfo::kColNumKind = 0;
 uint32_t DexRegisterInfo::kColNumPackedValue = 1;
 
+void CodeInfo::Init() {
+    Android::RegisterOatListener(124, art::CodeInfo::OatInit124);
+    Android::RegisterOatListener(150, art::CodeInfo::OatInit150);
+    Android::RegisterOatListener(171, art::CodeInfo::OatInit171);
+    Android::RegisterOatListener(172, art::CodeInfo::OatInit172);
+    Android::RegisterOatListener(191, art::CodeInfo::OatInit191);
+
+    Android::RegisterOatListener(150, art::StackMap::OatInit150);
+    Android::RegisterOatListener(170, art::StackMap::OatInit170);
+
+    Android::RegisterOatListener(150, art::RegisterMask::OatInit150);
+    Android::RegisterOatListener(170, art::RegisterMask::OatInit170);
+
+    Android::RegisterOatListener(150, art::DexRegisterMask::OatInit150);
+    Android::RegisterOatListener(170, art::DexRegisterMask::OatInit170);
+
+    Android::RegisterOatListener(150, art::StackMask::OatInit150);
+    Android::RegisterOatListener(170, art::StackMask::OatInit170);
+
+    Android::RegisterOatListener(150, art::InlineInfo::OatInit150);
+    Android::RegisterOatListener(170, art::InlineInfo::OatInit170);
+
+    Android::RegisterOatListener(150, art::MethodInfo::OatInit150);
+    Android::RegisterOatListener(170, art::MethodInfo::OatInit170);
+    Android::RegisterOatListener(225, art::MethodInfo::OatInit225);
+
+    Android::RegisterOatListener(150, art::DexRegisterMap::OatInit150);
+    Android::RegisterOatListener(170, art::DexRegisterMap::OatInit170);
+
+    Android::RegisterOatListener(150, art::DexRegisterInfo::OatInit150);
+    Android::RegisterOatListener(170, art::DexRegisterInfo::OatInit170);
+}
+
 void CodeInfo::OatInit124() {
     kNumHeaders = 2;
     kNumBitTables = 8;

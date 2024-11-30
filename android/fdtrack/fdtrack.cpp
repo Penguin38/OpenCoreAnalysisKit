@@ -22,6 +22,10 @@ struct FdEntry_SizeTable __FdEntry_size__;
 
 namespace android {
 
+void FdTrack::Init() {
+    android::FdEntry::Init();
+}
+
 const char* FdTrack::GetPath() {
     return (CoreApi::Bits() == 64) ? FDTRACK64 : FDTRACK32;
 }

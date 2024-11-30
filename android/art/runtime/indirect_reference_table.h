@@ -78,6 +78,7 @@ public:
     IndirectReferenceTable(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     IndirectReferenceTable(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+    static void Init();
     static void Init26();
     static void Init29();
     static void Init34();

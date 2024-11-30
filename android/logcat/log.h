@@ -81,6 +81,11 @@ inline std::string ConvertPriority(uint8_t prio) {
     return "I";
 }
 
+class Logcat {
+public:
+    static void Init();
+};
+
 } // namespace android
 
 #endif // ANDROID_LOGCAT_LOG_H_

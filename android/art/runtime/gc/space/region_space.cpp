@@ -32,6 +32,17 @@ namespace art {
 namespace gc {
 namespace space {
 
+void RegionSpace::Init() {
+    Android::RegisterSdkListener(Android::O, art::gc::space::RegionSpace::Init26);
+    Android::RegisterSdkListener(Android::P, art::gc::space::RegionSpace::Init28);
+    Android::RegisterSdkListener(Android::Q, art::gc::space::RegionSpace::Init29);
+    Android::RegisterSdkListener(Android::R, art::gc::space::RegionSpace::Init30);
+    Android::RegisterSdkListener(Android::S, art::gc::space::RegionSpace::Init31);
+
+    Android::RegisterSdkListener(Android::O, art::gc::space::RegionSpace::Region::Init26);
+    Android::RegisterSdkListener(Android::Q, art::gc::space::RegionSpace::Region::Init29);
+}
+
 void RegionSpace::Init26() {
     if (CoreApi::Bits() == 64) {
         __RegionSpace_offset__ = {

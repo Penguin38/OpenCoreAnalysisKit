@@ -22,9 +22,13 @@
 struct FrameData_OffsetTable __FrameData_offset__;
 struct FrameData_SizeTable __FrameData_size__;
 
-namespace unwindstack {
+namespace android {
 
-void FrameData::Init() {
+void UnwindStack::Init() {
+    android::UnwindStack::FrameData::Init();
+}
+
+void UnwindStack::FrameData::Init() {
     if (CoreApi::Bits() == 64) {
         __FrameData_offset__ = {
             .pc = 16,
@@ -48,7 +52,7 @@ void FrameData::Init() {
     }
 }
 
-std::string FrameData::GetMethod() {
+std::string UnwindStack::FrameData::GetMethod() {
     int status;
     std::string method;
     cxx::string name = function_name();
@@ -63,4 +67,4 @@ std::string FrameData::GetMethod() {
     return method;
 }
 
-} // namespace unwindstack;
+} // namespace android

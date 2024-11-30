@@ -41,6 +41,13 @@ void OatFile::Init() {
     }
 }
 
+void OatDexFile::Init() {
+    Android::RegisterSdkListener(Android::O, art::OatDexFile::Init26);
+    Android::RegisterSdkListener(Android::P, art::OatDexFile::Init28);
+    Android::RegisterSdkListener(Android::S, art::OatDexFile::Init31);
+    Android::RegisterSdkListener(Android::V, art::OatDexFile::Init35);
+}
+
 void OatDexFile::Init26() {
     if (CoreApi::Bits() == 64) {
         __OatDexFile_offset__ = {
