@@ -48,6 +48,7 @@ private:
     bool dump_all;
     bool format_hex;
     int show_flag;
+    int obj_each_flags;
 };
 
 #endif // PARSER_COMMAND_CMD_CLASS_H_

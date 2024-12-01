@@ -30,9 +30,11 @@ int ClassCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
         return 0;
 
-    dump_all = !(argc > 1)? true : false;
+    dump_all = true;
     show_flag = 0;
     format_hex = false;
+    obj_each_flags = 0;
+
     int opt;
     int option_index = 0;
     optind = 0; // reset
@@ -42,6 +44,10 @@ int ClassCommand::main(int argc, char* const argv[]) {
         {"impl",    no_argument,       0,  'i'},
         {"field",   no_argument,       0,  'f'},
         {"hex",     no_argument,       0,  'x'},
+        {"app",     no_argument,       0,   0 },
+        {"zygote",  no_argument,       0,   1 },
+        {"image",   no_argument,       0,   2 },
+        {"fake",    no_argument,       0,   3 },
     };
 
     while ((opt = getopt_long(argc, argv, "msifx",
@@ -62,17 +68,42 @@ int ClassCommand::main(int argc, char* const argv[]) {
             case 'x':
                 format_hex = true;
                 break;
+            case 0:
+                obj_each_flags |= Android::EACH_APP_OBJECTS;
+                break;
+            case 1:
+                obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+                break;
+            case 2:
+                obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+                break;
+            case 3:
+                obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+                break;
         }
+    }
+
+    if (!obj_each_flags) {
+        obj_each_flags |= Android::EACH_APP_OBJECTS;
+        obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+        obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+        obj_each_flags |= Android::EACH_FAKE_OBJECTS;
     }
 
     show_flag = !show_flag ? SHOW_ALL : show_flag;
     total_classes = 0;
+    if (optind < argc) dump_all = false;
 
     const char* classname = argv[optind];
     auto callback = [&](art::mirror::Object& object) -> bool {
         return PrintClass(object, classname);
     };
-    Android::ForeachObjects(callback);
+
+    try {
+        Android::ForeachObjects(callback, obj_each_flags, false);
+    } catch(InvalidAddressException e) {
+        LOGW("The statistical process was interrupted!\n");
+    }
     return 0;
 }
 
@@ -186,13 +217,14 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
 }
 
 void ClassCommand::usage() {
-    LOGI("Usage: class [CLASSNAME] [OPTION]\n");
+    LOGI("Usage: class [CLASSNAME] [OPTION] [TYPE]\n");
     LOGI("Option:\n");
     LOGI("    -m, --method       show class method\n");
     LOGI("    -i, --impl         show class implements class\n");
     LOGI("    -s, --static       show static field\n");
     LOGI("    -f, --field        show instance field\n");
     LOGI("    -x, --hex          basic type hex print\n");
+    LOGI("Type: {--app, --zygote, --image, --fake}\n");
     ENTER();
     LOGI("core-parser> class android.net.wifi.WifiNetworkSpecifier\n");
     LOGI("[0x71c530a0]\n");

@@ -300,13 +300,14 @@ Object Name: penguin.opencore.tester.MainActivity
 
 ```
 core-parser> help class
-Usage: class [CLASSNAME] [OPTION]
+Usage: class [CLASSNAME] [OPTION] [TYPE]
 Option:
     -m, --method       show class method
     -i, --impl         show class implements class
     -s, --static       show static field
     -f, --field        show instance field
     -x, --hex          basic type hex print
+Type: {--app, --zygote, --image, --fake}
 
 core-parser> class android.net.wifi.WifiNetworkSpecifier
 [0x71c530a0]
