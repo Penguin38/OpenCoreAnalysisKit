@@ -147,7 +147,6 @@ public:
     inline static art::Runtime& GetRuntime() { return INSTANCE->current(); }
     static void SysRoot(const char* path);
     inline static uint64_t DlSym(const char* symbol) { return CoreApi::DlSym(INSTANCE->realLibart.c_str(), symbol); }
-    static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn);
     static inline std::string& GetRealLibart() { return INSTANCE->realLibart; }
     static inline art::OatHeader& GetOatHeader() { return INSTANCE->oat_header(); }
     static void OnLibartLoad(LinkMap* map) { if (INSTANCE) INSTANCE->onLibartLoad(map); }
@@ -160,8 +159,24 @@ public:
      * app
      * zygote
      * image
+     * fake
      */
+    static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn);
     static void ForeachObjects(std::function<bool (art::mirror::Object& object)> fn, int flag, bool check);
+
+    static constexpr int EACH_LOCAL_REFERENCES = 1 << 0;
+    static constexpr int EACH_GLOBAL_REFERENCES = 1 << 1;
+    static constexpr int EACH_WEAK_GLOBAL_REFERENCES = 1 << 2;
+    /*
+     * local-references
+     * global-references
+     * weak-global-references
+     */
+    static void ForeachReferences(std::function<bool (art::mirror::Object& object)> fn);
+    static void ForeachReferences(std::function<bool (art::mirror::Object& object)> fn, int flag);
+    static void ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn);
+    static void ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn, int flag);
+
 private:
     void init();
     void onSdkChanged(int sdk);

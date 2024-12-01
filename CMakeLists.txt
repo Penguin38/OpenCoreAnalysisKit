@@ -258,6 +258,7 @@ add_library(parser STATIC
             parser/command/cmd_thread.cpp
             parser/command/cmd_getprop.cpp
             parser/command/cmd_print.cpp
+            parser/command/cmd_reference.cpp
             parser/command/cmd_hprof.cpp
             parser/command/cmd_search.cpp
             parser/command/cmd_class.cpp

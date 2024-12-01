@@ -19,6 +19,7 @@
 
 #include "api/memory_ref.h"
 #include "runtime/mirror/object.h"
+#include <functional>
 
 struct IrtEntry_OffsetTable {
     uint32_t serial_;
@@ -93,6 +94,8 @@ public:
     }
     static uint32_t DecodeIndex(uint64_t uref);
     mirror::Object DecodeReference(uint32_t idx);
+    void Walk(std::function<bool (mirror::Object& object)> fn);
+    void Walk(std::function<bool (mirror::Object& object, uint64_t idx)> fn);
 };
 
 } // namespace art

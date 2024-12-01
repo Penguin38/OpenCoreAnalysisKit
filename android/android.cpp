@@ -438,6 +438,39 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
     }
 }
 
+void Android::ForeachReferences(std::function<bool (art::mirror::Object& object)> fn) {
+    ForeachReferences(fn, EACH_LOCAL_REFERENCES | EACH_GLOBAL_REFERENCES | EACH_WEAK_GLOBAL_REFERENCES);
+}
+
+void Android::ForeachReferences(std::function<bool (art::mirror::Object& object)> fn, int flag) {
+    auto callback = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+        fn(object);
+        return false;
+    };
+    ForeachReferences(callback, flag);
+}
+
+void Android::ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn) {
+    ForeachReferences(fn, EACH_LOCAL_REFERENCES | EACH_GLOBAL_REFERENCES | EACH_WEAK_GLOBAL_REFERENCES);
+}
+
+void Android::ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn, int flag) {
+    art::Runtime& runtime = art::Runtime::Current();
+    art::JavaVMExt& jvm = runtime.GetJavaVM();
+
+    if (flag & EACH_GLOBAL_REFERENCES) {
+        LOGD("Walk global references table\n");
+        art::IndirectReferenceTable& global = jvm.GetGlobalsTable();
+        global.Walk(fn);
+    }
+
+    if (flag & EACH_WEAK_GLOBAL_REFERENCES) {
+        LOGD("Walk weak global references table\n");
+        art::IndirectReferenceTable& weak_global = jvm.GetWeakGlobalsTable();
+        weak_global.Walk(fn);
+    }
+}
+
 void Android::SysRoot(const char* path) {
     art::Runtime& runtime = art::Runtime::Current();
     if (!runtime.Ptr()) return;

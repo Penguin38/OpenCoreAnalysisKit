@@ -132,4 +132,36 @@ mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
     return object;
 }
 
+void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&)> fn) {
+    auto callback = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+        fn(object);
+        return false;
+    };
+    Walk(callback);
+}
+
+void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)> fn) {
+    mirror::Object object = 0x0;
+    uint64_t top_index_ = 0x0;
+
+    if (Android::Sdk() < Android::T) {
+        top_index_ = segment_state();
+    } else {
+        top_index_ = top_index();
+    }
+
+    for (int idx = 0; idx < top_index_; ++idx) {
+        IrtEntry entry = table();
+        entry.MovePtr(SIZEOF(IrtEntry) * idx);
+        api::MemoryRef ref = entry.references();
+        if (Android::Sdk() < Android::T) {
+            object = ref.value32Of(entry.serial() * sizeof(uint32_t));
+        } else {
+            object = ref.value32Of();
+        }
+        if (object.IsValid()) fn(object, idx);
+    }
+
+}
+
 } // namespace art

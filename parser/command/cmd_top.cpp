@@ -40,7 +40,8 @@ int TopCommand::main(int argc, char* const argv[]) {
     num = atoi(argv[1]);
     order = ORDERBY_ALLOC;
     show = false;
-    flag = 0;
+    obj_each_flags = 0;
+    ref_each_flags = 0;
 
     int opt;
     int option_index = 0;
@@ -54,6 +55,8 @@ int TopCommand::main(int argc, char* const argv[]) {
         {"zygote",     no_argument,       0,   1 },
         {"image",      no_argument,       0,   2 },
         {"fake",       no_argument,       0,   3 },
+        {"global",     no_argument,       0,   4 },
+        {"weak",       no_argument,       0,   5 },
     };
 
     while ((opt = getopt_long(argc, argv, "asnd",
@@ -72,25 +75,31 @@ int TopCommand::main(int argc, char* const argv[]) {
                 show = true;
                 break;
             case 0:
-                flag |= Android::EACH_APP_OBJECTS;
+                obj_each_flags |= Android::EACH_APP_OBJECTS;
                 break;
             case 1:
-                flag |= Android::EACH_ZYGOTE_OBJECTS;
+                obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
                 break;
             case 2:
-                flag |= Android::EACH_IMAGE_OBJECTS;
+                obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
                 break;
             case 3:
-                flag |= Android::EACH_FAKE_OBJECTS;
+                obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+                break;
+            case 4:
+                ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                break;
+            case 5:
+                ref_each_flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
                 break;
         }
     }
 
-    if (!flag) {
-        flag |= Android::EACH_APP_OBJECTS;
-        flag |= Android::EACH_ZYGOTE_OBJECTS;
-        flag |= Android::EACH_IMAGE_OBJECTS;
-        flag |= Android::EACH_FAKE_OBJECTS;
+    if (!obj_each_flags) {
+        obj_each_flags |= Android::EACH_APP_OBJECTS;
+        obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+        obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+        obj_each_flags |= Android::EACH_FAKE_OBJECTS;
     }
     std::map<art::mirror::Class, TopCommand::Pair> classes;
     art::mirror::Class cleaner = 0;
@@ -126,7 +135,11 @@ int TopCommand::main(int argc, char* const argv[]) {
     };
 
     try {
-        Android::ForeachObjects(callback, flag, false);
+        if (!ref_each_flags) {
+            Android::ForeachObjects(callback, obj_each_flags, false);
+        } else {
+            Android::ForeachReferences(callback, ref_each_flags);
+        }
     } catch(InvalidAddressException e) {
         LOGW("The statistical process was interrupted!\n");
     }

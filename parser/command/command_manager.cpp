@@ -32,6 +32,7 @@
 #include "command/cmd_thread.h"
 #include "command/cmd_getprop.h"
 #include "command/cmd_print.h"
+#include "command/cmd_reference.h"
 #include "command/cmd_hprof.h"
 #include "command/cmd_search.h"
 #include "command/cmd_class.h"
@@ -89,6 +90,7 @@ void CommandManager::Init() {
     // android
     CommandManager::PushInlineCommand(new GetPropCommand());
     CommandManager::PushInlineCommand(new PrintCommand());
+    CommandManager::PushInlineCommand(new ReferenceCommand());
     CommandManager::PushInlineCommand(new HprofCommand());
     CommandManager::PushInlineCommand(new SearchCommand());
     CommandManager::PushInlineCommand(new ClassCommand());

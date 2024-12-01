@@ -14,40 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_CMD_TOP_H_
-#define PARSER_COMMAND_CMD_TOP_H_
+#ifndef PARSER_COMMAND_CMD_REFERENCE_H_
+#define PARSER_COMMAND_CMD_REFERENCE_H_
 
 #include "command/command.h"
-#include "runtime/mirror/object.h"
-#include "android.h"
 
-class TopCommand : public Command {
+class ReferenceCommand : public Command {
 public:
-    static constexpr int ORDERBY_ALLOC = 1 << 0;
-    static constexpr int ORDERBY_SHALLOW = 1 << 1;
-    static constexpr int ORDERBY_NATIVE = 1 << 2;
+    static constexpr int GLOBAL = 1 << 0;
+    static constexpr int WEAK_GLOBAL = 1 << 1;
 
-    TopCommand() : Command("top") {}
-    ~TopCommand() {}
+    ReferenceCommand() : Command("reference", "ref") {}
+    ~ReferenceCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
     void usage();
-
-    class Pair {
-    public:
-        uint64_t alloc_count;
-        uint64_t shallow_size;
-        uint64_t native_size;
-    };
-private:
-    int num;
-    int order;
-    bool show;
-    int obj_each_flags;
-    int ref_each_flags;
 };
 
-#endif // PARSER_COMMAND_CMD_TOP_H_
+#endif // PARSER_COMMAND_CMD_REFERENCE_H_
