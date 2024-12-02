@@ -114,11 +114,11 @@ core-parser> help
         core          exec       sysroot          mmap          auxv
         file           map          read         write      register
       thread     backtrace         frame   disassemble       getprop
-       print         hprof        search         class           top
-       space           dex        method        logcat       dumpsys
-     fdtrack           env           cxx         scudo         shell
-      plugin          help        remote          fake          time
-     version          quit
+       print     reference         hprof        search         class
+         top         space           dex        method        logcat
+     dumpsys       fdtrack           env           cxx         scudo
+       shell        plugin          help        remote          fake
+        time       version          quit
 ```
 
 ```
@@ -263,6 +263,41 @@ Reference:
 Binary:
 12c00000: 000000006f819828  0000000000000000  (..o............
 12c00010: 12c0001800000000  00000000704662b0  .........bFp....
+```
+
+```
+core-parser> help ref
+Usage: reference|ref [<UREF>] [OPTIONE]
+Option:
+    --global     foreach global references table
+    --weak       foreach weak global references table
+    -x, --hex    basic type hex print
+
+core-parser> ref 2206 -x
+[JNI_GLOBAL] 0x71c9c4c0
+Size: 0x40
+Padding: 0x4
+Object Name: java.nio.DirectByteBuffer
+    [0x38] final java.nio.DirectByteBuffer$MemoryRef memoryRef = 0x71fadd78
+    [0x34] final sun.misc.Cleaner cleaner = 0x0
+  // extends java.nio.MappedByteBuffer
+    [0x30] private final java.io.FileDescriptor fd = 0x0
+  // extends java.nio.ByteBuffer
+    [0x2e] boolean nativeByteOrder = false
+    [0x2d] boolean isReadOnly = true
+    [0x2c] boolean bigEndian = true
+    [0x28] final int offset = 0x0
+    [0x24] final byte[] hb = 0x0
+  // extends java.nio.Buffer
+    [0x20] int position = 0x0
+    [0x1c] private int mark = 0xffffffff
+    [0x18] private int limit = 0x6930
+    [0x14] private int capacity = 0x6930
+    [0x10] final int _elementSizeShift = 0x0
+    [0x08] long address = 0x7dfc54e42000
+  // extends java.lang.Object
+    [0x04] private transient int shadow$_monitor_ = 0x20000000
+    [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f917db0
 ```
 
 ```

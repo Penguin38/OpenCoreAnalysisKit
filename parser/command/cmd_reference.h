@@ -21,9 +21,6 @@
 
 class ReferenceCommand : public Command {
 public:
-    static constexpr int GLOBAL = 1 << 0;
-    static constexpr int WEAK_GLOBAL = 1 << 1;
-
     ReferenceCommand() : Command("reference", "ref") {}
     ~ReferenceCommand() {}
     int main(int argc, char* const argv[]);
