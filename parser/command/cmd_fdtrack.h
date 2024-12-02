@@ -18,6 +18,10 @@
 #define PARSER_COMMAND_CMD_FDTRACK_H_
 
 #include "command/command.h"
+#include "fdtrack/fdtrack.h"
+#include <string>
+#include <vector>
+#include <array>
 
 class FdtrackCommand : public Command {
 public:
@@ -26,6 +30,24 @@ public:
     int main(int argc, char* const argv[]);
     bool prepare(int argc, char* const argv[]) { return true; }
     void usage();
+
+    struct NativeFrame {
+        uint64_t id;
+        uint64_t offset;
+        uint64_t pc;
+        std::string method;
+    };
+
+    struct SortKey {
+        uint32_t crc32;
+        uint32_t count;
+    };
+
+    static void ShowStack(std::vector<NativeFrame>& nfv);
+    static void ShowTopStack(std::array<std::vector<NativeFrame>, android::FdTrack::kFdTableSize> fdv, uint32_t num);
+private:
+    bool dump_top;
+    int top;
 };
 
 #endif // PARSER_COMMAND_CMD_FDTRACK_H_

@@ -997,6 +997,26 @@ core-parser> cxx vector 0x79196ce6d3c0 --entry-size 8
 [14] 0x7918cce67df0
 ```
 
+```
+core-parser> help fdtrack
+Usage: fdtrack [<FD>] [OPTION]
+Option:
+    -t, --top <NUM>  collect top stack
+
+core-parser> fdtrack --top 1
+CRC32[7c8101a9]  COUNT[1]
+  Native: #00  00000074682b7b90  socketpair+0x184
+  Native: #01  00000074684fdfac  android::InputChannel::openInputChannelPair(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, std::__1::unique_ptr<android::InputChannel, std::__1::default_delete<android::InputChannel> >&, std::__1::unique_ptr<android::InputChannel, std::__1::default_delete<android::InputChannel> >&)+0x54
+  Native: #02  0000007123af75d4  android::inputdispatcher::InputDispatcher::createInputChannel(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&)+0x54
+  Native: #03  00000071bdc8be54  android::nativeCreateInputChannel(_JNIEnv*, _jobject*, _jstring*)+0x184
+  Native: #04  0000000071c610ec  art_jni_trampoline+0x7c
+  Native: #05  00000071c2a0b190  nterp_helper+0x1e20
+  Native: #06  00000071af03c0e4  com.android.server.input.InputManagerService.createInputChannel+0x4
+  Native: #07  00000071c2a0a2c4  nterp_helper+0xf54
+  Native: #08  00000071ae9d874c  com.android.server.wm.WindowState.openInputChannel+0x18
+  ...
+```
+
 # Plugin
 ```
 core-parser> help plugin

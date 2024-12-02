@@ -39,6 +39,7 @@ public:
     static inline const char* FDTRACK32 = "/system/lib/libfdtrack.so";
     static inline const char* FD_TRACK_STACK_TRACES = "_ZL12stack_traces";
     static constexpr uint32_t kFdTableSize = 4096;
+    static constexpr uint32_t kStackDepth = 32;
 
     static void Init();
     static const char* GetPath();
