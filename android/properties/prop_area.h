@@ -20,9 +20,6 @@
 #include "properties/prop_info.h"
 #include <functional>
 
-#define PROP_FILENAME "/dev/__properties__"
-#define PROP_FILENAME_LEN 19
-
 struct PropArea_OffsetTable {
     uint32_t bytes_used_;
     uint32_t serial_;

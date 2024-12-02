@@ -23,6 +23,7 @@
 #include "command/remote/cmd_remote.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/hook.h"
+#include "command/remote/setprop/property.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/types.h>
@@ -43,6 +44,9 @@ static RemoteOption remote_option[] = {
     { "rd",     RemoteCommand::OptionRead },
     { "wd",     RemoteCommand::OptionWrite },
     { "pause",  RemoteCommand::OptionPause },
+#if defined(__ANDROID__)
+    { "setprop",AndroidProperty::Main },
+#endif
 };
 
 int RemoteCommand::main(int argc, char* const argv[]) {
@@ -234,4 +238,6 @@ void RemoteCommand::usage() {
     LOGI("7fb989794020: 0000000000000040  0000000000198c20  @...............\n");
     ENTER();
     LOGI("remote pause <PID ...> [-a]\n");
+    ENTER();
+    AndroidProperty::Usage();
 }
