@@ -247,9 +247,9 @@ void PrintCommand::DumpArray(art::mirror::Array& array) {
         for (int32_t i = 0; i < length; ++i) {
             api::MemoryRef ref(array.GetRawData(sizeof(uint32_t), i), array);
             art::mirror::Object object(*reinterpret_cast<uint32_t *>(ref.Real()), array);
-            if (object.Ptr() && object.IsString()) {
+            if (object.IsValid() && object.IsString()) {
                 art::mirror::String str = object;
-                LOGI("    [%d] \"" ANSI_COLOR_LIGHTMAGENTA "%s\"\n" ANSI_COLOR_RESET, i, str.ToModifiedUtf8().c_str());
+                LOGI("    [%d] \"" ANSI_COLOR_LIGHTMAGENTA "%s" ANSI_COLOR_RESET "\"\n", i, str.ToModifiedUtf8().c_str());
             } else {
                 LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, i, object.Ptr());
             }
@@ -359,7 +359,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
             break;
         case Android::basic_object: {
             art::mirror::Object tmp(field.GetObj(object), object);
-            if (tmp.Ptr() && tmp.IsValid() && tmp.IsString()) {
+            if (tmp.IsValid() && tmp.IsString()) {
                 art::mirror::String str = tmp;
                 LOGI(" = \"" ANSI_COLOR_LIGHTMAGENTA "%s" ANSI_COLOR_RESET "\"\n", str.ToModifiedUtf8().c_str());
             } else {
