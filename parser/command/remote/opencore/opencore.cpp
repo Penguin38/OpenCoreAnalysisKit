@@ -34,7 +34,6 @@
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
-#include <memory>
 
 int Opencore::Dump(int argc, char* const argv[]) {
     int opt;
@@ -78,11 +77,23 @@ int Opencore::Dump(int argc, char* const argv[]) {
         }
     }
 
-    std::unique_ptr<Opencore> impl;
     std::string type = machine ? machine : "";
     if (!strcmp(machine, NONE_MACHINE)) {
         type = DecodeMachine(pid);
     }
+
+    std::unique_ptr<Opencore> impl = Opencore::MakeArch(type);
+    if (impl) {
+        impl->setDir(dir);
+        impl->setPid(pid);
+        impl->setFilter(filter);
+        impl->Coredump(filename);
+    }
+    return 0;
+}
+
+std::unique_ptr<Opencore> Opencore::MakeArch(std::string& type) {
+    std::unique_ptr<Opencore> impl;
     if (type == "arm64" || type == "ARM64") {
         impl = std::make_unique<arm64::Opencore>();
     } else if (type == "arm" || type == "ARM") {
@@ -94,14 +105,7 @@ int Opencore::Dump(int argc, char* const argv[]) {
     } else if (type == "riscv64" || type == "RISCV64") {
         impl = std::make_unique<riscv64::Opencore>();
     }
-
-    if (impl) {
-        impl->setDir(dir);
-        impl->setPid(pid);
-        impl->setFilter(filter);
-        impl->Coredump(filename);
-    }
-    return 0;
+    return std::move(impl);
 }
 
 bool Opencore::Coredump(const char* filename) {
@@ -191,37 +195,37 @@ Opencore::~Opencore() {
     if (zero) free(zero);
 }
 
-bool Opencore::IsFilterSegment(char* flags, int inode, std::string segment, int offset) {
+bool Opencore::IsFilterSegment(Opencore::VirtualMemoryArea& vma) {
     int filter = getFilter();
     if (filter & FILTER_SPECIAL_VMA) {
-        if (segment == "/dev/binderfs/hwbinder"
-                || segment == "/dev/binderfs/binder"
-                || segment == "[vvar]"
-                || segment == "/dev/mali0"
+        if (vma.file == "/dev/binderfs/hwbinder"
+                || vma.file == "/dev/binderfs/binder"
+                || vma.file == "[vvar]"
+                || vma.file == "/dev/mali0"
            ) {
             return true;
         }
     }
 
     if (filter & FILTER_FILE_VMA) {
-        if (inode > 0 && flags[1] == '-')
-            return NeedFilterFile(segment.c_str(), offset);
+        if (vma.inode > 0 && vma.flags[1] == '-')
+            return NeedFilterFile(vma);
     }
 
     if (filter & FILTER_SHARED_VMA) {
-        if (flags[3] == 's' || flags[3] == 'S')
+        if (vma.flags[3] == 's' || vma.flags[3] == 'S')
             return true;
     }
 
     if (filter & FILTER_SANITIZER_SHADOW_VMA) {
-        if (segment == "[anon:low shadow]"
-                || segment == "[anon:high shadow]"
-                || (segment.compare(0, 12, "[anon:hwasan") == 0))
+        if (vma.file == "[anon:low shadow]"
+                || vma.file == "[anon:high shadow]"
+                || (vma.file.compare(0, 12, "[anon:hwasan") == 0))
             return true;
     }
 
     if (filter & FILTER_NON_READ_VMA) {
-        if (flags[0] == '-' && flags[1] == '-' && flags[2] == '-')
+        if (vma.flags[0] == '-' && vma.flags[1] == '-' && vma.flags[2] == '-')
             return true;
     }
     return false;
@@ -305,6 +309,30 @@ std::string Opencore::DecodeMachine(int pid) {
         LOGE("uname fail!\n");
     }
     return NONE_MACHINE;
+}
+
+void Opencore::ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps) {
+    char filename[32];
+    char line[1024];
+
+    snprintf(filename, sizeof(filename), "/proc/%d/maps", pid);
+    FILE *fp = fopen(filename, "r");
+    if (fp) {
+        while (fgets(line, sizeof(line), fp)) {
+            int m;
+            VirtualMemoryArea vma;
+            char filename[256] = {'\0'};
+
+            sscanf(line, "%lx-%lx %c%c%c%c %x %x:%x  %lu  %[^\n] %n",
+                   &vma.begin, &vma.end,
+                   &vma.flags[0], &vma.flags[1], &vma.flags[2], &vma.flags[3],
+                   &vma.offset, &vma.major, &vma.minor, &vma.inode, filename, &m);
+
+            vma.file = filename;
+            maps.push_back(vma);
+        }
+        fclose(fp);
+    }
 }
 
 void Opencore::Usage() {

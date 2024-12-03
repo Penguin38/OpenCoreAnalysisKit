@@ -797,8 +797,8 @@ New note overlay [7d6d8, 104073)
 core-parser> help remote
 Usage: remote <COMMAND> [OPTION...]
 Command:
-    core    hook    rd    wd
-    pause   setprop
+    core      hook      rd      wd
+    pause     setprop   maps
 
 Usage: remote core [-p <PID>] [-m <MACHINE>] [OPTION...]
 Option:
@@ -829,6 +829,11 @@ Core env: /data/core.init_1_1718900269
   * VabitsMask: 0xffffffffffffffff
   * Thread: 1
   ...
+
+Usage: remote hook [COMMAND] [OPTION]
+Command:
+    --inject      inject library
+    -l, --lib     set library path or name
 
 remote wd [-p <PID>] <ADDRESS> [-s|-v] <VALUE>
 core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo

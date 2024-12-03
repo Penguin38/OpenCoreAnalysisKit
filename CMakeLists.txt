@@ -284,6 +284,11 @@ add_library(parser STATIC
             parser/command/remote/opencore/x86/opencore.cpp
             parser/command/remote/opencore/riscv64/opencore.cpp
             parser/command/remote/hook/hook.cpp
+            parser/command/remote/hook/arm64/hook.cpp
+            parser/command/remote/hook/arm/hook.cpp
+            parser/command/remote/hook/x86_64/hook.cpp
+            parser/command/remote/hook/x86/hook.cpp
+            parser/command/remote/hook/riscv64/hook.cpp
             parser/command/remote/setprop/property.cpp
             parser/command/remote/setprop/prop_area.cpp
             parser/command/fake/cmd_fake.cpp

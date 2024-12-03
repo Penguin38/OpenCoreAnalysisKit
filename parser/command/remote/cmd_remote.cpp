@@ -47,6 +47,7 @@ static RemoteOption remote_option[] = {
 #if defined(__ANDROID__)
     { "setprop",AndroidProperty::Main },
 #endif
+    { "maps",   RemoteCommand::OptionMaps },
 };
 
 int RemoteCommand::main(int argc, char* const argv[]) {
@@ -96,22 +97,12 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
     opencore->StopTheWorld(pid);
 
-    char filename[32];
     uint64_t value[ELF_PAGE_SIZE / 8];
     memset(value, 0x0, ELF_PAGE_SIZE);
-    snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
-    int fd = open(filename, O_RDONLY);
-    if (fd < 0) {
-        LOGE("open %s fail.\n", filename);
-        return 0;
-    }
 
     uint64_t begin = Utils::atol(argv[optind]);
-    if (pread64(fd, &value, sizeof(value), begin) < 0) {
-        LOGE("read %lx fail.\n", begin);
-        close(fd);
+    if (!RemoteCommand::Read(pid, begin, sizeof(value), (uint8_t *)&value))
         return 0;
-    }
 
     int count = RoundUp((end - begin) / 8, 2);
     if (begin >= end || !count) {
@@ -123,7 +114,6 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
                     Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
         }
     }
-    close(fd);
     return 0;
 }
 
@@ -164,26 +154,47 @@ int RemoteCommand::OptionWrite(int argc, char* const argv[]) {
     std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
     opencore->StopTheWorld(pid);
 
+    if (buf) {
+        RemoteCommand::Write(pid, Utils::atol(argv[optind]), (void *)buf, strlen(buf) + 1);
+    } else {
+        RemoteCommand::Write(pid, Utils::atol(argv[optind]), value);
+    }
+
+    return 0;
+}
+
+void RemoteCommand::Write(int pid, uint64_t vaddr, void *buf, uint64_t size) {
     char filename[32];
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     int fd = open(filename, O_RDWR);
     if (fd < 0) {
         LOGE("open %s fail.\n", filename);
-        return 0;
+        return;
     }
 
-    uint64_t begin = Utils::atol(argv[optind]);
-    if (buf) {
-        if (pwrite64(fd, buf, strlen(buf) + 1, begin) < 0) {
-            LOGE("write %lx fail.\n", begin);
-        }
-    } else {
-        if (pwrite64(fd, &value, sizeof(uint64_t), begin) < 0) {
-            LOGE("write %lx fail.\n", begin);
-        }
-    }
+    if (pwrite64(fd, buf, size, vaddr) < 0)
+        LOGE("write %lx fail.\n", vaddr);
+
     close(fd);
-    return 0;
+}
+
+bool RemoteCommand::Read(int pid, uint64_t vaddr, uint64_t size, uint8_t* buf) {
+    char filename[32];
+    snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
+    int fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+        LOGE("open %s fail.\n", filename);
+        return false;
+    }
+
+    if (pread64(fd, buf, size, vaddr) < 0) {
+        LOGE("read %lx fail.\n", vaddr);
+        close(fd);
+        return false;
+    }
+
+    close(fd);
+    return true;
 }
 
 int RemoteCommand::OptionPause(int argc, char* const argv[]) {
@@ -219,15 +230,47 @@ int RemoteCommand::OptionPause(int argc, char* const argv[]) {
     return 0;
 }
 
+int RemoteCommand::OptionMaps(int argc, char* const argv[]) {
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"pid",     required_argument, 0, 'p'},
+    };
+
+    int pid = 0;
+    if (CoreApi::IsRemote())
+        pid = Env::CurrentRemotePid();
+    while ((opt = getopt_long(argc, argv, "p:",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'p':
+                pid = std::atoi(optarg);
+                break;
+        }
+    }
+
+    std::vector<Opencore::VirtualMemoryArea> maps;
+    Opencore::ParseMaps(pid, maps);
+
+    for (const auto& vma : maps) {
+        LOGI("%016lx-%016lx  %c%c%c%c  %08x  %02x:%02x  %lu  %s\n",
+            vma.begin, vma.end, vma.flags[0], vma.flags[1], vma.flags[2], vma.flags[3],
+            vma.offset, vma.major, vma.minor, vma.inode, vma.file.c_str());
+    }
+    return 0;
+}
+
 void RemoteCommand::usage() {
     LOGI("Usage: remote <COMMAND> [OPTION...]\n");
     LOGI("Command:\n");
-    LOGI("    core    hook    rd    wd\n");
-    LOGI("    pause   setprop\n");
+    LOGI("    core      hook      rd      wd\n");
+    LOGI("    pause     setprop   maps\n");
     ENTER();
     Opencore::Usage();
     ENTER();
-    // Hook::Usage();
+    Hook::Usage();
+    ENTER();
     LOGI("remote wd [-p <PID>] <ADDRESS> [-s|-v] <VALUE>\n");
     LOGI("core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo\n");
     ENTER();
@@ -238,6 +281,8 @@ void RemoteCommand::usage() {
     LOGI("7fb989794020: 0000000000000040  0000000000198c20  @...............\n");
     ENTER();
     LOGI("remote pause <PID ...> [-a]\n");
+#if defined(__ANDROID__)
     ENTER();
     AndroidProperty::Usage();
+#endif
 }

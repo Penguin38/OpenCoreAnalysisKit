@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_REMOTE_HOOK_INLINE_INLINE_H_
-#define PARSER_COMMAND_REMOTE_HOOK_INLINE_INLINE_H_
+#include "logger/log.h"
+#include "command/remote/hook/arm/hook.h"
 
-class InlineHook {
+namespace arm {
 
-};
+bool Hook::InjectLibrary(const char* library) {
+    LOGI("arm: hook inject %s\n", library);
+    return true;
+}
 
-#endif // PARSER_COMMAND_REMOTE_HOOK_INLINE_INLINE_H_
+} // namespace arm

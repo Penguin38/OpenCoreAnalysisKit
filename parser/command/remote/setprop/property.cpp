@@ -18,15 +18,14 @@
 #include "command/remote/setprop/prop_info.h"
 #include "command/remote/setprop/prop_area.h"
 #include "command/remote/opencore/opencore.h"
+#include "command/remote/cmd_remote.h"
+#include "base/memory_map.h"
 #include "logger/log.h"
 #include "api/core.h"
 #include <dirent.h>
 #include <stdio.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string>
+#include <memory>
 
 int AndroidProperty::Main(int argc, char* const argv[]) {
     if (argc != 3) {
@@ -72,7 +71,6 @@ int AndroidProperty::Set(std::string& name, std::string& value) {
     opencore->StopTheWorld(1);
 
     struct dirent *entry;
-    struct stat st;
     char line[1024];
     uint64_t prop_info_ptr = 0x0;
     const char* new_value = value.c_str();
@@ -85,19 +83,14 @@ int AndroidProperty::Set(std::string& name, std::string& value) {
 
             char entry_path[256] = {'\0'};
             snprintf(entry_path, sizeof(entry_path), "%s/%s", PROP_FILENAME, entry->d_name);
-            int fd = open(entry_path, O_RDONLY);
 
-            if (fd) {
-                fstat(fd, &st);
-                char *ptr = (char *)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-                close(fd);
-
-                prop_area* area = (prop_area *)ptr;
+            std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(entry_path));
+            if (map) {
+                prop_area* area = (prop_area *)map->data();
                 prop_info* info = area->find(name.c_str());
-                munmap(ptr, st.st_size);
 
                 if (info) {
-                    uint32_t offset = ((uint8_t *)info)-(uint8_t *)ptr;
+                    uint32_t offset = ((uint64_t)info)-map->data();
                     FILE *fp = fopen("/proc/1/maps", "r");
                     if (!fp) return -1;
 
@@ -122,11 +115,10 @@ int AndroidProperty::Set(std::string& name, std::string& value) {
 
     if (!prop_info_ptr) return -1;
 
-    int fd = open("/proc/1/mem", O_RDWR);
-    if (fd < 0) return -1;
-
     prop_info new_info;
-    pread64(fd, &new_info, sizeof(prop_info), prop_info_ptr);
+    if (!RemoteCommand::Read(1, prop_info_ptr, sizeof(prop_info), (uint8_t *)&new_info))
+        return -1;
+
     uint32_t count = (new_info.serial >> 24);
     memset(&new_info.value, 0x0, count);
 
@@ -134,9 +126,7 @@ int AndroidProperty::Set(std::string& name, std::string& value) {
     new_info.serial |= (strlen(new_value) << 24);
     memcpy(&new_info.value, new_value, strlen(new_value));
 
-    pwrite64(fd, (void *)&new_info, sizeof(prop_info), prop_info_ptr);
-    close(fd);
-
+    RemoteCommand::Write(1, prop_info_ptr, (void *)&new_info, sizeof(prop_info));
     return 0;
 }
 

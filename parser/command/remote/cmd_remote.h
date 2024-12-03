@@ -30,6 +30,12 @@ public:
     static int OptionRead(int argc, char* const argv[]);
     static int OptionWrite(int argc, char* const argv[]);
     static int OptionPause(int argc, char* const argv[]);
+    static int OptionMaps(int argc, char* const argv[]);
+    static void Write(int pid, uint64_t vaddr, uint64_t value) {
+        Write(pid, vaddr, &value, 8);
+    }
+    static void Write(int pid, uint64_t vaddr, void *buf, uint64_t size);
+    static bool Read(int pid, uint64_t vaddr, uint64_t size, uint8_t* buf);
 };
 
 #endif // PARSER_COMMAND_REMOTE_CMD_REMOTE_H_

@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 #define NONE_MACHINE    "NONE"
 #define X86_64_MACHINE  "x86_64"
@@ -74,6 +75,17 @@ public:
         zero = (uint8_t*)malloc(align_size);
     }
 
+    struct VirtualMemoryArea {
+        uint64_t begin;
+        uint64_t end;
+        char     flags[4];
+        uint32_t offset;
+        uint32_t major;
+        uint32_t minor;
+        uint64_t inode;
+        std::string file;
+    };
+
     void setDir(const char* d) { dir = d; }
     void setPid(int p) { pid = p; }
     void setFilter(int f) { filter = f; }
@@ -85,18 +97,19 @@ public:
     bool Coredump(const char* filename);
     virtual ~Opencore();
     virtual bool DoCoredump(const char* filename) { return false; }
-    virtual bool NeedFilterFile(const char* filename, int offset) { return false; }
+    virtual bool NeedFilterFile(Opencore::VirtualMemoryArea& vma) { return false; }
     virtual int getMachine() { return EM_NONE; }
-    bool IsFilterSegment(char* flags, int inode, std::string segment, int offset);
+    bool IsFilterSegment(Opencore::VirtualMemoryArea& vma);
     void StopTheWorld(int pid);
     void StopTheThread(int tid);
     static bool IsBit64(int pid);
     static std::string DecodeMachine(int pid);
+    static std::unique_ptr<Opencore> MakeArch(std::string& type);
+    static void ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps);
 protected:
     int extra_note_filesz;
     std::vector<int> pids;
-    std::vector<uint8_t> buffer;
-    std::map<uint64_t, std::string> maps;
+    std::vector<VirtualMemoryArea> maps;
     uint8_t* zero;
     uint64_t align_size;
     uint64_t page_size;

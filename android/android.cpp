@@ -584,6 +584,9 @@ void Android::onLibartLoad(LinkMap *map) {
 }
 
 void Android::Dump() {
+    if (!IsSdkReady())
+        return;
+
     LOGI(ANSI_COLOR_LIGHTRED "Android env:\n" ANSI_COLOR_RESET);
     LOGI("  * ID: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Id());
     LOGI("  * Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, Name());

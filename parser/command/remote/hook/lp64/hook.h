@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_REMOTE_HOOK_GOT_GOT_H_
-#define PARSER_COMMAND_REMOTE_HOOK_GOT_GOT_H_
+#ifndef PARSER_COMMAND_REMOTE_HOOK_LP64_HOOK_IMPL_H_
+#define PARSER_COMMAND_REMOTE_HOOK_LP64_HOOK_IMPL_H_
 
-class GotHook {
+#include "command/remote/hook/hook.h"
 
+namespace lp64 {
+
+class HookImpl : public Hook {
+public:
+    HookImpl(int p) : Hook(p) {}
 };
 
-#endif // PARSER_COMMAND_REMOTE_HOOK_GOT_GOT_H_
+} // namespace lp64
+
+#endif  // PARSER_COMMAND_REMOTE_HOOK_LP64_HOOK_IMPL_H_

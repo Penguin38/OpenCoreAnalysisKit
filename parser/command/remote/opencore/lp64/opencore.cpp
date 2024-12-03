@@ -17,90 +17,61 @@
 #include "logger/log.h"
 #include "common/bit.h"
 #include "common/elf.h"
+#include "base/memory_map.h"
 #include "command/remote/opencore/lp64/opencore.h"
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/ptrace.h>
 #include <sys/uio.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
 
 namespace lp64 {
 
-void OpencoreImpl::ParserPhdr(int index, uint64_t start, uint64_t end, char* flags, char* filename) {
+void OpencoreImpl::ParserPhdr(int index, Opencore::VirtualMemoryArea& vma) {
     phdr[index].p_type = PT_LOAD;
 
-    phdr[index].p_vaddr = (Elf64_Addr)start;
+    phdr[index].p_vaddr = (Elf64_Addr)vma.begin;
     phdr[index].p_paddr = 0x0;
-    phdr[index].p_memsz = (Elf64_Addr)end-(Elf64_Addr)start;
+    phdr[index].p_memsz = (Elf64_Addr)vma.end-(Elf64_Addr)vma.begin;
 
-    if (flags[0] == 'r' || flags[0] == 'R')
+    if (vma.flags[0] == 'r' || vma.flags[0] == 'R')
         phdr[index].p_flags = phdr[index].p_flags | PF_R;
 
-    if (flags[1] == 'w' || flags[1] == 'W')
+    if (vma.flags[1] == 'w' || vma.flags[1] == 'W')
         phdr[index].p_flags = phdr[index].p_flags | PF_W;
 
-    if (flags[2] == 'x' || flags[2] == 'X')
+    if (vma.flags[2] == 'x' || vma.flags[2] == 'X')
         phdr[index].p_flags = phdr[index].p_flags | PF_X;
 
     phdr[index].p_filesz = phdr[index].p_memsz;
     phdr[index].p_align = align_size;
 }
 
-void OpencoreImpl::ParserNtFile(int index, uint64_t start, uint64_t end, int fileofs, char* filename) {
-    file[index].begin = (Elf64_Addr)start;
-    file[index].end = (Elf64_Addr)end;
-    file[index].offset = fileofs >> 12;
-
-    int len = strlen(filename);
-    buffer.insert(buffer.end(), filename, filename + len);
-    char empty[1] = {'\0'};
-    buffer.insert(buffer.end(), empty, empty + 1);
-    fileslen += len + 1;
-    maps[file[index].begin] = filename;
+void OpencoreImpl::ParserNtFile(int index, Opencore::VirtualMemoryArea& vma) {
+    file[index].begin = (Elf64_Addr)vma.begin;
+    file[index].end = (Elf64_Addr)vma.end;
+    file[index].offset = vma.offset >> 12;
+    fileslen += vma.file.length() + 1;
 }
 
 void OpencoreImpl::ParseProcessMapsVma(int pid) {
-    char filename[32];
-    char line[1024];
+    ParseMaps(pid, maps);
+    if (!maps.size())
+        return;
 
-    snprintf(filename, sizeof(filename), "/proc/%d/maps", pid);
-    FILE *fp = fopen(filename, "r");
-    if (fp) {
-        while (fgets(line, sizeof(line), fp)) {
-            phnum++;
-        }
-        fseek(fp, 0, SEEK_SET);
+    phnum = maps.size();
+    phdr = (Elf64_Phdr *)malloc(phnum * sizeof(Elf64_Phdr));
+    memset(phdr, 0, phnum * sizeof(Elf64_Phdr));
+    file = (lp64::File *)malloc(phnum * sizeof(lp64::File));
+    memset(file, 0, phnum * sizeof(lp64::File));
 
-        phdr = (Elf64_Phdr *)malloc(phnum * sizeof(Elf64_Phdr));
-        memset(phdr, 0, phnum * sizeof(Elf64_Phdr));
-        file = (lp64::File *)malloc(phnum * sizeof(lp64::File));
-        memset(file, 0, phnum * sizeof(lp64::File));
+    for (int index = 0; index < maps.size(); ++index) {
+        Opencore::VirtualMemoryArea& vma = maps[index];
+        ParserPhdr(index, vma);
+        ParserNtFile(index, vma);
 
-        int index = 0;
-        while (fgets(line, sizeof(line), fp)) {
-            int m, fileofs, inode;
-            uint64_t start, end;
-            char flags[4];
-            char filename[256];
-
-            sscanf(line, "%lx-%lx %c%c%c%c %x %*x:%*x  %u %[^\n] %n",
-                   &start, &end,
-                   &flags[0], &flags[1], &flags[2], &flags[3],
-                   &fileofs, &inode, filename, &m);
-
-            ParserPhdr(index, start, end, flags, filename);
-            ParserNtFile(index, start, end, fileofs, filename);
-
-            if (IsFilterSegment(flags, inode, filename, fileofs)) {
-                phdr[index].p_filesz = 0x0;
-            }
-
-            index++;
-        }
-        fclose(fp);
+        if (IsFilterSegment(vma))
+            phdr[index].p_filesz = 0x0;
     }
 }
 
@@ -173,7 +144,7 @@ void OpencoreImpl::WriteCoreProgramHeaders(FILE* fp) {
     fwrite(&phdr[0], sizeof(Elf64_Phdr), 1, fp);
 
     int index = 1;
-    while (index < ehdr.e_phnum - 1) {
+    while (index < phnum) {
         phdr[index].p_offset = phdr[index - 1].p_offset + phdr[index-1].p_filesz;
         fwrite(&phdr[index], sizeof(Elf64_Phdr), 1, fp);
         index++;
@@ -217,13 +188,11 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
     fwrite(&number, 8, 1, fp);
     fwrite(&page_size, 8, 1, fp);
 
-    int index = 0;
-    while(index < phnum){
+    for (int index = 0; index < phnum; ++index)
         fwrite(&file[index], sizeof(lp64::File), 1, fp);
-        index++;
-    }
 
-    fwrite(buffer.data(), buffer.size(), 1, fp);
+    for (int index = 0; index < phnum; ++index)
+        fwrite(maps[index].file.data(), maps[index].file.length() + 1, 1, fp);
 }
 
 void OpencoreImpl::AlignNoteSegment(FILE* fp) {
@@ -247,7 +216,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
         return;
     }
 
-    while(index < ehdr.e_phnum - 1) {
+    while(index < phnum) {
         if (phdr[index].p_filesz > 0) {
             long current_pos = ftell(fp);
             bool need_padd_zero = false;
@@ -259,7 +228,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 if (ret != 1) {
                     need_padd_zero = true;
                     LOGE("[%lx] write load segment fail. %s %s\n",
-                            (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[file[index].begin].c_str());
+                            (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[index].file.c_str());
                     break;
                 }
             }
@@ -271,7 +240,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                     uint64_t ret = fwrite(zero, align_size, 1, fp);
                     if (ret != 1) {
                         LOGE("[%lx] padding load segment fail. %s %s\n",
-                                (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[file[index].begin].c_str());
+                                (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[index].file.c_str());
                     }
                 }
             }
@@ -316,27 +285,14 @@ bool OpencoreImpl::DoCoredump(const char* filename) {
     return true;
 }
 
-bool OpencoreImpl::NeedFilterFile(const char* filename, int offset) {
-    struct stat sb;
-    int fd = open(filename, O_RDONLY);
-    if (fd < 0)
-        return true;
+bool OpencoreImpl::NeedFilterFile(Opencore::VirtualMemoryArea& vma) {
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(vma.file.c_str()));
+    if (!map) return true;
 
-    if (fstat(fd, &sb) < 0) {
-        close(fd);
-        return true;
-    }
-
-    char* mem = (char *)mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0x0);
-    close(fd);
-    if (mem == MAP_FAILED)
-        return true;
-
+    char* mem = (char*)map->data();
     Elf64_Ehdr* ehdr = (Elf64_Ehdr*)mem;
-    if (strncmp(mem, ELFMAG, 4) || ehdr->e_machine != getMachine()) {
-        munmap(mem, sb.st_size);
+    if (strncmp(mem, ELFMAG, 4) || ehdr->e_machine != getMachine())
         return true;
-    }
 
     bool ret = true;
     Elf64_Phdr* phdr = (Elf64_Phdr *)(mem + ehdr->e_phoff);
@@ -346,7 +302,7 @@ bool OpencoreImpl::NeedFilterFile(const char* filename, int offset) {
 
         int pos = RoundDown(phdr[index].p_offset, page_size);
         int end = pos + phdr[index].p_memsz;
-        if (pos <= offset && offset < end) {
+        if (pos <= vma.offset && vma.offset < end) {
             if ((phdr[index].p_flags & PF_W))
                 ret = false;
         }
@@ -359,7 +315,6 @@ void OpencoreImpl::Prepare(const char* filename) {
     memset(&ehdr, 0, sizeof(Elf64_Ehdr));
     memset(&note, 0, sizeof(Elf64_Phdr));
     pids.clear();
-    buffer.clear();
     maps.clear();
 }
 

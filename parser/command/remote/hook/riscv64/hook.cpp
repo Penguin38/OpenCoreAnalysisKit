@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_REMOTE_HOOK_HOOK_H_
-#define PARSER_COMMAND_REMOTE_HOOK_HOOK_H_
+#include "logger/log.h"
+#include "command/remote/hook/riscv64/hook.h"
 
-#include <memory>
+namespace riscv64 {
 
-class Hook {
-public:
-    Hook(int p) : pid(p) {}
-    virtual ~Hook() {}
-    virtual bool InjectLibrary(const char* library) { return false; }
-    static int Main(int argc, char* const argv[]);
-    static void Usage();
-    static std::unique_ptr<Hook> MakeArch(int pid);
-private:
-    int pid;
-};
+bool Hook::InjectLibrary(const char* library) {
+    LOGI("riscv64: hook inject %s\n", library);
+    return true;
+}
 
-#endif // PARSER_COMMAND_REMOTE_HOOK_HOOK_H_
+} // namespace riscv64

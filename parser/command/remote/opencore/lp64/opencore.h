@@ -31,11 +31,11 @@ public:
                      file(nullptr), fileslen(0) {}
     ~OpencoreImpl();
     bool DoCoredump(const char* filename);
-    bool NeedFilterFile(const char* filename, int offset);
+    bool NeedFilterFile(Opencore::VirtualMemoryArea& vma);
     void Prepare(const char* filename);
     void ParseProcessMapsVma(int pid);
-    void ParserPhdr(int index, uint64_t start, uint64_t end, char* flags, char* filename);
-    void ParserNtFile(int index, uint64_t start, uint64_t end, int fileofs, char* filename);
+    void ParserPhdr(int index, Opencore::VirtualMemoryArea& vma);
+    void ParserNtFile(int index, Opencore::VirtualMemoryArea& vma);
     void CreateCoreHeader();
     void CreateCoreNoteHeader();
     void CreateCoreAUXV(int pid);

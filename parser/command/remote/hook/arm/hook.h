@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_REMOTE_HOOK_HOOK_H_
-#define PARSER_COMMAND_REMOTE_HOOK_HOOK_H_
+#ifndef PARSER_COMMAND_REMOTE_HOOK_ARM_HOOK_IMPL_H_
+#define PARSER_COMMAND_REMOTE_HOOK_ARM_HOOK_IMPL_H_
 
-#include <memory>
+#include "command/remote/hook/lp32/hook.h"
 
-class Hook {
+namespace arm {
+
+class Hook : public lp32::HookImpl {
 public:
-    Hook(int p) : pid(p) {}
-    virtual ~Hook() {}
-    virtual bool InjectLibrary(const char* library) { return false; }
-    static int Main(int argc, char* const argv[]);
-    static void Usage();
-    static std::unique_ptr<Hook> MakeArch(int pid);
-private:
-    int pid;
+    Hook(int pid) : lp32::HookImpl(pid) {}
+    bool InjectLibrary(const char* library);
 };
 
-#endif // PARSER_COMMAND_REMOTE_HOOK_HOOK_H_
+} // namespace arm
+
+#endif  // PARSER_COMMAND_REMOTE_HOOK_ARM_HOOK_IMPL_H_
