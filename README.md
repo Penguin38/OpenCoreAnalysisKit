@@ -5,7 +5,6 @@
 ![core-analysis](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5e18eb85fd5047f2a017e4ffff075339~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=3028&h=1480&s=318380&e=png&b=fbf9f9)
 
 # Getting Started
-
 Install cmake 3.21.1+ on ubuntu 22.04, download cmake 3.21.1+, please see:
 ```
 https://cmake.org/download/
@@ -14,7 +13,6 @@ https://cmake.org/download/
 sudo apt-get install cmake
 ```
 Install clang-12
-
 ```
 sudo apt-get install clang-12
 ```
@@ -24,7 +22,7 @@ https://github.com/android/ndk/wiki/Unsupported-Downloads
 ```
 ```
 export ANDROID_NDK=<path-to>
-./build.sh $ANDROID_NDK
+./build.sh
 ```
 # Compatible
 
@@ -41,14 +39,16 @@ export ANDROID_NDK=<path-to>
 |Android-14.0(34) |   √   |  √   |   √    |   √  |    ?    |
 |Android-15.0(35) |   √   |  -   |   √    |   -  |    ?    |
 
-# Usage
-Emulator version:
-```
-$ adb root
-$ adb push <path-to>/output/aosp/debug/android/x86_64/bin/core-parser /data/
-$ adb shell
-```
+# Build Artifacts
 
+| Platform     | Path                                             |
+|:------------:|--------------------------------------------------|
+|Emulator      | output/aosp/debug/android/x86_64/bin/core-parser |
+|Phone         | output/aosp/debug/android/arm64/bin/core-parser  |
+|Ubuntu        | output/aosp/debug/linux/bin/core-parser          |
+
+
+# How To Launch
 ```
 Usage: core-parser [OPTION]
 Option:
@@ -109,6 +109,7 @@ Android env:
 core-parser>
 ```
 
+# Command Set
 ```
 core-parser> help
         core          exec       sysroot          mmap          auxv
@@ -120,7 +121,7 @@ core-parser> help
        shell        plugin          help        remote          fake
         time       version          quit
 ```
-
+# Show Jvm Space and Check Bad Object
 ```
 core-parser> help space
 Usage: space [OPTION] [TYPE]
@@ -139,6 +140,7 @@ core-parser> space --check --app
 ERROR: Region:[0x12c00000, 0x12c00018) main space (region space) has bad object!!
 ```
 
+# How to Count the Number of Objects
 ```
 core-parser> help top
 Usage: top <NUM> [OPTION] [TYPE]
@@ -180,6 +182,7 @@ TOTAL                7592          1943315            104175
 0x70360328             40             5600                 0     android.animation.ObjectAnimator
 ```
 
+# Dump Heap Snapshot
 ```
 core-parser> help hprof
 Usage: hprof [<FILE>] [OPTION]
@@ -193,6 +196,7 @@ hprof: heap dump completed, scan objects (306330).
 hprof: saved [/tmp/1.hprof].
 ```
 
+# Switch and Query Threads
 ```
 core-parser> help thread
 Usage: thread [TID] [OPTION]
@@ -226,6 +230,7 @@ core-parser> thread 6133
 Current thread is 6133
 ```
 
+# Object Layout Analysis
 ```
 core-parser> help p
 Usage: print|p <OBJECT> [OPTION..]
@@ -265,6 +270,7 @@ Binary:
 12c00010: 12c0001800000000  00000000704662b0  .........bFp....
 ```
 
+# JNI Reference Analysis
 ```
 core-parser> help ref
 Usage: reference|ref [<UREF>] [OPTIONE]
@@ -299,7 +305,7 @@ Object Name: java.nio.DirectByteBuffer
     [0x04] private transient int shadow$_monitor_ = 0x20000000
     [0x00] private transient java.lang.Class shadow$_klass_ = 0x6f917db0
 ```
-
+# How to Search for Classes and Objects
 ```
 core-parser> help search
 Usage: search <CLASSNAME> [OPTION..] [TYPE]
@@ -332,7 +338,7 @@ Object Name: penguin.opencore.tester.MainActivity
     [0x110] final androidx.lifecycle.LifecycleRegistry mFragmentLifecycleRegistry = 0x13052150
     ...
 ```
-
+# View Class Member Structure
 ```
 core-parser> help class
 Usage: class [CLASSNAME] [OPTION] [TYPE]
@@ -397,7 +403,7 @@ public final class android.net.wifi.WifiNetworkSpecifier extends android.net.Net
 core-parser> class android.net.wifi.WifiNetworkSpecifier -m | grep desc
     [0x791af097e968] public int android.net.wifi.WifiNetworkSpecifier.describeContents()
 ```
-
+# Dexdump and Oatdump
 ```
 core-parser> help method
 Usage: method <ART_METHOD> [OPTIONE...]
@@ -463,7 +469,7 @@ OAT CODE:
   0x7190761a:                 34246c89 | mov dword ptr [rsp + 0x34], ebp
   ...
 ```
-
+# DexCache Mapped Memory and Dump
 ```
 core-parser> help dex
 Usage: dex [OPTIONE...]
@@ -499,7 +505,7 @@ Saved [./base.apk!classes3.dex_0x4edd148b].
 core-parser> dex -n 7
 Saved [./framework.jar_0x347a29fd].
 ```
-
+# Library Mapped Memory and Symbols
 ```
 core-parser> help map
 Usage: map [OPTION]
@@ -528,7 +534,7 @@ VADDR             SIZE              INFO              NAME
 00007ffc73ae77c0  00000000000001de  0000000000000012  __vdso_clock_gettime
 00007ffc73ae7610  000000000000018a  0000000000000012  __vdso_gettimeofday
 ```
-
+# Function Symbol Disassemble
 ```
 core-parser> help disas
 Usage: disassemble|disas <SYMBOL> [OPTION]
@@ -558,7 +564,7 @@ __vdso_getcpu:
   0x7ffc73ae7a38:                       5d | pop rbp
   0x7ffc73ae7a39:                       c3 | ret
 ```
-
+# Mapped Execute File
 ```
 core-parser> help exec
 Usage: exec <EXEC_PATH>
@@ -568,6 +574,7 @@ Mmap segment [60969cb26000, 60969cb28000) /system/bin/app_process64 [0]
 Mmap segment [60969cb28000, 60969cb2a000) /system/bin/app_process64 [1000]
 ```
 
+# Mapped ELF File and Dex File
 ```
 core-parser> help sysroot
 Usage: sysroot <DIR_PATH>[:<PATH>:<PATH>] [OPTION]
@@ -592,7 +599,7 @@ Mmap segment [75d9a856d000, 75d9a8600000) /system/framework/ims-common.jar [0]
 Mmap segment [75d9a3fa8000, 75d9a4975000) /system/framework/framework.jar [11a8000]
 ...
 ```
-
+# Modify Local Memory
 ```
 core-parser> help wd
 Usage: write|wd <ADDRESS> <OPTION>
@@ -630,7 +637,7 @@ Binary:
 71edf508: 4c6e6975676e6550  3532006f47737465  PenguinLetsGo.25
 71edf518: 0000000000000036  200000006f817d58  6.......X}.o....
 ```
-
+# Read Local Memory
 ```
 core-parser> help rd
 Usage: read|rd <BEGIN_ADDR> [OPTION..]
@@ -669,6 +676,7 @@ core-parser> rd 791804999000 -e 7918049ac000 -f libGLESv2_emulation.so
 Saved [libGLESv2_emulation.so].
 ```
 
+# AUXV
 ```
 core-parser> auxv
     21   AT_SYSINFO_EHDR  0x7ffe0b188000
@@ -694,6 +702,7 @@ core-parser> auxv
      0           AT_NULL  0x0
 ```
 
+# Query the Maps Table
 ```
 core-parser> help file
 Usage: file [ADDRESS]
@@ -707,7 +716,7 @@ core-parser> file | grep app_process
 core-parser> file 0x71907dc5
 [71224000, 71b89000)  0000000000203000  /system/framework/x86_64/boot-framework.oat
 ```
-
+# Backtrace
 ```
 core-parser> help bt
 Usage: backtrace|bt [PID..] [OPTION]
@@ -738,6 +747,7 @@ core-parser> bt
   JavaKt: #6  000079185a704980  com.android.internal.os.ZygoteInit.main
 ```
 
+# Backtrace Frame Detail
 ```
 core-parser> help frame
 Usage: frame|f <NUM> [OPTION..]
@@ -782,6 +792,7 @@ core-parser> f 6 -j
   }
 ```
 
+# Read/Write Local Registers
 ```
 core-parser> help regs
 Usage: register|regs [TID] [OPTION...]
@@ -793,13 +804,17 @@ core-parser> regs --set rip=0x00000074e414e2a0
 New note overlay [7d6d8, 104073)
 ```
 
+# Remote Mode
 ```
 core-parser> help remote
 Usage: remote <COMMAND> [OPTION...]
 Command:
     core      hook      rd      wd
     pause     setprop   maps
+```
 
+## Capture the Core File of the Target Process
+```
 Usage: remote core [-p <PID>] [-m <MACHINE>] [OPTION...]
 Option:
     -p, --pid <PID>           set target pid
@@ -829,30 +844,51 @@ Core env: /data/core.init_1_1718900269
   * VabitsMask: 0xffffffffffffffff
   * Thread: 1
   ...
+```
 
+## Library Inject
+```
 Usage: remote hook [COMMAND] [OPTION]
 Command:
     --inject      inject library
     -l, --lib     set library path or name
+```
 
+## Modify Memory of the Target Process
+```
 remote wd [-p <PID>] <ADDRESS> [-s|-v] <VALUE>
 core-parser> remote wd -p 1 7fb989794000 -s PenguinLetsGo
+```
 
+## Read Memory of the Target Process
+```
 remote rd [-p <PID>] <BEGIN_ADDR> -e <END_ADDR>
 core-parser> remote rd -p 1 7fb989794000 -e 7fb989794030
 7fb989794000: 4c6e6975676e6550  0000006f47737465  PenguinLetsGo...
 7fb989794010: 00000001003e0003  0000000000068ab0  ..>.............
 7fb989794020: 0000000000000040  0000000000198c20  @...............
+```
 
+## Pause the Target Thread or Process
+```
 remote pause <PID ...> [-a]
 ```
 
+## Modify Machine Properties (Including Read-Only)
+```
+Usage: remote setprop <NAME> <VALUE>
+```
+
+# Create Fake Data
 ```
 core-parser> help fake
 Usage: fake <COMMAND> [OPTION...]
 Command:
     core    map    load    stack
+```
 
+## Rebuild Core File
+```
 Usage: fake core <OPTION...>
 Option:
     -t, --tomb <TOMBSTONE>    build tombstone fakecore
@@ -862,8 +898,14 @@ Option:
 
 core-parser> fake core -r
 FakeCore: saved [core.opencore.tester_6118_Thread-2_6146_1720691326.fakecore]
-
+```
+## Rebuild Link Map
+```
 Usage: fake map
+```
+
+## Allocate a Virtual Memory Segment
+```
 Usage: fake load <OPTION>
 Option:
     -v, --vaddr      if vaddr is NULL, then parser chooses address
@@ -871,18 +913,25 @@ Option:
 
 core-parser> fake load --vaddr 7fd10b0000 --size 0x4000
 New overlay [7fd10b0000, 7fd10b4000)
+```
 
+## Set a Fake Frame on the Jvm Stack
+```
 Usage: fake stack --pc <PC> --sp <SP> [OPTION]
 Option:
     -c, --clean    clean fake java stack pc, sp
 ```
 
+# Environment Variables
 ```
 core-parser> help env
 Usage: env <COMMAND> [OPTION] ...
 Command:
     config  logger  art  core
+```
 
+## Set SDK and OAT Variables
+```
 Usage: env config <OPTION> ..
 Option:
         --sdk <VERSION>   set current sdk version
@@ -891,7 +940,10 @@ Option:
 
 core-parser> env config --sdk 30
 Switch android(30) env.
+```
 
+## Set Log Output Level
+```
 Usage: env logger <LEVEL>
 Level:
         --debug           set current logger level to debug
@@ -902,7 +954,10 @@ Level:
 
 core-parser> env logger
 Current logger level error
+```
 
+## Query ART Environment Variables
+```
 Usage: env art [OPTION] ...
 Option:
     -c, --clean-cache     clean art::Runtime cache
@@ -926,7 +981,10 @@ core-parser> env art
   *     weak_globals_: 0x79192ce683d8
   * art::jit::Jit: 0x79193ce73a70
   *     code_cache_: 0x79196ce6ad20
+```
 
+## Query Core Environment Variables
+```
 Usage: env core [OPTION]...
 Option:
         --load            show corefile load segments
@@ -943,6 +1001,7 @@ core-parser> env core
   * mLinkMap: 271
 ```
 
+## Logcat Parser Module
 ```
 core-parser> help logcat
 Usage: logcat [OPTION]...
@@ -964,6 +1023,7 @@ core-parser> logcat -b crash -p 11770
 2024-06-16 01:58:18.481  10232 11770 11784 E AndroidRuntime: 	at java.lang.Thread.run(Thread.java:1012)
 ```
 
+# Property Parser Module
 ```
 core-parser> help getprop
 Usage: getprop [NAME]
@@ -971,6 +1031,7 @@ core-parser> getprop ro.build.description
 sdk_gphone_x86_64-userdebug 11 RSR1.210722.013.A2 10067904 dev-keys
 ```
 
+# STL Parser Module
 ```
 core-parser> help cxx
 Usage: cxx <TYPE> <ADDR> [OPTION]
@@ -1001,7 +1062,7 @@ core-parser> cxx vector 0x79196ce6d3c0 --entry-size 8
 [13] 0x7918cce67de8
 [14] 0x7918cce67df0
 ```
-
+# Fdtrack Parser Module
 ```
 core-parser> help fdtrack
 Usage: fdtrack [<FD>] [OPTION]
@@ -1022,7 +1083,7 @@ CRC32[7c8101a9]  COUNT[1]
   ...
 ```
 
-# Plugin
+# Plugin Module
 ```
 core-parser> help plugin
 Usage: plugin <PATH> [Option]

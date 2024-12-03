@@ -63,7 +63,7 @@ public:
     ~VersionCommand() {}
     void usage() {}
     int main(int /*argc*/, char* const * /*argv[]*/) {
-        LOGI("(%s) core-parser 1.0.2++\n", __TARGET_PARSER__);
+        LOGI("(%s) core-parser 1.0.3\n", __TARGET_PARSER__);
         return 0;
     }
 };
