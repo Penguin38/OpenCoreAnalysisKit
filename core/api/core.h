@@ -165,6 +165,7 @@ public:
         }
         return block;
     }
+    static uint64_t DlSym(const char* symbol);
     static uint64_t DlSym(const char* path, const char* symbol);
     static void ForeachThread(std::function<bool (ThreadApi *)> callback);
     static uint64_t NewLoadBlock(uint64_t size) {
