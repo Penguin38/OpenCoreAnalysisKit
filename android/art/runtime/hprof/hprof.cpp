@@ -351,8 +351,7 @@ public:
             ,visible_(visible), quick_(quick), first_(true) {}
 
     void Dump() {
-        LOGI("hprof: heap dump %s starting...\n", filename_);
-
+        LOGI("hprof: heap dump first prepare...\n");
         // First pass to measure the size of the dump.
         size_t max_length;
         {
@@ -363,6 +362,7 @@ public:
             output_ = nullptr;
         }
 
+        LOGI("hprof: heap dump \"%s\" starting...\n", filename_);
         first_ = false;
         bool okay = DumpToFile(max_length);
         if (okay) {
