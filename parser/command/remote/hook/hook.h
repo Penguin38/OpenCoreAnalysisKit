@@ -24,6 +24,13 @@ public:
     Hook(int p) : pid(p) {}
     virtual ~Hook() {}
     virtual bool InjectLibrary(const char* library) { return false; }
+    virtual uint64_t RegsSize() { return 0x0; }
+
+    inline int Pid() { return pid; }
+    bool Continue();
+    bool LoadContext(void *regs);
+    bool StoreContext(void *regs);
+
     static int Main(int argc, char* const argv[]);
     static void Usage();
     static std::unique_ptr<Hook> MakeArch(int pid);

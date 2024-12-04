@@ -15,12 +15,66 @@
  */
 
 #include "logger/log.h"
+#include "api/core.h"
+#include "common/bit.h"
+#include "command/env.h"
+#include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/riscv64/hook.h"
+#include "command/remote/cmd_remote.h"
+#include <dlfcn.h>
+#include <string.h>
 
 namespace riscv64 {
 
 bool Hook::InjectLibrary(const char* library) {
-    LOGI("riscv64: hook inject %s\n", library);
+    if (!CoreApi::IsRemote())
+        return false;
+
+    if (Env::CurrentRemotePid() != Pid())
+        return false;
+
+    if (!library || !strlen(library))
+        return false;
+
+    LOGI("riscv64: hook inject \"%s\"\n", library);
+
+    uint64_t dlopen_load = CoreApi::DlSym("dlopen");
+    if (!dlopen_load)
+        return false;
+    LOGI("riscv64: hook found \"dlopen\" address: 0x%lx\n", dlopen_load);
+
+    std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
+    opencore->StopTheWorld(Pid());
+
+    // Backup target process context
+    if (!LoadContext(&ori_regs))
+        return false;
+
+    LOGI("riscv64: target process current sp: 0x%lx\n", ori_regs.sp);
+    pt_regs call_regs;
+    memcpy(&call_regs, &ori_regs, sizeof(pt_regs));
+
+    call_regs.sp = ori_regs.sp - RoundUp(strlen(library) + 1, 8);
+    RemoteCommand::Write(Pid(), call_regs.sp, (void *)library, strlen(library) + 1);
+
+    call_regs.a0 = call_regs.sp;
+    call_regs.a1 = RTLD_NOW;
+    call_regs.ra = 0x0;
+    call_regs.pc = dlopen_load;
+
+    if (!StoreContext(&call_regs))
+        return false;
+
+    if (!Continue())
+        return false;
+
+    // Get return retval
+    pt_regs retval_regs;
+    LoadContext(&retval_regs);
+    LOGI("riscv64: return 0x%lx\n", retval_regs.ra);
+
+    // Restore origin context
+    StoreContext(&ori_regs);
     return true;
 }
 

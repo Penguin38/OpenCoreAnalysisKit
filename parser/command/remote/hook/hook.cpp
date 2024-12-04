@@ -26,6 +26,12 @@
 #include "command/remote/opencore/opencore.h"
 #include <unistd.h>
 #include <getopt.h>
+#include <sys/ptrace.h>
+#include <sys/uio.h>
+#include <errno.h>
+#include <linux/elf.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int Hook::Main(int argc, char* const argv[]) {
     bool inject = false;
@@ -36,14 +42,14 @@ int Hook::Main(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         /* {"pid",     required_argument, 0, 'p'}, */
-        {"inject",  no_argument,       0, 'i'},
+        {"inject",  no_argument,       0,  1 },
         {"lib",     required_argument, 0, 'l'},
     };
 
-    while ((opt = getopt_long(argc, argv, "il:",
+    while ((opt = getopt_long(argc, argv, "l:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 'i':
+            case 1:
                 inject = true;
                 break;
             case 'l':
@@ -67,7 +73,6 @@ int Hook::Main(int argc, char* const argv[]) {
 std::unique_ptr<Hook> Hook::MakeArch(int pid) {
     std::unique_ptr<Hook> impl;
     std::string type = Opencore::DecodeMachine(pid);
-    LOGI("%s\n", type.c_str());
     if (type == "arm64" || type == "ARM64") {
         impl = std::make_unique<arm64::Hook>(pid);
     } else if (type == "arm" || type == "ARM") {
@@ -80,6 +85,39 @@ std::unique_ptr<Hook> Hook::MakeArch(int pid) {
         impl = std::make_unique<riscv64::Hook>(pid);
     }
     return std::move(impl);
+}
+
+bool Hook::Continue() {
+    if (ptrace(PTRACE_CONT, Pid(), NULL, 0) < 0)
+        return false;
+
+    int stat = 0;
+    waitpid(Pid(), &stat, WUNTRACED);
+    return true;
+}
+
+bool Hook::LoadContext(void *regs) {
+    struct iovec ioVec;
+    ioVec.iov_base = regs;
+    ioVec.iov_len = RegsSize();
+
+    if (ptrace(PTRACE_GETREGSET, Pid(), NT_PRSTATUS, &ioVec) < 0) {
+        LOGI("%s %d: %s\n", __func__ , Pid(), strerror(errno));
+        return false;
+    }
+    return true;
+}
+
+bool Hook::StoreContext(void *regs) {
+    struct iovec ioVec;
+    ioVec.iov_base = regs;
+    ioVec.iov_len = RegsSize();
+
+    if (ptrace(PTRACE_SETREGSET, Pid(), NT_PRSTATUS, &ioVec) < 0) {
+        LOGI("%s %d: %s\n", __func__ , Pid(), strerror(errno));
+        return false;
+    }
+    return true;
 }
 
 void Hook::Usage() {

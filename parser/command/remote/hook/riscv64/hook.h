@@ -17,6 +17,7 @@
 #ifndef PARSER_COMMAND_REMOTE_HOOK_RISCV64_HOOK_IMPL_H_
 #define PARSER_COMMAND_REMOTE_HOOK_RISCV64_HOOK_IMPL_H_
 
+#include "common/prstatus.h"
 #include "command/remote/hook/lp64/hook.h"
 
 namespace riscv64 {
@@ -25,6 +26,9 @@ class Hook : public lp64::HookImpl {
 public:
     Hook(int pid) : lp64::HookImpl(pid) {}
     bool InjectLibrary(const char* library);
+    uint64_t RegsSize() { return sizeof(pt_regs); }
+private:
+    pt_regs ori_regs;
 };
 
 } // namespace riscv64
