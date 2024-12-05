@@ -253,6 +253,8 @@ Runtime& Runtime::Current() {
         try {
             value = Android::DlSym(Android::ART_RUNTIME_INSTANCE);
             runtime = value.valueOf();
+            if (!runtime.IsValid())
+                throw InvalidAddressException(runtime.Ptr());
         } catch(InvalidAddressException e) {
             runtime = AnalysisInstance();
         }
