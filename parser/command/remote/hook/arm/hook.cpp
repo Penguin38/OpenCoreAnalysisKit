@@ -54,13 +54,13 @@ bool Hook::InjectLibrary(const char* library) {
     pt_regs call_regs;
     memcpy(&call_regs, &ori_regs, sizeof(pt_regs));
 
-    call_regs.sp = ori_regs.sp - RoundUp(strlen(library) + 1, 4);
+    call_regs.sp = ori_regs.sp - RoundUp(strlen(library) + 1, 0x8);
     RemoteCommand::Write(Pid(), call_regs.sp, (void *)library, strlen(library) + 1);
 
     call_regs.regs[0]  = call_regs.sp;
     call_regs.regs[1]  = RTLD_NOW;
     call_regs.lr       = 0x0;
-    call_regs.pc       = dlopen_load;
+    call_regs.pc       = (dlopen_load & ~1u);
 
     // Thumb mode
     if (dlopen_load & 0x1)
@@ -71,6 +71,8 @@ bool Hook::InjectLibrary(const char* library) {
     if (!StoreContext(&call_regs))
         return false;
 
+    LOGI("arm: call dlopen(0x%x \"%s\", 0x%x)\n",
+            call_regs.regs[0], library, call_regs.regs[1]);
     if (!Continue())
         return false;
 

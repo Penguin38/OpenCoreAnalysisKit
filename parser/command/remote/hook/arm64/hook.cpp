@@ -54,7 +54,7 @@ bool Hook::InjectLibrary(const char* library) {
     pt_regs call_regs;
     memcpy(&call_regs, &ori_regs, sizeof(pt_regs));
 
-    call_regs.sp = ori_regs.sp - RoundUp(strlen(library) + 1, 8);
+    call_regs.sp = ori_regs.sp - RoundUp(strlen(library) + 1, 0x10);
     RemoteCommand::Write(Pid(), call_regs.sp, (void *)library, strlen(library) + 1);
 
     call_regs.regs[0]  = call_regs.sp;
@@ -65,6 +65,8 @@ bool Hook::InjectLibrary(const char* library) {
     if (!StoreContext(&call_regs))
         return false;
 
+    LOGI("arm64: call dlopen(0x%lx \"%s\", 0x%lx)\n",
+            call_regs.regs[0], library, call_regs.regs[1]);
     if (!Continue())
         return false;
 
