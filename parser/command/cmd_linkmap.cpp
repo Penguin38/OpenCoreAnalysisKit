@@ -27,6 +27,7 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
         return 0;
 
     dump_ori = false;
+    dump_all = false;
     num = 0;
 
     int opt;
@@ -35,12 +36,15 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"origin",  no_argument,       0,  'o'},
         {"sym",     required_argument, 0,  's'},
-        {0,           0,               0,   0 }
+        {"all",     no_argument,       0,  'a'},
     };
 
-    while ((opt = getopt_long(argc, argv, "os:",
+    while ((opt = getopt_long(argc, argv, "aos:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
+            case 'a':
+                dump_all = true;
+                break;
             case 'o':
                 dump_ori = true;
                 break;
@@ -54,12 +58,15 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
     int pos = 0;
     auto callback = [&](LinkMap* map) -> bool {
         pos++;
-        if (!num) {
+        if (!num && !dump_all) {
             ShowLinkMap(pos, map);
         } else {
-            if (num == pos) {
+            if (num == pos || dump_all) {
+                LOGI(ANSI_COLOR_LIGHTRED "VADDR             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
+                if (dump_all)
+                    LOGI("LIB: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, map->name());
                 ShowLinkMapSymbols(map);
-                return true;
+                return true && !dump_all;
             }
         }
         return false;
@@ -86,7 +93,6 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
 }
 
 void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
-    LOGI(ANSI_COLOR_LIGHTRED "VADDR             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
     for (const auto& entry : map->GetCurrentSymbols()) {
         uint64_t offset = entry.offset;
         if (CoreApi::GetMachine() == EM_ARM)
@@ -101,6 +107,7 @@ void LinkMapCommand::usage() {
     LOGI("Option:\n");
     LOGI("    -o, --ori         show origin link map\n");
     LOGI("    -s, --sym <NUM>   show link map current symbols\n");
+    LOGI("    -a, --all         show all link map current symbols\n");
     ENTER();
     LOGI("core-parser> map\n");
     LOGI("NUM LINKMAP       REGION                   FLAGS NAME\n");

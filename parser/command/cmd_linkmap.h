@@ -30,6 +30,7 @@ public:
     void usage();
 private:
     bool dump_ori;
+    bool dump_all;
     int num;
 };
 
