@@ -82,6 +82,7 @@ public:
     inline uint64_t jit() { return VALUEOF(Runtime, jit_); }
 
     static Runtime& Current();
+    static api::MemoryRef& Origin();
     gc::Heap& GetHeap();
     MonitorPool& GetMonitorPool();
     ThreadList& GetThreadList();
@@ -102,6 +103,9 @@ public:
     }
 private:
     static Runtime AnalysisInstance();
+    static void AnalysisCalleeSaveMethods(uint64_t *callee_methods, uint32_t sizeof_callee_methods);
+    static Runtime AnalysisRuntime(uint64_t *callee_methods, uint32_t sizeof_callee_methods);
+    static api::MemoryRef runtime_instance_ori_cache;
     // quick memoryref cache
     ArtMethod callee_save_methods_cache[6] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
     ArtMethod resolution_method_cache = 0x0;

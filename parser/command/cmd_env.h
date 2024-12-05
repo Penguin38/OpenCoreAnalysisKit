@@ -28,6 +28,8 @@ public:
     void usage();
     static int onConfigChanged(int argc, char* const argv[]);
     static int onLoggerChanged(int argc, char* const argv[]);
+    static int onOffsetChanged(int argc, char* const argv[]);
+    static int onSizeChanged(int argc, char* const argv[]);
     static int showArtEnv(int argc, char* const argv[]);
     static int showCoreEnv(int argc, char* const argv[]);
     static int showLoadEnv(bool quick);

@@ -246,15 +246,54 @@ void Runtime::Init34() {
     }
 }
 
+api::MemoryRef Runtime::runtime_instance_ori_cache = 0x0;
+
+api::MemoryRef& Runtime::Origin() {
+    return runtime_instance_ori_cache;
+}
+
 Runtime& Runtime::Current() {
     Runtime& runtime = Android::GetRuntime();
+    if (!Android::IsSdkReady()) {
+        LOGE("Please command \"env config --sdk <SDK>!!\"\n");
+        if (runtime.Ptr()) {
+            runtime.CleanCache();
+            runtime = 0x0;
+        }
+        return runtime;
+    }
+
     if (!runtime.Ptr()) {
         api::MemoryRef value = 0x0;
         try {
             value = Android::DlSym(Android::ART_RUNTIME_INSTANCE);
-            runtime = value.valueOf();
-            if (!runtime.IsValid())
-                throw InvalidAddressException(runtime.Ptr());
+            runtime_instance_ori_cache = value.valueOf();
+            if (!runtime_instance_ori_cache.IsValid())
+                throw InvalidAddressException(runtime_instance_ori_cache.Ptr());
+            runtime = runtime_instance_ori_cache;
+
+#if defined(__PARSER_DEBUG__)
+            // double check runtime callee_method
+            uint64_t callee_methods[6] = {0x0};
+            memset(callee_methods, 0x0, sizeof(callee_methods));
+            uint32_t sizeof_callee_methods = sizeof(callee_methods);
+            if (Android::Sdk() < Android::P)
+                sizeof_callee_methods = 4 * sizeof(uint64_t);
+
+            AnalysisCalleeSaveMethods(callee_methods, sizeof_callee_methods);
+
+            //maybe invalid
+            if (!callee_methods[0])
+                return runtime;
+
+            if (memcmp(reinterpret_cast<void *>(callee_methods),
+                        reinterpret_cast<void *>(runtime.Real()),
+                        sizeof_callee_methods)) {
+                LOGW("'%s' = 0x%lx, but callee_save_methods_ not match image.\n",
+                        Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
+                runtime = AnalysisRuntime(callee_methods, sizeof_callee_methods);
+            }
+#endif
         } catch(InvalidAddressException e) {
             runtime = AnalysisInstance();
         }
@@ -262,39 +301,31 @@ Runtime& Runtime::Current() {
     return runtime;
 }
 
-Runtime Runtime::AnalysisInstance() {
-    if (!Android::IsSdkReady()) {
-        LOGE("Please command \"env config --sdk <SDK>!!\"\n");
-        return 0x0;
-    }
+void Runtime::AnalysisCalleeSaveMethods(uint64_t *callee_methods, uint32_t sizeof_callee_methods) {
+    if (!callee_methods)
+        return;
 
-    Runtime runtime = 0x0;
-    uint64_t callee_methods[6] = {0x0};
-    uint32_t sizeof_callee_methods = sizeof(callee_methods);
-    if (Android::Sdk() < Android::P) {
-        sizeof_callee_methods = 4 * sizeof(uint64_t);
-    }
-    uint8_t art_magic[4] = {0x61, 0x72, 0x74, 0x0A}; // art\n
     auto callback = [&](LoadBlock *block) -> bool {
         if (memcmp(reinterpret_cast<void *>(block->begin()),
-                   reinterpret_cast<void *>(art_magic),
-                   sizeof(art_magic)))
+                   reinterpret_cast<void *>(ImageHeader::kMagic),
+                   sizeof(ImageHeader::kMagic)))
             return false;
 
         ImageHeader header(block->vaddr(), block);
-        memcpy(reinterpret_cast<void *>(callee_methods),
-               reinterpret_cast<void *>(header.image_methods()
-                   + ImageHeader::ImageMethod::kSaveAllCalleeSavesMethod * sizeof(uint64_t)),
-               sizeof_callee_methods);
+        void *image_callee_methods = reinterpret_cast<void *>(header.image_methods()
+                + ImageHeader::ImageMethod::kSaveAllCalleeSavesMethod * sizeof(uint64_t));
 
+        if (!reinterpret_cast<uint64_t *>(image_callee_methods)[0])
+            return false;
+
+        memcpy(callee_methods, image_callee_methods, sizeof_callee_methods);
         return true;
     };
     CoreApi::ForeachLoadBlock(callback, true, true);
+}
 
-    //maybe invalid
-    if (!callee_methods[0])
-        return runtime;
-
+Runtime Runtime::AnalysisRuntime(uint64_t *callee_methods, uint32_t sizeof_callee_methods) {
+    Runtime runtime = 0x0;
     uint64_t point_size = CoreApi::GetPointSize();
     auto match = [&](LoadBlock *block) -> bool {
         // must can write vma
@@ -302,8 +333,8 @@ Runtime Runtime::AnalysisInstance() {
             return false;
 
         if (!memcmp(reinterpret_cast<void *>(block->begin()),
-                   reinterpret_cast<void *>(art_magic),
-                   sizeof(art_magic)))
+                   reinterpret_cast<void *>(ImageHeader::kMagic),
+                   sizeof(ImageHeader::kMagic)))
             return false;
 
         uint64_t current = block->begin();
@@ -327,6 +358,22 @@ Runtime Runtime::AnalysisInstance() {
     };
     CoreApi::ForeachLoadBlock(match, true, true);
     return runtime;
+}
+
+Runtime Runtime::AnalysisInstance() {
+    uint64_t callee_methods[6] = {0x0};
+    memset(callee_methods, 0x0, sizeof(callee_methods));
+    uint32_t sizeof_callee_methods = sizeof(callee_methods);
+    if (Android::Sdk() < Android::P)
+        sizeof_callee_methods = 4 * sizeof(uint64_t);
+
+    AnalysisCalleeSaveMethods(callee_methods, sizeof_callee_methods);
+
+    //maybe invalid
+    if (!callee_methods[0])
+        return 0x0;
+
+    return AnalysisRuntime(callee_methods, sizeof_callee_methods);
 }
 
 gc::Heap& Runtime::GetHeap() {
