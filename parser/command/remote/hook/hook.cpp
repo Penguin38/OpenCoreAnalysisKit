@@ -126,4 +126,10 @@ void Hook::Usage() {
     /* LOGI("    -p, --pid     target process pid\n"); */
     LOGI("    --inject      inject library\n");
     LOGI("    -l, --lib     set library path or name\n");
+    ENTER();
+    LOGI("core-parser> remote hook --inject -l libfdtrack.so\n");
+    LOGI("x86_64: hook inject \"libfdtrack.so\"\n");
+    LOGI("x86_64: hook found \"dlopen\" address: 0x7d9db3bc9b50\n");
+    LOGI("x86_64: target process current rsp: 0x7fff424406e8\n");
+    LOGI("x86_64: return 0xa7b93ee50bfa700d\n");
 }

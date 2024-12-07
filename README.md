@@ -512,6 +512,7 @@ Usage: map [OPTION]
 Option:
     -o, --ori         show origin link map
     -s, --sym <NUM>   show link map current symbols
+    -a, --all         show all link map current symbols
 
 core-parser> map
 NUM LINKMAP       REGION                   FLAGS NAME
@@ -852,6 +853,12 @@ Usage: remote hook [COMMAND] [OPTION]
 Command:
     --inject      inject library
     -l, --lib     set library path or name
+
+core-parser> remote hook --inject -l libfdtrack.so
+x86_64: hook inject "libfdtrack.so"
+x86_64: hook found "dlopen" address: 0x7d9db3bc9b50
+x86_64: target process current rsp: 0x7fff424406e8
+x86_64: return 0xa7b93ee50bfa700d
 ```
 
 ## Modify Memory of the Target Process
