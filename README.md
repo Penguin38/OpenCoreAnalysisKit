@@ -600,6 +600,17 @@ Mmap segment [75d9a856d000, 75d9a8600000) /system/framework/ims-common.jar [0]
 Mmap segment [75d9a3fa8000, 75d9a4975000) /system/framework/framework.jar [11a8000]
 ...
 ```
+
+# Direct Mapped File And Remove Segment
+```
+core-parser> help mmap
+Usage: mmap <ADDR> [<PATH>] <OPTION>
+Option:
+    -o, --offset <OFFSET>    set file mmap offset
+         --remove-mmap       remove mmap file segment
+         --remove-overlay    remove overwrite segment
+```
+
 # Modify Local Memory
 ```
 core-parser> help wd

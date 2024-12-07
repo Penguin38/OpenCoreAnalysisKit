@@ -27,26 +27,20 @@ int MmapCommand::main(int argc, char* const argv[]) {
         return 0;
 
     int opt;
-    uint64_t begin = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
-    char* file;
+    char* file = nullptr;
     uint64_t offset = 0x0;
     int remove = 0;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"file",    required_argument,  0,  'f'},
         {"offset",  required_argument,  0,  'o'},
         {"remove-mmap",  no_argument,   0,   1 },
         {"remove-overlay", no_argument, 0,   2 },
-        {0,         0,                  0,   0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "f:o:012",
+    while ((opt = getopt_long(argc, argv, "o:012",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 'f':
-                file = optarg;
-                break;
             case 'o':
                 offset = Utils::atol(optarg);
                 break;
@@ -58,6 +52,14 @@ int MmapCommand::main(int argc, char* const argv[]) {
                 break;
         }
     }
+
+    if (optind == argc) {
+        MmapCommand::usage();
+        return 0;
+    }
+
+    uint64_t begin = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
+    if (argc - optind > 1) file = argv[optind + 1];
 
     LoadBlock* block = CoreApi::FindLoadBlock(begin, false);
     if (!block)
@@ -85,9 +87,8 @@ int MmapCommand::main(int argc, char* const argv[]) {
 }
 
 void MmapCommand::usage() {
-    LOGI("Usage: mmap <ADDR> <OPTION>\n");
+    LOGI("Usage: mmap <ADDR> [<PATH>] <OPTION>\n");
     LOGI("Option:\n");
-    LOGI("    -f, --file <PATH>        extend mmap file path\n");
     LOGI("    -o, --offset <OFFSET>    set file mmap offset\n");
     LOGI("         --remove-mmap       remove mmap file segment\n");
     LOGI("         --remove-overlay    remove overwrite segment\n");
