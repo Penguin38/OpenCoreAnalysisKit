@@ -26,10 +26,10 @@ enum class CalleeSaveType : uint32_t {
   kSaveAllCalleeSaves,  // All callee-save registers.
   kSaveRefsOnly,        // Only those callee-save registers that can hold references.
   kSaveRefsAndArgs,     // References (see above) and arguments (usually caller-save registers).
-  kSaveEverything,      // All registers, including both callee-save and caller-save.
+  kSaveEverything,      // All registers, including both callee-save and caller-save, only sdk 26 ~ 27.
   kSaveEverythingForClinit,    // Special kSaveEverything for clinit.
   kSaveEverythingForSuspendCheck,  // Special kSaveEverything for suspend check.
-  kLastCalleeSaveType   // Value used for iteration.
+//  kLastCalleeSaveType   // Value used for iteration.
 };
 
 static inline constexpr CalleeSaveType GetCanonicalCalleeSaveType(CalleeSaveType type) {

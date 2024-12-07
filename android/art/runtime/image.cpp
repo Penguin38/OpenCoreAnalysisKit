@@ -22,6 +22,9 @@ struct ImageHeader_SizeTable __ImageHeader_size__;
 
 namespace art {
 
+/* 26 ~ 27 kSaveEverythingMethod **/
+uint32_t ImageHeader::kNumImageMethodsCount = 7;
+
 void ImageHeader::Init() {
     Android::RegisterSdkListener(Android::O, art::ImageHeader::Init26);
     Android::RegisterSdkListener(Android::P, art::ImageHeader::Init28);
@@ -40,6 +43,8 @@ void ImageHeader::Init26() {
     __ImageHeader_size__ = {
         .THIS = 216,
     };
+
+    kNumImageMethodsCount = 7;
 }
 
 void ImageHeader::Init28() {
@@ -50,6 +55,8 @@ void ImageHeader::Init28() {
     __ImageHeader_size__ = {
         .THIS = 232,
     };
+
+    kNumImageMethodsCount = 9;
 }
 
 void ImageHeader::Init29() {
@@ -60,6 +67,8 @@ void ImageHeader::Init29() {
     __ImageHeader_size__ = {
         .THIS = 248,
     };
+
+    kNumImageMethodsCount = 9;
 }
 
 void ImageHeader::Init30() {
@@ -70,6 +79,8 @@ void ImageHeader::Init30() {
     __ImageHeader_size__ = {
         .THIS = 256,
     };
+
+    kNumImageMethodsCount = 9;
 }
 
 void ImageHeader::Init31() {
@@ -80,6 +91,8 @@ void ImageHeader::Init31() {
     __ImageHeader_size__ = {
         .THIS = 248,
     };
+
+    kNumImageMethodsCount = 9;
 }
 
 void ImageHeader::Init34() {
@@ -90,6 +103,8 @@ void ImageHeader::Init34() {
     __ImageHeader_size__ = {
         .THIS = 256,
     };
+
+    kNumImageMethodsCount = 9;
 }
 
 void ImageHeader::Init35() {
@@ -100,16 +115,8 @@ void ImageHeader::Init35() {
     __ImageHeader_size__ = {
         .THIS = 264,
     };
-}
 
-uint32_t ImageHeader::GetImageMethodsCount() {
-    if (Android::Sdk() >= Android::P) {
-        // 28~..
-        return ImageHeader::ImageMethod::kSaveEverythingMethodForSuspendCheck + 1;
-    } else {
-        // 26~27
-        return ImageHeader::ImageMethod::kSaveEverythingMethod + 1;
-    }
+    kNumImageMethodsCount = 9;
 }
 
 } // namespace art

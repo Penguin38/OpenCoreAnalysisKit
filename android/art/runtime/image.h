@@ -42,7 +42,7 @@ public:
         kSaveAllCalleeSavesMethod,
         kSaveRefsOnlyMethod,
         kSaveRefsAndArgsMethod,
-        kSaveEverythingMethod,
+        kSaveEverythingMethod,  // 26 ~ 27
         kSaveEverythingMethodForClinit,
         kSaveEverythingMethodForSuspendCheck,
         // kImageMethodsCount,  // Number of elements in enum.
@@ -68,7 +68,9 @@ public:
     static void Init35();
     inline uint64_t image_methods() { return Real() + OFFSET(ImageHeader, image_methods_); }
 
-    uint32_t GetImageMethodsCount();
+    inline uint32_t GetImageMethodsCount() { return kNumImageMethodsCount; }
+private:
+    static uint32_t kNumImageMethodsCount;
 };
 
 } // namespace art

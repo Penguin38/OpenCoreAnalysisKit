@@ -106,6 +106,8 @@ private:
     static void AnalysisCalleeSaveMethods(uint64_t *callee_methods, uint32_t sizeof_callee_methods);
     static Runtime AnalysisRuntime(uint64_t *callee_methods, uint32_t sizeof_callee_methods);
     static api::MemoryRef runtime_instance_ori_cache;
+    static uint32_t kNumCalleeMethodsCount;
+    static inline uint32_t SizeOfCalleeMethods() { return kNumCalleeMethodsCount * sizeof(uint64_t); }
     // quick memoryref cache
     ArtMethod callee_save_methods_cache[6] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
     ArtMethod resolution_method_cache = 0x0;

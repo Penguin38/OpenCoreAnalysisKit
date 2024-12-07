@@ -26,6 +26,8 @@ struct Runtime_SizeTable __Runtime_size__;
 
 namespace art {
 
+uint32_t Runtime::kNumCalleeMethodsCount = 4;
+
 void Runtime::Init() {
     Android::RegisterSdkListener(Android::O, art::Runtime::Init26);
     Android::RegisterSdkListener(Android::P, art::Runtime::Init28);
@@ -64,6 +66,8 @@ void Runtime::Init26() {
             .jit_ = 308,
         };
     }
+
+    kNumCalleeMethodsCount = 4;
 }
 
 void Runtime::Init28() {
@@ -94,6 +98,8 @@ void Runtime::Init28() {
             .jit_ = 304,
         };
     }
+
+    kNumCalleeMethodsCount = 6;
 }
 
 void Runtime::Init29() {
@@ -124,6 +130,8 @@ void Runtime::Init29() {
             .jit_ = 292,
         };
     }
+
+    kNumCalleeMethodsCount = 6;
 }
 
 void Runtime::Init30() {
@@ -154,6 +162,8 @@ void Runtime::Init30() {
             .jit_ = 292,
         };
     }
+
+    kNumCalleeMethodsCount = 6;
 }
 
 void Runtime::Init31() {
@@ -184,6 +194,8 @@ void Runtime::Init31() {
             .jit_ = 304,
         };
     }
+
+    kNumCalleeMethodsCount = 6;
 }
 
 void Runtime::Init33() {
@@ -214,6 +226,8 @@ void Runtime::Init33() {
             .jit_ = 356,
         };
     }
+
+    kNumCalleeMethodsCount = 6;
 }
 
 void Runtime::Init34() {
@@ -244,6 +258,8 @@ void Runtime::Init34() {
             .jit_ = 360,
         };
     }
+
+    kNumCalleeMethodsCount = 6;
 }
 
 api::MemoryRef Runtime::runtime_instance_ori_cache = 0x0;
@@ -276,10 +292,7 @@ Runtime& Runtime::Current() {
             // double check runtime callee_method
             uint64_t callee_methods[6] = {0x0};
             memset(callee_methods, 0x0, sizeof(callee_methods));
-            uint32_t sizeof_callee_methods = sizeof(callee_methods);
-            if (Android::Sdk() < Android::P)
-                sizeof_callee_methods = 4 * sizeof(uint64_t);
-
+            uint32_t sizeof_callee_methods = SizeOfCalleeMethods();
             AnalysisCalleeSaveMethods(callee_methods, sizeof_callee_methods);
 
             //maybe invalid
@@ -363,10 +376,7 @@ Runtime Runtime::AnalysisRuntime(uint64_t *callee_methods, uint32_t sizeof_calle
 Runtime Runtime::AnalysisInstance() {
     uint64_t callee_methods[6] = {0x0};
     memset(callee_methods, 0x0, sizeof(callee_methods));
-    uint32_t sizeof_callee_methods = sizeof(callee_methods);
-    if (Android::Sdk() < Android::P)
-        sizeof_callee_methods = 4 * sizeof(uint64_t);
-
+    uint32_t sizeof_callee_methods = SizeOfCalleeMethods();
     AnalysisCalleeSaveMethods(callee_methods, sizeof_callee_methods);
 
     //maybe invalid
@@ -461,8 +471,9 @@ ArtMethod& Runtime::GetCalleeSaveMethod(CalleeSaveType type) {
 ArtMethod& Runtime::GetCalleeSaveMethodUnchecked(CalleeSaveType type) {
     uint32_t index = static_cast<uint32_t>(type);
     if (!callee_save_methods_cache[index].Ptr()) {
+        memset(callee_save_methods_cache, 0x0, sizeof(callee_save_methods_cache));
         api::MemoryRef ref = callee_save_methods();
-        for (uint32_t i = 0; i < static_cast<uint32_t>(CalleeSaveType::kLastCalleeSaveType); ++i) {
+        for (uint32_t i = 0; i < kNumCalleeMethodsCount; ++i) {
             callee_save_methods_cache[i] = ref.value64Of(i * sizeof(uint64_t));
             callee_save_methods_cache[i].Prepare(false);
         }
