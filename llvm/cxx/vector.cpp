@@ -22,6 +22,8 @@ struct cxx_vector_SizeTable __cxx_vector_size__;
 
 namespace cxx {
 
+uint64_t vector::kDefEntrySize = 8;
+
 void vector::Init() {
     uint32_t cap = 64 / CoreApi::Bits();
     __cxx_vector_offset__ = {
@@ -33,6 +35,8 @@ void vector::Init() {
     __cxx_vector_size__ = {
         .THIS = 24 / cap,
     };
+
+    kDefEntrySize = 8 / cap;
 }
 
 vector::iterator vector::begin() {

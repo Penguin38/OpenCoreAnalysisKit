@@ -45,6 +45,7 @@ public:
     inline bool operator!=(vector& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    static uint64_t kDefEntrySize;
     inline uint64_t __begin() { return VALUEOF(cxx_vector, __begin_); }
     inline uint64_t __end() { return VALUEOF(cxx_vector, __end_); }
     inline uint64_t __value() { return VALUEOF(cxx_vector, __value_); }
@@ -69,7 +70,7 @@ public:
     uint64_t size();
 
 private:
-    uint64_t entry_size;
+    uint64_t entry_size = kDefEntrySize;
 };
 
 } // namespace cxx
