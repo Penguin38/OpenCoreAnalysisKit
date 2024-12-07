@@ -123,6 +123,8 @@ public:
     inline uint64_t p_vaddr() { return VALUEOF(Elfx_Phdr, p_vaddr); }
     inline uint64_t p_filesz() { return VALUEOF(Elfx_Phdr, p_filesz); }
     inline uint64_t p_offset() { return VALUEOF(Elfx_Phdr, p_offset); }
+    inline uint64_t p_memsz() { return VALUEOF(Elfx_Phdr, p_memsz); }
+    inline uint64_t p_align() { return VALUEOF(Elfx_Phdr, p_align); }
 };
 
 class Elfx_Dynamic : public MemoryRef {
