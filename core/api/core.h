@@ -129,6 +129,7 @@ public:
     static void ForeachAuxv(std::function<bool (Auxv *)> callback);
     static void ForeachLinkMap(std::function<bool (LinkMap *)> callback);
     static File* FindFile(uint64_t vaddr);
+    static LinkMap* FindLinkMap(const char* path);
     static void ExecFile(const char* file);
     static void SysRoot(const char* dir);
     static void Write(uint64_t vaddr, uint64_t value) {

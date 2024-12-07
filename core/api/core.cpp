@@ -321,6 +321,28 @@ File* CoreApi::FindFile(uint64_t vaddr) {
     return result;
 }
 
+LinkMap* CoreApi::FindLinkMap(const char* path) {
+    LinkMap* handle = nullptr;
+    auto callback = [&](LinkMap* map) -> bool {
+        LoadBlock* block = map->block();
+        if (block) {
+            if (!strcmp(map->name(), path))
+                handle = map;
+
+            if (block->isMmapBlock()) {
+                std::size_t index = block->name().find(path);
+                if (index != std::string::npos)
+                    handle = map;
+            }
+
+            if (handle) return true;
+        }
+        return false;
+    };
+    INSTANCE->foreachLinkMap(callback);
+    return handle;
+}
+
 void CoreApi::ForeachAuxv(std::function<bool (Auxv *)> callback) {
     INSTANCE->foreachAuxv(callback);
 }
@@ -425,25 +447,7 @@ uint64_t CoreApi::DlSym(const char* symbol) {
 }
 
 uint64_t CoreApi::DlSym(const char* path, const char* symbol) {
-    LinkMap* handle = nullptr;
-    auto callback = [&](LinkMap* map) -> bool {
-        LoadBlock* block = map->block();
-        if (block) {
-            if (!strcmp(map->name(), path))
-                handle = map;
-
-            if (block->isMmapBlock()) {
-                std::size_t index = block->name().find(path);
-                if (index != std::string::npos)
-                    handle = map;
-            }
-
-            if (handle) return true;
-        }
-        return false;
-    };
-    INSTANCE->foreachLinkMap(callback);
-
+    LinkMap* handle = FindLinkMap(path);
     if (handle) {
         LoadBlock* block = handle->block();
         if (block) {
