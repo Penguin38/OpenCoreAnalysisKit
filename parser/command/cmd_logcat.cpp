@@ -19,7 +19,6 @@
 #include "android.h"
 #include "command/command_manager.h"
 #include "command/cmd_logcat.h"
-#include "common/auxv.h"
 #include "logcat/log.h"
 #include "logcat/LogBuffer.h"
 #include "logcat/LogStatistics.h"
@@ -41,60 +40,6 @@ static void PrintSerializedLogBuf(const char* header, cxx::list& logs, int filte
             continue;
         content.DecodeDump(filter, id);
     }
-}
-
-static SerializedLogBuffer AnalysisSerializedLogBuffer() {
-    SerializedLogBuffer serial = 0x0;
-    api::MemoryRef exec_text = CoreApi::FindAuxv(AT_ENTRY);
-    api::MemoryRef exec_fn = CoreApi::FindAuxv(AT_EXECFN);
-    exec_text.Prepare(false);
-    exec_fn.Prepare(false);
-
-    if (exec_fn.IsValid()) {
-        std::string name = reinterpret_cast<const char*>(exec_fn.Real());
-        if (name.length() > 0 && name != "/system/bin/logd") {
-            LOGE("Exec filename \"%s\" not that \"/system/bin/logd\".\n", name.c_str());
-            return false;
-        }
-    }
-    uint32_t point_size = CoreApi::GetPointSize();
-    auto callback = [&](LoadBlock *block) -> bool {
-        if (!(block->flags() & Block::FLAG_W))
-            return false;
-
-        SerializedLogBuffer buffer(block->vaddr(), block);
-        do {
-            api::MemoryRef vtbl = buffer.valueOf();
-            if (vtbl.IsValid()) {
-                bool match = true;
-                // virtual method
-                for (int k = 0; k < MEMBER_SIZE(SerializedLogBuffer, vtbl); ++k) {
-                    if (!exec_text.Block()->virtualContains(vtbl.valueOf(k * point_size))) {
-                        match = false;
-                        break;
-                    }
-                }
-
-                // log_buffer = new SerializedLogBuffer(&reader_list, &log_tags, &log_statistics);
-                if (match) {
-                    match &= exec_fn.Block()->virtualContains(buffer.reader_list());
-                    match &= exec_fn.Block()->virtualContains(buffer.tags());
-                    match &= exec_fn.Block()->virtualContains(buffer.stats());
-                }
-
-                if (match) {
-                    serial = buffer;
-                    serial.copyRef(buffer);
-                    return true;
-                }
-            }
-
-            buffer.MovePtr(point_size);
-        } while (buffer.Ptr() + SIZEOF(SerializedLogBuffer) < block->vaddr() + block->size());
-        return false;
-    };
-    CoreApi::ForeachLoadBlock(callback, true, true);
-    return serial;
 }
 
 int LogcatCommand::main(int argc, char* const argv[]) {
@@ -161,10 +106,8 @@ int LogcatCommand::main(int argc, char* const argv[]) {
 
     if (!dump_flag) dump_flag = DUMP_MAIN | DUMP_SYSTEM | DUMP_CRASH | DUMP_KERNEL;
 
-    uint32_t point_size = CoreApi::GetPointSize();
-
     if (Android::Sdk() >= Android::S) {
-        SerializedLogBuffer log_buffer = AnalysisSerializedLogBuffer();
+        SerializedLogBuffer log_buffer = Logcat::AnalysisSerializedLogBuffer();
         if (!log_buffer.Ptr()) {
             LOGE("Not found SerializedLogBuffer!\n");
             return 0;

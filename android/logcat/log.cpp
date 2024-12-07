@@ -15,6 +15,8 @@
  */
 
 #include "logcat/log.h"
+#include "api/core.h"
+#include "common/auxv.h"
 #include "android.h"
 #include "logcat/LogBuffer.h"
 #include "logcat/LogStatistics.h"
@@ -29,6 +31,72 @@ void Logcat::Init() {
     android::SerializedData::Init();
 
     Android::RegisterSdkListener(Android::S, android::SerializedLogBuffer::Init31);
+}
+
+/*
+ *      Scan VMA         SerializedLogBuffer         Core
+ *   --------------    -->  -------------        --------------
+ *   |            |    |    |   vtbl    |----    |            |
+ *   |------------|test|    |-----------|   |in  |------------|
+ *   |  VMA (RW)  |-----    |-----------|   ---> | logd .text |
+ *   |------------|  |    --|reader_list|        |------------|
+ *   |  VMA (RW)  |---  --| |   tags    |        |            |
+ *   |------------|     | --|   stats   |        |------------|
+ *   |            |     |   |-----------|   ---> |    stack   |
+ *   --------------     |   -------------   |in  --------------
+ *                      |--------------------
+ */
+SerializedLogBuffer Logcat::AnalysisSerializedLogBuffer() {
+    SerializedLogBuffer serial = 0x0;
+    api::MemoryRef exec_text = CoreApi::FindAuxv(AT_ENTRY);
+    api::MemoryRef exec_fn = CoreApi::FindAuxv(AT_EXECFN);
+    exec_text.Prepare(false);
+    exec_fn.Prepare(false);
+
+    if (exec_fn.IsValid()) {
+        std::string name = reinterpret_cast<const char*>(exec_fn.Real());
+        if (name.length() > 0 && name != "/system/bin/logd") {
+            LOGE("Exec filename \"%s\" not that \"/system/bin/logd\".\n", name.c_str());
+            return false;
+        }
+    }
+    uint32_t point_size = CoreApi::GetPointSize();
+    auto callback = [&](LoadBlock *block) -> bool {
+        if (!(block->flags() & Block::FLAG_W))
+            return false;
+
+        SerializedLogBuffer buffer(block->vaddr(), block);
+        do {
+            api::MemoryRef vtbl = buffer.valueOf();
+            if (vtbl.IsValid()) {
+                bool match = true;
+                // virtual method
+                for (int k = 0; k < MEMBER_SIZE(SerializedLogBuffer, vtbl); ++k) {
+                    if (!exec_text.Block()->virtualContains(vtbl.valueOf(k * point_size))) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    match &= exec_fn.Block()->virtualContains(buffer.reader_list());
+                    match &= exec_fn.Block()->virtualContains(buffer.tags());
+                    match &= exec_fn.Block()->virtualContains(buffer.stats());
+                }
+
+                if (match) {
+                    serial = buffer;
+                    serial.copyRef(buffer);
+                    return true;
+                }
+            }
+
+            buffer.MovePtr(point_size);
+        } while (buffer.Ptr() + SIZEOF(SerializedLogBuffer) < block->vaddr() + block->size());
+        return false;
+    };
+    CoreApi::ForeachLoadBlock(callback, true, true);
+    return serial;
 }
 
 } // namespace android

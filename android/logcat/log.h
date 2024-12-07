@@ -17,6 +17,7 @@
 #ifndef ANDROID_LOGCAT_LOG_H_
 #define ANDROID_LOGCAT_LOG_H_
 
+#include "logcat/SerializedLogBuffer.h"
 #include <string>
 
 namespace android {
@@ -84,6 +85,7 @@ inline std::string ConvertPriority(uint8_t prio) {
 class Logcat {
 public:
     static void Init();
+    static SerializedLogBuffer AnalysisSerializedLogBuffer();
 };
 
 } // namespace android
