@@ -43,6 +43,8 @@ public:
 
     static void Init();
     static const char* GetPath();
+    static api::MemoryRef GetStackTraces();
+    static api::MemoryRef AnalysisStackTraces();
 };
 
 class FdEntry : public api::MemoryRef {

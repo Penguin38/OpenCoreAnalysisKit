@@ -51,10 +51,9 @@ int FdtrackCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    api::MemoryRef stack_traces = CoreApi::DlSym(android::FdTrack::GetPath(),
-                                                 android::FdTrack::FD_TRACK_STACK_TRACES);
+    api::MemoryRef stack_traces = android::FdTrack::GetStackTraces();
     if (!stack_traces.Ptr()) {
-        LOGE("Can not found \"_ZL12stack_traces\", Please sysroot %s!!\n", android::FdTrack::GetPath());
+        LOGE("Can not found \"_ZL12stack_traces\", Please sysroot libfdtrack.so!!\n");
         return 0;
     }
 

@@ -47,11 +47,14 @@ public:
         FrameData(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         FrameData(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-        static void Init();
+        static void Init26();
+        static void Init33();
         inline uint64_t pc() { return value64Of(OFFSET(FrameData, pc)); }
-        inline uint64_t function_name() { return VALUEOF(FrameData, function_name); }
+        inline uint64_t function_name_v26() { return Ptr() + OFFSET(FrameData, function_name); }
+        inline uint64_t function_name_v33() { return VALUEOF(FrameData, function_name); }
         inline uint64_t function_offset() { return value64Of(OFFSET(FrameData, function_offset)); }
         std::string GetMethod();
+        uint64_t function_name();
     };
 };
 

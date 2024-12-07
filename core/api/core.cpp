@@ -30,6 +30,7 @@
 #include <linux/elf.h>
 #include <cstring>
 #include <iomanip>
+#include <filesystem>
 #include <iostream>
 
 CoreApi* CoreApi::INSTANCE = nullptr;
@@ -323,24 +324,37 @@ File* CoreApi::FindFile(uint64_t vaddr) {
 
 LinkMap* CoreApi::FindLinkMap(const char* path) {
     LinkMap* handle = nullptr;
+    LinkMap* second = nullptr;
+    std::filesystem::path file(path);
     auto callback = [&](LinkMap* map) -> bool {
         LoadBlock* block = map->block();
         if (block) {
             if (!strcmp(map->name(), path))
                 handle = map;
 
+            if (strstr(map->name(), file.filename().c_str()))
+                second = map;
+
             if (block->isMmapBlock()) {
                 std::size_t index = block->name().find(path);
-                if (index != std::string::npos)
-                    handle = map;
-            }
+                if (index != std::string::npos) {
+                    std::filesystem::path outer(block->name());
+                    if (file.filename() == outer.filename())
+                        handle = map;
+                }
 
-            if (handle) return true;
+                index = block->name().find(file.filename());
+                if (index != std::string::npos) {
+                    std::filesystem::path outer(block->name());
+                    if (file.filename() == outer.filename())
+                        second = map;
+                }
+            }
         }
-        return false;
+        return handle ? true : false;
     };
     INSTANCE->foreachLinkMap(callback);
-    return handle;
+    return handle ? handle : second;
 }
 
 void CoreApi::ForeachAuxv(std::function<bool (Auxv *)> callback) {
