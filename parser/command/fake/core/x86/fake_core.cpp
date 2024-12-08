@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
-#define PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
+#include "command/fake/core/x86/fake_core.h"
 
-#include "tombstone/tombstone.h"
-#include <memory>
+namespace x86 {
 
-class FakeCore {
-public:
-    static inline const char* FILE_EXTENSIONS = ".fakecore";
-    FakeCore() {}
-    virtual ~FakeCore() {}
-    virtual int execute(const char* output) { return 0; }
+int FakeCore::execute(const char* output) {
+    return 0;
+}
 
-    static int OptionCore(int argc, char* const argv[]);
-    static void Usage();
-    static std::unique_ptr<FakeCore> Make(int bits);
-    static std::unique_ptr<FakeCore> Make(android::Tombstone& tombstone);
-};
-
-#endif // PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
+} // namespace x86

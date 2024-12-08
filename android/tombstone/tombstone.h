@@ -18,6 +18,7 @@
 #define ANDROID_TOMBSTONE_TOMBSTONE_H_
 
 #include "tombstone/parser.h"
+#include <string>
 #include <memory>
 
 namespace android {
@@ -25,9 +26,11 @@ namespace android {
 class Tombstone {
 public:
     Tombstone(const char* path);
+    std::string& ABI() { return abi; }
     static std::unique_ptr<TombstoneParser> MakeParser(const char* abi, const char* path);
 private:
     std::unique_ptr<TombstoneParser> mParser;
+    std::string abi;
 };
 
 } // namespace android

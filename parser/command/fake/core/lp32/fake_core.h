@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CORE_LP64_RESTORE_H_
-#define PARSER_COMMAND_FAKE_CORE_LP64_RESTORE_H_
+#ifndef PARSER_COMMAND_FAKE_CORE_LP32_FAKECORE_IMPL_H_
+#define PARSER_COMMAND_FAKE_CORE_LP32_FAKECORE_IMPL_H_
 
-namespace lp64 {
+#include "command/fake/core/fake_core.h"
 
-class Restore {
+namespace lp32 {
+
+class FakeCore : public ::FakeCore {
 public:
-    static int execute(const char* output);
+    FakeCore() {}
+    int execute(const char* output);
 };
 
-} // namespace lp64
+} // namespace lp32
 
-#endif // PARSER_COMMAND_FAKE_CORE_LP64_RESTORE_H_
+#endif // PARSER_COMMAND_FAKE_CORE_LP32_FAKECORE_IMPL_H_

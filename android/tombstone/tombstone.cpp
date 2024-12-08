@@ -21,8 +21,8 @@ namespace android {
 
 Tombstone::Tombstone(const char* path) {
     // parse abi
-    const char *abi = "arm64";
-    mParser = MakeParser(abi, path);
+    abi = "arm64";
+    mParser = MakeParser(abi.c_str(), path);
 }
 
 std::unique_ptr<TombstoneParser> Tombstone::MakeParser(const char* abi, const char* path) {

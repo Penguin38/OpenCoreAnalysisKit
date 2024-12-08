@@ -18,14 +18,14 @@
 #include "api/core.h"
 #include "common/bit.h"
 #include "common/elf.h"
-#include "command/fake/core/lp32/restore.h"
+#include "command/fake/core/lp32/fake_core.h"
 #include <stdio.h>
 #include <string.h>
 #include <linux/elf.h>
 
 namespace lp32 {
 
-int Restore::execute(const char* output) {
+int FakeCore::execute(const char* output) {
     if (!CoreApi::IsReady())
         return -1;
 

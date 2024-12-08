@@ -17,8 +17,13 @@
 #include "logger/log.h"
 #include "api/core.h"
 #include "command/fake/core/fake_core.h"
-#include "command/fake/core/lp64/restore.h"
-#include "command/fake/core/lp32/restore.h"
+#include "command/fake/core/lp64/fake_core.h"
+#include "command/fake/core/lp32/fake_core.h"
+#include "command/fake/core/arm64/fake_core.h"
+#include "command/fake/core/arm/fake_core.h"
+#include "command/fake/core/x86_64/fake_core.h"
+#include "command/fake/core/x86/fake_core.h"
+#include "command/fake/core/riscv64/fake_core.h"
 #include "tombstone/tombstone.h"
 #include <unistd.h>
 #include <getopt.h>
@@ -37,7 +42,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
 
     bool tomb = false;
     char* tomb_file = nullptr;
-    bool restore = false;
+    bool rebuild = false;
     char* output = nullptr;
     bool need_overlay_map = false;
 
@@ -46,12 +51,12 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         switch (opt) {
             case 't':
                 tomb = true;
-                restore = false;
+                rebuild = false;
                 tomb_file = optarg;
                 break;
             case 'r':
                 tomb = false;
-                restore = true;
+                rebuild = true;
                 break;
             case 'o':
                 output = optarg;
@@ -62,7 +67,9 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         }
     }
 
-    if (restore) {
+    std::unique_ptr<FakeCore> impl;
+    std::string filename;
+    if (rebuild && CoreApi::IsReady()) {
         if (need_overlay_map) {
             auto callback = [&](LinkMap* map) -> bool {
                 if (map->l_name()) {
@@ -74,23 +81,48 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
             };
             CoreApi::ForeachLinkMap(callback);
         }
-        std::string filename;
-        if (!output) {
-            filename = CoreApi::GetName();
-            filename.append(".fakecore");
-        } else {
-            filename = output;
-        }
-        if (CoreApi::Bits() == 64) {
-            lp64::Restore::execute(filename.c_str());
-        } else {
-            lp32::Restore::execute(filename.c_str());
-        }
-    } else if (tomb) {
+
+        filename = CoreApi::GetName();
+        impl = FakeCore::Make(CoreApi::Bits());
+    } else if (tomb && tomb_file) {
         android::Tombstone tombstone(tomb_file);
+        filename = tomb_file;
+        impl = FakeCore::Make(tombstone);
         // do nothing
     }
-    return 0;
+
+    if (!output || filename == output)
+        filename.append(FakeCore::FILE_EXTENSIONS);
+    else
+        filename = output;
+
+    return impl ? impl->execute(filename.c_str()) : 0;
+}
+
+std::unique_ptr<FakeCore> FakeCore::Make(int bits) {
+    std::unique_ptr<FakeCore> impl;
+    if (bits == 64)
+        impl = std::make_unique<lp64::FakeCore>();
+    else
+        impl = std::make_unique<lp32::FakeCore>();
+    return std::move(impl);
+}
+
+std::unique_ptr<FakeCore> FakeCore::Make(android::Tombstone& tombstone) {
+    std::unique_ptr<FakeCore> impl;
+    std::string type = tombstone.ABI();
+    if (type == "arm64" || type == "ARM64") {
+        impl = std::make_unique<arm64::FakeCore>();
+    } else if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::FakeCore>();
+    } else if (type == "x86_64" || type == "X86_64") {
+        impl = std::make_unique<x86_64::FakeCore>();
+    } else if (type == "x86" || type == "X86") {
+        impl = std::make_unique<x86::FakeCore>();
+    } else if (type == "riscv64" || type == "RISCV64") {
+        impl = std::make_unique<riscv64::FakeCore>();
+    }
+    return std::move(impl);
 }
 
 void FakeCore::Usage() {

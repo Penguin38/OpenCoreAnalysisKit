@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CORE_LP32_RESTORE_H_
-#define PARSER_COMMAND_FAKE_CORE_LP32_RESTORE_H_
+#include "command/fake/core/riscv64/fake_core.h"
 
-namespace lp32 {
+namespace riscv64 {
 
-class Restore {
-public:
-    static int execute(const char* output);
-};
+int FakeCore::execute(const char* output) {
+    return 0;
+}
 
-} // namespace lp32
-
-#endif // PARSER_COMMAND_FAKE_CORE_LP32_RESTORE_H_
+} // namespace riscv64

@@ -293,8 +293,13 @@ add_library(parser STATIC
             parser/command/remote/setprop/prop_area.cpp
             parser/command/fake/cmd_fake.cpp
             parser/command/fake/core/fake_core.cpp
-            parser/command/fake/core/lp64/restore.cpp
-            parser/command/fake/core/lp32/restore.cpp
+            parser/command/fake/core/lp64/fake_core.cpp
+            parser/command/fake/core/lp32/fake_core.cpp
+            parser/command/fake/core/arm64/fake_core.cpp
+            parser/command/fake/core/arm/fake_core.cpp
+            parser/command/fake/core/x86_64/fake_core.cpp
+            parser/command/fake/core/x86/fake_core.cpp
+            parser/command/fake/core/riscv64/fake_core.cpp
             parser/command/fake/map/fake_map.cpp
             parser/command/fake/load/fake_load_block.cpp
             parser/command/fake/stack/fake_java_stack.cpp

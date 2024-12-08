@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
-#define PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
+#ifndef PARSER_COMMAND_FAKE_CORE_LP64_FAKECORE_IMPL_H_
+#define PARSER_COMMAND_FAKE_CORE_LP64_FAKECORE_IMPL_H_
 
-#include "tombstone/tombstone.h"
-#include <memory>
+#include "command/fake/core/fake_core.h"
 
-class FakeCore {
+namespace lp64 {
+
+class FakeCore : public ::FakeCore {
 public:
-    static inline const char* FILE_EXTENSIONS = ".fakecore";
     FakeCore() {}
-    virtual ~FakeCore() {}
-    virtual int execute(const char* output) { return 0; }
-
-    static int OptionCore(int argc, char* const argv[]);
-    static void Usage();
-    static std::unique_ptr<FakeCore> Make(int bits);
-    static std::unique_ptr<FakeCore> Make(android::Tombstone& tombstone);
+    int execute(const char* output);
 };
 
-#endif // PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
+} // namespace lp64
+
+#endif // PARSER_COMMAND_FAKE_CORE_LP64_FAKECORE_IMPL_H_
