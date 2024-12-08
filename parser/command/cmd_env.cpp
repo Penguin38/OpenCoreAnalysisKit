@@ -158,12 +158,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
-                art::CacheHelper::Clean();
-                if (runtime.Ptr()) {
-                    runtime.CleanCache();
-                    runtime = 0x0;
-                }
-                Android::ResetOatVersion();
+                Android::Reset();
                 return 0;
             case 'e':
                 art::CacheHelper::EntryPointDump();

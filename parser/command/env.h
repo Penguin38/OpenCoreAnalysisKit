@@ -17,6 +17,8 @@
 #ifndef PARSER_COMMAND_ENV_H_
 #define PARSER_COMMAND_ENV_H_
 
+#include <memory>
+
 #if defined(__ANDROID__)
 #define CURRENT_DIR_DEF "/data/local/tmp"
 #else
@@ -33,13 +35,12 @@ public:
 
     static void Init();
     static void Dump();
-    static void Clean();
     static bool SetCurrentPid(int p) { return INSTANCE->setCurrentPid(p); }
     static int CurrentPid() { return INSTANCE->current(); }
     static int CurrentRemotePid() { return INSTANCE->remote(); }
     static const char* CurrentDir() { return CURRENT_DIR_DEF; }
 private:
-    static Env* INSTANCE;
+    static std::unique_ptr<Env> INSTANCE;
     int pid;
     int remote_pid;
 };

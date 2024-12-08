@@ -17,8 +17,6 @@
 #include "logger/log.h"
 #include "command/env.h"
 #include "command/cmd_core.h"
-#include "android.h"
-#include "llvm.h"
 #include "api/core.h"
 
 int CoreCommand::Load(const char* path) {
@@ -26,25 +24,7 @@ int CoreCommand::Load(const char* path) {
 }
 
 int CoreCommand::Load(const char* path, bool remote) {
-    bool ret = CoreApi::Load(path, remote);
-    if (ret) {
-        CoreApi::Init();
-        CoreApi::Dump();
-
-        Env::Clean();
-        Env::Init();
-        Env::Dump();
-
-        // symbols init for later
-        LLVM::Init();
-
-#if defined(__AOSP_PARSER__)
-        Android::Clean(); // clean prev core env
-        Android::Init();
-        Android::Dump();
-#endif
-    }
-    return ret;
+    return CoreApi::Load(path, remote, Env::Init);
 }
 
 int CoreCommand::main(int argc, char* const argv[]) {

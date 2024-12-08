@@ -17,8 +17,10 @@
 #include "logger/log.h"
 #include "command/env.h"
 #include "api/core.h"
+#include "android.h"
+#include "llvm.h"
 
-Env* Env::INSTANCE = nullptr;
+std::unique_ptr<Env> Env::INSTANCE = nullptr;
 
 bool Env::setCurrentPid(int p) {
     ThreadApi *api = CoreApi::FindThread(p);
@@ -39,20 +41,20 @@ void Env::init() {
     };
     CoreApi::ForeachThread(callback);
 
+    CoreApi::Dump();
+    Env::Dump();
+
+    LLVM::Init();
+
+#if defined(__AOSP_PARSER__)
+    Android::Init();
+    Android::Dump();
+#endif
 }
 
 void Env::Init() {
-    if (!INSTANCE) {
-        INSTANCE = new Env();
-        INSTANCE->init();
-    }
-}
-
-void Env::Clean() {
-    if (INSTANCE) {
-        delete INSTANCE;
-        INSTANCE = nullptr;
-    }
+    INSTANCE = std::make_unique<Env>();
+    INSTANCE->init();
 }
 
 void Env::Dump() {

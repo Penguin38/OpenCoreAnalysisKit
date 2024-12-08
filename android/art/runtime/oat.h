@@ -21,6 +21,7 @@ namespace art {
 
 class OatHeader {
 public:
+    OatHeader() : kOatVersion(0) {}
     static int OatVersion();
     static int AnalysiOatVersion();
 

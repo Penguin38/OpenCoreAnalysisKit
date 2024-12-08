@@ -55,7 +55,7 @@
 #include "base/utils.h"
 #include <string.h>
 
-CommandManager* CommandManager::INSTANCE;
+std::unique_ptr<CommandManager> CommandManager::INSTANCE;
 
 class VersionCommand : public Command {
 public:
@@ -69,7 +69,7 @@ public:
 };
 
 void CommandManager::Init() {
-    INSTANCE = new CommandManager;
+    INSTANCE = std::make_unique<CommandManager>();
     // core
     CommandManager::PushInlineCommand(new CoreCommand());
     CommandManager::PushInlineCommand(new ExecCommand());

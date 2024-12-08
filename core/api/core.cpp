@@ -33,7 +33,7 @@
 #include <filesystem>
 #include <iostream>
 
-CoreApi* CoreApi::INSTANCE = nullptr;
+std::unique_ptr<CoreApi> CoreApi::INSTANCE = nullptr;
 bool CoreApi::QUICK_LOAD_ENABLED = true;
 
 void CoreApi::Init() {
@@ -45,13 +45,16 @@ bool CoreApi::IsReady() {
     return INSTANCE != nullptr;
 }
 
-bool CoreApi::Load(const char* corefile) {
-    return Load(corefile, false);
+bool CoreApi::Load(const char* corefile, std::function<void ()> callback) {
+    return Load(corefile, false, callback);
 }
 
-bool CoreApi::Load(const char* corefile, bool remote) {
-    UnLoad();
+bool CoreApi::Load(const char* corefile, bool remote, std::function<void ()> callback) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(corefile));
+    return Load(map, remote, callback);
+}
+
+bool CoreApi::Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<void ()> callback) {
     if (map) {
         ElfHeader* header = reinterpret_cast<ElfHeader*>(map->data());
         if (memcmp(header->ident, ELFMAG, 4)) {
@@ -66,19 +69,19 @@ bool CoreApi::Load(const char* corefile, bool remote) {
 
         switch(header->machine) {
             case EM_AARCH64:
-                INSTANCE = new arm64::Core(map);
+                INSTANCE = std::make_unique<arm64::Core>(map);
                 break;
             case EM_ARM:
-                INSTANCE = new arm::Core(map);
+                INSTANCE = std::make_unique<arm::Core>(map);
                 break;
             case EM_RISCV:
-                INSTANCE = new riscv64::Core(map);
+                INSTANCE = std::make_unique<riscv64::Core>(map);
                 break;
             case EM_X86_64:
-                INSTANCE = new x86_64::Core(map);
+                INSTANCE = std::make_unique<x86_64::Core>(map);
                 break;
             case EM_386:
-                INSTANCE = new x86::Core(map);
+                INSTANCE = std::make_unique<x86::Core>(map);
                 break;
             default:
                 LOGW("Not support machine (%d)\n", header->machine);
@@ -86,22 +89,15 @@ bool CoreApi::Load(const char* corefile, bool remote) {
         }
 
         if (INSTANCE) {
+            CoreApi::Init();
             INSTANCE->mRemote = remote;
-            return INSTANCE->load();
+            bool ret = INSTANCE->load();
+            if (ret && callback)
+                callback();
+            return ret;
         }
     }
     return false;
-}
-
-void CoreApi::UnLoad() {
-    if (INSTANCE) {
-        INSTANCE->unload();
-        INSTANCE->removeAllLinkMap();
-        INSTANCE->removeAllLoadBlock();
-        INSTANCE->removeAllNoteBlock();
-        delete INSTANCE;
-        INSTANCE = nullptr;
-    }
 }
 
 const char* CoreApi::GetName() {
@@ -129,7 +125,10 @@ uint64_t CoreApi::GetVabitsMask() {
 }
 
 CoreApi::~CoreApi() {
-    LOGI("Remove core (%p) %s\n", this, mCore->getName().c_str());
+    LOGD("Remove core (%p) %s\n", this, mCore->getName().c_str());
+    removeAllLinkMap();
+    removeAllLoadBlock();
+    removeAllNoteBlock();
     mCore.reset();
 }
 

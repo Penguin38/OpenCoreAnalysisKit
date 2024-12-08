@@ -63,6 +63,7 @@ void Core::unload() {
 }
 
 Core::~Core() {
+    unload();
 }
 
 } // namespace arm64

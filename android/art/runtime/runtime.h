@@ -28,6 +28,7 @@
 #include "runtime/quick/quick_method_frame_info.h"
 #include "runtime/jit/jit.h"
 #include "runtime/monitor_pool.h"
+#include "runtime/cache_helpers.h"
 
 struct Runtime_OffsetTable {
     uint32_t callee_save_methods_;
@@ -100,6 +101,8 @@ public:
         if (heap_cache.Ptr()) heap_cache.CleanCache();
         if (thread_list_cache.Ptr()) thread_list_cache.CleanCache();
         if (class_linker_cache.Ptr()) class_linker_cache.CleanCache();
+        runtime_instance_ori_cache = 0x0;
+        art::CacheHelper::Clean();
     }
 private:
     static Runtime AnalysisInstance();

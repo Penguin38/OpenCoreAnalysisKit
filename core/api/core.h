@@ -91,9 +91,10 @@ public:
     static constexpr uint64_t FAKE_LOAD_BEGIN = 0x100000;
 
     static bool IsReady();
-    static bool Load(const char* corefile);
-    static bool Load(const char* corefile, bool remote);
-    static void UnLoad();
+    static bool Load(const char* corefile, std::function<void ()> callback);
+    static bool Load(const char* corefile, bool remote, std::function<void ()> callback);
+    static bool Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<void ()> callback);
+    static void UnLoad() { INSTANCE.reset(); }
     static uint64_t GetBegin() { return INSTANCE->begin(); }
     static uint64_t GetDebugPtr() { return INSTANCE->r_debug_ptr(); }
     static const char* GetName();
@@ -177,7 +178,6 @@ public:
         INSTANCE->mSysRootCallback = fn;
     }
 
-    CoreApi() {}
     CoreApi(std::unique_ptr<MemoryMap>& map)
             : pointer_mask(-1),
               vabits_mask(-1),
@@ -252,7 +252,7 @@ protected:
     uint64_t vabits_mask;
     uint64_t page_size;
 private:
-    static CoreApi* INSTANCE;
+    static std::unique_ptr<CoreApi> INSTANCE;
     virtual bool load() = 0;
     virtual void unload() = 0;
     virtual const char* getMachineName() = 0;

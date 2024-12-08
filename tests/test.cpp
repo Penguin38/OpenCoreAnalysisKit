@@ -26,7 +26,7 @@
 #include <iostream>
 
 int main(int argc, const char* argv[]) {
-    std::cout << CoreApi::Load(argv[1]) << std::endl;
+    std::cout << CoreApi::Load(argv[1], nullptr) << std::endl;
     std::cout << CoreApi::GetMachineName() << std::endl;
 
     CoreApi::Write(0x12c00018, 0xdeaddeaddeaddeadUL);
@@ -87,6 +87,6 @@ int main(int argc, const char* argv[]) {
 #endif
     // CoreApi::DumpFile();
     // CoreApi::DumpLinkMap();
-    CoreApi::UnLoad();
+    // CoreApi::UnLoad();
     return 0;
 }

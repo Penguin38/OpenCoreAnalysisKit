@@ -63,7 +63,7 @@
 #include "base/mem_map.h"
 #include "logcat/log.h"
 
-Android* Android::INSTANCE = nullptr;
+std::unique_ptr<Android> Android::INSTANCE = nullptr;
 
 Android::BasicType Android::SignatureToBasicTypeAndSize(const char* sig, uint64_t* size_out) {
     char c = sig[0];
@@ -138,24 +138,15 @@ Android::BasicType Android::SignatureToBasicTypeAndSize(const char* sig, uint64_
 }
 
 void Android::Init() {
-    if (!INSTANCE) {
-        INSTANCE = new Android();
-        INSTANCE->init();
-    }
+    INSTANCE = std::make_unique<Android>();
+    INSTANCE->init();
 }
 
-void Android::Clean() {
-    if (INSTANCE) {
-        ResetOatVersion();
-        if (INSTANCE->instance_.Ptr()) {
-            INSTANCE->instance_.CleanCache();
-            INSTANCE->instance_ = 0x0;
-            INSTANCE->mSdkListeners.clear();
-            INSTANCE->mOatListeners.clear();
-        }
-        delete INSTANCE;
-        INSTANCE = nullptr;
-    }
+Android::~Android() {
+    if (instance_.Ptr())
+        instance_.CleanCache();
+    mSdkListeners.clear();
+    mOatListeners.clear();
 }
 
 static int kTrunkData[] = {

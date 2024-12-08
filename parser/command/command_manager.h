@@ -33,6 +33,7 @@ public:
     static void ForeachCommand(std::function<bool (Command *)> callback);
     static Command* FindCommand(const char* cmd);
     static void Init();
+    CommandManager() : plugin(nullptr) {}
     ~CommandManager() {
         inline_commands.clear();
         extend_commands.clear();
@@ -43,7 +44,7 @@ private:
     int popExtendCommand(Command* command);
     void foreachInlineCommand(std::function<bool (Command *)> callback);
     void foreachExtendCommand(std::function<bool (Command *)> callback);
-    static CommandManager* INSTANCE;
+    static std::unique_ptr<CommandManager> INSTANCE;
     std::vector<std::unique_ptr<Command>> inline_commands;
     std::vector<std::unique_ptr<Command>> extend_commands;
     PluginCommand *plugin = nullptr;

@@ -43,6 +43,7 @@ void Core::unload() {
 }
 
 Core::~Core() {
+    unload();
 }
 
 } // namespace x86_64

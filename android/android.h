@@ -79,18 +79,19 @@ public:
     inline static const char* EXECUTE_NTERP_WITH_CLINIT_IMPL = "ExecuteNterpWithClinitImpl";
     inline static const char* END_EXECUTE_NTERP_WITH_CLINIT_IMPL = "EndExecuteNterpWithClinitImpl";
 
-    static Android* INSTANCE;
+    Android() : trunk(0), sdk(0), oat(0) {}
+    ~Android();
+    static std::unique_ptr<Android> INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
     static bool IsSdkReady() { return IsReady() && Sdk() >= O; }
     static bool IsOatReady() { return IsReady() && Oat() > 0; }
     static void Init();
-    static void Clean();
+    static void Reset() { Init(); }
     static void Dump();
     static int Sdk2Trunk(int sdk);
     static int Trunk() { return INSTANCE->trunk; }
     static int Sdk() { return INSTANCE->sdk; }
     static int Oat() { return INSTANCE->oat; }
-    static void ResetOatVersion() { INSTANCE->oat = 0; GetOatHeader().kOatVersion = 0; }
     static const char* Id() { return INSTANCE->id.c_str(); }
     static const char* Name() { return INSTANCE->name.c_str(); }
     static const char* Model() { return INSTANCE->model.c_str(); }
