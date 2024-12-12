@@ -28,7 +28,7 @@ Dowload NDK r22+, please see:
 https://github.com/android/ndk/wiki/Unsupported-Downloads
 ```
 ```
-export ANDROID_NDK=<path-to>
+export ANDROID_NDK_HOME=<path-to>
 ./build.sh
 ```
 # Compatible
