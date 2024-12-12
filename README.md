@@ -4,6 +4,13 @@
 # Techincal System
 ![core-analysis](https://raw.githubusercontent.com/Penguin38/OpenCoreAnalysisKit/refs/heads/main/doc/OpenCoreAnalyzer.jpg)
 
+| Project      | Path                                              |
+|:------------:|---------------------------------------------------|
+|core-parser   | https://github.com/Penguin38/OpenCoreAnalysisKit  |
+|linux-parser  | https://github.com/Penguin38/OpenLinuxAnalysisKit |
+|crash-android | https://github.com/Penguin38/crash-android        |
+|OpenCoreSDK   | https://github.com/Penguin38/OpenCoreSDK          |
+
 # Getting Started
 Install cmake 3.21.1+ on ubuntu 22.04, download cmake 3.21.1+, please see:
 ```
