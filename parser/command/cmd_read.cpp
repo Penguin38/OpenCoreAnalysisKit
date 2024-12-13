@@ -76,7 +76,8 @@ int ReadCommand::main(int argc, char* const argv[]) {
     if (block && end > (block->vaddr() + block->size()))
         end = block->vaddr() + block->size();
 
-    int count = RoundUp((end - begin) / 8, 2);
+    // always alloc align 0x10
+    int count = RoundUp(RoundUp(end - begin, 8) / 8, 2);
     if (begin >= end || !count) {
         uint64_t* value = reinterpret_cast<uint64_t *>(CoreApi::GetReal(begin, read_opt));
         if (value) {
