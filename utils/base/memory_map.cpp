@@ -45,7 +45,7 @@ MemoryMap* MemoryMap::MmapFile(const char* file, uint64_t size, uint64_t off) {
 
     MemoryMap *map = MmapFile(fd, size, off);
     close(fd);
-    if (map) map->mName = file;
+    if (map) map->setName(file);
     return map;
 }
 
@@ -90,6 +90,10 @@ MemoryMap* MemoryMap::MmapZeroMem(uint64_t size) {
         memset(mem, 0x0, size);
     }
     return map;
+}
+
+void MemoryMap::setName(const char* file) {
+    if (file) mName = file;
 }
 
 uint32_t MemoryMap::GetCRC32() {

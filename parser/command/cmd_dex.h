@@ -17,6 +17,7 @@
 #ifndef PARSER_COMMAND_CMD_DEX_H_
 #define PARSER_COMMAND_CMD_DEX_H_
 
+#include "android.h"
 #include "command/command.h"
 #include "runtime/mirror/dex_cache.h"
 
@@ -25,6 +26,10 @@ public:
     DexCommand() : Command("dex") {}
     ~DexCommand() {}
     int main(int argc, char* const argv[]);
+    bool prepare(int argc, char* const argv[]) {
+        Android::Prepare();
+        return true;
+    }
     void usage();
     void DexCachesDump();
     void DexCachesDump_v33();

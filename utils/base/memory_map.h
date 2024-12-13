@@ -35,6 +35,7 @@ public:
     inline uint64_t realSize() { return mMaxSize; }
     inline std::string& getName() { return mName; }
     uint32_t GetCRC32();
+    void setName(const char* file);
     ~MemoryMap();
 private:
     static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);

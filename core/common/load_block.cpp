@@ -16,12 +16,25 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "common/bit.h"
 #include "common/load_block.h"
 #include "base/utils.h"
+#include <unistd.h>
 
 void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, size(), offset));
     if (map) {
+        /*
+         * avoid not found physical page
+         * we need copy file_vma to anon_vma
+         */
+        if (RoundUp(map->realSize(), sysconf(_SC_PAGE_SIZE) < size())) {
+            std::unique_ptr<MemoryMap> anon(MemoryMap::MmapMem(map->data(), size(), map->realSize()));
+            if (anon) {
+                anon->setName(file);
+                map = std::move(anon);
+            }
+        }
         LOGI("Mmap segment [%lx, %lx) %s [%lx]\n", vaddr(), vaddr() + size(), file, offset);
         if (isFake() || isOverlayBlock())
             memcpy(reinterpret_cast<uint64_t *>(mOverlay->data()),

@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "command/cmd_read.h"
 #include "base/utils.h"
+#include "base/memory_map.h"
 #include "api/core.h"
 #include "common/bit.h"
 #include "common/disassemble/capstone.h"
@@ -92,10 +93,13 @@ int ReadCommand::main(int argc, char* const argv[]) {
             }
         }
     } else {
-        uint8_t* buf = reinterpret_cast<uint8_t*>(malloc(count * 8));
-        memset(buf, 0x0, count * 8);
-        if (CoreApi::Read(begin, count * 8, buf, read_opt)) {
-            uint64_t* value = reinterpret_cast<uint64_t *>(buf);
+        std::unique_ptr<MemoryMap> map(MemoryMap::MmapZeroMem(count * 8));
+        if (!map) {
+            LOGE("no vma!!\n");
+            return 0;
+        }
+        if (CoreApi::Read(begin, count * 8, (uint8_t*)map->data(), read_opt)) {
+            uint64_t* value = reinterpret_cast<uint64_t *>(map->data());
             if (!filepath) {
                 if (!dump_inst) {
                     for (int i = 0; i < count; i += 2) {
@@ -110,7 +114,6 @@ int ReadCommand::main(int argc, char* const argv[]) {
                 saveBinary(filepath, value, end - begin);
             }
         }
-        free(buf);
     }
     return 0;
 }
