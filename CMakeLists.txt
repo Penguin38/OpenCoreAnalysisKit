@@ -223,9 +223,6 @@ add_library(android STATIC
             android/logcat/SerializedData.cpp
             android/logcat/LogStatistics.cpp
 
-            # tombstone
-            android/tombstone/tombstone.cpp
-
             # fdtrack
             android/fdtrack/fdtrack.cpp
             android/unwindstack/Unwinder.cpp)
@@ -301,6 +298,8 @@ add_library(parser STATIC
             parser/command/fake/core/x86_64/fake_core.cpp
             parser/command/fake/core/x86/fake_core.cpp
             parser/command/fake/core/riscv64/fake_core.cpp
+            parser/command/fake/core/tombstone.cpp
+            parser/command/fake/core/arm64/tombstone_parser.cpp
             parser/command/fake/map/fake_map.cpp
             parser/command/fake/load/fake_load_block.cpp
             parser/command/fake/stack/fake_java_stack.cpp

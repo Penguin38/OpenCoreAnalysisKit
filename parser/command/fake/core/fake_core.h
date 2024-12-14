@@ -17,20 +17,114 @@
 #ifndef PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
 #define PARSER_COMMAND_FAKE_CORE_FAKECORE_H_
 
-#include "tombstone/tombstone.h"
-#include <memory>
+#include "command/remote/opencore/opencore.h"
+#include "base/macros.h"
+#include <set>
+
+/*
+             ---------- <-
+            |          |  \
+          --| Program  |   \
+         |  | 1 Header |   |
+         |  |          |   |
+         |   ----------    |
+         |  |          |   |        ----------
+       --|--| Program  |   |       |          |
+      |  |  | 2 Header |   |       |ELF Header|
+      |  |  |          |   \       |          |
+      |  |   ----------     ------- ----------       ----> ----------
+      |  |  |**********|           |          |     |     |          |
+      |  |  |**********|           |          |     |     | Thread 1 |
+      |  |  |**********|           |  Program |     |     | Registers|
+      |  |  |**********|           |  Headers |     |     |          |
+      |  |  |**********|           |          |     |      ----------
+      |  |  |**********|           |          |    /      |          | AT_PHDR
+      |  |  |**********|           |          |   /       |   FAKE   | -------
+      |  |   ----------            |          |  /        |   AUXV   |       |
+      |  |  |          |     ------ ---------- --         |          |       |
+    --|--|--| Program  |    /      |          |    ------> ----------        |
+   |  |  |  | N Header |   |     ->|  Segment |    |                         |
+   |  |  |  |          |   /    |  | (PT_NOTE)|    |                         |
+   |  |  |   ---------- <--   --   |          |    |                         |
+   |  |  |                   |      ---------- ----    --> ----------        |
+   |  |   -------------------      |          |       /   |   FAKE   | <------
+   |  |                            | FAKE VMA |      /    |   PHDR   |
+   |   --------------------------->| (PT_LOAD)|------     -----------
+   |                               |          |      \    |   FAKE   |
+   |                                ----------        |   | DYNAMIC  |
+   |                               |          |       |    ----------
+   |                               |  Segment |       |   |   FAKE   |
+   |                               | (PT_LOAD)|       |   | LINKMAP  |
+   |                               |          |       |    ----------
+   |                                ----------        |   |   FAKE   |
+   |                               |**********|       |   |  STRTAB  |
+   |                               |**********|       ---> ----------
+   |                               |**********|
+   |                               |**********|
+   |                               |**********|
+   |                                ----------
+   |                               |          |
+    ------------------------------>|  Segment |
+                                   | (PT_LOAD)|
+                                   |          |
+                                    ----------
+*/
 
 class FakeCore {
 public:
     static inline const char* FILE_EXTENSIONS = ".fakecore";
-    FakeCore() {}
+    static constexpr int DEF_FAKE_AUXV_NUM = 32;
+    static constexpr int DEF_FAKE_PHNUM = 2;
+    static constexpr int DEF_FAKE_PRNUM = 1;
+    static constexpr int FAKE_PHDR_PAGES = 1;
+    static constexpr int FKAE_DYNAMIC_PAGES = 1;
+    static constexpr int FAKE_LINK_MAP_PAGES = 1;
+    static constexpr int FAKE_STRTAB_PAGES = 1;
+    class Stream {
+    public:
+        virtual ~Stream() {}
+        virtual std::string ABI() { return "none"; }
+        virtual bool Parse() { return false; }
+        virtual int Tid() = 0;
+        virtual std::set<std::string>& Libs() = 0;
+        virtual std::map<uint64_t, uint64_t>& Memorys() = 0;
+        virtual std::vector<Opencore::VirtualMemoryArea>& Maps() = 0;
+        virtual void* Regs() = 0;
+        virtual uint64_t TaggedAddr() = 0;
+        virtual uint64_t PacEnabledKeys() = 0;
+    };
+    FakeCore() {
+        current_offset = 0;
+        extra_note_filesz = 0;
+        align_size = ELF_PAGE_SIZE;
+        page_size = ELF_PAGE_SIZE;
+        va_bits = 0;
+    }
+    void InitStream(std::unique_ptr<FakeCore::Stream>& in) { stream = std::move(in); }
+    void InitSysRoot(const char* root) { if (root) sysroot = root; }
+    void InitVaBist(int va) { if (va) va_bits = va; }
+    void InitPageSize(uint64_t size) { if (IS_ALIGNED(size, ELF_PAGE_SIZE)) page_size = size; }
     virtual ~FakeCore() {}
     virtual int execute(const char* output) { return 0; }
+    virtual int getMachine() { return EM_NONE; }
 
     static int OptionCore(int argc, char* const argv[]);
     static void Usage();
     static std::unique_ptr<FakeCore> Make(int bits);
-    static std::unique_ptr<FakeCore> Make(android::Tombstone& tombstone);
+    static std::unique_ptr<FakeCore> Make(std::unique_ptr<FakeCore::Stream>& stream, const char* sysroot);
+    static uint64_t FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps, const char* name);
+
+    std::unique_ptr<FakeCore::Stream>& GetInputStream() { return stream; }
+    std::string& GetSysRootDir() { return sysroot; }
+protected:
+    uint64_t current_offset;
+    int extra_note_filesz;
+    uint64_t align_size;
+    uint64_t page_size;
+    int va_bits;
+private:
+    std::unique_ptr<FakeCore::Stream> stream;
+    std::string sysroot;
 };
 
 #endif // PARSER_COMMAND_FAKE_CORE_FAKECORE_H_

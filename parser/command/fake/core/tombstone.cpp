@@ -14,20 +14,39 @@
  * limitations under the License.
  */
 
-
-#include "tombstone/tombstone.h"
+#include "command/fake/core/tombstone.h"
+#include "command/fake/core/arm64/tombstone_parser.h"
+#include <stdio.h>
 
 namespace android {
 
 Tombstone::Tombstone(const char* path) {
-    // parse abi
-    abi = "arm64";
+    FILE *fp = fopen(path, "r");
+    char line[1024];
+    char machine[16];
+    if (fp) {
+        while (fgets(line, sizeof(line), fp)) {
+            if (sscanf(line, "ABI: '%[^']'", machine)) {
+                abi = machine;
+                break;
+            }
+        }
+        fclose(fp);
+    }
     mParser = MakeParser(abi.c_str(), path);
 }
 
+bool Tombstone::Parse() {
+    return mParser ? mParser->parse() : false;
+}
+
 std::unique_ptr<TombstoneParser> Tombstone::MakeParser(const char* abi, const char* path) {
-    // make target arch parser
-    return std::make_unique<TombstoneParser>(path);
+    std::unique_ptr<TombstoneParser> impl;
+    std::string type = abi;
+    if (type == "arm64" || type == "ARM64") {
+        impl = std::make_unique<arm64::TombstoneParser>(path);
+    }
+    return std::move(impl);
 }
 
 } // namespace android

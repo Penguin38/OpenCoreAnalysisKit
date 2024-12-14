@@ -14,25 +14,36 @@
  * limitations under the License.
  */
 
-#ifndef ANDROID_TOMBSTONE_TOMBSTONE_H_
-#define ANDROID_TOMBSTONE_TOMBSTONE_H_
+#ifndef PARSER_COMMAND_FAKE_CORE_TOMBSTONE_H_
+#define PARSER_COMMAND_FAKE_CORE_TOMBSTONE_H_
 
-#include "tombstone/parser.h"
+#include "command/fake/core/tombstone_parser.h"
+#include "command/fake/core/fake_core.h"
 #include <string>
 #include <memory>
 
 namespace android {
 
-class Tombstone {
+class Tombstone : public FakeCore::Stream {
 public:
+	// FakeCore::Stream API
+	std::string ABI() { return abi; }
+    bool Parse();
+    int Tid() { return mParser->Tid(); }
+    std::set<std::string>& Libs() { return mParser->Libs(); }
+    std::map<uint64_t, uint64_t>& Memorys() { return mParser->Memorys(); }
+    std::vector<Opencore::VirtualMemoryArea>& Maps() { return mParser->Maps(); }
+    void* Regs() { return mParser->Regs(); }
+    uint64_t TaggedAddr() { return mParser->TaggedAddr(); }
+    uint64_t PacEnabledKeys() { return mParser->PacEnabledKeys(); }
+
     Tombstone(const char* path);
-    std::string& ABI() { return abi; }
     static std::unique_ptr<TombstoneParser> MakeParser(const char* abi, const char* path);
 private:
-    std::unique_ptr<TombstoneParser> mParser;
     std::string abi;
+    std::unique_ptr<TombstoneParser> mParser;
 };
 
 } // namespace android
 
-#endif  // ANDROID_TOMBSTONE_TOMBSTONE_H_
+#endif  // PARSER_COMMAND_FAKE_CORE_TOMBSTONE_H_

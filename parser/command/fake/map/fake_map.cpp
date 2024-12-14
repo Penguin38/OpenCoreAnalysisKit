@@ -15,10 +15,46 @@
  */
 
 #include "logger/log.h"
+#include "api/core.h"
+#include "common/bit.h"
 #include "command/fake/map/fake_map.h"
+#include <linux/elf.h>
+#include <memory>
 
 int FakeLinkMap::OptionMap(int argc, char* const argv[]) {
     return 0;
+}
+
+bool FakeLinkMap::FakeLD64(LinkMap* map) {
+    LoadBlock* block = map->block();
+    if (!block || !block->isMmapBlock())
+        return false;
+
+    Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(block->begin(Block::OPT_READ_MMAP));
+    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(block->begin(Block::OPT_READ_MMAP) + ehdr->e_phoff);
+
+    for (int num = 0; num < ehdr->e_phnum; ++num) {
+        if (phdr[num].p_type == PT_PHDR) {
+            if (phdr[num].p_offset != phdr[num].p_vaddr) {
+                uint64_t vaddr = map->l_addr() + phdr[num].p_offset - phdr[num].p_vaddr;
+                CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_addr), vaddr);
+                LOGI("calibrate %s l_addr(%lx)\n", map->name(), vaddr);
+            }
+            continue;
+        }
+
+        if (phdr[num].p_type == PT_DYNAMIC) {
+                uint64_t vaddr = map->l_addr() + phdr[num].p_vaddr;
+                CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_ld), vaddr);
+                LOGI("calibrate %s l_ld(%lx)\n", map->name(), vaddr);
+            break;
+        }
+    }
+    return true;
+}
+
+bool FakeLinkMap::FakeLD32(LinkMap* map) {
+    return false;
 }
 
 void FakeLinkMap::Usage() {

@@ -917,12 +917,78 @@ Command:
 Usage: fake core <OPTION...>
 Option:
     -t, --tomb <TOMBSTONE>    build tombstone fakecore
+        --sysroot <DIR:DIR>   set sysroot path
+        --va_bits <BITS>      set virtual invalid addr bits
+        --page_size <SIZE>    set target core page size
     -r, --rebuild             rebuild current environment core
     -m, --map                 overlay linkmap's name on rebuild
     -o, --output <COREFILE>   set current fakecore path
 
 core-parser> fake core -r
 FakeCore: saved [core.opencore.tester_6118_Thread-2_6146_1720691326.fakecore]
+
+core-parser> fake core -t fakecore/tombstone_09 --sysroot fakecore/symbols
+Tid: 25911
+tagged_addr_ctrl 1
+pac_enabled_keys f
+x0  0x0000000000000000  x1  0x0000000000000001  x2  0x0000007d438049e0  x3  0x0000007d3d9525e8
+x4  0x0000000000000001  x5  0x0000000000000000  x6  0x0000000000000048  x7  0x0000007d4551dae0
+x8  0x0000000000000000  x9  0x4800abef36f3d649  x10 0x0000000000000000  x11 0x0000007d3d953878
+x12 0x000000000000001c  x13 0x0000000000000000  x14 0xffffffffe0000000  x15 0x0000000010000000
+x16 0x0000000000000001  x17 0x0000007e0c764f18  x18 0x0000007cec46a000  x19 0xb400007d43666d68
+x20 0xb400007b619cde48  x21 0xb400007d43666d78  x22 0x0000007d619ff238  x23 0xb400007b6191bba0
+x24 0x0000007d4551f000  x25 0xb400007b61926690  x26 0x0000000000000003  x27 0x0000007d619ff220
+x28 0xb400007b61a12690  fp  0x0000007d4551ddb0
+lr  0x0000007d619aa960  sp  0x0000007d4551dd70  pc  0x0000007d619aa89c  pst 0x0000000080001000
+/apex/com.android.art/lib64/libart.so
+/apex/com.android.art/lib64/libunwindstack.so
+/apex/com.android.runtime/lib64/bionic/libc.so
+Create Fakecore fakecore/tombstone_09.fakecore ...
+Core load (0x76dcf405bb60)
+Core env:
+  * Path:
+  * Machine: arm64
+  * Bits: 64
+  * PointSize: 8
+  * PointMask: 0xffffffffffffffff
+  * VabitsMask: 0x7fffffffff
+  * PageSize: 0x1000
+  * Remote: false
+  * Thread: 25911
+Switch android(0) env.
+New overlay [100000, 104000)
+Create FAKE PHDR
+New note overlay [29518, 55e60)
+Create FAKE DYNAMIC
+Create FAKE LINK MAP
+0x7d5ea00000 /apex/com.android.art/lib64/libart.so
+0x7d61945000 /apex/com.android.art/lib64/libunwindstack.so
+0x7e0c666000 /apex/com.android.runtime/lib64/bionic/libc.so
+Create FAKE STRTAB
+Mmap segment [7d5ea00000, 7d5eb6b000) fakecore/symbols/apex/com.android.art/lib64/libart.so [0]
+WARN: Mmap segment [7d5ea00000, 7d5eb6b000) size 16b000 != 200000, maybe reset range!
+Mmap segment [7d5ec00000, 7d5f171000) fakecore/symbols/apex/com.android.art/lib64/libart.so [200000]
+WARN: Mmap segment [7d5ec00000, 7d5f171000) size 571000 != 600000, maybe reset range!
+Read symbols[9953] (/apex/com.android.art/lib64/libart.so)
+Mmap segment [7d61945000, 7d61984000) fakecore/symbols/apex/com.android.art/lib64/libunwindstack.so [0]
+Mmap segment [7d61984000, 7d619f6000) fakecore/symbols/apex/com.android.art/lib64/libunwindstack.so [3f000]
+Read symbols[1867] (/apex/com.android.art/lib64/libunwindstack.so)
+Mmap segment [7e0c666000, 7e0c6b6000) fakecore/symbols/apex/com.android.runtime/lib64/bionic/libc.so [0]
+Mmap segment [7e0c6b6000, 7e0c771000) fakecore/symbols/apex/com.android.runtime/lib64/bionic/libc.so [50000]
+Read symbols[3211] (/apex/com.android.runtime/lib64/bionic/libc.so)
+calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)
+calibrate /apex/com.android.art/lib64/libunwindstack.so l_ld(7d619fcb38)
+calibrate /apex/com.android.runtime/lib64/bionic/libc.so l_ld(7e0c7762e8)
+New overlay [75452000, 95452000)
+New overlay [7b612c7000, 7b620c7000)
+New overlay [7cec46a000, 7cec46c000)
+New overlay [7d3d700000, 7d3da00000)
+New overlay [7d43600000, 7d43a00000)
+New overlay [7d45427000, 7d45522000)
+New overlay [7d61984000, 7d619f6000)
+New overlay [7d619ff000, 7d61a00000)
+New overlay [7e0c6b6000, 7e0c771000)
+FakeCore: saved [fakecore/tombstone_09.fakecore]
 ```
 ## Rebuild Link Map
 ```

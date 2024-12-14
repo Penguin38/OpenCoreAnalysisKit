@@ -17,9 +17,13 @@
 #ifndef PARSER_COMMAND_FAKE_MAP_FAKEMAP_H_
 #define PARSER_COMMAND_FAKE_MAP_FAKEMAP_H_
 
+#include "common/link_map.h"
+
 class FakeLinkMap {
 public:
     static int OptionMap(int argc, char* const argv[]);
+    static bool FakeLD64(LinkMap* map);
+    static bool FakeLD32(LinkMap* map);
     static void Usage();
 };
 

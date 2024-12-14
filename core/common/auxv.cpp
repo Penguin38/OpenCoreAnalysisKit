@@ -24,6 +24,8 @@ void Auxv::bind(NoteBlock* block, uint64_t addr) {
 }
 
 void Auxv::setValue(uint64_t value) {
-    if (mBlock)
+    if (mBlock) {
         mBlock->setOverlay(mAuxv + CoreApi::GetPointSize(), (void *)&value, CoreApi::GetPointSize());
+        mValue = value;
+    }
 }
