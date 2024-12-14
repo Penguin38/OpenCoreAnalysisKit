@@ -19,9 +19,41 @@
 #include "common/bit.h"
 #include "command/fake/map/fake_map.h"
 #include <linux/elf.h>
+#include <unistd.h>
+#include <getopt.h>
 #include <memory>
 
 int FakeLinkMap::OptionMap(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady())
+        return 0;
+
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"ld",         no_argument,       0, 1},
+    };
+
+    bool fake_ld = false;
+    while ((opt = getopt_long(argc, argv, "a",
+                long_options, &option_index)) != -1) {
+        switch(opt) {
+            case 1:
+                fake_ld = true;
+                break;
+        }
+    }
+
+    if (fake_ld) {
+        auto callback = [&](LinkMap* map) -> bool {
+            if (CoreApi::Bits() == 64)
+                FakeLinkMap::FakeLD64(map);
+            else
+                FakeLinkMap::FakeLD32(map);
+            return false;
+        };
+        CoreApi::ForeachLinkMap(callback);
+    }
     return 0;
 }
 
@@ -58,5 +90,12 @@ bool FakeLinkMap::FakeLD32(LinkMap* map) {
 }
 
 void FakeLinkMap::Usage() {
-    LOGI("Usage: fake map\n");
+    LOGI("Usage: fake map [OPTION]\n");
+    LOGI("Option:\n");
+    LOGI("    --ld     calibrate link_map l_addr and l_ld\n");
+    ENTER();
+    LOGI("core-parser> fake map --ld\n");
+    LOGI("calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)\n");
+    LOGI("calibrate /apex/com.android.art/lib64/libunwindstack.so l_ld(7d619fcb38)\n");
+    LOGI("calibrate /apex/com.android.runtime/lib64/bionic/libc.so l_ld(7e0c7762e8)\n");
 }

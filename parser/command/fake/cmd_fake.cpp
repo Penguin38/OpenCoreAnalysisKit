@@ -76,6 +76,7 @@ void FakeCommand::usage() {
     FakeCore::Usage();
     ENTER();
     FakeLinkMap::Usage();
+    ENTER();
     FakeLoadBlock::Usage();
     ENTER();
     FakeJavaStack::Usage();

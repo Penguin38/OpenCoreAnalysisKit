@@ -997,7 +997,14 @@ FakeCore: saved [fakecore/tombstone_09.fakecore]
 ```
 ## Rebuild Link Map
 ```
-Usage: fake map
+Usage: fake map [OPTION]
+Option:
+    --ld     calibrate link_map l_addr and l_ld
+
+core-parser> fake map --ld
+calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)
+calibrate /apex/com.android.art/lib64/libunwindstack.so l_ld(7d619fcb38)
+calibrate /apex/com.android.runtime/lib64/bionic/libc.so l_ld(7e0c7762e8)
 ```
 
 ## Allocate a Virtual Memory Segment
