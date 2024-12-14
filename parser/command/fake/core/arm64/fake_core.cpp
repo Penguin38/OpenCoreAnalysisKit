@@ -202,7 +202,7 @@ uint64_t FakeCore::WriteCorePAC(int, std::unique_ptr<MemoryMap>& map, uint64_t o
     tmp_off += sizeof(magic);
 
     user_pac_mask uregs;
-    uint64_t mask = GENMASK(54, va_bits ? va_bits : DEF_VA_BITS);
+    uint64_t mask = GENMASK_UL(54, va_bits ? va_bits : DEF_VA_BITS);
     uregs.data_mask = mask;
     uregs.insn_mask = mask;
 

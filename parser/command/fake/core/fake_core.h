@@ -102,8 +102,9 @@ public:
     }
     void InitStream(std::unique_ptr<FakeCore::Stream>& in) { stream = std::move(in); }
     void InitSysRoot(const char* root) { if (root) sysroot = root; }
-    void InitVaBist(int va) { if (va) va_bits = va; }
+    void InitVaBits(int va) { if (va) va_bits = va; }
     void InitPageSize(uint64_t size) { if (IS_ALIGNED(size, ELF_PAGE_SIZE)) page_size = size; }
+
     virtual ~FakeCore() {}
     virtual int execute(const char* output) { return 0; }
     virtual int getMachine() { return EM_NONE; }

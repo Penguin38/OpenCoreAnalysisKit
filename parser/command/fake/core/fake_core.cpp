@@ -108,7 +108,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         if (impl) {
             impl->InitStream(tombstone);
             impl->InitSysRoot(sysroot_dir);
-            impl->InitVaBist(va_bits);
+            impl->InitVaBits(va_bits);
             impl->InitPageSize(page_size);
         }
     }

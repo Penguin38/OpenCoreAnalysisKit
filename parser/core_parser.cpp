@@ -19,11 +19,13 @@
 #include "ui/ui_thread.h"
 #include "work/work_thread.h"
 #include "android.h"
+#include "common/elf.h"
 #include "command/env.h"
 #include "command/cmd_core.h"
 #include "command/command.h"
 #include "command/command_manager.h"
 #include "command/remote/opencore/opencore.h"
+#include "command/fake/core/fake_core.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <signal.h>
@@ -73,9 +75,14 @@ void show_parser_usage() {
     LOGI("    -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64\n");
     LOGI("        --sdk <SDK>          sdk support 26 ~ 35\n");
     LOGI("        --non-quick          load core-parser no filter non-read vma.\n");
+    LOGI("    -t, --tomb <TOMBSTONE>   load core-parser form tombstone file\n");
+    LOGI("        --sysroot <DIR:DIR>  set sysroot path\n");
+    LOGI("        --va_bits <BITS>     set virtual invalid addr bits\n");
+    LOGI("        --page_size <SIZE>   set target core page size\n");
     LOGI("Exp:\n");
     LOGI("    core-parser -c /tmp/tmp.core\n");
     LOGI("    core-parser -p 1 -m arm64\n");
+    LOGI("    core-parser -t tombstone_00 --sysroot symbols\n");
 }
 
 class QuitCommand : public Command {
@@ -99,18 +106,25 @@ int command_preload(int argc, char* const argv[]) {
         {"core",  required_argument,       0, 'c'},
         {"sdk",   required_argument,       0,  1 },
         {"pid",   required_argument,       0, 'p'},
+        {"tomb",  required_argument,       0, 't'},
+        {"sysroot", required_argument,     0,  3 },
+        {"va_bits", required_argument,     0,  4 },
+        {"page_size", required_argument,   0,  5 },
         {"machine", required_argument,     0, 'm'},
         {"non-quick", no_argument,         0,  2 },
         {"help",  no_argument,             0, 'h'},
-        {0,       0,                       0,  0 },
     };
 
     char* corefile = nullptr;
     char* machine = const_cast<char *>(NONE_MACHINE);
+    char* tombstone = nullptr;
+    char* sysroot = nullptr;
+    uint64_t page_size = 0;
+    uint64_t va_bits = 0;
     int current_sdk = 0;
     int pid = 0;
     bool remote = false;
-    while ((opt = getopt_long(argc, argv, "c:1:p:m:h",
+    while ((opt = getopt_long(argc, argv, "c:1:p:m:t:h",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
@@ -128,6 +142,18 @@ int command_preload(int argc, char* const argv[]) {
                 break;
             case 2:
                 CoreApi::QUICK_LOAD_ENABLED = false;
+                break;
+            case 't':
+                tombstone = optarg;
+                break;
+            case 3:
+                sysroot = optarg;
+                break;
+            case 4:
+                va_bits = std::atoi(optarg);
+                break;
+            case 5:
+                page_size = Utils::atol(optarg);
                 break;
             case 'h':
                 show_parser_usage();
@@ -153,6 +179,27 @@ int command_preload(int argc, char* const argv[]) {
         WorkThread work(cmdline);
         work.Join();
         corefile = output.data();
+    } else if (tombstone) {
+        std::string cmdline;
+        cmdline.append("fake core -t ");
+        cmdline.append(tombstone);
+        if (sysroot) {
+            cmdline.append(" --sysroot ");
+            cmdline.append(sysroot);
+        }
+        if (page_size) {
+            cmdline.append(" --page_size ");
+            cmdline.append(Utils::ToHex(page_size));
+        }
+        if (va_bits) {
+            cmdline.append(" --va_bits ");
+            cmdline.append(std::to_string(va_bits));
+        }
+        output = tombstone;
+        output.append(FakeCore::FILE_EXTENSIONS);
+        WorkThread work(cmdline);
+        work.Join();
+        corefile = output.data();
     }
 
     if (corefile) {
@@ -160,6 +207,7 @@ int command_preload(int argc, char* const argv[]) {
 #if defined(__AOSP_PARSER__)
             if (current_sdk) Android::OnSdkChanged(current_sdk);
 #endif
+            if (sysroot) CoreApi::SysRoot(sysroot);
         }
     }
 

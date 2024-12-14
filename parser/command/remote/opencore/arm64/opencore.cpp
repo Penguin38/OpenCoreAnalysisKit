@@ -99,7 +99,7 @@ void Opencore::WriteCorePAC(int tid, FILE* fp) {
     };
     if (ptrace(PTRACE_GETREGSET, tid, NT_ARM_PAC_MASK,
                 reinterpret_cast<void*>(&pac_mask_iov)) == -1) {
-        uint64_t mask = GENMASK(54, DEF_VA_BITS);
+        uint64_t mask = GENMASK_UL(54, DEF_VA_BITS);
         uregs.data_mask = mask;
         uregs.insn_mask = mask;
     }

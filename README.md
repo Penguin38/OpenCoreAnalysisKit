@@ -64,9 +64,14 @@ Option:
     -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64
         --sdk <SDK>          sdk support 26 ~ 35
         --non-quick          load core-parser no filter non-read vma.
+    -t, --tomb <TOMBSTONE>   load core-parser form tombstone file
+        --sysroot <DIR:DIR>  set sysroot path
+        --va_bits <BITS>     set virtual invalid addr bits
+        --page_size <SIZE>   set target core page size
 Exp:
     core-parser -c /tmp/tmp.core
     core-parser -p 1 -m arm64
+    core-parser -t tombstone_00 --sysroot symbols
 ```
 
 ```
