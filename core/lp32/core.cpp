@@ -183,6 +183,11 @@ bool lp32::Core::dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, con
 }
 
 bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle, uint32_t addr, const char* file) {
+    if (!addr) {
+        LOGE("Can not loader_dlopen32 %s\n", file);
+        return false;
+    }
+
     bool status = false;
     Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
     Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);

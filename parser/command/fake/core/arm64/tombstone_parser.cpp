@@ -125,13 +125,27 @@ bool TombstoneParser::parseBacktrace() {
 
         int m;
         char filename[256] = {'\0'};
+        char buildid[1024] = {'\n'};
         while (fgets(kLine, sizeof(kLine), mFp)) {
             if (!strcmp(kLine, "\n"))
                 return true;
 
-            sscanf(kLine, "      #%*d pc %*lx  %s  %n", filename, &m);
-            if (strlen(filename))
-                mLibs.insert(filename);
+            sscanf(kLine, "      #%*d pc %*lx  %s %1023[^\n] %n", filename, buildid, &m);
+
+            if (strlen(filename)) {
+                std::string libname_append_buildid = filename;
+                if (strlen(buildid)) {
+                    std::string buildid_str = buildid;
+                    std::size_t l_pos = buildid_str.find(" (BuildId: ");
+                    std::size_t r_pos = buildid_str.rfind(')');
+                    if (l_pos != std::string::npos && r_pos != std::string::npos) {
+                        buildid_str = buildid_str.substr(l_pos + 11, 32);
+                        libname_append_buildid.append(":");
+                        libname_append_buildid.append(buildid_str);
+                    }
+                }
+                mLibs.insert(libname_append_buildid);
+            }
         }
     }
     return false;
@@ -204,9 +218,16 @@ bool TombstoneParser::parseMaps() {
             vma.end = vma.begin + memsz;
             vma.file = filename;
 
-            std::size_t pos = vma.file.find(" (BuildId:");
-            if (pos != std::string::npos)
-                vma.file = vma.file.substr(0, pos);
+            std::size_t l_pos = vma.file.find(" (BuildId: ");
+            if (l_pos != std::string::npos) {
+                vma.file = vma.file.substr(0, l_pos);
+                std::string buildid_str = filename;
+                std::size_t r_pos = buildid_str.rfind(')');
+                if (r_pos != std::string::npos) {
+                    buildid_str = buildid_str.substr(l_pos + 11, 32);
+                    vma.buildid = buildid_str;
+                }
+            }
 
             mMaps.push_back(vma);
         }

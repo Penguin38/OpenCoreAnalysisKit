@@ -84,6 +84,7 @@ public:
         uint32_t minor;
         uint64_t inode;
         std::string file;
+        std::string buildid;
     };
 
     void setDir(const char* d) { dir = d; }

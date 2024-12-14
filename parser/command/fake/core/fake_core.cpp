@@ -148,18 +148,34 @@ std::unique_ptr<FakeCore> FakeCore::Make(std::unique_ptr<FakeCore::Stream>& stre
 }
 
 uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps, const char* name) {
+    if (!name) return 0;
+
     uint64_t module_load = 0x0;
-    uint64_t module_size = ~0ULL;
-    uint64_t module_off = ~0ULL;
+    std::string lib = name;
+    std::size_t pos = lib.find(":");
+    std::string libname = lib.substr(0, pos);
+    std::string buildid = lib.substr(pos + 1, 32);
+
     for (const auto& vma : maps) {
-        if (vma.file == name) {
-            if (vma.end - vma.begin <= module_size && vma.offset <= module_off) {
+        if (vma.file == libname && vma.buildid == buildid
+                && (vma.flags[2] == 'x' || vma.flags[2] == 'X')) {
+            module_load = vma.begin - vma.offset;
+        }
+    }
+
+    if (!module_load) {
+        uint64_t module_size = ~0ULL;
+        uint64_t module_off = ~0ULL;
+        for (const auto& vma : maps) {
+            if (vma.file == libname && vma.buildid == buildid
+                    && (vma.end - vma.begin <= module_size && vma.offset <= module_off)) {
                 module_size = vma.end - vma.begin;
                 module_off = vma.offset;
                 module_load = vma.begin;
             }
         }
     }
+
     LOGI("0x%lx %s\n", module_load, name);
     return module_load;
 }

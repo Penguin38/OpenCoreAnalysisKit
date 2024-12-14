@@ -183,6 +183,11 @@ bool lp64::Core::dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, con
 }
 
 bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle, uint64_t addr, const char* file) {
+    if (!addr) {
+        LOGE("Can not loader_dlopen64 %s\n", file);
+        return false;
+    }
+
     bool status = false;
     Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
     Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);

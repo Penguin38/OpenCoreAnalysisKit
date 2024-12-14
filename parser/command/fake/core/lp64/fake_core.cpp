@@ -397,9 +397,11 @@ void FakeCore::CreateFakeStrtab(uint64_t fake_strtab, uint64_t fake_link_map, st
     ++idx;
 
     for (const auto& lib : libs) {
-        uint64_t length = lib.length() + 1;
+        std::size_t pos = lib.find(":");
+        std::string libname = lib.substr(0, pos);
+        uint64_t length = libname.length() + 1;
         CoreApi::Write(fake_link_map + (idx * entry_size) + offsetof(lp64::LinkMap, name), fake_strtab + tmp_off);
-        CoreApi::Write(fake_strtab + tmp_off, (void *)lib.data(), length);
+        CoreApi::Write(fake_strtab + tmp_off, (void *)libname.data(), length);
         tmp_off += RoundUp(length, 0x10);
         ++idx;
     }
