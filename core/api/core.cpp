@@ -418,7 +418,9 @@ void CoreApi::SysRoot(const char* path) {
 }
 
 void CoreApi::Write(uint64_t vaddr, void *buf, uint64_t size) {
-    LoadBlock* block = FindLoadBlock(vaddr);
+    LoadBlock* block = FindLoadBlock(vaddr, false);
+    if (!block)
+        throw InvalidAddressException(vaddr);
     block->setOverlay(vaddr, buf, size);
 }
 
