@@ -27,6 +27,10 @@ namespace lp64 {
 class Auxv {
 public:
     Auxv() : type(0), value(0) {}
+    void init(uint64_t t, uint64_t v) {
+        type = t;
+        value = v;
+    }
     uint64_t type;
     uint64_t value;
 };

@@ -43,7 +43,7 @@ public:
     bool newOverlay();
     void setOverlay(uint64_t addr, void *buf, uint64_t size);
     void removeOverlay();
-    void addAuxvItem(uint64_t type, uint64_t value);
+    void addAuxvItem(uint64_t addr, uint64_t type, uint64_t value);
     void addFileItem(uint64_t begin, uint64_t end, uint64_t offset, uint64_t pos);
     void addThreadItem(void *thread);
     std::vector<std::unique_ptr<Auxv>>& getAuxv() { return mAuxv; }

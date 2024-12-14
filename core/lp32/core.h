@@ -27,6 +27,10 @@ namespace lp32 {
 class Auxv {
 public:
     Auxv() : type(0), value(0) {}
+    void init(uint32_t t, uint32_t v) {
+        type = t;
+        value = v;
+    }
     uint32_t type;
     uint32_t value;
 };

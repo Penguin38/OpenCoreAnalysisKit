@@ -85,6 +85,7 @@ add_library(core STATIC
             core/x86/unwind.cpp
             core/x86/thread_info.cpp
             core/common/elf.cpp
+            core/common/auxv.cpp
             core/common/note_block.cpp
             core/common/load_block.cpp
             core/common/link_map.cpp

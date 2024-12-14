@@ -18,8 +18,9 @@
 #include "common/note_block.h"
 #include "base/utils.h"
 
-void NoteBlock::addAuxvItem(uint64_t type, uint64_t value) {
+void NoteBlock::addAuxvItem(uint64_t addr, uint64_t type, uint64_t value) {
     std::unique_ptr<Auxv> auxv = std::make_unique<Auxv>(type, value);
+    auxv->bind(this, addr);
     mAuxv.push_back(std::move(auxv));
 }
 

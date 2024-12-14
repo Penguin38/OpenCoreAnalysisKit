@@ -69,7 +69,7 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                         int numauxv = nhdr->n_descsz / sizeof(lp32::Auxv);
                         lp32::Auxv* auxv = reinterpret_cast<lp32::Auxv *>(item_pos);
                         for (int index = 0; index < numauxv; ++index) {
-                            block->addAuxvItem(auxv[index].type, auxv[index].value);
+                            block->addAuxvItem((uint64_t)&auxv[index], auxv[index].type, auxv[index].value);
                             if (!auxv[index].type) break;
                         }
                     } break;

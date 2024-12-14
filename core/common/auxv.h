@@ -66,6 +66,8 @@
 
 #define AT_MINSIGSTKSZ           51
 
+class NoteBlock;
+
 class Auxv {
 public:
     inline uint64_t type() { return mType; }
@@ -105,11 +107,15 @@ public:
     }
 
     Auxv(uint64_t t, uint64_t v) : mType(t), mValue(v) {}
+    void bind(NoteBlock* block, uint64_t addr);
+    void setValue(uint64_t value);
     ~Auxv() {}
 private:
     //  auxv member
     uint64_t mType;
     uint64_t mValue;
+    NoteBlock* mBlock;
+    uint64_t mAuxv;
 };
 
 #endif  // CORE_COMMON_AUXV_H_
