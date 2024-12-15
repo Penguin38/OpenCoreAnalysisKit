@@ -112,11 +112,11 @@ uint64_t FakeLinkMap::FindModuleFromLoadBlock(const char* name) {
                 if (link->vaddr() > cloc_vaddr)
                     continue;
 
-                if (link->vaddr() <= cloc_vaddr
-                        && (link->vaddr() + link->size() > cloc_vaddr)) {
+                if (link->vaddr() <= cloc_vaddr)
                     module_load = link->vaddr();
+
+                if (link->vaddr() == cloc_vaddr)
                     return true;
-                }
             }
         } else {
             tmps.push_back(block);

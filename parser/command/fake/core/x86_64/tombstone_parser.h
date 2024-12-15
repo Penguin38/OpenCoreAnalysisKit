@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_FAKE_CORE_X86_FAKECORE_IMPL_H_
-#define PARSER_COMMAND_FAKE_CORE_X86_FAKECORE_IMPL_H_
+#ifndef PARSER_COMMAND_FAKE_CORE_X86_64_TOMBSTONE_PARSER_H_
+#define PARSER_COMMAND_FAKE_CORE_X86_64_TOMBSTONE_PARSER_H_
 
-#include "command/fake/core/lp32/fake_core.h"
+#include "command/fake/core/tombstone_parser.h"
 #include "common/prstatus.h"
+#include <stdint.h>
+#include <sys/types.h>
 
-namespace x86 {
+namespace x86_64 {
 
-class FakeCore : public lp32::FakeCore {
+class TombstoneParser : public android::TombstoneParser {
 public:
-    FakeCore() : lp32::FakeCore(),
-                 prnum(0), prstatus(nullptr) {}
-    int execute(const char* output);
-    int getMachine() { return EM_386; }
-    void CreateCorePrStatus();
-    uint32_t WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint32_t off);
+    TombstoneParser(const char* path) : android::TombstoneParser(path) {}
+    bool parse();
+    bool parseTid();
+    bool parseRegister();
+    bool parseBacktrace();
+    bool parseMemory();
+    bool parseMaps();
 
-    ~FakeCore();
+    void * Regs() { return (void *)&regs; }
 private:
-    int prnum;
-    Elf32_prstatus *prstatus;
+    struct pt_regs regs;
 };
 
-} // namespace x86
+} // namespace x86_64
 
-#endif // PARSER_COMMAND_FAKE_CORE_X86_FAKECORE_IMPL_H_
+#endif  // PARSER_COMMAND_FAKE_CORE_X86_64_TOMBSTONE_PARSER_H_

@@ -18,13 +18,23 @@
 #define PARSER_COMMAND_FAKE_CORE_X86_64_FAKECORE_IMPL_H_
 
 #include "command/fake/core/lp64/fake_core.h"
+#include "common/prstatus.h"
 
 namespace x86_64 {
 
 class FakeCore : public lp64::FakeCore {
 public:
-    FakeCore() {}
+    FakeCore() : lp64::FakeCore(),
+                 prnum(0), prstatus(nullptr) {}
     int execute(const char* output);
+    int getMachine() { return EM_X86_64; }
+    void CreateCorePrStatus();
+    uint64_t WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint64_t off);
+
+    ~FakeCore();
+private:
+    int prnum;
+    Elf64_prstatus *prstatus;
 };
 
 } // namespace x86_64

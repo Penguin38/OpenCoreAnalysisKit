@@ -16,6 +16,9 @@
 
 #include "command/fake/core/tombstone.h"
 #include "command/fake/core/arm64/tombstone_parser.h"
+#include "command/fake/core/arm/tombstone_parser.h"
+#include "command/fake/core/x86_64/tombstone_parser.h"
+#include "command/fake/core/x86/tombstone_parser.h"
 #include <stdio.h>
 
 namespace android {
@@ -45,6 +48,12 @@ std::unique_ptr<TombstoneParser> Tombstone::MakeParser(const char* abi, const ch
     std::string type = abi;
     if (type == "arm64" || type == "ARM64") {
         impl = std::make_unique<arm64::TombstoneParser>(path);
+    } else if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::TombstoneParser>(path);
+    } else if (type == "x86_64" || type == "X86_64") {
+        impl = std::make_unique<x86_64::TombstoneParser>(path);
+    } else if (type == "x86" || type == "X86") {
+        impl = std::make_unique<x86::TombstoneParser>(path);
     }
     return std::move(impl);
 }

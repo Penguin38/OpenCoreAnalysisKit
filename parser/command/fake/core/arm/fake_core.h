@@ -18,13 +18,23 @@
 #define PARSER_COMMAND_FAKE_CORE_ARM_FAKECORE_IMPL_H_
 
 #include "command/fake/core/lp32/fake_core.h"
+#include "common/prstatus.h"
 
 namespace arm {
 
 class FakeCore : public lp32::FakeCore {
 public:
-    FakeCore() {}
+    FakeCore() : lp32::FakeCore(),
+                 prnum(0), prstatus(nullptr) {}
     int execute(const char* output);
+    int getMachine() { return EM_ARM; }
+    void CreateCorePrStatus();
+    uint32_t WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint32_t off);
+
+    ~FakeCore();
+private:
+    int prnum;
+    Elf32_prstatus *prstatus;
 };
 
 } // namespace arm

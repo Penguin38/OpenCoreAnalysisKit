@@ -300,6 +300,9 @@ add_library(parser STATIC
             parser/command/fake/core/riscv64/fake_core.cpp
             parser/command/fake/core/tombstone.cpp
             parser/command/fake/core/arm64/tombstone_parser.cpp
+            parser/command/fake/core/arm/tombstone_parser.cpp
+            parser/command/fake/core/x86_64/tombstone_parser.cpp
+            parser/command/fake/core/x86/tombstone_parser.cpp
             parser/command/fake/map/fake_map.cpp
             parser/command/fake/map/fake_map_64.cpp
             parser/command/fake/map/fake_map_32.cpp
