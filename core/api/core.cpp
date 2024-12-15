@@ -91,10 +91,18 @@ bool CoreApi::Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<v
         if (INSTANCE) {
             CoreApi::Init();
             INSTANCE->mRemote = remote;
-            bool ret = INSTANCE->load();
-            if (ret && callback)
-                callback();
-            return ret;
+            if (INSTANCE->load()) {
+                auto bind_file = [&](File* file) -> bool {
+                    LoadBlock* block = INSTANCE->findLoadBlock(file->begin(), false);
+                    if (block && block->vaddr() == file->begin())
+                        block->setFile(file->name());
+                    return false;
+                };
+                INSTANCE->foreachFile(bind_file);
+                if (callback) callback();
+                return true;
+            }
+            return false;
         }
     }
     return false;

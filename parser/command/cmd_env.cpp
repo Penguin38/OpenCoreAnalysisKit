@@ -265,7 +265,7 @@ int EnvCommand::showLoadEnv(bool quick) {
     auto callback = [&index](LoadBlock *block) -> bool {
         index++;
         std::string name;
-        if (block->isMmapBlock()) {
+        if (block->name().length() > 0) {
             name.append(ANSI_COLOR_GREEN);
             name.append(block->name());
             name.append(ANSI_COLOR_RESET);

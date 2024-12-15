@@ -101,7 +101,11 @@ public:
     void removeMmap();
     void removeOverlay();
     inline bool isMmapBlock() { return mMmap != nullptr; }
-    inline std::string& name() { return mMmap->getName(); }
+    inline std::string& name() {
+        if (isMmapBlock())
+            return mMmap->getName();
+        return mFileName;
+    }
     inline void setVabitsMask(uint64_t mask) { mVabitsMask = mask; }
     inline void setPointMask(uint64_t mask) { mPointMask = mask; }
     inline uint64_t VabitsMask() { return mVabitsMask; }
@@ -112,6 +116,7 @@ public:
     bool CheckCanMmap(uint64_t header);
     uint32_t GetCRC32(int opt);
     void bind(LinkMap* map) { mLinkMap = map; }
+    void setFile(std::string& name) { mFileName = name; }
     LinkMap* handle() { return mLinkMap; }
 
     ~LoadBlock() {
@@ -122,6 +127,7 @@ private:
     uint64_t mVabitsMask;
     uint64_t mPointMask;
     uint32_t mCRC32;
+    std::string mFileName;
     LinkMap* mLinkMap;
     std::unique_ptr<MemoryMap> mMmap;
     std::unordered_set<SymbolEntry, SymbolEntry::Hash> mSymbols;
