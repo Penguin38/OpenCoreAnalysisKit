@@ -156,24 +156,28 @@ uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps
     std::string libname = lib.substr(0, pos);
     std::string buildid = lib.substr(pos + 1, 32);
 
+    std::vector<Opencore::VirtualMemoryArea> tmps;
     for (const auto& vma : maps) {
-        if (vma.file == libname && vma.buildid == buildid
-                && (vma.flags[2] == 'x' || vma.flags[2] == 'X')) {
-            module_load = vma.begin - vma.offset;
-        }
-    }
+        if (vma.file != libname || vma.buildid != buildid)
+            continue;
 
-    if (!module_load) {
-        uint64_t module_size = ~0ULL;
-        uint64_t module_off = ~0ULL;
-        for (const auto& vma : maps) {
-            if (vma.file == libname && vma.buildid == buildid
-                    && (vma.end - vma.begin <= module_size && vma.offset <= module_off)) {
-                module_size = vma.end - vma.begin;
-                module_off = vma.offset;
+        if (vma.flags[2] == 'x' || vma.flags[2] == 'X') {
+            if (tmps.size() == 0) {
                 module_load = vma.begin;
+                break;
             }
-        }
+            for (const auto& phdr : tmps) {
+                if (phdr.begin != (vma.begin - vma.offset + phdr.offset))
+                    continue;
+
+                module_load = phdr.begin;
+                break;
+            }
+        } else
+            tmps.push_back(vma);
+
+        if (module_load)
+            break;
     }
 
     LOGI("0x%lx %s\n", module_load, name);
