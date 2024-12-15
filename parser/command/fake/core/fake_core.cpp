@@ -153,12 +153,20 @@ uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps
     uint64_t module_load = 0x0;
     std::string lib = name;
     std::size_t pos = lib.find(":");
-    std::string libname = lib.substr(0, pos);
-    std::string buildid = lib.substr(pos + 1, 32);
+    std::string libname;
+    std::string buildid;
+
+    if (pos != std::string::npos) {
+        libname = lib.substr(0, pos);
+        buildid = lib.substr(pos + 1, 32);
+    } else {
+        libname = name;
+    }
 
     std::vector<Opencore::VirtualMemoryArea> tmps;
     for (const auto& vma : maps) {
-        if (vma.file != libname || vma.buildid != buildid)
+        if (vma.file != libname
+                || (buildid.length() && vma.buildid != buildid))
             continue;
 
         if (vma.flags[2] == 'x' || vma.flags[2] == 'X') {
