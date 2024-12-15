@@ -96,7 +96,7 @@ public:
     static bool Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<void ()> callback);
     static void UnLoad() { INSTANCE.reset(); }
     static uint64_t GetBegin() { return INSTANCE->begin(); }
-    static uint64_t GetDebugPtr() { return INSTANCE->r_debug_ptr(); }
+    static uint64_t GetDebugPtr() { return INSTANCE->r_debug_ptr().Ptr(); }
     static const char* GetName();
     static const char* GetMachineName();
     static int GetMachine();
@@ -263,7 +263,7 @@ private:
     virtual void loadLinkMap() = 0;
     virtual bool exec(uint64_t phdr, const char* file) = 0;
     virtual bool sysroot(LinkMap* handle, const char* file, const char* subfile) = 0;
-    virtual uint64_t r_debug_ptr() { return 0x0; }
+    virtual api::MemoryRef& r_debug_ptr() = 0;
 
     std::unique_ptr<MemoryMap> mCore;
     std::vector<std::shared_ptr<LoadBlock>> mLoad;

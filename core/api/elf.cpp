@@ -168,7 +168,6 @@ MemoryRef& Elf::GetDebug() {
     if (mDebug.Ptr())
         return mDebug;
 
-    Elf::Init();
     Elfx_Phdr phdr = CoreApi::FindAuxv(AT_PHDR);
     uint64_t phent = CoreApi::FindAuxv(AT_PHENT);
     uint64_t phnum = CoreApi::FindAuxv(AT_PHNUM);

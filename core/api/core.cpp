@@ -308,6 +308,8 @@ void CoreApi::Dump() {
 
 void CoreApi::CleanCache() {
     INSTANCE->removeAllLinkMap();
+    api::MemoryRef& debug = INSTANCE->r_debug_ptr();
+    debug = 0x0;
 }
 
 void CoreApi::ForeachFile(std::function<bool (File *)> callback) {

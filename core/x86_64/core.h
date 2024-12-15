@@ -39,7 +39,7 @@ private:
     void loadLinkMap() { loadLinkMap64(this); }
     bool exec(uint64_t phdr, const char* file) { return exec64(this, phdr, file); }
     bool sysroot(LinkMap* handle, const char* file, const char* subfile) { return dlopen64(this, handle, file, subfile); }
-    uint64_t r_debug_ptr() { return GetDebug().Ptr(); }
+    api::MemoryRef& r_debug_ptr() { return GetDebug(); }
 };
 
 } // namespace x86_64
