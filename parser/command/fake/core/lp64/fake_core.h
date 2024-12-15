@@ -46,11 +46,11 @@ public:
     uint64_t WriteCoreAUXV(std::unique_ptr<MemoryMap>& map, uint64_t off);
     uint64_t WriteNtFile(std::unique_ptr<MemoryMap>& map, uint64_t off, std::vector<Opencore::VirtualMemoryArea>& maps);
 
-    void CreateFakePhdr(uint64_t fake_phdr, uint64_t fake_dynamic);
-    void CreateFakeDynamic(uint64_t fake_dynamic, uint64_t fake_link_map);
-    void CreateFakeLinkMap(uint64_t fake_vma, uint64_t fake_link_map,
+    static void CreateFakePhdr(uint64_t fake_phdr, uint64_t fake_dynamic);
+    static void CreateFakeDynamic(uint64_t fake_dynamic, uint64_t fake_link_map);
+    static void CreateFakeLinkMap(uint64_t fake_vma, uint64_t fake_link_map,
                            std::set<std::string>& libs, std::vector<Opencore::VirtualMemoryArea>& maps);
-    void CreateFakeStrtab(uint64_t fake_strtab, uint64_t fake_link_map, std::set<std::string>& libs);
+    static void CreateFakeStrtab(uint64_t fake_strtab, uint64_t fake_link_map, std::set<std::string>& libs);
 
     ~FakeCore();
 protected:

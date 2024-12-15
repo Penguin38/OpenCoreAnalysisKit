@@ -167,11 +167,14 @@ uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps
                 break;
             }
             for (const auto& phdr : tmps) {
-                if (phdr.begin != (vma.begin - vma.offset + phdr.offset))
+                uint64_t cloc_vaddr = vma.begin - vma.offset + phdr.offset;
+                if (phdr.begin > cloc_vaddr)
                     continue;
 
-                module_load = phdr.begin;
-                break;
+                if (phdr.begin <= cloc_vaddr && phdr.end > cloc_vaddr) {
+                    module_load = phdr.begin;
+                    break;
+                }
             }
         } else
             tmps.push_back(vma);

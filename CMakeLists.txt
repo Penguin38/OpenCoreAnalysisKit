@@ -301,6 +301,8 @@ add_library(parser STATIC
             parser/command/fake/core/tombstone.cpp
             parser/command/fake/core/arm64/tombstone_parser.cpp
             parser/command/fake/map/fake_map.cpp
+            parser/command/fake/map/fake_map_64.cpp
+            parser/command/fake/map/fake_map_32.cpp
             parser/command/fake/load/fake_load_block.cpp
             parser/command/fake/stack/fake_java_stack.cpp
             parser/command/backtrace/cmd_backtrace.cpp

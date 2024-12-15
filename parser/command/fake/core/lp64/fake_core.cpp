@@ -311,7 +311,8 @@ void FakeCore::CreateFakePhdr(uint64_t fake_phdr, uint64_t fake_dynamic) {
     auto fake_phdr_callback = [&](::Auxv* auxv) -> bool {
         if (auxv->type() == AT_PHDR) {
             auxv->setValue(fake_phdr + sizeof(Elf64_Ehdr));
-            return true;
+        } else if (auxv->type() == AT_EXECFN) {
+            auxv->setValue(0x0);
         }
         return false;
     };
@@ -324,16 +325,16 @@ void FakeCore::CreateFakePhdr(uint64_t fake_phdr, uint64_t fake_dynamic) {
     tmp.p_vaddr = sizeof(Elf64_Ehdr);
     tmp.p_paddr = sizeof(Elf64_Ehdr);
     tmp.p_filesz = 0x0;
-    tmp.p_memsz = page_size;
+    tmp.p_memsz = CoreApi::GetPageSize();
     tmp.p_align = 0x8;
     CoreApi::Write(fake_phdr + sizeof(Elf64_Ehdr), (void *)&tmp, sizeof(Elf64_Phdr));
 
     tmp.p_type = PT_DYNAMIC;
     tmp.p_flags = PF_R | PF_W;
-    tmp.p_offset = page_size;
-    tmp.p_vaddr = page_size * FAKE_PHDR_PAGES;
+    tmp.p_offset = CoreApi::GetPageSize();
+    tmp.p_vaddr = CoreApi::GetPageSize() * FAKE_PHDR_PAGES;
     tmp.p_paddr = tmp.p_vaddr;
-    tmp.p_filesz = page_size * FKAE_DYNAMIC_PAGES;
+    tmp.p_filesz = CoreApi::GetPageSize() * FKAE_DYNAMIC_PAGES;
     tmp.p_memsz = tmp.p_filesz;
     tmp.p_align = 0x8;
     CoreApi::Write(fake_phdr + sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr), (void *)&tmp, sizeof(Elf64_Phdr));

@@ -106,6 +106,8 @@ public:
             return mMmap->getName();
         return mFileName;
     }
+    inline std::string& filename() { return mFileName; }
+    inline uint64_t pageoffset() { return mPageOffset; }
     inline void setVabitsMask(uint64_t mask) { mVabitsMask = mask; }
     inline void setPointMask(uint64_t mask) { mPointMask = mask; }
     inline uint64_t VabitsMask() { return mVabitsMask; }
@@ -116,7 +118,10 @@ public:
     bool CheckCanMmap(uint64_t header);
     uint32_t GetCRC32(int opt);
     void bind(LinkMap* map) { mLinkMap = map; }
-    void setFile(std::string& name) { mFileName = name; }
+    void setFile(std::string& name, uint64_t off) {
+        mFileName = name;
+        mPageOffset = off;
+    }
     LinkMap* handle() { return mLinkMap; }
 
     ~LoadBlock() {
@@ -128,6 +133,7 @@ private:
     uint64_t mPointMask;
     uint32_t mCRC32;
     std::string mFileName;
+    uint64_t mPageOffset;
     LinkMap* mLinkMap;
     std::unique_ptr<MemoryMap> mMmap;
     std::unordered_set<SymbolEntry, SymbolEntry::Hash> mSymbols;

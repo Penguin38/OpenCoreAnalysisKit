@@ -132,7 +132,7 @@ bool TombstoneParser::parseBacktrace() {
 
             sscanf(kLine, "      #%*d pc %*lx  %s %1023[^\n] %n", filename, buildid, &m);
 
-            if (strlen(filename)) {
+            if (strlen(filename) && filename[0] == '/') {
                 std::string libname_append_buildid = filename;
                 if (strlen(buildid)) {
                     std::string buildid_str = buildid;

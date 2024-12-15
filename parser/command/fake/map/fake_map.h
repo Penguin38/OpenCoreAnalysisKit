@@ -21,9 +21,21 @@
 
 class FakeLinkMap {
 public:
+    static constexpr int FAKE_LD = 1 << 0;
+    static constexpr int FAKE_AUTO_CREATE = 1 << 1;
+    static constexpr int FAKE_APPEND = 1 << 2;
+
     static int OptionMap(int argc, char* const argv[]);
+    static int LD();
     static bool FakeLD64(LinkMap* map);
     static bool FakeLD32(LinkMap* map);
+    static int AutoCreate();
+    static int AutoCreate64();
+    static int AutoCreate32();
+    static int Append(uint64_t addr, const char* name);
+    static int Append64(uint64_t addr, const char* name);
+    static int Append32(uint64_t addr, const char* name);
+    static uint64_t FindModuleFromLoadBlock(const char* name);
     static void Usage();
 };
 

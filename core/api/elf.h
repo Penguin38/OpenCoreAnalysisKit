@@ -106,6 +106,7 @@ public:
     static void Init();
     inline uint64_t e_phoff() { return VALUEOF(Elfx_Ehdr, e_phoff); }
     inline uint16_t e_phnum() { return *reinterpret_cast<uint16_t *>(Real() + OFFSET(Elfx_Ehdr, e_phnum)); }
+    bool IsElf();
 };
 
 class Elfx_Phdr : public MemoryRef {

@@ -73,30 +73,34 @@ int FakeCore::execute(const char* output) {
     if (!CoreApi::Load(map, false, Env::Init))
         return 0;
 
+    if (stream->Libs().size()) {
+        /** core ready page_size == CoreApi::GetPageSize(); */
+        uint64_t fake_vma = CoreApi::NewLoadBlock(0x0, page_size *
+                (FAKE_PHDR_PAGES + FKAE_DYNAMIC_PAGES + FAKE_LINK_MAP_PAGES + FAKE_STRTAB_PAGES));
+        if (!fake_vma) {
+            LOGE("Create FAKE VMA fail.\n");
+            return 0;
+        }
 
-    uint64_t fake_vma = CoreApi::NewLoadBlock(0x0, page_size *
-                    (FAKE_PHDR_PAGES + FKAE_DYNAMIC_PAGES + FAKE_LINK_MAP_PAGES + FAKE_STRTAB_PAGES));
-    if (!fake_vma) {
-        LOGE("Create FAKE VMA fail.\n");
-        return 0;
+        uint64_t fake_phdr = fake_vma;
+        uint64_t fake_dynamic = fake_vma + page_size * FAKE_PHDR_PAGES;
+        uint64_t fake_link_map = fake_dynamic + page_size * FKAE_DYNAMIC_PAGES;
+        uint64_t fake_strtab = fake_link_map + page_size * FAKE_LINK_MAP_PAGES;
+
+        /** FAKE PHDR */
+        CreateFakePhdr(fake_phdr, fake_dynamic);
+
+        /** FAKE DYNAMIC */
+        CreateFakeDynamic(fake_dynamic, fake_link_map);
+
+        /** FAKE LINK MAP */
+        CreateFakeLinkMap(fake_vma, fake_link_map, stream->Libs(), maps);
+
+        /** FAKE STRTAB */
+        CreateFakeStrtab(fake_strtab, fake_link_map, stream->Libs());
+    } else {
+        FakeLinkMap::AutoCreate64();
     }
-
-    uint64_t fake_phdr = fake_vma;
-    uint64_t fake_dynamic = fake_vma + page_size * FAKE_PHDR_PAGES;
-    uint64_t fake_link_map = fake_dynamic + page_size * FKAE_DYNAMIC_PAGES;
-    uint64_t fake_strtab = fake_link_map + page_size * FAKE_LINK_MAP_PAGES;
-
-    /** FAKE PHDR */
-    CreateFakePhdr(fake_phdr, fake_dynamic);
-
-    /** FAKE DYNAMIC */
-    CreateFakeDynamic(fake_dynamic, fake_link_map);
-
-    /** FAKE LINK MAP */
-    CreateFakeLinkMap(fake_vma, fake_link_map, stream->Libs(), maps);
-
-    /** FAKE STRTAB */
-    CreateFakeStrtab(fake_strtab, fake_link_map, stream->Libs());
 
     /** LINKER LD */
     if (GetSysRootDir().length() == 0) {

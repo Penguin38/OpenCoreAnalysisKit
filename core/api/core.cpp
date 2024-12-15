@@ -95,7 +95,7 @@ bool CoreApi::Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<v
                 auto bind_file = [&](File* file) -> bool {
                     LoadBlock* block = INSTANCE->findLoadBlock(file->begin(), false);
                     if (block && block->vaddr() == file->begin())
-                        block->setFile(file->name());
+                        block->setFile(file->name(), file->offset());
                     return false;
                 };
                 INSTANCE->foreachFile(bind_file);

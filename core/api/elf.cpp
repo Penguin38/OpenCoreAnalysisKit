@@ -18,6 +18,7 @@
 #include "api/elf.h"
 #include "api/core.h"
 #include "common/auxv.h"
+#include "common/elf.h"
 #include <linux/elf.h>
 #include <string.h>
 #include <cxxabi.h>
@@ -79,6 +80,14 @@ void Elfx_Ehdr::Init() {
             .THIS = 52,
         };
     }
+}
+
+bool Elfx_Ehdr::IsElf() {
+    if (IsValid()) {
+        ElfHeader* header = reinterpret_cast<ElfHeader*>(Real());
+        return !memcmp(header->ident, ELFMAG, 4);
+    }
+    return false;
 }
 
 void Elfx_Phdr::Init() {
@@ -227,6 +236,9 @@ Elfx_Dynamic Elf::FindDynamic(LinkMap* handle) {
         dynamic = handle->l_ld();
     } else {
         Elfx_Ehdr ehdr(handle->begin(), handle->block());
+        if (!ehdr.IsElf())
+            return dynamic;
+
         Elfx_Phdr phdr(ehdr.Ptr() + ehdr.e_phoff(), ehdr);
         int phnum = ehdr.e_phnum();
 

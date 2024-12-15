@@ -16,12 +16,10 @@
 
 #include "logger/log.h"
 #include "api/core.h"
-#include "common/bit.h"
+#include "base/utils.h"
 #include "command/fake/map/fake_map.h"
-#include <linux/elf.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <memory>
 
 int FakeLinkMap::OptionMap(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
@@ -32,67 +30,110 @@ int FakeLinkMap::OptionMap(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"ld",         no_argument,       0, 1},
+        {"auto",       no_argument,       0, 2},
+        {"append",     no_argument,       0, 3},
     };
 
-    bool fake_ld = false;
+    int option = 0;
     while ((opt = getopt_long(argc, argv, "a",
                 long_options, &option_index)) != -1) {
         switch(opt) {
             case 1:
-                fake_ld = true;
+                option |= FAKE_LD;
+                break;
+            case 2:
+                option |= FAKE_AUTO_CREATE;
+                break;
+            case 3:
+                option |= FAKE_APPEND;
                 break;
         }
     }
 
-    if (fake_ld) {
-        auto callback = [&](LinkMap* map) -> bool {
-            if (CoreApi::Bits() == 64)
-                FakeLinkMap::FakeLD64(map);
-            else
-                FakeLinkMap::FakeLD32(map);
-            return false;
-        };
-        CoreApi::ForeachLinkMap(callback);
+    if (option & FAKE_LD)
+        return LD();
+    else if (option & FAKE_AUTO_CREATE)
+        return AutoCreate();
+    else if (option & FAKE_APPEND) {
+        if (argc - optind > 1) {
+            uint64_t addr = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
+            char* name = argv[optind + 1];
+            return Append(addr, name);
+        }
     }
+
     return 0;
 }
 
-bool FakeLinkMap::FakeLD64(LinkMap* map) {
-    LoadBlock* block = map->block();
-    if (!block || !block->isMmapBlock())
-        return false;
-
-    Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(block->begin(Block::OPT_READ_MMAP));
-    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(block->begin(Block::OPT_READ_MMAP) + ehdr->e_phoff);
-
-    for (int num = 0; num < ehdr->e_phnum; ++num) {
-        if (phdr[num].p_type == PT_PHDR) {
-            if (phdr[num].p_offset != phdr[num].p_vaddr) {
-                uint64_t vaddr = map->l_addr() + phdr[num].p_offset - phdr[num].p_vaddr;
-                CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_addr), vaddr);
-                LOGI("calibrate %s l_addr(%lx)\n", map->name(), vaddr);
-            }
-            continue;
-        }
-
-        if (phdr[num].p_type == PT_DYNAMIC) {
-                uint64_t vaddr = map->l_addr() + phdr[num].p_vaddr;
-                CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_ld), vaddr);
-                LOGI("calibrate %s l_ld(%lx)\n", map->name(), vaddr);
-            break;
-        }
-    }
-    return true;
+int FakeLinkMap::AutoCreate() {
+    if (CoreApi::Bits() == 64)
+        return FakeLinkMap::AutoCreate64();
+    else
+        return FakeLinkMap::AutoCreate32();
 }
 
-bool FakeLinkMap::FakeLD32(LinkMap* map) {
-    return false;
+int FakeLinkMap::Append(uint64_t addr, const char* name) {
+    if (CoreApi::Bits() == 64)
+        return FakeLinkMap::Append64(addr, name);
+    else
+        return FakeLinkMap::Append32(addr, name);
+}
+
+int FakeLinkMap::LD() {
+    auto callback = [&](LinkMap* map) -> bool {
+        if (CoreApi::Bits() == 64)
+            FakeLinkMap::FakeLD64(map);
+        else
+            FakeLinkMap::FakeLD32(map);
+        return false;
+    };
+    CoreApi::ForeachLinkMap(callback);
+    return 0;
+}
+
+uint64_t FakeLinkMap::FindModuleFromLoadBlock(const char* name) {
+    if (!name) return 0;
+
+    uint64_t module_load = 0x0;
+    std::vector<LoadBlock *> tmps;
+
+    auto callback = [&](LoadBlock *block) -> bool {
+        if (block->filename() != name)
+            return false;
+
+        if (block->flags() & Block::FLAG_X) {
+            if (tmps.size() == 0) {
+                module_load = block->vaddr();
+                return true;
+            }
+
+            for (const auto& link : tmps) {
+                uint64_t cloc_vaddr = block->vaddr() - block->pageoffset() + link->pageoffset();
+                if (link->vaddr() > cloc_vaddr)
+                    continue;
+
+                if (link->vaddr() <= cloc_vaddr
+                        && (link->vaddr() + link->size() > cloc_vaddr)) {
+                    module_load = link->vaddr();
+                    return true;
+                }
+            }
+        } else {
+            tmps.push_back(block);
+        }
+        return false;
+    };
+    CoreApi::ForeachLoadBlock(callback, false, false);
+    LOGI("0x%lx %s\n", module_load, name);
+    return module_load;
 }
 
 void FakeLinkMap::Usage() {
     LOGI("Usage: fake map [OPTION]\n");
     LOGI("Option:\n");
-    LOGI("    --ld     calibrate link_map l_addr and l_ld\n");
+    LOGI("    --ld                      calibrate link_map l_addr and l_ld\n");
+    LOGI("    --auto                    auto create link_map\n");
+    LOGI("    --append <ADDR> <NAME>    append link map\n");
     ENTER();
     LOGI("core-parser> fake map --ld\n");
     LOGI("calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)\n");
