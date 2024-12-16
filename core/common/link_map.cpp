@@ -21,6 +21,7 @@
 #include "api/elf.h"
 #include "common/link_map.h"
 #include "common/exception.h"
+#include "common/elf.h"
 #include <linux/elf.h>
 #include <cxxabi.h>
 

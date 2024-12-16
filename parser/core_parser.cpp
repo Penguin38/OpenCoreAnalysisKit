@@ -71,7 +71,9 @@ void show_parser_usage() {
     LOGI("Usage: core-parser [OPTION]\n");
     LOGI("Option:\n");
     LOGI("    -c, --core <COREFILE>    load core-parser from corefile\n");
+#if !defined(__MACOS__)
     LOGI("    -p, --pid <PID>          load core-parser from target process\n");
+#endif
     LOGI("    -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64\n");
     LOGI("        --sdk <SDK>          sdk support 26 ~ 35\n");
     LOGI("        --non-quick          load core-parser no filter non-read vma.\n");
@@ -81,7 +83,9 @@ void show_parser_usage() {
     LOGI("        --page_size <SIZE>   set target core page size\n");
     LOGI("Exp:\n");
     LOGI("    core-parser -c /tmp/tmp.core\n");
+#if !defined(__MACOS__)
     LOGI("    core-parser -p 1 -m arm64\n");
+#endif
     LOGI("    core-parser -t tombstone_00 --sysroot symbols\n");
 }
 
@@ -105,7 +109,9 @@ int command_preload(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"core",  required_argument,       0, 'c'},
         {"sdk",   required_argument,       0,  1 },
+#if !defined(__MACOS__)
         {"pid",   required_argument,       0, 'p'},
+#endif
         {"tomb",  required_argument,       0, 't'},
         {"sysroot", required_argument,     0,  3 },
         {"va_bits", required_argument,     0,  4 },
@@ -163,6 +169,7 @@ int command_preload(int argc, char* const argv[]) {
 
     std::string output;
     if (pid) {
+#if !defined(__MACOS__)
         std::string cmdline;
         cmdline.append("remote core -p ");
         cmdline.append(std::to_string(pid));
@@ -179,6 +186,7 @@ int command_preload(int argc, char* const argv[]) {
         WorkThread work(cmdline);
         work.Join();
         corefile = output.data();
+#endif
     } else if (tombstone) {
         std::string cmdline;
         cmdline.append("fake core -t ");

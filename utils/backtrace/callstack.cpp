@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 
-#if defined(__LINUX__)
+#if defined(__LINUX__) || defined(__MACOS__)
 #include <cxxabi.h>
 #include <execinfo.h>
 #endif

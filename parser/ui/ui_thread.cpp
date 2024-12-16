@@ -19,11 +19,19 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#if defined(__MACOS__)
+#include <pthread.h>
+#else
 #include <sys/prctl.h>
+#endif
 #include <chrono>
 
 void UiThread::prepare() {
-    prctl(PR_SET_NAME, "parser:ui");
+#if defined(__MACOS__)
+    pthread_setname_np("parser:ui");
+#else
+    prctl(PR_SET_NAME, "parser:worker");
+#endif
 }
 
 void UiThread::GetCommand(std::string* result) {

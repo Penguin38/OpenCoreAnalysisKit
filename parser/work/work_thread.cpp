@@ -19,10 +19,18 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#if defined(__MACOS__)
+#include <pthread.h>
+#else
 #include <sys/prctl.h>
+#endif
 
 void WorkThread::prepare() {
+#if defined(__MACOS__)
+    pthread_setname_np("parser:worker");
+#else
     prctl(PR_SET_NAME, "parser:worker");
+#endif
     std::unique_ptr<char> line(strdup(cmdline.c_str()));
     char* token = strtok(line.get(), SPLIT_TOKEN);
     while (token != nullptr) {

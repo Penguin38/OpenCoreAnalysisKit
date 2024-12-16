@@ -102,6 +102,10 @@ add_library(core STATIC
             core/common/link_map.cpp
             core/common/native_frame.cpp
             core/common/disassemble/capstone.cpp)
+
+if (TARGET_BUILD_PLATFORM STREQUAL "MACOS")
+    target_include_directories(core PUBLIC ${CMAKE_CURRENT_LIST_DIR}/macos)
+endif()
 target_link_libraries(core utils ${CAPSTONE_LIB})
 
 include_directories(llvm)
@@ -246,81 +250,86 @@ endif()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl ${LINKER_PTHREAD}")
 
 include_directories(parser)
+set(CORE_PARSER_SOURCES
+    parser/command/env.cpp
+    parser/command/command.cpp
+    parser/command/command_manager.cpp
+    parser/command/help.cpp
+    parser/command/cmd_time.cpp
+    parser/command/cmd_core.cpp
+    parser/command/cmd_exec.cpp
+    parser/command/cmd_sysroot.cpp
+    parser/command/cmd_mmap.cpp
+    parser/command/cmd_auxv.cpp
+    parser/command/cmd_file.cpp
+    parser/command/cmd_linkmap.cpp
+    parser/command/cmd_read.cpp
+    parser/command/cmd_write.cpp
+    parser/command/cmd_register.cpp
+    parser/command/cmd_disassemble.cpp
+    parser/command/cmd_thread.cpp
+    parser/command/cmd_getprop.cpp
+    parser/command/cmd_print.cpp
+    parser/command/cmd_reference.cpp
+    parser/command/cmd_hprof.cpp
+    parser/command/cmd_search.cpp
+    parser/command/cmd_class.cpp
+    parser/command/cmd_top.cpp
+    parser/command/cmd_space.cpp
+    parser/command/cmd_dex.cpp
+    parser/command/cmd_method.cpp
+    parser/command/cmd_logcat.cpp
+    parser/command/cmd_dumpsys.cpp
+    parser/command/cmd_fdtrack.cpp
+    parser/command/cmd_env.cpp
+    parser/command/cmd_shell.cpp
+    parser/command/cmd_plugin.cpp
+    parser/command/cmd_cxx.cpp
+    parser/command/cmd_scudo.cpp
+    parser/command/fake/cmd_fake.cpp
+    parser/command/fake/core/fake_core.cpp
+    parser/command/fake/core/lp64/fake_core.cpp
+    parser/command/fake/core/lp32/fake_core.cpp
+    parser/command/fake/core/arm64/fake_core.cpp
+    parser/command/fake/core/arm/fake_core.cpp
+    parser/command/fake/core/x86_64/fake_core.cpp
+    parser/command/fake/core/x86/fake_core.cpp
+    parser/command/fake/core/riscv64/fake_core.cpp
+    parser/command/fake/core/tombstone.cpp
+    parser/command/fake/core/arm64/tombstone_parser.cpp
+    parser/command/fake/core/arm/tombstone_parser.cpp
+    parser/command/fake/core/x86_64/tombstone_parser.cpp
+    parser/command/fake/core/x86/tombstone_parser.cpp
+    parser/command/fake/map/fake_map.cpp
+    parser/command/fake/map/fake_map_64.cpp
+    parser/command/fake/map/fake_map_32.cpp
+    parser/command/fake/load/fake_load_block.cpp
+    parser/command/fake/stack/fake_java_stack.cpp
+    parser/command/backtrace/cmd_backtrace.cpp
+    parser/command/backtrace/cmd_frame.cpp)
 
-add_library(parser STATIC
-            parser/command/env.cpp
-            parser/command/command.cpp
-            parser/command/command_manager.cpp
-            parser/command/help.cpp
-            parser/command/cmd_time.cpp
-            parser/command/cmd_core.cpp
-            parser/command/cmd_exec.cpp
-            parser/command/cmd_sysroot.cpp
-            parser/command/cmd_mmap.cpp
-            parser/command/cmd_auxv.cpp
-            parser/command/cmd_file.cpp
-            parser/command/cmd_linkmap.cpp
-            parser/command/cmd_read.cpp
-            parser/command/cmd_write.cpp
-            parser/command/cmd_register.cpp
-            parser/command/cmd_disassemble.cpp
-            parser/command/cmd_thread.cpp
-            parser/command/cmd_getprop.cpp
-            parser/command/cmd_print.cpp
-            parser/command/cmd_reference.cpp
-            parser/command/cmd_hprof.cpp
-            parser/command/cmd_search.cpp
-            parser/command/cmd_class.cpp
-            parser/command/cmd_top.cpp
-            parser/command/cmd_space.cpp
-            parser/command/cmd_dex.cpp
-            parser/command/cmd_method.cpp
-            parser/command/cmd_logcat.cpp
-            parser/command/cmd_dumpsys.cpp
-            parser/command/cmd_fdtrack.cpp
-            parser/command/cmd_env.cpp
-            parser/command/cmd_shell.cpp
-            parser/command/cmd_plugin.cpp
-            parser/command/cmd_cxx.cpp
-            parser/command/cmd_scudo.cpp
-            parser/command/remote/cmd_remote.cpp
-            parser/command/remote/opencore/opencore.cpp
-            parser/command/remote/opencore/lp64/opencore.cpp
-            parser/command/remote/opencore/lp32/opencore.cpp
-            parser/command/remote/opencore/arm64/opencore.cpp
-            parser/command/remote/opencore/arm/opencore.cpp
-            parser/command/remote/opencore/x86_64/opencore.cpp
-            parser/command/remote/opencore/x86/opencore.cpp
-            parser/command/remote/opencore/riscv64/opencore.cpp
-            parser/command/remote/hook/hook.cpp
-            parser/command/remote/hook/arm64/hook.cpp
-            parser/command/remote/hook/arm/hook.cpp
-            parser/command/remote/hook/x86_64/hook.cpp
-            parser/command/remote/hook/x86/hook.cpp
-            parser/command/remote/hook/riscv64/hook.cpp
-            parser/command/remote/setprop/property.cpp
-            parser/command/remote/setprop/prop_area.cpp
-            parser/command/fake/cmd_fake.cpp
-            parser/command/fake/core/fake_core.cpp
-            parser/command/fake/core/lp64/fake_core.cpp
-            parser/command/fake/core/lp32/fake_core.cpp
-            parser/command/fake/core/arm64/fake_core.cpp
-            parser/command/fake/core/arm/fake_core.cpp
-            parser/command/fake/core/x86_64/fake_core.cpp
-            parser/command/fake/core/x86/fake_core.cpp
-            parser/command/fake/core/riscv64/fake_core.cpp
-            parser/command/fake/core/tombstone.cpp
-            parser/command/fake/core/arm64/tombstone_parser.cpp
-            parser/command/fake/core/arm/tombstone_parser.cpp
-            parser/command/fake/core/x86_64/tombstone_parser.cpp
-            parser/command/fake/core/x86/tombstone_parser.cpp
-            parser/command/fake/map/fake_map.cpp
-            parser/command/fake/map/fake_map_64.cpp
-            parser/command/fake/map/fake_map_32.cpp
-            parser/command/fake/load/fake_load_block.cpp
-            parser/command/fake/stack/fake_java_stack.cpp
-            parser/command/backtrace/cmd_backtrace.cpp
-            parser/command/backtrace/cmd_frame.cpp)
+if (NOT TARGET_BUILD_PLATFORM STREQUAL "MACOS")
+    list(APPEND CORE_PARSER_SOURCES
+        parser/command/remote/cmd_remote.cpp
+        parser/command/remote/opencore/opencore.cpp
+        parser/command/remote/opencore/lp64/opencore.cpp
+        parser/command/remote/opencore/lp32/opencore.cpp
+        parser/command/remote/opencore/arm64/opencore.cpp
+        parser/command/remote/opencore/arm/opencore.cpp
+        parser/command/remote/opencore/x86_64/opencore.cpp
+        parser/command/remote/opencore/x86/opencore.cpp
+        parser/command/remote/opencore/riscv64/opencore.cpp
+        parser/command/remote/hook/hook.cpp
+        parser/command/remote/hook/arm64/hook.cpp
+        parser/command/remote/hook/arm/hook.cpp
+        parser/command/remote/hook/x86_64/hook.cpp
+        parser/command/remote/hook/x86/hook.cpp
+        parser/command/remote/hook/riscv64/hook.cpp
+        parser/command/remote/setprop/property.cpp
+        parser/command/remote/setprop/prop_area.cpp)
+endif()
+
+add_library(parser STATIC ${CORE_PARSER_SOURCES})
 target_link_libraries(parser android llvm core utils)
 
 add_executable(${TARGET_CORE_PARSER}

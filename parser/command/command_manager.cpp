@@ -122,7 +122,9 @@ void CommandManager::Init() {
     INSTANCE->plugin = new PluginCommand();
     CommandManager::PushInlineCommand(INSTANCE->plugin);
     CommandManager::PushInlineCommand(new Help());
+#if !defined(__MACOS__)
     CommandManager::PushInlineCommand(new RemoteCommand());
+#endif
     CommandManager::PushInlineCommand(new FakeCommand());
     CommandManager::PushInlineCommand(new TimeCommand());
     CommandManager::PushInlineCommand(new VersionCommand());
