@@ -119,7 +119,7 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
         weak_globals_cache = weak_globals();
         weak_globals_cache.copyRef(this);
         weak_globals_cache.Prepare(false);
-#if defined(__PARSER_DEBUG__)
+#if defined(__ART_JVM_WEAK_GLOBALS_PARSER__)
         if (Android::Sdk() > Android::P && weak_globals_cache.IsValid()) {
             bool found = false;
             int count = 0;

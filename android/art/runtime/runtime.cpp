@@ -288,7 +288,7 @@ Runtime& Runtime::Current() {
                 throw InvalidAddressException(runtime_instance_ori_cache.Ptr());
             runtime = runtime_instance_ori_cache;
 
-#if defined(__PARSER_DEBUG__)
+#if defined(__ART_RUNTIME_PARSER__)
             // double check runtime callee_method
             uint64_t callee_methods[6] = {0x0};
             memset(callee_methods, 0x0, sizeof(callee_methods));

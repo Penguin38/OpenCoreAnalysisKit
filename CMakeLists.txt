@@ -14,6 +14,17 @@
 
 cmake_minimum_required(VERSION 3.21.1)
 project(OpenCoreAnalysisKit)
+set(TARGET_CORE_PARSER core-parser)
+add_definitions(-D__CORE_PARSER__="${TARGET_CORE_PARSER}")
+
+file(READ ${CMAKE_SOURCE_DIR}/VERSION version_contents)
+string(REGEX MATCH "MAJOR=([0-9]+)" _ ${version_contents})
+set(MAJOR ${CMAKE_MATCH_1})
+string(REGEX MATCH "MINOR=([0-9]+)" _ ${version_contents})
+set(MINOR ${CMAKE_MATCH_1})
+string(REGEX MATCH "PATCH=([0-9]+)" _ ${version_contents})
+set(PATCH ${CMAKE_MATCH_1})
+add_definitions(-D__PARSER_VERSION__="${MAJOR}.${MINOR}.${PATCH}")
 
 string(TOUPPER "${CMAKE_BUILD_PRODUCT}" TARGET_BUILD_PRODUCT)
 add_definitions(-D__${TARGET_BUILD_PRODUCT}_PARSER__)
@@ -312,14 +323,14 @@ add_library(parser STATIC
             parser/command/backtrace/cmd_frame.cpp)
 target_link_libraries(parser android llvm core utils)
 
-add_executable(core-parser
+add_executable(${TARGET_CORE_PARSER}
                parser/ui/ui_thread.cpp
                parser/ui/mini_shell.cpp
                parser/work/work_thread.cpp
                parser/core_parser.cpp)
-target_link_libraries(core-parser parser)
+target_link_libraries(${TARGET_CORE_PARSER} parser)
 if (TARGET_BUILD_PAGESIZE STREQUAL "16K")
-target_link_options(core-parser PRIVATE "-Wl,-z,max-page-size=16384")
+target_link_options(${TARGET_CORE_PARSER} PRIVATE "-Wl,-z,max-page-size=16384")
 endif()
 
 add_executable(test tests/test.cpp)

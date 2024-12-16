@@ -71,7 +71,7 @@ cxx::vector& Heap::GetContinuousSpacesCache() {
         continuous_spaces_cache.copyRef(this);
         continuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize());
 
-#if defined(__PARSER_DEBUG__)
+#if defined(__ART_HEAP_CONTINUOUS_SPACE_PARSER__)
         if (!(continuous_spaces_cache.size() > 2 && continuous_spaces_cache.size() < 64)) {
             LOGD("continuous_spaces_ invalid, do analysis ...\n");
             bool found = false;
@@ -100,7 +100,7 @@ cxx::vector& Heap::GetDiscontinuousSpacesCache() {
         discontinuous_spaces_cache.copyRef(this);
         discontinuous_spaces_cache.SetEntrySize(CoreApi::GetPointSize());
 
-#if defined(__PARSER_DEBUG__)
+#if defined(__ART_HEAP_DISCONTINUOUS_SPACE_PARSER__)
         if (!(discontinuous_spaces_cache.size() < 8)) {
             LOGD("discontinuous_spaces_ invalid, do analysis ...\n");
             bool found = false;

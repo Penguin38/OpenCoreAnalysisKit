@@ -33,6 +33,12 @@
 
 #define INVALID_VALUE "<unknown>"
 
+#define __ART_RUNTIME_PARSER__
+#define __ART_JVM_WEAK_GLOBALS_PARSER__
+#define __ART_THREAD_WAIT_MONITOR_PARSER__
+#define __ART_HEAP_CONTINUOUS_SPACE_PARSER__
+#define __ART_HEAP_DISCONTINUOUS_SPACE_PARSER__
+
 class Android {
 public:
     static constexpr int N = 24;

@@ -518,7 +518,7 @@ const char* Thread::GetName() {
 
 api::MemoryRef& Thread::GetWaitMonitor() {
     api::MemoryRef& wait_monitor_ = QUICK_CACHE(wait_monitor);
-#if defined(__PARSER_DEBUG__)
+#if defined(__ART_THREAD_WAIT_MONITOR_PARSER__)
     bool invalid = false;
     Monitor monitor_ = wait_monitor_;
     try {

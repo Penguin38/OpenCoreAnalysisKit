@@ -63,8 +63,19 @@ public:
     ~VersionCommand() {}
     void usage() {}
     int main(int /*argc*/, char* const * /*argv[]*/) {
-        LOGI("(%s) core-parser 1.0.3\n", __TARGET_PARSER__);
+        LOGI("%s\n", Get().c_str());
         return 0;
+    }
+    inline static std::string Get() {
+        std::string version;
+        version.append("(");
+        version.append(__TARGET_PARSER__);
+        version.append(")");
+        version.append(" ");
+        version.append(__CORE_PARSER__);
+        version.append(" ");
+        version.append(__PARSER_VERSION__);
+        return version;
     }
 };
 
