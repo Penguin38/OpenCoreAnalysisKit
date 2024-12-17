@@ -203,7 +203,7 @@ MemoryRef& Elf::GetDebug() {
         tmp.MovePtr(SIZEOF(Elfx_Phdr));
     }
 
-    if (dynamic.Ptr()) {
+    if (dynamic.IsValid()) {
         mDebug = FindDynamicEntry(dynamic, DT_DEBUG);
     } else {
         std::string name;
@@ -216,7 +216,7 @@ MemoryRef& Elf::GetDebug() {
 }
 
 uint64_t Elf::FindDynamicEntry(Elfx_Dynamic& dynamic, uint64_t type) {
-    if (!dynamic.Ptr()) return 0x0;
+    if (!dynamic.IsValid()) return 0x0;
     uint64_t value = 0x0;
     Elfx_Dynamic tmp = dynamic;
     do {

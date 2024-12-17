@@ -50,8 +50,10 @@ SerializedLogBuffer Logcat::AnalysisSerializedLogBuffer() {
     SerializedLogBuffer serial = 0x0;
     api::MemoryRef exec_text = CoreApi::FindAuxv(AT_ENTRY);
     api::MemoryRef exec_fn = CoreApi::FindAuxv(AT_EXECFN);
+    api::MemoryRef platform = CoreApi::FindAuxv(AT_PLATFORM);
     exec_text.Prepare(false);
     exec_fn.Prepare(false);
+    platform.Prepare(false);
 
     if (exec_fn.IsValid()) {
         std::string name = reinterpret_cast<const char*>(exec_fn.Real());
@@ -79,9 +81,9 @@ SerializedLogBuffer Logcat::AnalysisSerializedLogBuffer() {
                 }
 
                 if (match) {
-                    match &= exec_fn.Block()->virtualContains(buffer.reader_list());
-                    match &= exec_fn.Block()->virtualContains(buffer.tags());
-                    match &= exec_fn.Block()->virtualContains(buffer.stats());
+                    match &= platform.Block()->virtualContains(buffer.reader_list());
+                    match &= platform.Block()->virtualContains(buffer.tags());
+                    match &= platform.Block()->virtualContains(buffer.stats());
                 }
 
                 if (match) {
