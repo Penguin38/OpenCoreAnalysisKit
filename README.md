@@ -826,6 +826,8 @@ Option:
 
 core-parser> regs --set rip=0x00000074e414e2a0
 New note overlay [7d6d8, 104073)
+
+core-parser> regs --set ucontext[=<ADDR>]
 ```
 
 # Remote Mode

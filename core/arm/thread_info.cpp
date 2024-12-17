@@ -15,6 +15,8 @@
  */
 
 #include "arm/thread_info.h"
+#include "arm/unwind.h"
+#include "common/ucontext.h"
 #include "common/prstatus.h"
 #include "common/note_block.h"
 #include "base/utils.h"
@@ -50,18 +52,35 @@ void ThreadInfo::RegisterSet(const char* command) {
     char *regs = strtok(newcommand.get(), "=");
     if (!regs) return;
 
+    uint32_t value = 0x0;
     char *token = strtok(NULL, "=");
-    uint32_t value = atoi(token);
+    if (token) value = atoi(token);
 
-    int count = sizeof(kMap)/sizeof(kMap[0]);
-    for (int index = 0; index < count; ++index) {
-        if (!strcmp(regs, kMap[index].regs)) {
-            *(reinterpret_cast<uint32_t *>(&reg) + kMap[index].offset / 4) = value;
-            block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg) + kMap[index].offset, (void *)&value, kMap[index].size);
-            return;
+    if (strcmp(regs, "ucontext")) {
+        int count = sizeof(kMap)/sizeof(kMap[0]);
+        for (int index = 0; index < count; ++index) {
+            if (!strcmp(regs, kMap[index].regs)) {
+                *(reinterpret_cast<uint32_t *>(&reg) + kMap[index].offset / 4) = value;
+                block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg) + kMap[index].offset, (void *)&value, kMap[index].size);
+                return;
+            }
+        }
+        LOGW("Invalid regs %s\n", regs);
+    } else {
+        api::MemoryRef uc = value;
+        if (!uc.IsValid()) {
+            UnwindStack stack(this);
+            uc = stack.GetUContext();
+        }
+        if (uc.IsValid() && uc.Block()->virtualContains(
+                uc.Ptr() + offsetof(struct ucontext, uc_mcontext)
+                         + offsetof(struct mcontext, arm_r0)
+                         + sizeof(reg))) {
+            struct ucontext* context = (struct ucontext*)uc.Real();
+            memcpy(&reg, &context->uc_mcontext.arm_r0, sizeof(reg));
+            block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg), (void *)&reg, sizeof(reg));
         }
     }
-    LOGW("Invalid regs %s\n", regs);
 }
 
 uint64_t ThreadInfo::RegisterGet(const char* regs) {

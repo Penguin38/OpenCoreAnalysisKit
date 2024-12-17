@@ -15,6 +15,8 @@
  */
 
 #include "x86/thread_info.h"
+#include "x86/unwind.h"
+#include "common/ucontext.h"
 #include "common/prstatus.h"
 #include "common/note_block.h"
 #include "base/utils.h"
@@ -50,24 +52,57 @@ void ThreadInfo::RegisterSet(const char* command) {
     char *regs = strtok(newcommand.get(), "=");
     if (!regs) return;
 
+    uint32_t value = 0x0;
     char *token = strtok(NULL, "=");
-    uint32_t value = atoi(token);
+    if (token) value = atoi(token);
 
-    int count = sizeof(kMap)/sizeof(kMap[0]);
-    for (int index = 0; index < count; ++index) {
-        if (!strcmp(regs, kMap[index].regs)) {
-            if (kMap[index].size == sizeof(uint32_t)) {
-                *(reinterpret_cast<uint32_t *>(&reg) + kMap[index].offset / 4) = value;
-                block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg) + kMap[index].offset, (void *)&value, kMap[index].size);
-            } else {
-                value = value & 0xFFFF;
-                *(reinterpret_cast<uint16_t *>(&reg) + kMap[index].offset / 2) = value;
-                block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg) + kMap[index].offset, (void *)&value, kMap[index].size);
+    if (strcmp(regs, "ucontext")) {
+        int count = sizeof(kMap)/sizeof(kMap[0]);
+        for (int index = 0; index < count; ++index) {
+            if (!strcmp(regs, kMap[index].regs)) {
+                if (kMap[index].size == sizeof(uint32_t)) {
+                    *(reinterpret_cast<uint32_t *>(&reg) + kMap[index].offset / 4) = value;
+                    block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg) + kMap[index].offset, (void *)&value, kMap[index].size);
+                } else {
+                    value = value & 0xFFFF;
+                    *(reinterpret_cast<uint16_t *>(&reg) + kMap[index].offset / 2) = value;
+                    block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg) + kMap[index].offset, (void *)&value, kMap[index].size);
+                }
+                return;
             }
-            return;
+        }
+        LOGW("Invalid regs %s\n", regs);
+    } else {
+        api::MemoryRef uc = value;
+        if (!uc.IsValid()) {
+            UnwindStack stack(this);
+            uc = stack.GetUContext();
+        }
+        if (uc.IsValid() && uc.Block()->virtualContains(
+                uc.Ptr() + offsetof(struct ucontext, uc_mcontext)
+                         + offsetof(struct mcontext, oldmask))) {
+            struct ucontext* context = (struct ucontext*)uc.Real();
+            Register uc_regs;
+            uc_regs.ebx = context->uc_mcontext.bx;
+            uc_regs.ecx = context->uc_mcontext.cx;
+            uc_regs.edx = context->uc_mcontext.dx;
+            uc_regs.esi = context->uc_mcontext.si;
+            uc_regs.edi = context->uc_mcontext.di;
+            uc_regs.ebp = context->uc_mcontext.bp;
+            uc_regs.eax = context->uc_mcontext.ax;
+            uc_regs.ds = context->uc_mcontext.ds;
+            uc_regs.es = context->uc_mcontext.es;
+            uc_regs.fs = context->uc_mcontext.fs;
+            uc_regs.gs = context->uc_mcontext.gs;
+            uc_regs.orig_eax = context->uc_mcontext.ax;
+            uc_regs.eip = context->uc_mcontext.ip;
+            uc_regs.eflags = context->uc_mcontext.flags;
+            uc_regs.esp = context->uc_mcontext.sp;
+            uc_regs.ss = context->uc_mcontext.ss;
+            memcpy(&reg, &uc_regs, sizeof(reg));
+            block()->setOverlay(prs() + offsetof(Elf32_prstatus, pr_reg), (void *)&reg, sizeof(reg));
         }
     }
-    LOGW("Invalid regs %s\n", regs);
 }
 
 uint64_t ThreadInfo::RegisterGet(const char* regs) {
