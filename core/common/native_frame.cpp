@@ -27,6 +27,8 @@ NativeFrame::NativeFrame(uint64_t fp, uint64_t sp, uint64_t pc)
 }
 
 void NativeFrame::Decode() {
+    LoadBlock* block = CoreApi::FindLoadBlock(frame_pc, false);
+
     auto callback = [&](LinkMap* link) -> bool {
         // FOR TEST
         uint64_t va_pc = frame_pc & CoreApi::GetVabitsMask();
@@ -36,11 +38,13 @@ void NativeFrame::Decode() {
                 && va_pc > link->begin()) {
             map = link;
             return true;
+        } else if (block && block->filename() == link->name()) {
+            map = link;
+            return true;
         }
         return false;
     };
 
-    LoadBlock* block = CoreApi::FindLoadBlock(frame_pc, false);
     if (block && block->handle()) {
         map = block->handle();
     } else {
