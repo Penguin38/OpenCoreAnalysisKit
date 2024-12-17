@@ -17,6 +17,7 @@
 #include "api/core.h"
 #include "logger/log.h"
 #include "android.h"
+#include "common/exception.h"
 #include "command/command_manager.h"
 #include "command/cmd_logcat.h"
 #include "logcat/log.h"
@@ -34,11 +35,15 @@ using namespace android;
 // std::list<SerializedLogChunk> logs_[LOG_ID_MAX] GUARDED_BY(logd_lock);
 static void PrintSerializedLogBuf(const char* header, cxx::list& logs, int filter, int id) {
     LOGI("%s\n", header);
-    for (const auto& value : logs) {
-        SerializedData content = value;
-        if (!content.data())
-            continue;
-        content.DecodeDump(filter, id);
+    try {
+        for (const auto& value : logs) {
+            SerializedData content = value;
+            if (!content.data())
+                continue;
+            content.DecodeDump(filter, id);
+        }
+    } catch (InvalidAddressException e) {
+        LOGW("maybe loss of partial logs!!\n");
     }
 }
 
