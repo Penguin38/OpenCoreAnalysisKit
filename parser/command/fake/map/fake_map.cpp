@@ -58,7 +58,9 @@ int FakeLinkMap::OptionMap(int argc, char* const argv[]) {
         if (argc - optind > 1) {
             uint64_t addr = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
             char* name = argv[optind + 1];
-            return Append(addr, name);
+            uint64_t ld = 0;
+            if (argc - optind > 2) ld = Utils::atol(argv[optind + 2]) & CoreApi::GetVabitsMask();
+            return Append(addr, name, ld);
         }
     }
 
@@ -72,11 +74,11 @@ int FakeLinkMap::AutoCreate() {
         return FakeLinkMap::AutoCreate32();
 }
 
-int FakeLinkMap::Append(uint64_t addr, const char* name) {
+int FakeLinkMap::Append(uint64_t addr, const char* name, uint64_t ld) {
     if (CoreApi::Bits() == 64)
-        return FakeLinkMap::Append64(addr, name);
+        return FakeLinkMap::Append64(addr, name, ld);
     else
-        return FakeLinkMap::Append32(addr, name);
+        return FakeLinkMap::Append32(addr, name, ld);
 }
 
 int FakeLinkMap::LD() {
@@ -131,9 +133,9 @@ uint64_t FakeLinkMap::FindModuleFromLoadBlock(const char* name) {
 void FakeLinkMap::Usage() {
     LOGI("Usage: fake map [OPTION]\n");
     LOGI("Option:\n");
-    LOGI("    --ld                      calibrate link_map l_addr and l_ld\n");
-    LOGI("    --auto                    auto create link_map\n");
-    LOGI("    --append <ADDR> <NAME>    append link map\n");
+    LOGI("    --ld                            calibrate link_map l_addr and l_ld\n");
+    LOGI("    --auto                          auto create link_map\n");
+    LOGI("    --append <ADDR> <NAME> [<LD>]   append link map\n");
     ENTER();
     LOGI("core-parser> fake map --ld\n");
     LOGI("calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)\n");

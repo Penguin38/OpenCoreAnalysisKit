@@ -60,6 +60,35 @@ static void CreateFakeLinkMap32(uint32_t fake_vma, uint32_t fake_link_map,
     }
 }
 
+static uint32_t AppendFakeLinkMap32(uint32_t prev, uint32_t fake_link_map,
+                                uint32_t addr, const char* name, uint32_t ld) {
+    LOGI("Append FAKE LINK32 MAP\n");
+    uint32_t entry_size = RoundUp(sizeof(lp32::LinkMap), 0x10);
+    uint32_t tmp_off = 0x0;
+
+    lp32::LinkMap link;
+    link.addr = addr;
+    link.name = 0x0;
+    link.ld = ld;
+    link.next = 0x0;
+    link.prev = 0x0;
+
+    if (prev) {
+        link.prev = prev;
+        CoreApi::Write(prev + offsetof(lp32::LinkMap, next), (void *)&fake_link_map, sizeof(link.next));
+    }
+
+    CoreApi::Write(fake_link_map, (void *)&link, sizeof(lp32::LinkMap));
+    tmp_off += entry_size;
+
+    uint32_t length = strlen(name) + 1;
+    uint32_t value = fake_link_map + entry_size;
+    CoreApi::Write(fake_link_map + offsetof(lp32::LinkMap, name), (void *)&value, sizeof(value));
+    CoreApi::Write(fake_link_map + entry_size, (void *)name, length);
+    tmp_off += RoundUp(length, 0x10);
+    return tmp_off;
+}
+
 int FakeLinkMap::AutoCreate32() {
     std::set<std::string> libs;
     uint32_t link_map_len = 0x0;
@@ -113,7 +142,41 @@ int FakeLinkMap::AutoCreate32() {
     return 0;
 }
 
-int FakeLinkMap::Append32(uint32_t addr, const char* name) {
+int FakeLinkMap::Append32(uint32_t addr, const char* name, uint32_t ld) {
+    if (CoreApi::FindLinkMap(name)) {
+        LOGW("the %s already exists!\n", name);
+        return 0;
+    }
+
+    std::vector<std::unique_ptr<LinkMap>>& links = CoreApi::GetLinkMaps();
+    uint32_t fake_link_map = CoreApi::NewLoadBlock(0x0, CoreApi::GetPageSize());
+    if (!fake_link_map) {
+        LOGE("Create FAKE VMA fail.\n");
+        return 0;
+    }
+
+    if (!links.size()) {
+        uint32_t fake_vma = CoreApi::NewLoadBlock(0x0, CoreApi::GetPageSize() *
+                        (FakeCore::FAKE_PHDR_PAGES + FakeCore::FKAE_DYNAMIC_PAGES));
+        if (!fake_vma) {
+            LOGE("Create FAKE VMA fail.\n");
+            return 0;
+        }
+
+        uint32_t fake_phdr = fake_vma;
+        uint32_t fake_dynamic = fake_vma + CoreApi::GetPageSize() * FakeCore::FAKE_PHDR_PAGES;
+
+        lp32::FakeCore::CreateFakePhdr(fake_phdr, fake_dynamic);
+        lp32::FakeCore::CreateFakeDynamic(fake_dynamic, fake_link_map);
+
+        std::string fake = "FAKECORE";
+        uint32_t tmp_off = AppendFakeLinkMap32(0, fake_link_map, fake_vma, fake.c_str(), 0);
+        AppendFakeLinkMap32(fake_link_map, fake_link_map + tmp_off, addr, name, ld);
+    } else {
+        AppendFakeLinkMap32(links[links.size() - 1]->Ptr(), fake_link_map, addr, name, ld);
+    }
+
+    CoreApi::CleanCache();
     return 0;
 }
 

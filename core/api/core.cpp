@@ -570,7 +570,11 @@ void CoreApi::foreachAuxv(std::function<bool (Auxv *)> callback) {
 
 void CoreApi::foreachLinkMap(std::function<bool (LinkMap *)> callback) {
     if (mLinkMap.size() == 0) {
-        loadLinkMap();
+        try {
+            loadLinkMap();
+        } catch(InvalidAddressException e) {
+            // do nothing
+        }
     }
 
     for (const auto& map : mLinkMap) {

@@ -60,6 +60,34 @@ static void CreateFakeLinkMap64(uint64_t fake_vma, uint64_t fake_link_map,
     }
 }
 
+static uint64_t AppendFakeLinkMap64(uint64_t prev, uint64_t fake_link_map,
+                                uint64_t addr, const char* name, uint64_t ld) {
+    LOGI("Append FAKE LINK64 MAP\n");
+    uint64_t entry_size = RoundUp(sizeof(lp64::LinkMap), 0x10);
+    uint64_t tmp_off = 0x0;
+
+    lp64::LinkMap link;
+    link.addr = addr;
+    link.name = 0x0;
+    link.ld = ld;
+    link.next = 0x0;
+    link.prev = 0x0;
+
+    if (prev) {
+        link.prev = prev;
+        CoreApi::Write(prev + offsetof(lp64::LinkMap, next), fake_link_map);
+    }
+
+    CoreApi::Write(fake_link_map, (void *)&link, sizeof(lp64::LinkMap));
+    tmp_off += entry_size;
+
+    uint64_t length = strlen(name) + 1;
+    CoreApi::Write(fake_link_map + offsetof(lp64::LinkMap, name), fake_link_map + entry_size);
+    CoreApi::Write(fake_link_map + entry_size, (void *)name, length);
+    tmp_off += RoundUp(length, 0x10);
+    return tmp_off;
+}
+
 int FakeLinkMap::AutoCreate64() {
     std::set<std::string> libs;
     uint64_t link_map_len = 0x0;
@@ -113,7 +141,41 @@ int FakeLinkMap::AutoCreate64() {
     return 0;
 }
 
-int FakeLinkMap::Append64(uint64_t addr, const char* name) {
+int FakeLinkMap::Append64(uint64_t addr, const char* name, uint64_t ld) {
+    if (CoreApi::FindLinkMap(name)) {
+        LOGW("the %s already exists!\n", name);
+        return 0;
+    }
+
+    std::vector<std::unique_ptr<LinkMap>>& links = CoreApi::GetLinkMaps();
+    uint64_t fake_link_map = CoreApi::NewLoadBlock(0x0, CoreApi::GetPageSize());
+    if (!fake_link_map) {
+        LOGE("Create FAKE VMA fail.\n");
+        return 0;
+    }
+
+    if (!links.size()) {
+        uint64_t fake_vma = CoreApi::NewLoadBlock(0x0, CoreApi::GetPageSize() *
+                        (FakeCore::FAKE_PHDR_PAGES + FakeCore::FKAE_DYNAMIC_PAGES));
+        if (!fake_vma) {
+            LOGE("Create FAKE VMA fail.\n");
+            return 0;
+        }
+
+        uint64_t fake_phdr = fake_vma;
+        uint64_t fake_dynamic = fake_vma + CoreApi::GetPageSize() * FakeCore::FAKE_PHDR_PAGES;
+
+        lp64::FakeCore::CreateFakePhdr(fake_phdr, fake_dynamic);
+        lp64::FakeCore::CreateFakeDynamic(fake_dynamic, fake_link_map);
+
+        std::string fake = "FAKECORE";
+        uint64_t tmp_off = AppendFakeLinkMap64(0, fake_link_map, fake_vma, fake.c_str(), 0);
+        AppendFakeLinkMap64(fake_link_map, fake_link_map + tmp_off, addr, name, ld);
+    } else {
+        AppendFakeLinkMap64(links[links.size() - 1]->Ptr(), fake_link_map, addr, name, ld);
+    }
+
+    CoreApi::CleanCache();
     return 0;
 }
 

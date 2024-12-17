@@ -392,7 +392,8 @@ void FakeCore::CreateFakeStrtab(uint32_t fake_strtab, uint32_t fake_link_map, st
 
     std::string fake = "FAKECORE";
     uint32_t length = fake.length() + 1;
-    CoreApi::Write(fake_link_map + offsetof(lp32::LinkMap, name), fake_strtab + tmp_off);
+    uint32_t value = fake_strtab + tmp_off;
+    CoreApi::Write(fake_link_map + offsetof(lp32::LinkMap, name), (void *)&value, sizeof(value));
     CoreApi::Write(fake_strtab + tmp_off, (void *)fake.data(), length);
     tmp_off += RoundUp(length, 0x10);
     ++idx;
@@ -401,7 +402,9 @@ void FakeCore::CreateFakeStrtab(uint32_t fake_strtab, uint32_t fake_link_map, st
         std::size_t pos = lib.find(":");
         std::string libname = lib.substr(0, pos);
         length = libname.length() + 1;
-        CoreApi::Write(fake_link_map + (idx * entry_size) + offsetof(lp32::LinkMap, name), fake_strtab + tmp_off);
+        value = fake_strtab + tmp_off;
+        CoreApi::Write(fake_link_map + (idx * entry_size) + offsetof(lp32::LinkMap, name),
+                       (void *)&value, sizeof(value));
         CoreApi::Write(fake_strtab + tmp_off, (void *)libname.data(), length);
         tmp_off += RoundUp(length, 0x10);
         ++idx;

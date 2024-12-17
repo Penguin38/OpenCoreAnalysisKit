@@ -999,7 +999,9 @@ FakeCore: saved [fakecore/tombstone_09.fakecore]
 ```
 Usage: fake map [OPTION]
 Option:
-    --ld     calibrate link_map l_addr and l_ld
+    --ld                            calibrate link_map l_addr and l_ld
+    --auto                          auto create link_map
+    --append <ADDR> <NAME> [<LD>]   append link map
 
 core-parser> fake map --ld
 calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)

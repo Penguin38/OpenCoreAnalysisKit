@@ -32,9 +32,9 @@ public:
     static int AutoCreate();
     static int AutoCreate64();
     static int AutoCreate32();
-    static int Append(uint64_t addr, const char* name);
-    static int Append64(uint64_t addr, const char* name);
-    static int Append32(uint32_t addr, const char* name);
+    static int Append(uint64_t addr, const char* name, uint64_t ld);
+    static int Append64(uint64_t addr, const char* name, uint64_t ld);
+    static int Append32(uint32_t addr, const char* name, uint32_t ld);
     static uint64_t FindModuleFromLoadBlock(const char* name);
     static void Usage();
 };
