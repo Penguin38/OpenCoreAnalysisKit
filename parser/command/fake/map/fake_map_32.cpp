@@ -19,6 +19,7 @@
 #include "lp32/core.h"
 #include "base/utils.h"
 #include "common/bit.h"
+#include "common/elf.h"
 #include "command/fake/map/fake_map.h"
 #include "command/fake/core/lp32/fake_core.h"
 #include <linux/elf.h>
@@ -96,7 +97,7 @@ int FakeLinkMap::AutoCreate32() {
     auto callback = [&](LoadBlock *block) -> bool {
         if (block->flags() & Block::FLAG_X
                 && block->filename().length() > 0
-                && block->filename()[0] == '/') {
+                && (block->filename()[0] == '/' || block->filename() == "[vdso]")) {
             libs.insert(block->filename());
             link_map_len += RoundUp(sizeof(lp32::LinkMap), 0x10);
             strtab_len += RoundUp(block->filename().length() + 1, 0x10);
@@ -181,16 +182,29 @@ int FakeLinkMap::Append32(uint32_t addr, const char* name, uint32_t ld) {
 }
 
 bool FakeLinkMap::FakeLD32(LinkMap* map) {
+    int read_opt = Block::OPT_READ_MMAP;
+
     LoadBlock* block = map->block();
-    if (!block || !block->isMmapBlock())
+    if (!block || !block->isValid())
         return false;
 
-    Elf32_Ehdr *ehdr = reinterpret_cast<Elf32_Ehdr *>(block->begin(Block::OPT_READ_MMAP));
-    Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(block->begin(Block::OPT_READ_MMAP) + ehdr->e_phoff);
+    if (block->isValidBlock())
+        read_opt = Block::OPT_READ_OR;
+    else if (!block->isMmapBlock())
+        return false;
 
+    ElfHeader* header = reinterpret_cast<ElfHeader *>(block->begin(read_opt));
+    if (!header->CheckLibrary(map->name()))
+        return false;
+
+    Elf32_Ehdr *ehdr = reinterpret_cast<Elf32_Ehdr *>(block->begin(read_opt));
+    Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(block->begin(read_opt) + ehdr->e_phoff);
+
+    bool need_calibrate = false;
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (phdr[num].p_type == PT_PHDR) {
             if (phdr[num].p_offset != phdr[num].p_vaddr) {
+                need_calibrate = true;
                 uint32_t vaddr = map->l_addr() + phdr[num].p_offset - phdr[num].p_vaddr;
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_addr), (void *)&vaddr, 4);
                 LOGI("calibrate %s l_addr(%x)\n", map->name(), vaddr);
@@ -207,5 +221,7 @@ bool FakeLinkMap::FakeLD32(LinkMap* map) {
             break;
         }
     }
+
+    if (need_calibrate) map->ReadDynsyms();
     return true;
 }

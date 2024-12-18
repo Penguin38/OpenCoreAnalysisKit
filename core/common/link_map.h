@@ -39,7 +39,7 @@ extern struct LinkMap_SizeTable __LinkMap_size__;
 class LinkMap : public api::MemoryRef {
 public:
     LinkMap(uint64_t m) : api::MemoryRef(m) {
-        ReadSymbols();
+        ReadDynsyms();
     }
     ~LinkMap() { dynsyms.clear(); }
     static void Init();
@@ -73,6 +73,7 @@ public:
         uint64_t size;
     };
     void ReadSymbols();
+    void ReadDynsyms();
     void NiceMethod(uint64_t pc, NiceSymbol& symbol);
     SymbolEntry DlSymEntry(const char* symbol);
     inline uint64_t DlSym(const char* symbol) { return DlSymEntry(symbol).offset; }

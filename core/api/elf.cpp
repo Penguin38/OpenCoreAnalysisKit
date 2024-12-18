@@ -235,7 +235,7 @@ Elfx_Dynamic Elf::FindDynamic(LinkMap* handle) {
     if (handle->l_ld()) {
         dynamic = handle->l_ld();
     } else {
-        Elfx_Ehdr ehdr(handle->begin(), handle->block());
+        Elfx_Ehdr ehdr(handle->l_addr(), handle->block());
         if (!ehdr.IsElf())
             return dynamic;
 

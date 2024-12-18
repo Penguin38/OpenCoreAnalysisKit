@@ -158,14 +158,16 @@ void LinkMap::ReadSymbols() {
             lp32::Core::readsym32(this);
         }
         if (symbols.size()) LOGI(ANSI_COLOR_GREEN "Read symbols[%ld] (%s)\n" ANSI_COLOR_RESET, symbols.size(), name());
-    } else {
-        dynsyms.clear();
-        try {
-            api::Elf::ReadSymbols(this);
-        } catch(InvalidAddressException e) {
-        }
-        if (dynsyms.size()) LOGD("Read dynsyms[%ld] (%s)\n", dynsyms.size(), name());
     }
+}
+
+void LinkMap::ReadDynsyms() {
+    dynsyms.clear();
+    try {
+        api::Elf::ReadSymbols(this);
+    } catch(InvalidAddressException e) {
+    }
+    if (dynsyms.size()) LOGD("Read dynsyms[%ld] (%s)\n", dynsyms.size(), name());
 }
 
 std::unordered_set<SymbolEntry, SymbolEntry::Hash>& LinkMap::GetCurrentSymbols() {
