@@ -1017,6 +1017,10 @@ Usage: fake load <OPTION>
 Option:
     -v, --vaddr      if vaddr is NULL, then parser chooses address
     -s, --size       set load block size
+    -r, --read       set load block readable flags (default)
+    -w, --write      set load block writable flags (default)
+    -x, --exec       set load block executable flags
+    -n, --none       set load block none flags
 
 core-parser> fake load --vaddr 7fd10b0000 --size 0x4000
 New overlay [7fd10b0000, 7fd10b4000)

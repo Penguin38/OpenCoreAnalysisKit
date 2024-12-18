@@ -152,11 +152,11 @@ std::string& CoreApi::getName() {
     return mCore->getName();
 }
 
-uint64_t CoreApi::NewLoadBlock(uint64_t vaddr, uint64_t size) {
-    return INSTANCE->newLoadBlock(vaddr, size);
+uint64_t CoreApi::NewLoadBlock(uint64_t vaddr, uint64_t size, int flags) {
+    return INSTANCE->newLoadBlock(vaddr, size, flags);
 }
 
-uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size) {
+uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
     int idxInLoad = 0;
     int idxInQuick = 0;
 
@@ -227,7 +227,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size) {
         }
     }
 
-    std::shared_ptr<LoadBlock> block(new LoadBlock(Block::FLAG_R | Block::FLAG_W,  // flag
+    std::shared_ptr<LoadBlock> block(new LoadBlock(flags,    // flags
                                                    0x0,      // offset
                                                    begin,    // vaddr
                                                    0x0,      // paddr
@@ -243,7 +243,8 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size) {
         return 0x0;
 
     mLoad.insert(mLoad.begin() + idxInLoad, block);
-    mQuickLoad.insert(mQuickLoad.begin() + idxInQuick, block);
+    if (!QUICK_LOAD_ENABLED || block->flags())
+        mQuickLoad.insert(mQuickLoad.begin() + idxInQuick, block);
     return begin;
 }
 
