@@ -152,7 +152,7 @@ void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&)> fn) {
 
 void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)> fn) {
     mirror::Object object = 0x0;
-    uint64_t top_index_ = 0x0;
+    uint32_t top_index_ = 0x0;
 
     if (Android::Sdk() < Android::T) {
         top_index_ = segment_state();
