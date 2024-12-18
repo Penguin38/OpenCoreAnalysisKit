@@ -155,13 +155,14 @@ ERROR: Region:[0x12c00000, 0x12c00018) main space (region space) has bad object!
 # How to Count the Number of Objects
 ```
 core-parser> help top
-Usage: top <NUM> [OPTION] [TYPE]
+Usage: top <NUM> [OPTION] [TYPE] [REF]
 Option:
     -a, --alloc     order by allocation
     -s, --shallow   order by shallow
     -n, --native    order by native
     -d, --display   show class name
 Type: {--app, --zygote, --image, --fake}
+Ref: {--local, --global, --weak, --thread <TID>}
 
 core-parser> top 10 -d
 Address       Allocations      ShallowSize        NativeSize     ClassName
@@ -287,9 +288,11 @@ Binary:
 core-parser> help ref
 Usage: reference|ref [<UREF>] [OPTIONE]
 Option:
-    --global     foreach global references table
-    --weak       foreach weak global references table
-    -x, --hex    basic type hex print
+        --local [-t|..]  foreach thread local references table
+    -t, --thread <TID>   filter local references by tid
+        --global         foreach global references table
+        --weak           foreach weak global references table
+    -x, --hex            basic type hex print
 
 core-parser> ref 2206 -x
 [JNI_GLOBAL] 0x71c9c4c0

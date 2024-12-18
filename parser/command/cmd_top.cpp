@@ -55,11 +55,13 @@ int TopCommand::main(int argc, char* const argv[]) {
         {"zygote",     no_argument,       0,   1 },
         {"image",      no_argument,       0,   2 },
         {"fake",       no_argument,       0,   3 },
-        {"global",     no_argument,       0,   4 },
-        {"weak",       no_argument,       0,   5 },
+        {"local",      no_argument,       0,   4 },
+        {"global",     no_argument,       0,   5 },
+        {"weak",       no_argument,       0,   6 },
+        {"thread", required_argument,     0,  't'},
     };
 
-    while ((opt = getopt_long(argc, argv, "asnd",
+    while ((opt = getopt_long(argc, argv, "asndt:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'a':
@@ -87,10 +89,17 @@ int TopCommand::main(int argc, char* const argv[]) {
                 obj_each_flags |= Android::EACH_FAKE_OBJECTS;
                 break;
             case 4:
-                ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                ref_each_flags |= Android::EACH_LOCAL_REFERENCES;
                 break;
             case 5:
+                ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                break;
+            case 6:
                 ref_each_flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
+                break;
+            case 't':
+                int tid = std::atoi(optarg);
+                ref_each_flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
                 break;
         }
     }
@@ -237,13 +246,14 @@ int TopCommand::main(int argc, char* const argv[]) {
 }
 
 void TopCommand::usage() {
-    LOGI("Usage: top <NUM> [OPTION] [TYPE]\n");
+    LOGI("Usage: top <NUM> [OPTION] [TYPE] [REF]\n");
     LOGI("Option:\n");
     LOGI("    -a, --alloc     order by allocation\n");
     LOGI("    -s, --shallow   order by shallow\n");
     LOGI("    -n, --native    order by native\n");
     LOGI("    -d, --display   show class name\n");
     LOGI("Type: {--app, --zygote, --image, --fake}\n");
+    LOGI("Ref: {--local, --global, --weak, --thread <TID>}\n");
     ENTER();
     LOGI("core-parser> top 10 -d\n");
     LOGI("Address       Allocations      ShallowSize        NativeSize     ClassName\n");

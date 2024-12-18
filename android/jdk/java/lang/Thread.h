@@ -32,6 +32,7 @@ public:
     inline bool getDaemon() { return GetBooleanField("daemon"); }
     inline int getPriority() { return GetIntField("priority"); }
     inline Object getTarget() { return GetObjectField("target"); }
+    inline Object getUncaughtExceptionHandler() { return GetObjectField("uncaughtExceptionHandler"); }
     inline ThreadGroup& getGroup() { return group(); }
 private:
     DEFINE_OBJECT_FIELD_CACHE(ThreadGroup, group);

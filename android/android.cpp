@@ -48,6 +48,8 @@
 #include "runtime/gc/space/bump_pointer_space.h"
 #include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/jni/java_vm_ext.h"
+#include "runtime/jni/jni_env_ext.h"
+#include "runtime/jni/local_reference_table.h"
 #include "runtime/oat/oat_file.h"
 #include "runtime/oat/stack_map.h"
 #include "runtime/interpreter/shadow_frame.h"
@@ -241,7 +243,9 @@ void Android::preLoad() {
     art::gc::space::LargeObjectSpace::Init();
     art::gc::space::BumpPointerSpace::Init();
     art::JavaVMExt::Init();
+    art::JNIEnvExt::Init();
     art::IndirectReferenceTable::Init();
+    art::jni::LocalReferenceTable::Init();
     art::ClassLinker::Init();
     art::ArtMethod::Init();
     art::gc::accounting::ContinuousSpaceBitmap::Init();
@@ -434,31 +438,66 @@ void Android::ForeachReferences(std::function<bool (art::mirror::Object& object)
 }
 
 void Android::ForeachReferences(std::function<bool (art::mirror::Object& object)> fn, int flag) {
-    auto callback = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+    auto callback = [&](art::mirror::Object& object, int type, uint64_t idx) -> bool {
         fn(object);
         return false;
     };
     ForeachReferences(callback, flag);
 }
 
-void Android::ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn) {
+void Android::ForeachReferences(std::function<bool (art::mirror::Object& object, int type, uint64_t idx)> fn) {
     ForeachReferences(fn, EACH_LOCAL_REFERENCES | EACH_GLOBAL_REFERENCES | EACH_WEAK_GLOBAL_REFERENCES);
 }
 
-void Android::ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn, int flag) {
+void Android::ForeachReferences(std::function<bool (art::mirror::Object& object, int type, uint64_t idx)> fn, int flag) {
     art::Runtime& runtime = art::Runtime::Current();
     art::JavaVMExt& jvm = runtime.GetJavaVM();
 
+    int tid = flag >> EACH_LOCAL_REFERENCES_BY_TID_SHIFT;
+    if (flag & EACH_LOCAL_REFERENCES) {
+        art::ThreadList& thread_list = runtime.GetThreadList();
+        for (const auto& thread : thread_list.GetList()) {
+            int current = thread->GetTid();
+            if (tid && tid != current)
+                continue;
+
+            auto local_fn = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+                fn(object, art::IndirectRefKind::kLocal | (current << EACH_LOCAL_REFERENCES_BY_TID_SHIFT), idx);
+                return false;
+            };
+
+            LOGD("Walk [%d] local references table\n", thread->GetTid());
+            art::JNIEnvExt& jni_env = thread->GetJNIEnv();
+            if (Sdk() >= U) {
+                art::jni::LocalReferenceTable& local = jni_env.GetLocalsTable_v34();
+                local.Walk(local_fn);
+            } else {
+                art::IndirectReferenceTable& local = jni_env.GetLocalsTable();
+                local.Walk(local_fn);
+            }
+        }
+    }
+
     if (flag & EACH_GLOBAL_REFERENCES) {
+        auto global_fn = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+            fn(object, art::IndirectRefKind::kGlobal, idx);
+            return false;
+        };
+
         LOGD("Walk global references table\n");
         art::IndirectReferenceTable& global = jvm.GetGlobalsTable();
-        global.Walk(fn);
+        global.Walk(global_fn);
     }
 
     if (flag & EACH_WEAK_GLOBAL_REFERENCES) {
+        auto weak_fn = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+            fn(object, art::IndirectRefKind::kWeakGlobal, idx);
+            return false;
+        };
+
         LOGD("Walk weak global references table\n");
         art::IndirectReferenceTable& weak_global = jvm.GetWeakGlobalsTable();
-        weak_global.Walk(fn);
+        weak_global.Walk(weak_fn);
     }
 }
 

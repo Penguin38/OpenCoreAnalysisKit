@@ -174,15 +174,18 @@ public:
     static constexpr int EACH_LOCAL_REFERENCES = 1 << 0;
     static constexpr int EACH_GLOBAL_REFERENCES = 1 << 1;
     static constexpr int EACH_WEAK_GLOBAL_REFERENCES = 1 << 2;
+    static constexpr int EACH_LOCAL_REFERENCES_BY_TID_SHIFT = 8;
     /*
+     * |31-------8|7-----------0|
+     *      tid     [type|kind]
      * local-references
      * global-references
      * weak-global-references
      */
     static void ForeachReferences(std::function<bool (art::mirror::Object& object)> fn);
     static void ForeachReferences(std::function<bool (art::mirror::Object& object)> fn, int flag);
-    static void ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn);
-    static void ForeachReferences(std::function<bool (art::mirror::Object& object, uint64_t idx)> fn, int flag);
+    static void ForeachReferences(std::function<bool (art::mirror::Object& object, int type, uint64_t idx)> fn);
+    static void ForeachReferences(std::function<bool (art::mirror::Object& object, int type, uint64_t idx)> fn, int flag);
 
 private:
     void init();

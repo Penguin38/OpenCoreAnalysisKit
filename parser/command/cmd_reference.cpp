@@ -34,39 +34,51 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
     int flags = 0;
     bool format_hex = false;
     art::mirror::Object reference = 0x0;
+    int tid = 0;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"global",       no_argument,       0,  0 },
-        {"weak",         no_argument,       0,  1 },
+        {"local",        no_argument,       0,  0 },
+        {"global",       no_argument,       0,  1 },
+        {"weak",         no_argument,       0,  2 },
         {"hex",          no_argument,       0, 'x'},
+        {"thread", required_argument,       0, 't'},
     };
 
-    while ((opt = getopt_long(argc, argv, "x",
+    while ((opt = getopt_long(argc, argv, "xt:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 0:
                 dump_refs = true;
-                flags |= Android::EACH_GLOBAL_REFERENCES;
+                flags |= Android::EACH_LOCAL_REFERENCES;
                 break;
             case 1:
+                dump_refs = true;
+                flags |= Android::EACH_GLOBAL_REFERENCES;
+                break;
+            case 2:
                 dump_refs = true;
                 flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
                 break;
             case 'x':
                 format_hex = true;
                 break;
+            case 't':
+                tid = std::atoi(optarg);
+                flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
+                break;
         }
     }
 
     if (!flags) {
+        flags |= Android::EACH_LOCAL_REFERENCES;
         flags |= Android::EACH_GLOBAL_REFERENCES;
         flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
     }
 
-    auto callback = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+    auto callback = [&](art::mirror::Object& object, int type, uint64_t idx) -> bool {
         std::string descriptor;
         art::mirror::Class thiz = 0x0;
         if (object.IsClass()) {
@@ -76,8 +88,11 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         }
         descriptor = thiz.PrettyDescriptor();
 
-        LOGI("[%ld] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
-                idx, object.Ptr(), descriptor.c_str());
+        art::IndirectRefKind kind = static_cast<art::IndirectRefKind>(type & ((1 << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT) - 1));
+        if (kind == art::IndirectRefKind::kLocal)
+            LOGI("[%d]", type >> Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
+        LOGI("[%s][%ld] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
+                art::IndirectReferenceTable::GetDescriptor(kind).c_str(), idx, object.Ptr(), descriptor.c_str());
 
         return false;
     };
@@ -86,25 +101,32 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         art::Runtime& runtime = art::Runtime::Current();
         art::JavaVMExt& jvm = runtime.GetJavaVM();
         uint64_t uref = Utils::atol(argv[optind]);
+        reference = jvm.Decode(uref);
         art::IndirectRefKind kind = art::IndirectReferenceTable::DecodeIndirectRefKind(uref);
-        if (kind == art::IndirectRefKind::kGlobal) {
-            reference = jvm.DecodeGlobal(uref);
-            LOGI(ANSI_COLOR_LIGHTYELLOW "[JNI_GLOBAL] 0x%lx\n" ANSI_COLOR_RESET, reference.Ptr());
-        } else if (kind == art::IndirectRefKind::kWeakGlobal) {
-            reference = jvm.DecodeWeakGlobal(uref);
-            LOGI(ANSI_COLOR_LIGHTYELLOW "[JNI_WEAK_GLOBAL] 0x%lx\n" ANSI_COLOR_RESET, reference.Ptr());
+        if (kind && kind != art::IndirectRefKind::kLocal) {
+            reference = jvm.Decode(uref);
+            LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_RESET "\n",
+                    art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
+                    art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
+            DumpObject(reference, format_hex);
+        } else if (kind == art::IndirectRefKind::kLocal) {
+            art::ThreadList& thread_list = runtime.GetThreadList();
+            for (const auto& thread : thread_list.GetList()) {
+                art::JNIEnvExt& jni_env = thread->GetJNIEnv();
+                reference = jni_env.Decode(uref);
+                if (!reference.Ptr())
+                    continue;
+
+                if (tid && tid != thread->GetTid())
+                    continue;
+
+                LOGI("[%d]\n", thread->GetTid());
+                LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_RESET "\n",
+                        art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
+                        art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
+                DumpObject(reference, format_hex);
+            }
         }
-        int vargc = 2;
-        std::string address = Utils::ToHex(reference.Ptr());
-        char* vargv[3] = {
-            const_cast<char*>("p"),
-            const_cast<char*>(address.c_str()),
-            const_cast<char*>(""),};
-        if (format_hex) {
-            vargc++;
-            vargv[2] = const_cast<char*>("--hex");
-        }
-        CommandManager::Execute(vargv[0], vargc, vargv);
     } else {
         try {
             Android::ForeachReferences(callback, flags);
@@ -112,16 +134,31 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
             LOGW("The statistical process was interrupted!\n");
         }
     }
-
     return 0;
+}
+
+void ReferenceCommand::DumpObject(art::mirror::Object& reference, bool format_hex) {
+    int vargc = 2;
+    std::string address = Utils::ToHex(reference.Ptr());
+    char* vargv[3] = {
+        const_cast<char*>("p"),
+        const_cast<char*>(address.c_str()),
+        const_cast<char*>(""),};
+    if (format_hex) {
+        vargc++;
+        vargv[2] = const_cast<char*>("--hex");
+    }
+    CommandManager::Execute(vargv[0], vargc, vargv);
 }
 
 void ReferenceCommand::usage() {
     LOGI("Usage: reference|ref [<UREF>] [OPTIONE]\n");
     LOGI("Option:\n");
-    LOGI("    --global     foreach global references table\n");
-    LOGI("    --weak       foreach weak global references table\n");
-    LOGI("    -x, --hex    basic type hex print\n");
+    LOGI("        --local [-t|..]  foreach thread local references table\n");
+    LOGI("    -t, --thread <TID>   filter local references by tid\n");
+    LOGI("        --global         foreach global references table\n");
+    LOGI("        --weak           foreach weak global references table\n");
+    LOGI("    -x, --hex            basic type hex print\n");
     ENTER();
     LOGI("core-parser> ref 2206 -x\n");
     LOGI("[JNI_GLOBAL] 0x71c9c4c0\n");

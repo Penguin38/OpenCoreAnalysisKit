@@ -101,6 +101,16 @@ void IndirectReferenceTable::Init34() {
     }
 }
 
+std::string IndirectReferenceTable::GetDescriptor(IndirectRefKind kind) {
+    if (kind == IndirectRefKind::kLocal)
+        return "JNI_LOCAL";
+    else if (kind == IndirectRefKind::kGlobal)
+        return "JNI_GLOBAL";
+    else if (kind == art::IndirectRefKind::kWeakGlobal)
+        return "JNI_WEAK_GLOBAL";
+    return "JNI_UNK";
+}
+
 uint32_t IndirectReferenceTable::DecodeIndex(uint64_t uref) {
     if (Android::Sdk() < Android::T) {
         return static_cast<uint32_t>((uref >> kKindBits) >> kSerialBits);
@@ -161,7 +171,6 @@ void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)
         }
         if (object.IsValid()) fn(object, idx);
     }
-
 }
 
 } // namespace art

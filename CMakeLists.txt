@@ -177,6 +177,8 @@ add_library(android STATIC
             android/art/runtime/gc/accounting/space_bitmap.cpp
 
             android/art/runtime/jni/java_vm_ext.cpp
+            android/art/runtime/jni/jni_env_ext.cpp
+            android/art/runtime/jni/local_reference_table.cpp
             android/art/runtime/oat/oat_file.cpp
             android/art/runtime/oat/stack_map.cpp
             android/art/runtime/interpreter/quick_frame.cpp

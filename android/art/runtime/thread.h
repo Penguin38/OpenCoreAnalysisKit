@@ -22,6 +22,7 @@
 #include "runtime/mirror/object.h"
 #include "runtime/base/mutex.h"
 #include "runtime/interpreter/quick_frame.h"
+#include "runtime/jni/jni_env_ext.h"
 
 struct Thread_OffsetTable {
     uint32_t tls32_;
@@ -53,6 +54,7 @@ extern struct Thread_tls_32bit_sized_values_SizeTable __Thread_tls_32bit_sized_v
 struct Thread_tls_ptr_sized_values_OffsetTable {
     uint32_t stack_end;
     uint32_t managed_stack;
+    uint32_t jni_env;
     uint32_t self;
     uint32_t opeer;
     uint32_t stack_begin;
@@ -127,6 +129,7 @@ public:
         static void Init35();
         inline uint64_t stack_end() { return VALUEOF(Thread_tls_ptr_sized_values, stack_end); }
         inline uint64_t managed_stack() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, managed_stack); }
+        inline uint64_t jni_env() { return VALUEOF(Thread_tls_ptr_sized_values, jni_env); }
         inline uint64_t self() { return VALUEOF(Thread_tls_ptr_sized_values, self); }
         inline uint64_t opeer() { return VALUEOF(Thread_tls_ptr_sized_values, opeer); }
         inline uint64_t stack_begin() { return VALUEOF(Thread_tls_ptr_sized_values, stack_begin); }
@@ -135,6 +138,10 @@ public:
         inline uint64_t name() { return VALUEOF(Thread_tls_ptr_sized_values, name); }
         inline uint64_t pthread_self() { return VALUEOF(Thread_tls_ptr_sized_values, pthread_self); }
         inline uint64_t held_mutexes() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, held_mutexes); }
+
+        inline JNIEnvExt& GetJNIEnv() { return QUICK_CACHE(jni_env); }
+    private:
+        DEFINE_QUICK_CACHE(JNIEnvExt, jni_env);
     };
 
     class FakeFrame {
@@ -166,6 +173,7 @@ public:
     api::MemoryRef& GetWaitMonitor();
     mirror::Object GetMonitorEnterObject();
     BaseMutex GetHeldMutex(uint32_t level);
+    JNIEnvExt& GetJNIEnv();
     bool StackEmpty();
     FakeFrame& GetFakeFrame() { return fake_frame; }
 private:

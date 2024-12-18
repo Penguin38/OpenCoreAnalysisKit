@@ -200,6 +200,7 @@ void Thread::tls_ptr_sized_values::Init26() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
+            .jni_env = 56,
             .self = 72,
             .opeer = 80,
             .stack_begin = 96,
@@ -213,6 +214,7 @@ void Thread::tls_ptr_sized_values::Init26() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 8,
             .managed_stack = 12,
+            .jni_env = 28,
             .self = 36,
             .opeer = 40,
             .stack_begin = 48,
@@ -230,6 +232,7 @@ void Thread::tls_ptr_sized_values::Init28() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
+            .jni_env = 56,
             .self = 72,
             .opeer = 80,
             .stack_begin = 96,
@@ -243,6 +246,7 @@ void Thread::tls_ptr_sized_values::Init28() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 8,
             .managed_stack = 12,
+            .jni_env = 36,
             .self = 36,
             .opeer = 40,
             .stack_begin = 48,
@@ -260,6 +264,7 @@ void Thread::tls_ptr_sized_values::Init29() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
+            .jni_env = 56,
             .self = 72,
             .opeer = 80,
             .stack_begin = 96,
@@ -273,6 +278,7 @@ void Thread::tls_ptr_sized_values::Init29() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 8,
             .managed_stack = 12,
+            .jni_env = 28,
             .self = 36,
             .opeer = 40,
             .stack_begin = 48,
@@ -290,6 +296,7 @@ void Thread::tls_ptr_sized_values::Init30() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
+            .jni_env = 56,
             .self = 72,
             .opeer = 80,
             .stack_begin = 96,
@@ -303,6 +310,7 @@ void Thread::tls_ptr_sized_values::Init30() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 8,
             .managed_stack = 12,
+            .jni_env = 28,
             .self = 36,
             .opeer = 40,
             .stack_begin = 48,
@@ -320,6 +328,7 @@ void Thread::tls_ptr_sized_values::Init33() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
+            .jni_env = 56,
             .self = 72,
             .opeer = 80,
             .stack_begin = 96,
@@ -333,6 +342,7 @@ void Thread::tls_ptr_sized_values::Init33() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 8,
             .managed_stack = 12,
+            .jni_env = 28,
             .self = 36,
             .opeer = 40,
             .stack_begin = 48,
@@ -350,6 +360,7 @@ void Thread::tls_ptr_sized_values::Init34() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
+            .jni_env = 56,
             .self = 72,
             .opeer = 80,
             .stack_begin = 96,
@@ -363,6 +374,7 @@ void Thread::tls_ptr_sized_values::Init34() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 8,
             .managed_stack = 12,
+            .jni_env = 28,
             .self = 36,
             .opeer = 40,
             .stack_begin = 48,
@@ -380,6 +392,7 @@ void Thread::tls_ptr_sized_values::Init35() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
             .managed_stack = 24,
+            .jni_env = 56,
             .self = 72,
             .opeer = 80,
             .stack_begin = 96,
@@ -570,6 +583,10 @@ BaseMutex Thread::GetHeldMutex(uint32_t level) {
     return held_mutexes.valueOf(CoreApi::GetPointSize() * level);
 }
 
+JNIEnvExt& Thread::GetJNIEnv() {
+    return GetTlsPtr().GetJNIEnv();
+}
+
 bool Thread::StackEmpty() {
     ManagedStack current_fragment = GetTlsPtr().managed_stack();
     current_fragment.copyRef(this);
@@ -587,13 +604,13 @@ void Thread::DumpState() {
     java::lang::Thread self = GetTlsPtr().opeer();
     if (self.IsValid()) {
         java::lang::ThreadGroup& group = self.getGroup();
-        LOGI(ANSI_COLOR_BLUE "  | group=\"%s\" daemon=%d prio=%d target=0x%x\n" ANSI_COLOR_RESET,
+        LOGI(ANSI_COLOR_BLUE "  | group=\"%s\" daemon=%d prio=%d target=0x%x uncaught_exception=0x%x\n" ANSI_COLOR_RESET,
                 group.Ptr() ? group.Name().c_str() : "<unknown>", self.getDaemon(),
-                self.getPriority(), self.getTarget().Ptr());
+                self.getPriority(), self.getTarget().Ptr(), self.getUncaughtExceptionHandler().Ptr());
     }
-    LOGI(ANSI_COLOR_BLUE "  | tid=%d sCount=%d flags=%d obj=0x%lx self=0x%lx\n" ANSI_COLOR_RESET,
+    LOGI(ANSI_COLOR_BLUE "  | tid=%d sCount=%d flags=%d obj=0x%lx self=0x%lx env=0x%lx\n" ANSI_COLOR_RESET,
             GetThreadId(), GetTls32().suspend_count(),
-            GetFlags(), GetTlsPtr().opeer(), Ptr());
+            GetFlags(), GetTlsPtr().opeer(), Ptr(), GetTlsPtr().jni_env());
     LOGI(ANSI_COLOR_BLUE "  | stack=0x%lx-0x%lx stackSize=0x%lx handle=0x%lx\n" ANSI_COLOR_RESET,
             GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
             GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());

@@ -92,6 +92,8 @@ public:
     static inline IndirectRefKind DecodeIndirectRefKind(uint64_t uref) {
         return static_cast<IndirectRefKind>(uref & kKindMask);
     }
+
+    static std::string GetDescriptor(IndirectRefKind kind);
     static uint32_t DecodeIndex(uint64_t uref);
     mirror::Object DecodeReference(uint32_t idx);
     void Walk(std::function<bool (mirror::Object& object)> fn);

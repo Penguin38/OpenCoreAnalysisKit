@@ -18,12 +18,14 @@
 #define PARSER_COMMAND_CMD_REFERENCE_H_
 
 #include "command/command.h"
+#include "runtime/mirror/object.h"
 
 class ReferenceCommand : public Command {
 public:
     ReferenceCommand() : Command("reference", "ref") {}
     ~ReferenceCommand() {}
     int main(int argc, char* const argv[]);
+    void DumpObject(art::mirror::Object& object, bool format_hex);
     void usage();
 };
 
