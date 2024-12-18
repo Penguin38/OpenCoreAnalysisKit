@@ -72,7 +72,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    if (!flags) {
+    if (!(flags & ((1 << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT) - 1))) {
         flags |= Android::EACH_LOCAL_REFERENCES;
         flags |= Android::EACH_GLOBAL_REFERENCES;
         flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
