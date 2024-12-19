@@ -54,7 +54,7 @@ void ThreadInfo::RegisterSet(const char* command) {
 
     uint32_t value = 0x0;
     char *token = strtok(NULL, "=");
-    if (token) value = atoi(token);
+    if (token) value = Utils::atol(token);
 
     if (strcmp(regs, "ucontext")) {
         int count = sizeof(kMap)/sizeof(kMap[0]);
