@@ -119,7 +119,8 @@ bool OatQuickMethodHeader::Contains(uint64_t pc) {
 }
 
 bool OatQuickMethodHeader::IsOptimized() {
-    if (OatHeader::OatVersion() >= 239) {
+    if (OatHeader::OatVersion() >= 241 ||
+            (OatHeader::OatVersion() >= 239 && HasNterpImpl())) {
         if ((CacheHelper::NterpWithClinitImpl().Ptr() && code() == CacheHelper::NterpWithClinitImpl().valueOf())
                 || (CacheHelper::NterpImpl().Ptr() && code() == CacheHelper::NterpImpl().valueOf())) {
             return false;
@@ -143,7 +144,8 @@ uint64_t OatQuickMethodHeader::GetCodeStart() {
 }
 
 uint32_t OatQuickMethodHeader::GetCodeSize() {
-    if (OatHeader::OatVersion() >= 239) {
+    if (OatHeader::OatVersion() >= 241 ||
+            (OatHeader::OatVersion() >= 239 && HasNterpImpl())) {
         if (CacheHelper::NterpWithClinitImpl().Ptr() && code() == CacheHelper::NterpWithClinitImpl().valueOf()) {
             return CacheHelper::NterpWithClinitImpl().valueOf(CoreApi::GetPointSize());
         }
@@ -163,7 +165,8 @@ uint32_t OatQuickMethodHeader::GetCodeSize() {
 }
 
 uint32_t OatQuickMethodHeader::GetCodeInfoOffset() {
-    if (OatHeader::OatVersion() >= 239) {
+    if (OatHeader::OatVersion() >= 241 ||
+            (OatHeader::OatVersion() >= 239 && HasNterpImpl())) {
         return code_info_offset();
     } else {
         return data() & kCodeInfoMask;
@@ -206,6 +209,10 @@ void OatQuickMethodHeader::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t,
 void OatQuickMethodHeader::NativeStackMaps(std::vector<GeneralStackMap>& maps) {
     CodeInfo code_info = CodeInfo::Decode(GetOptimizedCodeInfoPtr());
     code_info.NativeStackMaps(maps);
+}
+
+bool OatQuickMethodHeader::HasNterpImpl() {
+    return CacheHelper::NterpImpl().Ptr() || CacheHelper::NterpWithClinitImpl().Ptr();
 }
 
 void OatQuickMethodHeader::Dump(const char* prefix) {

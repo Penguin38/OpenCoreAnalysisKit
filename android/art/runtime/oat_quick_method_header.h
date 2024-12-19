@@ -90,6 +90,7 @@ public:
     uint64_t GetOptimizedCodeInfoPtr() { return code() - GetCodeInfoOffset(); }
     static bool IsNterpPc(uint64_t pc);
     static OatQuickMethodHeader& GetNterpMethodHeader();
+    static bool HasNterpImpl();
     static api::MemoryRef& NterpWithClinitImpl();
     static api::MemoryRef& NterpImpl();
     bool IsNterpMethodHeader();
