@@ -169,7 +169,7 @@ int FakeLinkMap::Append64(uint64_t addr, const char* name, uint64_t ld) {
         lp64::FakeCore::CreateFakePhdr(fake_phdr, fake_dynamic);
         lp64::FakeCore::CreateFakeDynamic(fake_dynamic, fake_link_map);
 
-        std::string fake = "FAKECORE";
+        std::string fake = FakeCore::FAKECORE_VMA;
         uint64_t tmp_off = AppendFakeLinkMap64(0, fake_link_map, fake_vma, fake.c_str(), 0);
         AppendFakeLinkMap64(fake_link_map, fake_link_map + tmp_off, addr, name, ld);
     } else {
@@ -181,23 +181,16 @@ int FakeLinkMap::Append64(uint64_t addr, const char* name, uint64_t ld) {
 }
 
 bool FakeLinkMap::FakeLD64(LinkMap* map) {
-    int read_opt = Block::OPT_READ_MMAP;
-
     LoadBlock* block = map->block();
     if (!block || !block->isValid())
         return false;
 
-    if (block->isValidBlock())
-        read_opt = Block::OPT_READ_OR;
-    else if (!block->isMmapBlock())
-        return false;
-
-    ElfHeader* header = reinterpret_cast<ElfHeader *>(block->begin(read_opt));
+    ElfHeader* header = reinterpret_cast<ElfHeader *>(block->begin());
     if (!header->CheckLibrary(map->name()))
         return false;
 
-    Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(block->begin(read_opt));
-    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(block->begin(read_opt) + ehdr->e_phoff);
+    Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(block->begin());
+    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(block->begin() + ehdr->e_phoff);
 
     bool need_calibrate = false;
     for (int num = 0; num < ehdr->e_phnum; ++num) {

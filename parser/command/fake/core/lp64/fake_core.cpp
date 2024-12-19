@@ -318,6 +318,27 @@ void FakeCore::CreateFakePhdr(uint64_t fake_phdr, uint64_t fake_dynamic) {
     };
     CoreApi::ForeachAuxv(fake_phdr_callback);
 
+    Elf64_Ehdr ehdr;
+    snprintf((char *)ehdr.e_ident, 5, ELFMAG);
+    ehdr.e_ident[EI_CLASS] = ELFCLASS64;
+    ehdr.e_ident[EI_DATA] = ELFDATA2LSB;
+    ehdr.e_ident[EI_VERSION] = EV_CURRENT;
+
+    ehdr.e_type = ET_DYN;
+    ehdr.e_machine = CoreApi::GetMachine();
+    ehdr.e_version = EV_CURRENT;
+    ehdr.e_entry = 0x0;
+    ehdr.e_phoff = sizeof(Elf64_Ehdr);
+    ehdr.e_shoff = 0x0;
+    ehdr.e_flags = 0x0;
+    ehdr.e_ehsize = sizeof(Elf64_Ehdr);
+    ehdr.e_phentsize = sizeof(Elf64_Phdr);
+    ehdr.e_phnum = DEF_FAKE_PHNUM;
+    ehdr.e_shentsize = 0x0;
+    ehdr.e_shnum = 0x0;
+    ehdr.e_shstrndx = 0x0;
+    CoreApi::Write(fake_phdr, (void *)&ehdr, sizeof(Elf64_Ehdr));
+
     Elf64_Phdr tmp;
     tmp.p_type = PT_PHDR;
     tmp.p_flags = PF_R;
@@ -390,7 +411,7 @@ void FakeCore::CreateFakeStrtab(uint64_t fake_strtab, uint64_t fake_link_map, st
     uint64_t tmp_off = 0x0;
     uint64_t entry_size = RoundUp(sizeof(lp64::LinkMap), 0x10);
 
-    std::string fake = "FAKECORE";
+    std::string fake = FAKECORE_VMA;
     uint64_t length = fake.length() + 1;
     CoreApi::Write(fake_link_map + offsetof(lp64::LinkMap, name), fake_strtab + tmp_off);
     CoreApi::Write(fake_strtab + tmp_off, (void *)fake.data(), length);

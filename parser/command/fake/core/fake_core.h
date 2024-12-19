@@ -73,6 +73,7 @@
 class FakeCore {
 public:
     static inline const char* FILE_EXTENSIONS = ".fakecore";
+    static inline const char* FAKECORE_VMA = "[FAKECORE]";
     static constexpr int DEF_FAKE_AUXV_NUM = 32;
     static constexpr int DEF_FAKE_PHNUM = 2;
     static constexpr int DEF_FAKE_PRNUM = 1;
