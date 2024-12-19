@@ -112,6 +112,12 @@ int PrintCommand::main(int argc, char* const argv[]) {
     }
 
     art::mirror::Object ref = Utils::atol(argv[optind]);
+    uint64_t size = ref.SizeOf();
+    if (UNLIKELY(((int64_t)size < (int64_t)art::kObjectAlignment))) {
+        LOGE("Size: 0x%lx\n", size);
+        return 0;
+    }
+
     FormatDumpCall format_call = nullptr;
     if (format_dump) format_call = GetFormatDumpCall(ref);
     if (format_call) {
@@ -143,22 +149,9 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
         LOGI("Padding: 0x%lx\n", real_size - size);
     }
 
-    art::mirror::Class clazz = object.GetClass();
-    if (clazz.Ptr()) {
-        try {
-            if (object.IsClass()) {
-                art::mirror::Class thiz = object;
-                DumpClass(thiz);
-            } else if (clazz.IsArrayClass()) {
-                art::mirror::Array thiz = object;
-                DumpArray(thiz);
-            } else {
-                DumpInstance(object);
-            }
-        } catch(InvalidAddressException e) {
-            LOGE("%s\n", e.what());
-        }
+    PrintCommand::OnlyDumpObject(object, format_hex);
 
+    try {
         if (reference) {
             LOGI(ANSI_COLOR_LIGHTRED "Reference:\n" ANSI_COLOR_RESET);
             int cur_deep = 0;
@@ -167,6 +160,25 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
             };
             Android::ForeachObjects(callback);
         }
+    } catch(InvalidAddressException e) {
+        // do nothing
+    }
+}
+
+void PrintCommand::OnlyDumpObject(art::mirror::Object& object, bool format_hex) {
+    art::mirror::Class clazz = object.GetClass();
+    try {
+        if (object.IsClass()) {
+            art::mirror::Class thiz = object;
+            PrintCommand::DumpClass(thiz, format_hex);
+        } else if (clazz.IsArrayClass()) {
+            art::mirror::Array thiz = object;
+            PrintCommand::DumpArray(thiz, format_hex);
+        } else {
+            PrintCommand::DumpInstance(object, format_hex);
+        }
+    } catch(InvalidAddressException e) {
+        LOGE("%s\n", e.what());
     }
 }
 
@@ -203,7 +215,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
     return false;;
 }
 
-void PrintCommand::DumpClass(art::mirror::Class& clazz) {
+void PrintCommand::DumpClass(art::mirror::Class& clazz, bool format_hex) {
     LOGI("Class Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
     std::string format = FormatSize(clazz.SizeOf());
@@ -243,7 +255,7 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz) {
     }
 }
 
-void PrintCommand::DumpArray(art::mirror::Array& array) {
+void PrintCommand::DumpArray(art::mirror::Array& array, bool format_hex) {
     art::mirror::Class clazz = array.GetClass();
     LOGI("Array Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
@@ -286,7 +298,7 @@ void PrintCommand::DumpArray(art::mirror::Array& array) {
     }
 }
 
-void PrintCommand::DumpInstance(art::mirror::Object& object) {
+void PrintCommand::DumpInstance(art::mirror::Object& object, bool format_hex) {
     art::mirror::Class clazz = object.GetClass();
     LOGI("Object Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 

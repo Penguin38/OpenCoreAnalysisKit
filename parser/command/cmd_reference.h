@@ -30,7 +30,6 @@ public:
         Android::Prepare();
         return true;
     }
-    void DumpObject(art::mirror::Object& object, bool format_hex);
     void usage();
 };
 

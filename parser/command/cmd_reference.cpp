@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "common/exception.h"
+#include "command/cmd_print.h"
 #include "command/cmd_reference.h"
 #include "command/command_manager.h"
 #include "runtime/runtime.h"
@@ -108,7 +109,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
             LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_RESET "\n",
                     art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
                     art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
-            DumpObject(reference, format_hex);
+            PrintCommand::OnlyDumpObject(reference, format_hex);
         } else if (kind == art::IndirectRefKind::kLocal) {
             art::ThreadList& thread_list = runtime.GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
@@ -124,7 +125,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
                 LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_RESET "\n",
                         art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
                         art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
-                DumpObject(reference, format_hex);
+                PrintCommand::OnlyDumpObject(reference, format_hex);
             }
         }
     } else {
@@ -135,20 +136,6 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         }
     }
     return 0;
-}
-
-void ReferenceCommand::DumpObject(art::mirror::Object& reference, bool format_hex) {
-    int vargc = 2;
-    std::string address = Utils::ToHex(reference.Ptr());
-    char* vargv[3] = {
-        const_cast<char*>("p"),
-        const_cast<char*>(address.c_str()),
-        const_cast<char*>(""),};
-    if (format_hex) {
-        vargc++;
-        vargv[2] = const_cast<char*>("--hex");
-    }
-    CommandManager::Execute(vargv[0], vargc, vargv);
 }
 
 void ReferenceCommand::usage() {

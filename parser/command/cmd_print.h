@@ -33,14 +33,15 @@ public:
     bool prepare(int argc, char* const argv[]);
     void usage();
     void DumpObject(art::mirror::Object& object);
-    void DumpClass(art::mirror::Class& clazz);
-    void DumpArray(art::mirror::Array& array);
-    void DumpInstance(art::mirror::Object& object);
+    static void DumpClass(art::mirror::Class& clazz, bool format_hex);
+    static void DumpArray(art::mirror::Array& array, bool format_hex);
+    static void DumpInstance(art::mirror::Object& object, bool format_hex);
     bool PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep);
     static void PrintField(const char* format, art::mirror::Class& clazz,
                     art::mirror::Object& object, art::ArtField& field, bool format_hex);
     static std::string FormatSize(uint64_t size);
     static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref, bool format_hex);
+    static void OnlyDumpObject(art::mirror::Object& object, bool format_hex);
 private:
     bool binary;
     bool reference;

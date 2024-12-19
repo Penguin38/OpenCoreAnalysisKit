@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "command/command_manager.h"
+#include "command/cmd_print.h"
 #include "command/cmd_search.h"
 #include "java/lang/Object.h"
 #include "base/utils.h"
@@ -162,19 +163,7 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
         total_objects++;
         LOGI("[%ld] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 total_objects, object.Ptr(), descriptor.c_str());
-        if (show) {
-            int argc = 2;
-            std::string address = Utils::ToHex(object.Ptr());
-            char* argv[3] = {
-                const_cast<char*>("p"),
-                const_cast<char*>(address.c_str()),
-                const_cast<char*>(""),};
-            if (format_hex) {
-                argc++;
-                argv[2] = const_cast<char*>("--hex");
-            }
-            CommandManager::Execute(argv[0], argc, argv);
-        }
+        if (show) PrintCommand::OnlyDumpObject(object, format_hex);
     }
 
     return false;
