@@ -102,7 +102,7 @@ int MethodCommand::main(int argc, char* const argv[]) {
                 instref = Utils::atol(optarg);
                 break;
             case 'n':
-                count = atoi(optarg);
+                count = std::atoi(optarg);
                 break;
             case 0:
                 dump_opt |= METHOD_DUMP_DEXCODE;

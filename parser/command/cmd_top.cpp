@@ -37,7 +37,7 @@ int TopCommand::main(int argc, char* const argv[]) {
             || !(argc > 1))
         return 0;
 
-    num = atoi(argv[1]);
+    num = std::atoi(argv[1]);
     order = ORDERBY_ALLOC;
     show = false;
     obj_each_flags = 0;

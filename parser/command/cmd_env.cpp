@@ -80,19 +80,19 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'p':
-                current_pid = atoi(optarg);
+                current_pid = std::atoi(optarg);
                 if (Env::SetCurrentPid(current_pid))
                     Env::Dump();
                 break;
             case 0:
                 if (Android::IsReady()) {
-                    current_sdk = atoi(optarg);
+                    current_sdk = std::atoi(optarg);
                     Android::OnSdkChanged(current_sdk);
                 }
                 break;
             case 1:
                 if (Android::IsReady()) {
-                    current_oat = atoi(optarg);
+                    current_oat = std::atoi(optarg);
                     Android::OnOatChanged(current_oat);
                 }
                 break;

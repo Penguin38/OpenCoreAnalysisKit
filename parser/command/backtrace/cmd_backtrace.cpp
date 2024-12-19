@@ -88,7 +88,7 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
     } else {
         if (optind < argc) {
             for (int i = optind; i < argc; ++i) {
-                addThread(atoi(argv[i]));
+                addThread(std::atoi(argv[i]));
             }
         } else {
             addThread(pid);

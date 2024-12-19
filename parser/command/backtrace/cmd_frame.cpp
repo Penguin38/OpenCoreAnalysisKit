@@ -68,7 +68,7 @@ int FrameCommand::main(int argc, char* const argv[]) {
     }
 
     int number = 0;
-    if (optind < argc) number = atoi(argv[optind]);
+    if (optind < argc) number = std::atoi(argv[optind]);
 
 #if defined(__AOSP_PARSER__)
     if (dump_all) {

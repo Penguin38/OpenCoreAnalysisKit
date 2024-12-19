@@ -81,7 +81,7 @@ int CxxCommand::DumpCxxVector(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch(opt) {
             case 'e':
-                entry_size = atoi(optarg);
+                entry_size = std::atoi(optarg);
                 break;
         }
     }
@@ -139,7 +139,7 @@ int CxxCommand::DumpCxxDeque(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch(opt) {
             case 'b':
-                block_size = atoi(optarg);
+                block_size = std::atoi(optarg);
                 break;
         }
     }

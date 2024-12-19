@@ -95,7 +95,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
                 break;
             case 'r':
                 reference = true;
-                deep = atoi(optarg);
+                deep = std::atoi(optarg);
                 break;
             case 'f':
                 format_dump = true;
@@ -104,6 +104,11 @@ int PrintCommand::main(int argc, char* const argv[]) {
                 format_hex = true;
                 break;
         }
+    }
+
+    if (optind >= argc) {
+        usage();
+        return 0;
     }
 
     art::mirror::Object ref = Utils::atol(argv[optind]);

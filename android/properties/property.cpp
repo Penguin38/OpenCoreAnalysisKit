@@ -77,7 +77,7 @@ int32_t android::Property::GetInt32(const char *name) {
 int32_t android::Property::GetInt32(const char *name, int32_t def) {
     const char* value = Get(name);
     if (strcmp(value, ""))
-        return atoi(value);
+        return std::atoi(value);
     return def;
 }
 

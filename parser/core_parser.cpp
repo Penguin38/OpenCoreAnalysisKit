@@ -137,14 +137,14 @@ int command_preload(int argc, char* const argv[]) {
                 corefile = optarg;
                 break;
             case 1:
-                current_sdk = atoi(optarg);
+                current_sdk = std::atoi(optarg);
                 break;
             case 'm':
                 machine = optarg;
                 break;
             case 'p':
                 remote = true;
-                pid = atoi(optarg);
+                pid = std::atoi(optarg);
                 break;
             case 2:
                 CoreApi::QUICK_LOAD_ENABLED = false;

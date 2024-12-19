@@ -52,7 +52,7 @@ int RegisterCommand::main(int argc, char* const argv[]) {
     }
 
     int pid = Env::CurrentPid();
-    if (optind < argc) pid = atoi(argv[optind]);
+    if (optind < argc) pid = std::atoi(argv[optind]);
 
     ThreadApi* thread = CoreApi::FindThread(pid);
 

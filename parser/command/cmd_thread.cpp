@@ -70,8 +70,10 @@ int ThreadCommand::main(int argc, char* const argv[]) {
     }
 
     if (!(native ^ java)) {
-        int current_pid = atoi(argv[optind]);
-        Env::SetCurrentPid(current_pid);
+        if (optind < argc) {
+            int current_pid = std::atoi(argv[optind]);
+            Env::SetCurrentPid(current_pid);
+        }
         LOGI("Current thread is %d\n", Env::CurrentPid());
     } else {
         if (native) {

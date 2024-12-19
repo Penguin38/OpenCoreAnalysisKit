@@ -242,7 +242,7 @@ void Opencore::StopTheWorld(int pid) {
                 continue;
             }
 
-            pid_t tid = atoi(entry->d_name);
+            pid_t tid = std::atoi(entry->d_name);
             if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
                 LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
                 continue;

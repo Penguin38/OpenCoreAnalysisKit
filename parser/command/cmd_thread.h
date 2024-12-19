@@ -18,12 +18,17 @@
 #define PARSER_COMMAND_CMD_THREAD_H_
 
 #include "command/command.h"
+#include "android.h"
 
 class ThreadCommand : public Command {
 public:
     ThreadCommand() : Command("thread", "t") {}
     ~ThreadCommand() {}
     int main(int argc, char* const argv[]);
+    bool prepare(int argc, char* const argv[]) {
+        Android::Prepare();
+        return true;
+    }
     void usage();
 };
 
