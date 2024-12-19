@@ -48,10 +48,16 @@ int SearchCommand::main(int argc, char* const argv[]) {
         {"image",      no_argument,     0,   2 },
         {"fake",       no_argument,     0,   3 },
         {"hex",        no_argument,     0,  'x'},
+        {"local",      no_argument,     0,   4 },
+        {"global",     no_argument,     0,   5 },
+        {"weak",       no_argument,     0,   6 },
+        {"thread", required_argument,   0,  't'},
+
     };
 
     type_flag = 0;
-    each_flag = 0;
+    obj_each_flags = 0;
+    ref_each_flags = 0;
     regex = false;
     show = false;
     format_hex = false;
@@ -82,16 +88,29 @@ int SearchCommand::main(int argc, char* const argv[]) {
                 format_hex = true;
                 break;
             case 0:
-                each_flag |= Android::EACH_APP_OBJECTS;
+                obj_each_flags |= Android::EACH_APP_OBJECTS;
                 break;
             case 1:
-                each_flag |= Android::EACH_ZYGOTE_OBJECTS;
+                obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
                 break;
             case 2:
-                each_flag |= Android::EACH_IMAGE_OBJECTS;
+                obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
                 break;
             case 3:
-                each_flag |= Android::EACH_FAKE_OBJECTS;
+                obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+                break;
+            case 4:
+                ref_each_flags |= Android::EACH_LOCAL_REFERENCES;
+                break;
+            case 5:
+                ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                break;
+            case 6:
+                ref_each_flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
+                break;
+            case 't':
+                int tid = std::atoi(optarg);
+                ref_each_flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
                 break;
         }
     }
@@ -100,16 +119,25 @@ int SearchCommand::main(int argc, char* const argv[]) {
     const char* classname = argv[optind];
     if (!type_flag) type_flag = SEARCH_OBJECT | SEARCH_CLASS;
 
-    if (!each_flag) {
-        each_flag |= Android::EACH_APP_OBJECTS;
-        each_flag |= Android::EACH_ZYGOTE_OBJECTS;
-        each_flag |= Android::EACH_IMAGE_OBJECTS;
-        each_flag |= Android::EACH_FAKE_OBJECTS;
+    if (!obj_each_flags) {
+        obj_each_flags |= Android::EACH_APP_OBJECTS;
+        obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+        obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+        obj_each_flags |= Android::EACH_FAKE_OBJECTS;
     }
     auto callback = [&](art::mirror::Object& object) -> bool {
         return SearchObjects(classname, object);
     };
-    Android::ForeachObjects(callback, each_flag, false);
+
+    try {
+        if (!ref_each_flags) {
+            Android::ForeachObjects(callback, obj_each_flags, false);
+        } else {
+            Android::ForeachReferences(callback, ref_each_flags);
+        }
+    } catch(InvalidAddressException e) {
+        LOGW("The statistical process was interrupted!\n");
+    }
     return 0;
 }
 
@@ -153,7 +181,7 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
 }
 
 void SearchCommand::usage() {
-    LOGI("Usage: search <CLASSNAME> [OPTION..] [TYPE]\n");
+    LOGI("Usage: search <CLASSNAME> [OPTION..] [TYPE] [REF]\n");
     LOGI("Option:\n");
     LOGI("    -r, --regex        regular expression search\n");
     LOGI("    -i, --instanceof   search by instance of class\n");
@@ -162,6 +190,7 @@ void SearchCommand::usage() {
     LOGI("    -p, --print        object print detail\n");
     LOGI("    -x, --hex          basic type hex print\n");
     LOGI("Type: {--app, --zygote, --image, --fake}\n");
+    LOGI("Ref: {--local, --global, --weak, --thread <TID>}\n");
     ENTER();
     LOGI("core-parser> search android.app.Activity -i -o --app --print\n");
     LOGI("[1] 0x13050cc8 penguin.opencore.tester.MainActivity\n");

@@ -38,7 +38,8 @@ public:
 private:
     uint64_t total_objects;
     int type_flag;
-    int each_flag;
+    int obj_each_flags;
+    int ref_each_flags;
     bool regex;
     bool instof;
     bool show;

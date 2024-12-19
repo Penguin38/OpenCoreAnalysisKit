@@ -323,7 +323,7 @@ Object Name: java.nio.DirectByteBuffer
 # How to Search for Classes and Objects
 ```
 core-parser> help search
-Usage: search <CLASSNAME> [OPTION..] [TYPE]
+Usage: search <CLASSNAME> [OPTION..] [TYPE] [REF]
 Option:
     -r, --regex        regular expression search
     -i, --instanceof   search by instance of class
@@ -332,6 +332,7 @@ Option:
     -p, --print        object print detail
     -x, --hex          basic type hex print
 Type: {--app, --zygote, --image, --fake}
+Ref: {--local, --global, --weak, --thread <TID>}
 
 core-parser> search android.app.Activity -i -o --app --print
 [1] 0x13050cc8 penguin.opencore.tester.MainActivity
