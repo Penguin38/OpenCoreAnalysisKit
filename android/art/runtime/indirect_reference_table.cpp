@@ -169,7 +169,8 @@ void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)
         } else {
             object = ref.value32Of();
         }
-        if (object.IsValid()) fn(object, idx);
+        if (object.Ptr() && object.IsValid())
+            fn(object, idx);
     }
 }
 
