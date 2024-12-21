@@ -1,0 +1,39 @@
+# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
+# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+name: CMake on ubuntu platforms
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Android NDK
+      id: setup-ndk
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: r25c
+        local-cache: true
+
+    - name: Build
+      run: |
+        bash ./build.sh
+        tar -czvf core-parser_1.0.4.tar.gz output/aosp/release/linux/bin/core-parser \
+                                           output/aosp/release/android/arm64-v8a/bin/core-parser \
+                                           output/aosp/release/android/x86_64/bin/core-parser
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: core-parser_1.0.4.tar.gz
+        path: core-parser_1.0.4.tar.gz
