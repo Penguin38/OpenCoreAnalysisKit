@@ -297,6 +297,7 @@ bool Opencore::IsBit64(int pid) {
 std::string Opencore::DecodeMachine(int pid) {
     struct utsname buf;
     if (!uname(&buf)) {
+#if defined(__LP64__)
         if (!strcmp(buf.machine, X86_64_MACHINE)) {
             if (IsBit64(pid)) {
                 return X86_64_MACHINE;
@@ -310,17 +311,28 @@ std::string Opencore::DecodeMachine(int pid) {
             } else {
                 return ARM_MACHINE;
             }
-        } else if (!strcmp(buf.machine, I686_MACHINE)
-                || !strcmp(buf.machine, I386_MACHINE)
-                || !strcmp(buf.machine, X86_MACHINE)) {
-            return X86_MACHINE;
-        } else if (!strcmp(buf.machine, ARM_MACHINE)
-                || !strcmp(buf.machine, ARMV7L_MACHINE)
-                || !strcmp(buf.machine, ARMV8L_MACHINE)) {
-            return ARM_MACHINE;
         } else {
             LOGE("Not support machine %s\n", buf.machine);
         }
+#else
+        if (!strcmp(buf.machine, I686_MACHINE)
+                || !strcmp(buf.machine, I386_MACHINE)
+                || !strcmp(buf.machine, X86_MACHINE)) {
+            if (!IsBit64(pid))
+                return X86_MACHINE;
+            else
+                LOGW("Not support target process 64 bits\n");
+        } else if (!strcmp(buf.machine, ARM_MACHINE)
+                || !strcmp(buf.machine, ARMV7L_MACHINE)
+                || !strcmp(buf.machine, ARMV8L_MACHINE)) {
+            if (IsBit64(pid))
+                return ARM_MACHINE;
+            else
+                LOGW("Not support target process 64 bits\n");
+        } else {
+            LOGE("Not support machine %s\n", buf.machine);
+        }
+#endif
     } else {
         LOGE("uname fail!\n");
     }
