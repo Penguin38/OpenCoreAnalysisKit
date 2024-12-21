@@ -46,15 +46,23 @@ bool Tombstone::Parse() {
 std::unique_ptr<TombstoneParser> Tombstone::MakeParser(const char* abi, const char* path) {
     std::unique_ptr<TombstoneParser> impl;
     std::string type = abi;
+#if defined(__LP64__)
     if (type == "arm64" || type == "ARM64") {
         impl = std::make_unique<arm64::TombstoneParser>(path);
-    } else if (type == "arm" || type == "ARM") {
-        impl = std::make_unique<arm::TombstoneParser>(path);
     } else if (type == "x86_64" || type == "X86_64") {
         impl = std::make_unique<x86_64::TombstoneParser>(path);
+    } else if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::TombstoneParser>(path);
     } else if (type == "x86" || type == "X86") {
         impl = std::make_unique<x86::TombstoneParser>(path);
     }
+#else
+    if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::TombstoneParser>(path);
+    } else if (type == "x86" || type == "X86") {
+        impl = std::make_unique<x86::TombstoneParser>(path);
+    }
+#endif
     return std::move(impl);
 }
 

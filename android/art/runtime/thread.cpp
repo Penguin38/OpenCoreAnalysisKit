@@ -246,7 +246,7 @@ void Thread::tls_ptr_sized_values::Init28() {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 8,
             .managed_stack = 12,
-            .jni_env = 36,
+            .jni_env = 28,
             .self = 36,
             .opeer = 40,
             .stack_begin = 48,
@@ -558,7 +558,7 @@ api::MemoryRef& Thread::GetWaitMonitor() {
             try {
                 if (!monitor_.Ptr() || (monitor_lock_.IsMutex()
                         && monitor_.GetObject().IsValid())) {
-                    LOGD(">>> 'wait_monitor_' = 0x%lx\n", monitor_.Ptr());
+                    LOGD(">>> 'wait_monitor_' = 0x%" PRIx64 "\n", monitor_.Ptr());
                     found = true;
                     break;
                 }
@@ -608,10 +608,10 @@ void Thread::DumpState() {
                 group.Ptr() ? group.Name().c_str() : "<unknown>", self.getDaemon(),
                 self.getPriority(), self.getTarget().Ptr(), self.getUncaughtExceptionHandler().Ptr());
     }
-    LOGI(ANSI_COLOR_BLUE "  | tid=%d sCount=%d flags=%d obj=0x%lx self=0x%lx env=0x%lx\n" ANSI_COLOR_RESET,
+    LOGI(ANSI_COLOR_BLUE "  | tid=%d sCount=%d flags=%d obj=0x%" PRIx64 " self=0x%" PRIx64 " env=0x%" PRIx64 "\n" ANSI_COLOR_RESET,
             GetThreadId(), GetTls32().suspend_count(),
             GetFlags(), GetTlsPtr().opeer(), Ptr(), GetTlsPtr().jni_env());
-    LOGI(ANSI_COLOR_BLUE "  | stack=0x%lx-0x%lx stackSize=0x%lx handle=0x%lx\n" ANSI_COLOR_RESET,
+    LOGI(ANSI_COLOR_BLUE "  | stack=0x%" PRIx64 "-0x%" PRIx64 " stackSize=0x%" PRIx64 " handle=0x%" PRIx64 "\n" ANSI_COLOR_RESET,
             GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
             GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());
     std::string mutexes;
@@ -632,7 +632,7 @@ void Thread::DumpState() {
             mutexes.append(" ");
         }
     }
-    LOGI(ANSI_COLOR_BLUE "  | mutexes=0x%lx held=" ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET, GetTlsPtr().held_mutexes(), mutexes.c_str());
+    LOGI(ANSI_COLOR_BLUE "  | mutexes=0x%" PRIx64 " held=" ANSI_COLOR_LIGHTRED "%s\n" ANSI_COLOR_RESET, GetTlsPtr().held_mutexes(), mutexes.c_str());
 }
 
 } //namespace art

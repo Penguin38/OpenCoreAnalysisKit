@@ -133,7 +133,7 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
             pos = GetNextObject(object);
         } else {
             pos = object.NextValidOffset(main_end);
-            if (check && pos < main_end) LOGE("Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
+            if (check && pos < main_end) LOGE("Region:[0x%" PRIx64 ", 0x%" PRIx64 ") %s has bad object!!\n", object.Ptr(), pos, GetName());
         }
     }
 
@@ -151,7 +151,7 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
                     cur_pos = GetNextObject(object);
                 } else {
                     cur_pos = object.NextValidOffset(cur_end);
-                    if (check && cur_pos < cur_end) LOGE("Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), cur_pos, GetName());
+                    if (check && cur_pos < cur_end) LOGE("Region:[0x%" PRIx64 ", 0x%" PRIx64 ") %s has bad object!!\n", object.Ptr(), cur_pos, GetName());
                 }
             }
             pos += block_size;

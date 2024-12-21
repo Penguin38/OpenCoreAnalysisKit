@@ -188,9 +188,9 @@ bool Object::IsNonLargeValid() {
                 return true;
             } else {
                 if (LIKELY(!(thiz_size < kValidObjectSize)))
-                    LOGD("This bad object (%lx) too large.\n", Ptr());
+                    LOGD("This bad object (%" PRIx64 ") too large.\n", Ptr());
                 if (LIKELY(!!(thiz_size < (int64_t)kObjectAlignment)))
-                    LOGD("This bad object (%lx) too small.\n", Ptr());
+                    LOGD("This bad object (%" PRIx64 ") too small.\n", Ptr());
                 return false;
             }
         }

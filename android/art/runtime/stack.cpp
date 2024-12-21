@@ -72,7 +72,7 @@ void StackVisitor::WalkStack() {
     for (ManagedStack current_fragment = GetThread()->GetTlsPtr().managed_stack();
             current_fragment.Ptr(); current_fragment = current_fragment.link()) {
         try {
-            LOGD("  ManagedStack* 0x%lx\n", current_fragment.Ptr());
+            LOGD("  ManagedStack* 0x%" PRIx64 "\n", current_fragment.Ptr());
             cur_shadow_frame_ = current_fragment.GetTopShadowFrame();
             cur_quick_frame_ = current_fragment.GetTopQuickFrame();
             prev_quick_frame_ = 0x0;
@@ -149,7 +149,7 @@ void StackVisitor::WalkStack() {
                 } while(cur_shadow_frame_.Ptr());
             }
         } catch(InvalidAddressException e) {
-            LOGI("  ManagedStack* 0x%lx maybe invalid.\n", current_fragment.Ptr());
+            LOGI("  ManagedStack* 0x%" PRIx64 " maybe invalid.\n", current_fragment.Ptr());
         }
     }
 }

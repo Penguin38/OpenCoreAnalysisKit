@@ -95,7 +95,7 @@ api::MemoryRef FdTrack::AnalysisStackTraces() {
     if (!last_load)
         return stack_traces;
 
-    LOGI(">>> analysis scan:[%lx, %lx)\n", last_load, last_load_end);
+    LOGI(">>> analysis scan:[%" PRIx64 ", %" PRIx64 ")\n", last_load, last_load_end);
     int count = 0;
     FdEntry entry = last_load;
     uint64_t point_size = CoreApi::GetPointSize();
@@ -136,7 +136,7 @@ api::MemoryRef FdTrack::AnalysisStackTraces() {
         }
         if (fd == kFdTableSize - 1) {
             stack_traces = entry.Ptr() /*- (kFdTableSize - 1) * SIZEOF(FdEntry)*/;
-            LOGI(">>> stack_traces = 0x%lx\n", stack_traces.Ptr());
+            LOGI(">>> stack_traces = 0x%" PRIx64 "\n", stack_traces.Ptr());
             break;
         }
         count++;

@@ -112,10 +112,10 @@ void Disassember::Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64
             }
 
             if (arch == CS_ARCH_X86) {
-                LOGI("%s" ANSI_COLOR_CYAN "0x%lx" ANSI_COLOR_RESET ": " ANSI_COLOR_YELLOW "%24s" ANSI_COLOR_RESET " | " ANSI_COLOR_GREEN "%s %s\n" ANSI_COLOR_RESET,
+                LOGI("%s" ANSI_COLOR_CYAN "0x%" PRIx64 "" ANSI_COLOR_RESET ": " ANSI_COLOR_YELLOW "%24s" ANSI_COLOR_RESET " | " ANSI_COLOR_GREEN "%s %s\n" ANSI_COLOR_RESET,
                         prefix, insn[i].address, machine_code.c_str(), insn[i].mnemonic, insn[i].op_str);
             } else {
-                LOGI("%s" ANSI_COLOR_CYAN "0x%lx" ANSI_COLOR_RESET ": " ANSI_COLOR_YELLOW "%8s" ANSI_COLOR_RESET " | " ANSI_COLOR_GREEN "%s %s\n" ANSI_COLOR_RESET,
+                LOGI("%s" ANSI_COLOR_CYAN "0x%" PRIx64 "" ANSI_COLOR_RESET ": " ANSI_COLOR_YELLOW "%8s" ANSI_COLOR_RESET " | " ANSI_COLOR_GREEN "%s %s\n" ANSI_COLOR_RESET,
                         prefix, insn[i].address, machine_code.c_str(), insn[i].mnemonic, insn[i].op_str);
             }
             num++;

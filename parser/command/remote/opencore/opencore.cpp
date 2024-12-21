@@ -20,10 +20,10 @@
 #include "command/env.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/opencore/x86_64/opencore.h"
-#include "command/remote/opencore/x86/opencore.h"
 #include "command/remote/opencore/arm64/opencore.h"
-#include "command/remote/opencore/arm/opencore.h"
 #include "command/remote/opencore/riscv64/opencore.h"
+#include "command/remote/opencore/x86/opencore.h"
+#include "command/remote/opencore/arm/opencore.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <fcntl.h>
@@ -94,17 +94,25 @@ int Opencore::Dump(int argc, char* const argv[]) {
 
 std::unique_ptr<Opencore> Opencore::MakeArch(std::string& type) {
     std::unique_ptr<Opencore> impl;
+#if defined(__LP64__)
     if (type == "arm64" || type == "ARM64") {
         impl = std::make_unique<arm64::Opencore>();
-    } else if (type == "arm" || type == "ARM") {
-        impl = std::make_unique<arm::Opencore>();
     } else if (type == "x86_64" || type == "X86_64") {
         impl = std::make_unique<x86_64::Opencore>();
-    } else if (type == "x86" || type == "X86") {
-        impl = std::make_unique<x86::Opencore>();
     } else if (type == "riscv64" || type == "RISCV64") {
         impl = std::make_unique<riscv64::Opencore>();
+    } else if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::Opencore>();
+    } else if (type == "x86" || type == "X86") {
+        impl = std::make_unique<x86::Opencore>();
     }
+#else
+    if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::Opencore>();
+    } else if (type == "x86" || type == "X86") {
+        impl = std::make_unique<x86::Opencore>();
+    }
+#endif
     return std::move(impl);
 }
 
@@ -302,6 +310,14 @@ std::string Opencore::DecodeMachine(int pid) {
             } else {
                 return ARM_MACHINE;
             }
+        } else if (!strcmp(buf.machine, I686_MACHINE)
+                || !strcmp(buf.machine, I386_MACHINE)
+                || !strcmp(buf.machine, X86_MACHINE)) {
+            return X86_MACHINE;
+        } else if (!strcmp(buf.machine, ARM_MACHINE)
+                || !strcmp(buf.machine, ARMV7L_MACHINE)
+                || !strcmp(buf.machine, ARMV8L_MACHINE)) {
+            return ARM_MACHINE;
         } else {
             LOGE("Not support machine %s\n", buf.machine);
         }
@@ -323,7 +339,8 @@ void Opencore::ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps) {
             VirtualMemoryArea vma;
             char filename[256] = {'\0'};
 
-            sscanf(line, "%lx-%lx %c%c%c%c %x %x:%x  %lu  %[^\n] %n",
+
+            sscanf(line, "%" PRIx64 "-%" PRIx64 " %c%c%c%c %x %x:%x  %" PRIu64 "  %[^\n] %n",
                    &vma.begin, &vma.end,
                    &vma.flags[0], &vma.flags[1], &vma.flags[2], &vma.flags[3],
                    &vma.offset, &vma.major, &vma.minor, &vma.inode, filename, &m);

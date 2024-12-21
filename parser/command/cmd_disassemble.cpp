@@ -102,7 +102,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
                     capstone::Disassember::Dump("  ", data, entry.size, vaddr, opt);
                 }
             } else {
-                LOGI("  * %s: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, d_symbol.c_str(), vaddr);
+                LOGI("  * %s: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, d_symbol.c_str(), vaddr);
             }
             found_symbol = true;
             return true;

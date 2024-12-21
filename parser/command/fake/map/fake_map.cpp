@@ -126,7 +126,7 @@ uint64_t FakeLinkMap::FindModuleFromLoadBlock(const char* name) {
         return false;
     };
     CoreApi::ForeachLoadBlock(callback, false, false);
-    LOGI("0x%lx %s\n", module_load, name);
+    LOGI("0x%" PRIx64 " %s\n", module_load, name);
     return module_load;
 }
 

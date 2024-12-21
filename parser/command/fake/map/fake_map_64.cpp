@@ -199,7 +199,7 @@ bool FakeLinkMap::FakeLD64(LinkMap* map) {
                 need_calibrate = true;
                 uint64_t vaddr = map->l_addr() + phdr[num].p_offset - phdr[num].p_vaddr;
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_addr), vaddr);
-                LOGI("calibrate %s l_addr(%lx)\n", map->name(), vaddr);
+                LOGI("calibrate %s l_addr(%" PRIx64 ")\n", map->name(), vaddr);
             }
             continue;
         }
@@ -208,7 +208,7 @@ bool FakeLinkMap::FakeLD64(LinkMap* map) {
             uint64_t vaddr = map->l_addr() + phdr[num].p_vaddr;
             if (map->l_ld() != vaddr) {
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_ld), vaddr);
-                LOGI("calibrate %s l_ld(%lx)\n", map->name(), vaddr);
+                LOGI("calibrate %s l_ld(%" PRIx64 ")\n", map->name(), vaddr);
             }
             break;
         }

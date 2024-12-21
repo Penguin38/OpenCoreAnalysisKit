@@ -93,7 +93,7 @@ int PluginCommand::Load(const char* path, bool flag) {
 
 void PluginCommand::ShowEnv() {
     for (const auto& it : plugins) {
-        LOGI("%016lx  %s  %s\n", (uint64_t)it->Handle(),
+        LOGI("%016" PRIx64 "  %s  %s\n", (uint64_t)it->Handle(),
                                  it->Path().c_str(),
                                  it->Cmd() ? it->Cmd()->get().c_str() : "");
     }

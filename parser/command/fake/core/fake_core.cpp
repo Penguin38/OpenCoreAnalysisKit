@@ -133,17 +133,25 @@ std::unique_ptr<FakeCore> FakeCore::Make(int bits) {
 std::unique_ptr<FakeCore> FakeCore::Make(std::unique_ptr<FakeCore::Stream>& stream, const char* sysroot) {
     std::unique_ptr<FakeCore> impl;
     std::string type = stream->ABI();
+#if defined(__LP64__)
     if (type == "arm64" || type == "ARM64") {
         impl = std::make_unique<arm64::FakeCore>();
-    } else if (type == "arm" || type == "ARM") {
-        impl = std::make_unique<arm::FakeCore>();
     } else if (type == "x86_64" || type == "X86_64") {
         impl = std::make_unique<x86_64::FakeCore>();
-    } else if (type == "x86" || type == "X86") {
-        impl = std::make_unique<x86::FakeCore>();
     } else if (type == "riscv64" || type == "RISCV64") {
         impl = std::make_unique<riscv64::FakeCore>();
+    } else if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::FakeCore>();
+    } else if (type == "x86" || type == "X86") {
+        impl = std::make_unique<x86::FakeCore>();
     }
+#else
+    if (type == "arm" || type == "ARM") {
+        impl = std::make_unique<arm::FakeCore>();
+    } else if (type == "x86" || type == "X86") {
+        impl = std::make_unique<x86::FakeCore>();
+    }
+#endif
     return std::move(impl);
 }
 
@@ -192,7 +200,7 @@ uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps
             break;
     }
 
-    LOGI("0x%lx %s\n", module_load, name);
+    LOGI("0x%" PRIx64 " %s\n", module_load, name);
     return module_load;
 }
 

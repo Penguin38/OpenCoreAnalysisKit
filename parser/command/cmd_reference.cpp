@@ -92,7 +92,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         art::IndirectRefKind kind = static_cast<art::IndirectRefKind>(type & ((1 << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT) - 1));
         if (kind == art::IndirectRefKind::kLocal)
             LOGI("[%d]", type >> Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
-        LOGI("[%s][%ld] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
+        LOGI("[%s][%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 art::IndirectReferenceTable::GetDescriptor(kind).c_str(), idx, object.Ptr(), descriptor.c_str());
 
         return false;
@@ -106,7 +106,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         art::IndirectRefKind kind = art::IndirectReferenceTable::DecodeIndirectRefKind(uref);
         if (kind && kind != art::IndirectRefKind::kLocal) {
             reference = jvm.Decode(uref);
-            LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_RESET "\n",
+            LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
                     art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
                     art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
             PrintCommand::OnlyDumpObject(reference, format_hex);
@@ -122,7 +122,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
                     continue;
 
                 LOGI("[%d]\n", thread->GetTid());
-                LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_RESET "\n",
+                LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
                         art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
                         art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
                 PrintCommand::OnlyDumpObject(reference, format_hex);

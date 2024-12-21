@@ -58,14 +58,14 @@ public:
     uint64_t t6;
 
     void Dump(const char* prefix) {
-        LOGI("%spc 0x%016lx  ra 0x%016lx  sp 0x%016lx  gp 0x%016lx  \n", prefix, pc, ra, sp, gp);
-        LOGI("%stp 0x%016lx  t0 0x%016lx  t1 0x%016lx  t2 0x%016lx  \n", prefix, tp, t0, t1, t2);
-        LOGI("%ss0 0x%016lx  s1 0x%016lx  a0 0x%016lx  a1 0x%016lx  \n", prefix, s0, s1, a0, a1);
-        LOGI("%sa2 0x%016lx  a3 0x%016lx  a4 0x%016lx  a5 0x%016lx  \n", prefix, a2, a3, a4, a5);
-        LOGI("%sa6 0x%016lx  a7 0x%016lx  s2 0x%016lx  s3 0x%016lx  \n", prefix, a6, a7, s2, s3);
-        LOGI("%ss4 0x%016lx  s5 0x%016lx  s6 0x%016lx  s7 0x%016lx  \n", prefix, s4, s5, s6, s7);
-        LOGI("%ss8 0x%016lx  s9 0x%016lx  s10 0x%016lx s11 0x%016lx  \n", prefix, s8, s9, s10, s11);
-        LOGI("%st3 0x%016lx  t4 0x%016lx  t5 0x%016lx  t6 0x%016lx  \n", prefix, t3, t4, t5, t6);
+        LOGI("%spc 0x%016" PRIx64 "  ra 0x%016" PRIx64 "  sp 0x%016" PRIx64 "  gp 0x%016" PRIx64 "  \n", prefix, pc, ra, sp, gp);
+        LOGI("%stp 0x%016" PRIx64 "  t0 0x%016" PRIx64 "  t1 0x%016" PRIx64 "  t2 0x%016" PRIx64 "  \n", prefix, tp, t0, t1, t2);
+        LOGI("%ss0 0x%016" PRIx64 "  s1 0x%016" PRIx64 "  a0 0x%016" PRIx64 "  a1 0x%016" PRIx64 "  \n", prefix, s0, s1, a0, a1);
+        LOGI("%sa2 0x%016" PRIx64 "  a3 0x%016" PRIx64 "  a4 0x%016" PRIx64 "  a5 0x%016" PRIx64 "  \n", prefix, a2, a3, a4, a5);
+        LOGI("%sa6 0x%016" PRIx64 "  a7 0x%016" PRIx64 "  s2 0x%016" PRIx64 "  s3 0x%016" PRIx64 "  \n", prefix, a6, a7, s2, s3);
+        LOGI("%ss4 0x%016" PRIx64 "  s5 0x%016" PRIx64 "  s6 0x%016" PRIx64 "  s7 0x%016" PRIx64 "  \n", prefix, s4, s5, s6, s7);
+        LOGI("%ss8 0x%016" PRIx64 "  s9 0x%016" PRIx64 "  s10 0x%016" PRIx64 " s11 0x%016" PRIx64 "  \n", prefix, s8, s9, s10, s11);
+        LOGI("%st3 0x%016" PRIx64 "  t4 0x%016" PRIx64 "  t5 0x%016" PRIx64 "  t6 0x%016" PRIx64 "  \n", prefix, t3, t4, t5, t6);
     }
 };
 

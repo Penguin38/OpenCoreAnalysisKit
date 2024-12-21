@@ -233,7 +233,7 @@ void RegionSpace::WalkInternal(std::function<bool (mirror::Object& object)> visi
             try {
                 WalkNonLargeRegion(visitor, r, check);
             } catch (InvalidAddressException e) {
-                LOGW("[0x%lx] Region:[0x%lx, 0x%lx) walkspace exception!\n", r.Ptr(), pos, top);
+                LOGW("[0x%" PRIx64 "] Region:[0x%" PRIx64 ", 0x%" PRIx64 ") walkspace exception!\n", r.Ptr(), pos, top);
             }
         }
     }
@@ -261,7 +261,7 @@ void RegionSpace::WalkNonLargeRegion(std::function<bool (mirror::Object& object)
                 pos = GetNextObject(object);
             } else {
                 pos = object.NextValidOffset(top);
-                if (check && pos < top) LOGE("Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
+                if (check && pos < top) LOGE("Region:[0x%" PRIx64 ", 0x%" PRIx64 ") %s has bad object!!\n", object.Ptr(), pos, GetName());
             }
         }
     }

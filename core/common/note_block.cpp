@@ -43,7 +43,7 @@ bool NoteBlock::newOverlay() {
         std::unique_ptr<MemoryMap> map(MemoryMap::MmapMem(begin(), realSize()));
         if (map) {
             mOverlay = std::move(map);
-            LOGI("New note overlay [%lx, %lx)\n", offset(), offset() + realSize());
+            LOGI("New note overlay [%" PRIx64 ", %" PRIx64 ")\n", offset(), offset() + realSize());
         }
     }
     return mOverlay != 0x0;
@@ -56,7 +56,7 @@ void NoteBlock::setOverlay(uint64_t addr, void *buf, uint64_t size) {
 
 void NoteBlock::removeOverlay() {
     if (mOverlay) {
-        LOGI("Remove note overlay [%lx, %lx)\n", offset(), offset() + realSize());
+        LOGI("Remove note overlay [%" PRIx64 ", %" PRIx64 ")\n", offset(), offset() + realSize());
         mOverlay.reset();
     }
 }

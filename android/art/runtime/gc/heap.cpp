@@ -81,7 +81,7 @@ cxx::vector& Heap::GetContinuousSpacesCache() {
             int loopcount = (endloop - continuous_spaces_cache.Ptr()) / point_size;
             do {
                 if (continuous_spaces_cache.size() > 2 && continuous_spaces_cache.size() < 64) {
-                    LOGD(">>> 'continuous_spaces_' = 0x%lx\n", continuous_spaces_cache.Ptr());
+                    LOGD(">>> 'continuous_spaces_' = 0x%" PRIx64 "\n", continuous_spaces_cache.Ptr());
                     found = true;
                     break;
                 }
@@ -110,7 +110,7 @@ cxx::vector& Heap::GetDiscontinuousSpacesCache() {
             int loopcount = (endloop - discontinuous_spaces_cache.Ptr()) / point_size;
             do {
                 if (discontinuous_spaces_cache.size() < 8) {
-                    LOGD(">>> 'discontinuous_spaces_' = 0x%lx\n", discontinuous_spaces_cache.Ptr());
+                    LOGD(">>> 'discontinuous_spaces_' = 0x%" PRIx64 "\n", discontinuous_spaces_cache.Ptr());
                     found = true;
                     break;
                 }

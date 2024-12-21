@@ -207,7 +207,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
         LoadBlock* block = api->findLoadBlock(current, false);
         if (!block) {
-            LOGE("Not found LoadBlock(%lx)\n", current);
+            LOGE("Not found LoadBlock(%" PRIx64 ")\n", current);
             continue;
         }
 
@@ -233,7 +233,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
         // continue mmap
         if (mem_size > block->size()) {
-            LOGW("Mmap segment [%lx, %lx) size %lx != %lx, maybe reset range!\n",
+            LOGW("Mmap segment [%" PRIx64 ", %" PRIx64 ") size %" PRIx64 " != %" PRIx64 ", maybe reset range!\n",
                     block->vaddr(), block->vaddr() + block->size(), block->size(), mem_size);
 
             uint64_t cur_size = block->size();
@@ -243,7 +243,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
                 LoadBlock* next_block = api->findLoadBlock(next, false);
                 if (!next_block) {
-                    LOGE("Not found next LoadBlock(%lx)\n", next);
+                    LOGE("Not found next LoadBlock(%" PRIx64 ")\n", next);
                     break;
                 }
                 cur_size += next_block->size();

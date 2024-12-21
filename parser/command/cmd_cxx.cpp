@@ -91,7 +91,7 @@ int CxxCommand::DumpCxxVector(int argc, char* const argv[]) {
     target.SetEntrySize(entry_size);
     int idx = 0;
     for (const auto& value : target) {
-        LOGI("[%d] 0x%lx\n", idx++, value);
+        LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
     }
     return 0;
 }
@@ -101,7 +101,7 @@ int CxxCommand::DumpCxxMap(int argc, char* const argv[]) {
     cxx::map target = addr;
     int idx = 0;
     for (const auto& value : target) {
-        LOGI("[%d] 0x%lx\n", idx++, value);
+        LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
     }
     return 0;
 }
@@ -111,7 +111,7 @@ int CxxCommand::DumpCxxUnOrderedMap(int argc, char* const argv[]) {
     cxx::unordered_map target = addr;
     int idx = 0;
     for (const auto& value : target) {
-        LOGI("[%d] 0x%lx\n", idx++, value);
+        LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
     }
     return 0;
 }
@@ -121,7 +121,7 @@ int CxxCommand::DumpCxxList(int argc, char* const argv[]) {
     cxx::list target = addr;
     int idx = 0;
     for (const auto& value : target) {
-        LOGI("[%d] 0x%lx\n", idx++, value);
+        LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
     }
     return 0;
 }
@@ -149,7 +149,7 @@ int CxxCommand::DumpCxxDeque(int argc, char* const argv[]) {
     target.SetBlockSize(block_size);
     int idx = 0;
     for (const auto& value : target) {
-        LOGI("[%d] 0x%lx\n", idx++, value.Ptr());
+        LOGI("[%d] 0x%" PRIx64 "\n", idx++, value.Ptr());
     }
     return 0;
 }

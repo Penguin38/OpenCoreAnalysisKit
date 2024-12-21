@@ -114,7 +114,7 @@ int PrintCommand::main(int argc, char* const argv[]) {
     art::mirror::Object ref = Utils::atol(argv[optind]);
     uint64_t size = ref.SizeOf();
     if (UNLIKELY(((int64_t)size < (int64_t)art::kObjectAlignment))) {
-        LOGE("Size: 0x%lx\n", size);
+        LOGE("Size: 0x%" PRIx64 "\n", size);
         return 0;
     }
 
@@ -144,9 +144,9 @@ int PrintCommand::main(int argc, char* const argv[]) {
 void PrintCommand::DumpObject(art::mirror::Object& object) {
     uint64_t size = object.SizeOf();
     uint64_t real_size = RoundUp(size, art::kObjectAlignment);
-    LOGI("Size: 0x%lx\n", real_size);
+    LOGI("Size: 0x%" PRIx64 "\n", real_size);
     if (size != real_size) {
-        LOGI("Padding: 0x%lx\n", real_size - size);
+        LOGI("Padding: 0x%" PRIx64 "\n", real_size - size);
     }
 
     PrintCommand::OnlyDumpObject(object, format_hex);
@@ -201,7 +201,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
             } else {
                 ref_thiz = reference.GetClass();
             }
-            LOGI("%s--> " ANSI_COLOR_LIGHTYELLOW "0x%lx " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
+            LOGI("%s--> " ANSI_COLOR_LIGHTYELLOW "0x%" PRIx64 " " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
                     prefix.c_str(), reference.Ptr(), ref_thiz.PrettyDescriptor().c_str());
             if (cur_deep + 1 < deep) {
                 auto callback = [&](art::mirror::Object& second) -> bool {
@@ -268,7 +268,7 @@ void PrintCommand::DumpArray(art::mirror::Array& array, bool format_hex) {
                 art::mirror::String str = object;
                 LOGI("    [%d] \"" ANSI_COLOR_LIGHTMAGENTA "%s" ANSI_COLOR_RESET "\"\n", i, str.ToModifiedUtf8().c_str());
             } else {
-                LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, i, object.Ptr());
+                LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, i, object.Ptr());
             }
         }
     } else {
@@ -380,7 +380,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
                 art::mirror::String str = tmp;
                 LOGI(" = \"" ANSI_COLOR_LIGHTMAGENTA "%s" ANSI_COLOR_RESET "\"\n", str.ToModifiedUtf8().c_str());
             } else {
-                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, tmp.Ptr());
+                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, tmp.Ptr());
             }
         } break;
         case Android::basic_double:
@@ -388,9 +388,9 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
             break;
         case Android::basic_long:
             if (format_hex) {
-                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, field.GetLong(object));
+                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, field.GetLong(object));
             } else {
-                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, field.GetLong(object));
+                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "%" PRId64 "\n" ANSI_COLOR_RESET, field.GetLong(object));
             }
             break;
     }
@@ -449,9 +449,9 @@ void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::M
             break;
         case Android::basic_long:
             if (format_hex) {
-                LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint64_t *>(ref.Real()));
+                LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint64_t *>(ref.Real()));
             } else {
-                LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, i, *reinterpret_cast<int64_t *>(ref.Real()));
+                LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%" PRId64 "\n" ANSI_COLOR_RESET, i, *reinterpret_cast<int64_t *>(ref.Real()));
             }
             break;
     }

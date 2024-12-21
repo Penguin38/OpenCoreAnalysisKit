@@ -196,7 +196,7 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
             LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
             ++frameid;
             if (frameid == unwind_stack->GetContextNum()) {
-                LOGI(ANSI_COLOR_LIGHTRED "    <<maybe handle signal ucontext: 0x%lx>>\n" ANSI_COLOR_RESET, unwind_stack->GetContext());
+                LOGI(ANSI_COLOR_LIGHTRED "    <<maybe handle signal ucontext: 0x%" PRIx64 ">>\n" ANSI_COLOR_RESET, unwind_stack->GetContext());
                 unwind_stack->DumpContextRegister("  ");
             }
         }
@@ -356,7 +356,7 @@ std::string BacktraceCommand::FormatJavaFrame(const char* prefix, uint64_t size)
     format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
-    format.append("lx  ");
+    format.append("" PRIx64 "  ");
     format.append(Logger::LightYellow());
     format.append("%s\n");
     format.append(Logger::End());
@@ -379,7 +379,7 @@ std::string BacktraceCommand::FormatJNINativeFrame(const char* prefix, uint64_t 
     format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
-    format.append("lx  ");
+    format.append("" PRIx64 "  ");
     format.append(Logger::Yellow());
     format.append("%s\n");
     format.append(Logger::End());
@@ -402,7 +402,7 @@ std::string BacktraceCommand::FormatNativeFrame(const char* prefix, uint64_t siz
     format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
-    format.append("lx  ");
+    format.append("" PRIx64 "  ");
     format.append(Logger::Yellow());
     format.append("%s\n");
     format.append(Logger::End());

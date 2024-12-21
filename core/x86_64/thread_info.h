@@ -59,11 +59,11 @@ public:
     uint32_t __gs;
 
     void Dump(const char* prefix) {
-        LOGI("%srax 0x%016lx  rbx 0x%016lx  rcx 0x%016lx  rdx 0x%016lx  \n", prefix, rax, rbx, rcx, rdx);
-        LOGI("%sr8  0x%016lx  r9  0x%016lx  r10 0x%016lx  r11 0x%016lx  \n", prefix, r8, r9, r10, r11);
-        LOGI("%sr12 0x%016lx  r13 0x%016lx  r14 0x%016lx  r15 0x%016lx  \n", prefix, r12, r13, r14, r15);
-        LOGI("%srdi 0x%016lx  rsi 0x%016lx  \n", prefix, rdi, rsi);
-        LOGI("%srbp 0x%016lx  rsp 0x%016lx  rip 0x%016lx  flags 0x%016lx  \n", prefix, rbp, rsp, rip, flags);
+        LOGI("%srax 0x%016" PRIx64 "  rbx 0x%016" PRIx64 "  rcx 0x%016" PRIx64 "  rdx 0x%016" PRIx64 "  \n", prefix, rax, rbx, rcx, rdx);
+        LOGI("%sr8  0x%016" PRIx64 "  r9  0x%016" PRIx64 "  r10 0x%016" PRIx64 "  r11 0x%016" PRIx64 "  \n", prefix, r8, r9, r10, r11);
+        LOGI("%sr12 0x%016" PRIx64 "  r13 0x%016" PRIx64 "  r14 0x%016" PRIx64 "  r15 0x%016" PRIx64 "  \n", prefix, r12, r13, r14, r15);
+        LOGI("%srdi 0x%016" PRIx64 "  rsi 0x%016" PRIx64 "  \n", prefix, rdi, rsi);
+        LOGI("%srbp 0x%016" PRIx64 "  rsp 0x%016" PRIx64 "  rip 0x%016" PRIx64 "  flags 0x%016" PRIx64 "  \n", prefix, rbp, rsp, rip, flags);
         LOGI("%sds 0x%08x  es 0x%08x  fs 0x%08x  gs 0x%08x  cs 0x%08x  ss 0x%08x\n", prefix, ds, es, fs, gs, cs, ss);
     }
 };

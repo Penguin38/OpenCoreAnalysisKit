@@ -537,12 +537,12 @@ void DexFile::dumpReason(uint64_t vaddr) {
     if (Logger::IsDebug()) {
         File* file = CoreApi::FindFile(vaddr);
         if (file) {
-            LOGD("[%lx, %lx) %08lx %s [EMPTY]\n", file->begin(), file->end(),
+            LOGD("[%" PRIx64 ", %" PRIx64 ") %08" PRIx64 " %s [EMPTY]\n", file->begin(), file->end(),
                     file->offset(), file->name().c_str());
         } else {
             LoadBlock* block = CoreApi::FindLoadBlock(vaddr, false);
             if (block) {
-                LOGD("[%lx, %lx) %s [EMPTY]\n", block->vaddr(), block->vaddr() + block->size(), GetLocation().c_str());
+                LOGD("[%" PRIx64 ", %" PRIx64 ") %s [EMPTY]\n", block->vaddr(), block->vaddr() + block->size(), GetLocation().c_str());
             }
         }
     }

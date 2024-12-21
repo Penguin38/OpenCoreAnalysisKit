@@ -615,7 +615,7 @@ void Hprof::DumpHeapClass(mirror::Class& klass) {
     if (!klass.IsResolved())
         return;
 
-    HLOGV("%s 0x%lx\n", __func__, klass.Ptr());
+    HLOGV("%s 0x%" PRIx64 "\n", __func__, klass.Ptr());
     HLOGV("%s\n", klass.PrettyDescriptor().c_str());
 
     uint64_t num_static_fields = klass.NumStaticFields();
@@ -801,7 +801,7 @@ void Hprof::DumpHeapClass(mirror::Class& klass) {
 }
 
 void Hprof::DumpHeapArray(mirror::Array& array, mirror::Class& klass) {
-    HLOGV("%s 0x%lx\n", __func__, array.Ptr());
+    HLOGV("%s 0x%" PRIx64 "\n", __func__, array.Ptr());
     HLOGV("%s\n", klass.PrettyDescriptor().c_str());
 
     uint32_t length = array.GetLength();
@@ -847,7 +847,7 @@ void Hprof::DumpHeapArray(mirror::Array& array, mirror::Class& klass) {
 }
 
 void Hprof::DumpHeapInstanceObject(mirror::Object& object, mirror::Class& klass) {
-    HLOGV("%s 0x%lx\n", __func__, object.Ptr());
+    HLOGV("%s 0x%" PRIx64 "\n", __func__, object.Ptr());
     HLOGV("%s\n", klass.PrettyDescriptor().c_str());
 
     __ AddU1(HPROF_INSTANCE_DUMP);

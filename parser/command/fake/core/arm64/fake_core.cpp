@@ -58,7 +58,7 @@ int FakeCore::execute(const char* output) {
 
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapZeroMem(note.p_offset + note.p_filesz));
     if (!map) {
-        LOGE("alloc size(0x%llx) fail, no vma!!\n", note.p_offset + note.p_filesz);
+        LOGE("alloc size(0x%" PRIx64 ") fail, no vma!!\n", note.p_offset + note.p_filesz);
         return 0;
     }
 

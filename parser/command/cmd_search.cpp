@@ -161,7 +161,7 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
             || descriptor == classsname
             || (instof && java.instanceof(classsname))) {
         total_objects++;
-        LOGI("[%ld] " ANSI_COLOR_LIGHTYELLOW  "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
+        LOGI("[%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 total_objects, object.Ptr(), descriptor.c_str());
         if (show) PrintCommand::OnlyDumpObject(object, format_hex);
     }

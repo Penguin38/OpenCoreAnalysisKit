@@ -41,7 +41,7 @@ bool Hook::InjectLibrary(const char* library) {
     uint64_t dlopen_load = CoreApi::DlSym("dlopen");
     if (!dlopen_load)
         return false;
-    LOGI("riscv64: hook found \"dlopen\" address: 0x%lx\n", dlopen_load);
+    LOGI("riscv64: hook found \"dlopen\" address: 0x%" PRIx64 "\n", dlopen_load);
 
     std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
     opencore->StopTheWorld(Pid());
@@ -50,7 +50,7 @@ bool Hook::InjectLibrary(const char* library) {
     if (!LoadContext(&ori_regs))
         return false;
 
-    LOGI("riscv64: target process current sp: 0x%lx\n", ori_regs.sp);
+    LOGI("riscv64: target process current sp: 0x%" PRIx64 "\n", ori_regs.sp);
     pt_regs call_regs;
     memcpy(&call_regs, &ori_regs, sizeof(pt_regs));
 
@@ -71,7 +71,7 @@ bool Hook::InjectLibrary(const char* library) {
     // Get return retval
     pt_regs retval_regs;
     LoadContext(&retval_regs);
-    LOGI("riscv64: return 0x%lx\n", retval_regs.ra);
+    LOGI("riscv64: return 0x%" PRIx64 "\n", retval_regs.ra);
 
     // Restore origin context
     StoreContext(&ori_regs);

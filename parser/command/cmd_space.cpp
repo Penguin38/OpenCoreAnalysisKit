@@ -83,7 +83,7 @@ int SpaceCommand::main(int argc, char* const argv[]) {
         LOGI(ANSI_COLOR_LIGHTRED "TYPE   REGION                  ADDRESS             NAME\n" ANSI_COLOR_RESET);
         for (const auto& space : heap.GetContinuousSpaces()) {
             art::gc::space::ContinuousSpace* sp = space.get();
-            LOGI(" %2d  " ANSI_COLOR_LIGHTCYAN "[0x%lx, 0x%lx)  " ANSI_COLOR_LIGHTYELLOW "0x%lx  " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET,
+            LOGI(" %2d  " ANSI_COLOR_LIGHTCYAN "[0x%" PRIx64 ", 0x%" PRIx64 ")  " ANSI_COLOR_LIGHTYELLOW "0x%" PRIx64 "  " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET,
                     sp->GetType(), sp->Begin(), sp->End(), sp->Ptr(), sp->GetName());
         }
 
@@ -91,10 +91,10 @@ int SpaceCommand::main(int argc, char* const argv[]) {
             art::gc::space::DiscontinuousSpace* dsp = space.get();
             if (space->IsLargeObjectSpace()) {
                 art::gc::space::LargeObjectSpace *sp = reinterpret_cast<art::gc::space::LargeObjectSpace *>(dsp);
-                LOGI(" %2d  " ANSI_COLOR_LIGHTCYAN "[0x%lx, 0x%lx)  " ANSI_COLOR_LIGHTYELLOW "0x%lx  " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET,
+                LOGI(" %2d  " ANSI_COLOR_LIGHTCYAN "[0x%" PRIx64 ", 0x%" PRIx64 ")  " ANSI_COLOR_LIGHTYELLOW "0x%" PRIx64 "  " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET,
                         sp->GetType(), sp->Begin(), sp->End(), sp->Ptr(), sp->GetName());
             } else {
-                LOGI(" %2d  [0x0, 0x0)  0x%lx  %s\n", space->GetType(), space->Ptr(), space->GetName());
+                LOGI(" %2d  [0x0, 0x0)  0x%" PRIx64 "  %s\n", space->GetType(), space->Ptr(), space->GetName());
             }
         }
     }

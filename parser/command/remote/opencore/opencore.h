@@ -27,17 +27,21 @@
 
 #define NONE_MACHINE    "NONE"
 #define X86_64_MACHINE  "x86_64"
+#define I386_MACHINE    "i386"
+#define I686_MACHINE    "i686"
 #define X86_MACHINE     "x86"
 #define ARM64_MACHINE   "arm64"
 #define AARCH64_MACHINE "aarch64"
 #define ARM_MACHINE     "arm"
+#define ARMV7L_MACHINE  "armv7l"
+#define ARMV8L_MACHINE  "v8l"
 
 #define ELFCOREMAGIC "CORE"
 #define NOTE_CORE_NAME_SZ 5
 #define ELFLINUXMAGIC "LINUX"
 #define NOTE_LINUX_NAME_SZ 6
 
-#define GENMASK_UL(h, l) (((~0UL) << (l)) & (~0UL >> (64 - 1 - (h))))
+#define GENMASK_UL(h, l) (((~0ULL) << (l)) & (~0ULL >> (64 - 1 - (h))))
 
 class Opencore {
 public:
@@ -112,8 +116,8 @@ protected:
     std::vector<int> pids;
     std::vector<VirtualMemoryArea> maps;
     uint8_t* zero;
-    uint64_t align_size;
-    uint64_t page_size;
+    uint32_t align_size;
+    uint32_t page_size;
 private:
     std::string dir;
     int flag;

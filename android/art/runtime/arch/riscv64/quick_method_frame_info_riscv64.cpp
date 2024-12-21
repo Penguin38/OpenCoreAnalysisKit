@@ -61,7 +61,7 @@ void Riscv64QuickMethodFrameInfo::DumpCoreSpill(const char* prefix, uint64_t sp,
             if (!(num % 4))
                 LOGI("%s    ", prefix);
 
-            LOGI("%s = 0x%016lx", XRegisterName(static_cast<XRegister>(index)), fp.value64Of(num * 8));
+            LOGI("%s = 0x%016" PRIx64 "", XRegisterName(static_cast<XRegister>(index)), fp.value64Of(num * 8));
             if (num < regs_size - 1) {
                 LOGI("    ");
             }

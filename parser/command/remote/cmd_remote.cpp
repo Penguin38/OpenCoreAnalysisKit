@@ -107,10 +107,10 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     int count = RoundUp((end - begin) / 8, 2);
     if (begin >= end || !count) {
         std::string ascii = Utils::ConvertAscii(*value, 8);
-        LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %s\n", begin, (*value), ascii.c_str());
+        LOGI(ANSI_COLOR_CYAN "%" PRIx64 "" ANSI_COLOR_RESET ": %016" PRIx64 "  %s\n", begin, (*value), ascii.c_str());
     } else {
         for (int i = 0; i < count && i < 512; i += 2) {
-            LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
+            LOGI(ANSI_COLOR_CYAN "%" PRIx64 "" ANSI_COLOR_RESET ": %016" PRIx64 "  %016" PRIx64 "  %s%s\n", (begin + i * 8), value[i], value[i + 1],
                     Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
         }
     }
@@ -173,7 +173,7 @@ void RemoteCommand::Write(int pid, uint64_t vaddr, void *buf, uint64_t size) {
     }
 
     if (pwrite64(fd, buf, size, vaddr) < 0)
-        LOGE("write %lx fail.\n", vaddr);
+        LOGE("write %" PRIx64 " fail.\n", vaddr);
 
     close(fd);
 }
@@ -188,7 +188,7 @@ bool RemoteCommand::Read(int pid, uint64_t vaddr, uint64_t size, uint8_t* buf) {
     }
 
     if (pread64(fd, buf, size, vaddr) < 0) {
-        LOGE("read %lx fail.\n", vaddr);
+        LOGE("read %" PRIx64 " fail.\n", vaddr);
         close(fd);
         return false;
     }
@@ -254,7 +254,7 @@ int RemoteCommand::OptionMaps(int argc, char* const argv[]) {
     Opencore::ParseMaps(pid, maps);
 
     for (const auto& vma : maps) {
-        LOGI("%016lx-%016lx  %c%c%c%c  %08x  %02x:%02x  %lu  %s\n",
+        LOGI("%016" PRIx64 "-%016" PRIx64 "  %c%c%c%c  %08x  %02x:%02x  %" PRIu64 "  %s\n",
             vma.begin, vma.end, vma.flags[0], vma.flags[1], vma.flags[2], vma.flags[3],
             vma.offset, vma.major, vma.minor, vma.inode, vma.file.c_str());
     }

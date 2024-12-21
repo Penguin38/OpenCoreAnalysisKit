@@ -109,7 +109,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
                 if (obj.IsNonLargeValid()) {
                     visitor(obj);
                 } else if (check) {
-                    LOGE("0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
+                    LOGE("0x%" PRIx64 " is bad object on [0x%" PRIx64 ", 0x%" PRIx64 ").\n", obj.Ptr(), visit_begin, visit_end);
                 }
                 left_edge ^= ((static_cast<uint64_t>(1)) << shift);
             } while (left_edge != 0);
@@ -127,7 +127,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
                     if (obj.IsNonLargeValid()) {
                         visitor(obj);
                     } else if (check) {
-                        LOGE("0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
+                        LOGE("0x%" PRIx64 " is bad object on [0x%" PRIx64 ", 0x%" PRIx64 ").\n", obj.Ptr(), visit_begin, visit_end);
                     }
                     w ^= (static_cast<uint64_t>(1)) << shift;
                 } while (w != 0);
@@ -158,7 +158,7 @@ void ContinuousSpaceBitmap::VisitMarkedRange(uint64_t visit_begin, uint64_t visi
             if (obj.IsNonLargeValid()) {
                 visitor(obj);
             } else if (check) {
-                LOGE("0x%lx is bad object on [0x%lx, 0x%lx).\n", obj.Ptr(), visit_begin, visit_end);
+                LOGE("0x%" PRIx64 " is bad object on [0x%" PRIx64 ", 0x%" PRIx64 ").\n", obj.Ptr(), visit_begin, visit_end);
             }
             right_edge ^= (static_cast<uint64_t>(1)) << shift;
         } while (right_edge != 0);

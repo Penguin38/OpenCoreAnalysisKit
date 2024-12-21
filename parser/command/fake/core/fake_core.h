@@ -121,8 +121,8 @@ public:
 protected:
     uint64_t current_offset;
     int extra_note_filesz;
-    uint64_t align_size;
-    uint64_t page_size;
+    uint32_t align_size;
+    uint32_t page_size;
     int va_bits;
 private:
     std::unique_ptr<FakeCore::Stream> stream;

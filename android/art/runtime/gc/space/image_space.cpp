@@ -43,7 +43,7 @@ void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool
             pos = GetNextObject(object);
         } else {
             pos = object.NextValidOffset(top);
-            if (check && pos < top) LOGE("Region:[0x%lx, 0x%lx) %s has bad object!!\n", object.Ptr(), pos, GetName());
+            if (check && pos < top) LOGE("Region:[0x%" PRIx64 ", 0x%" PRIx64 ") %s has bad object!!\n", object.Ptr(), pos, GetName());
         }
     }
 }

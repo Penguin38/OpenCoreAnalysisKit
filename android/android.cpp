@@ -560,7 +560,7 @@ void Android::SysRoot(const char* path) {
             } else {
                 ZipFile zip;
                 if (zip.open(filepath.c_str())) {
-                    LOGE("Zip open fail [%lx]" ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, block->vaddr(), filepath.c_str());
+                    LOGE("Zip open fail [%" PRIx64 "]" ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, block->vaddr(), filepath.c_str());
                     continue;
                 }
 
@@ -577,14 +577,14 @@ void Android::SysRoot(const char* path) {
                 }
 
                 if (!entry->IsUncompressed()) {
-                    LOGE("Not support compress zip [%lx] %s!%s\n", block->vaddr(), filepath.c_str(), sub_file ? sub_file : "classes.dex");
+                    LOGE("Not support compress zip [%" PRIx64 "] %s!%s\n", block->vaddr(), filepath.c_str(), sub_file ? sub_file : "classes.dex");
                     continue;
                 }
 
                 block->setMmapFile(filepath.c_str(), RoundDown(entry->getFileOffset(), CoreApi::GetPageSize()));
             }
         } else {
-            LOGE("Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
+            LOGE("Unknown DexCache(0x%" PRIx64 ") %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
         }
     }
 }

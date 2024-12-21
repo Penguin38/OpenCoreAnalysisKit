@@ -41,7 +41,7 @@ bool Hook::InjectLibrary(const char* library) {
     uint64_t dlopen_load = CoreApi::DlSym("dlopen");
     if (!dlopen_load)
         return false;
-    LOGI("arm: hook found \"dlopen\" address: 0x%lx\n", dlopen_load);
+    LOGI("arm: hook found \"dlopen\" address: 0x%" PRIx64 "\n", dlopen_load);
 
     std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
     opencore->StopTheWorld(Pid());

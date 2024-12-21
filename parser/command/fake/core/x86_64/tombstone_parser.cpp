@@ -34,17 +34,17 @@ bool TombstoneParser::parse() {
                parseMaps();
 
     LOGI("Tid: %d\n", mCrashTid);
-    LOGI("rax 0x%016lx  rbx 0x%016lx  rcx 0x%016lx  rdx 0x%016lx  \n", regs.rax, regs.rbx, regs.rcx, regs.rdx);
-    LOGI("r8  0x%016lx  r9  0x%016lx  r10 0x%016lx  r11 0x%016lx  \n", regs.r8, regs.r9, regs.r10, regs.r11);
-    LOGI("r12 0x%016lx  r13 0x%016lx  r14 0x%016lx  r15 0x%016lx  \n", regs.r12, regs.r13, regs.r14, regs.r15);
-    LOGI("rdi 0x%016lx  rsi 0x%016lx  \n", regs.rdi, regs.rsi);
-    LOGI("rbp 0x%016lx  rsp 0x%016lx  rip 0x%016lx  \n", regs.rbp, regs.rsp, regs.rip);
+    LOGI("rax 0x%016" PRIx64 "  rbx 0x%016" PRIx64 "  rcx 0x%016" PRIx64 "  rdx 0x%016" PRIx64 "  \n", regs.rax, regs.rbx, regs.rcx, regs.rdx);
+    LOGI("r8  0x%016" PRIx64 "  r9  0x%016" PRIx64 "  r10 0x%016" PRIx64 "  r11 0x%016" PRIx64 "  \n", regs.r8, regs.r9, regs.r10, regs.r11);
+    LOGI("r12 0x%016" PRIx64 "  r13 0x%016" PRIx64 "  r14 0x%016" PRIx64 "  r15 0x%016" PRIx64 "  \n", regs.r12, regs.r13, regs.r14, regs.r15);
+    LOGI("rdi 0x%016" PRIx64 "  rsi 0x%016" PRIx64 "  \n", regs.rdi, regs.rsi);
+    LOGI("rbp 0x%016" PRIx64 "  rsp 0x%016" PRIx64 "  rip 0x%016" PRIx64 "  \n", regs.rbp, regs.rsp, regs.rip);
 
     for (const auto& lib : mLibs)
         LOGI("%s\n", lib.c_str());
 
     for (const auto& vma : mMaps)
-        LOGD("[%lx, %lx) %s\n", vma.begin, vma.end, vma.file.c_str());
+        LOGD("[%" PRIx64 ", %" PRIx64 ") %s\n", vma.begin, vma.end, vma.file.c_str());
 
     return ret;
 }
@@ -62,21 +62,21 @@ bool TombstoneParser::parseTid() {
 bool TombstoneParser::parseRegister() {
     LOGD("%s ...\n", __func__);
     while (fgets(kLine, sizeof(kLine), mFp)) {
-        if (!sscanf(kLine, " rax %lx rbx %lx rcx %lx rdx %lx",
+        if (!sscanf(kLine, " rax %" PRIx64 " rbx %" PRIx64 " rcx %" PRIx64 " rdx %" PRIx64 "",
                     &regs.rax, &regs.rbx, &regs.rcx, &regs.rdx))
             continue;
 
         fgets(kLine, sizeof(kLine), mFp);
-        sscanf(kLine, " r8 %lx r9 %lx r10 %lx r11 %lx", &regs.r8, &regs.r9, &regs.r10, &regs.r11);
+        sscanf(kLine, " r8 %" PRIx64 " r9 %" PRIx64 " r10 %" PRIx64 " r11 %" PRIx64 "", &regs.r8, &regs.r9, &regs.r10, &regs.r11);
 
         fgets(kLine, sizeof(kLine), mFp);
-        sscanf(kLine, " r12 %lx r13 %lx r14 %lx r15 %lx", &regs.r12, &regs.r13, &regs.r14, &regs.r15);
+        sscanf(kLine, " r12 %" PRIx64 " r13 %" PRIx64 " r14 %" PRIx64 " r15 %" PRIx64 "", &regs.r12, &regs.r13, &regs.r14, &regs.r15);
 
         fgets(kLine, sizeof(kLine), mFp);
-        sscanf(kLine, " rdi %lx rsi %lx", &regs.rdi, &regs.rsi);
+        sscanf(kLine, " rdi %" PRIx64 " rsi %" PRIx64 "", &regs.rdi, &regs.rsi);
 
         fgets(kLine, sizeof(kLine), mFp);
-        sscanf(kLine, " rbp %lx rsp %lx rip %lx", &regs.rbp, &regs.rsp, &regs.rip);
+        sscanf(kLine, " rbp %" PRIx64 " rsp %" PRIx64 " rip %" PRIx64 "", &regs.rbp, &regs.rsp, &regs.rip);
 
         return true;
     }
@@ -96,7 +96,7 @@ bool TombstoneParser::parseBacktrace() {
             if (!strcmp(kLine, "\n"))
                 return true;
 
-            sscanf(kLine, "      #%*d pc %*lx  %s %1023[^\n] %n", filename, buildid, &m);
+            sscanf(kLine, "      #%*d pc %*" PRIx64 "  %s %1023[^\n] %n", filename, buildid, &m);
 
             if (strlen(filename) && filename[0] == '/') {
                 std::string libname_append_buildid = filename;
@@ -130,7 +130,7 @@ bool TombstoneParser::parseMemory() {
             if (!strcmp(kLine, "\n"))
                 break;
 
-            if (sscanf(kLine, "    %lx %lx %lx", &addr, &value1, &value2)) {
+            if (sscanf(kLine, "    %" PRIx64 " %" PRIx64 " %" PRIx64 "", &addr, &value1, &value2)) {
                 mMemorys.insert({addr, value1});
                 mMemorys.insert({addr + 8, value2});
             }
@@ -167,13 +167,13 @@ bool TombstoneParser::parseMaps() {
             char filename[256] = {'\0'};
 
             if (!strncmp(kLine, "--->", 4)) {
-                if (!sscanf(kLine, "--->%lx\'%lx-%*17c %c%c%c %x %lx %255[^\n] %n",
+                if (!sscanf(kLine, "--->%" PRIx64 "\'%" PRIx64 "-%*17c %c%c%c %x %" PRIx64 " %255[^\n] %n",
                             &high, &low,
                             &vma.flags[0], &vma.flags[1], &vma.flags[2],
                             &vma.offset, &memsz, filename, &m))
                     continue;
             } else {
-                if (!sscanf(kLine, "%lx\'%lx-%*17c %c%c%c %x %lx %255[^\n] %n",
+                if (!sscanf(kLine, "%" PRIx64 "\'%" PRIx64 "-%*17c %c%c%c %x %" PRIx64 " %255[^\n] %n",
                             &high, &low,
                             &vma.flags[0], &vma.flags[1], &vma.flags[2],
                             &vma.offset, &memsz, filename, &m))

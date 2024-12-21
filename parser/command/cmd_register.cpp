@@ -69,7 +69,7 @@ int RegisterCommand::main(int argc, char* const argv[]) {
             thread->RegisterSet(command);
             break;
         case REGS_GET:
-            LOGI("0x%lx\n", thread->RegisterGet(command));
+            LOGI("0x%" PRIx64 "\n", thread->RegisterGet(command));
             break;
     }
     return 0;

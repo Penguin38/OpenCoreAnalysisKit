@@ -114,7 +114,7 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
     art::mirror::Class thiz = object;
     if (dump_all) {
         total_classes++;
-        LOGI("[%ld] " ANSI_COLOR_LIGHTYELLOW "0x%lx" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
+        LOGI("[%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 total_classes, thiz.Ptr(), thiz.PrettyDescriptor().c_str());
     } else if (thiz.PrettyDescriptor() == classname) {
         PrintPrettyClassContent(thiz);
@@ -124,7 +124,7 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
 }
 
 void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
-    LOGI(ANSI_COLOR_LIGHTYELLOW "[0x%lx]\n" ANSI_COLOR_RESET, clazz.Ptr());
+    LOGI(ANSI_COLOR_LIGHTYELLOW "[0x%" PRIx64 "]\n" ANSI_COLOR_RESET, clazz.Ptr());
     art::mirror::Class super = clazz.GetSuperClass();
     art::mirror::IfTable& iftable = clazz.GetIfTable();
     int32_t ifcount = iftable.Count();
@@ -207,7 +207,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
         needEnd = true;
     }
     auto print_method = [](art::ArtMethod& method) -> bool {
-        LOGI("    [0x%lx] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
+        LOGI("    [0x%" PRIx64 "] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
                 method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
         return false;
     };

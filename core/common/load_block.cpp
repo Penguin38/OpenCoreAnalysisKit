@@ -35,7 +35,7 @@ void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
                 map = std::move(anon);
             }
         }
-        LOGI("Mmap segment [%lx, %lx) %s [%lx]\n", vaddr(), vaddr() + size(), file, offset);
+        LOGI("Mmap segment [%" PRIx64 ", %" PRIx64 ") %s [%" PRIx64 "]\n", vaddr(), vaddr() + size(), file, offset);
         if (isFake() || isOverlayBlock())
             memcpy(reinterpret_cast<uint64_t *>(mOverlay->data()),
                    reinterpret_cast<uint64_t *>(map->data()),
@@ -57,7 +57,7 @@ bool LoadBlock::newOverlay() {
         }
         if (map) {
             mOverlay = std::move(map);
-            LOGI("New overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
+            LOGI("New overlay [%" PRIx64 ", %" PRIx64 ")\n", vaddr(), vaddr() + size());
         }
     }
     return mOverlay != 0x0;
@@ -72,7 +72,7 @@ void LoadBlock::setOverlay(uint64_t addr, void *buf, uint64_t size) {
 
 void LoadBlock::removeMmap() {
     if (mMmap) {
-        LOGI("Remove mmap [%lx, %lx) %s\n", vaddr(), vaddr() + size(), name().c_str());
+        LOGI("Remove mmap [%" PRIx64 ", %" PRIx64 ") %s\n", vaddr(), vaddr() + size(), name().c_str());
         mSymbols.clear();
         mMmap.reset();
     }
@@ -81,7 +81,7 @@ void LoadBlock::removeMmap() {
 void LoadBlock::removeOverlay() {
     if (mOverlay) {
         if (!isFake()) {
-            LOGI("Remove overlay [%lx, %lx)\n", vaddr(), vaddr() + size());
+            LOGI("Remove overlay [%" PRIx64 ", %" PRIx64 ")\n", vaddr(), vaddr() + size());
             mOverlay.reset();
         } else {
             LOGE("Can't remove fake load\n");

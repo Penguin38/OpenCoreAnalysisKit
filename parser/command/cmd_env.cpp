@@ -183,39 +183,39 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
 
     LOGI("  * LIB: " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET, Android::GetRealLibart().c_str());
     LOGI("  * art::OatHeader::kOatVersion: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, Android::Oat());
-    LOGI("  * art::Runtime: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.Ptr());
+    LOGI("  * art::Runtime: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.Ptr());
     if (art::Runtime::Origin() != runtime.Ptr())
-        LOGI("  * art::Runtime::instance_: " ANSI_COLOR_LIGHTRED "0x%lx\n" ANSI_COLOR_RESET, art::Runtime::Origin().Ptr());
+        LOGI("  * art::Runtime::instance_: " ANSI_COLOR_LIGHTRED "0x%" PRIx64 "\n" ANSI_COLOR_RESET, art::Runtime::Origin().Ptr());
 
     if (!runtime.Ptr())
         return 0;
 
-    LOGI("  * art::gc::Heap: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetHeap().Ptr());
+    LOGI("  * art::gc::Heap: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().Ptr());
     if (runtime.GetHeap().Ptr()) {
-        LOGI("  *     continuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetHeap().GetContinuousSpacesCache().Ptr());
-        LOGI("  *     discontinuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetHeap().GetDiscontinuousSpacesCache().Ptr());
+        LOGI("  *     continuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().GetContinuousSpacesCache().Ptr());
+        LOGI("  *     discontinuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().GetDiscontinuousSpacesCache().Ptr());
     }
-    LOGI("  * art::MonitorPool: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetMonitorPool().Ptr());
-    LOGI("  * art::ThreadList: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetThreadList().Ptr());
+    LOGI("  * art::MonitorPool: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetMonitorPool().Ptr());
+    LOGI("  * art::ThreadList: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetThreadList().Ptr());
     if (runtime.GetThreadList().Ptr()) {
-        LOGI("  *     list_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetThreadList().GetListCache().Ptr());
+        LOGI("  *     list_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetThreadList().GetListCache().Ptr());
     }
-    LOGI("  * art::ClassLinker: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetClassLinker().Ptr());
+    LOGI("  * art::ClassLinker: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().Ptr());
     if (runtime.GetClassLinker().Ptr()) {
         if (Android::Sdk() < Android::T) {
-            LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData().Ptr());
+            LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData().Ptr());
         } else {
-            LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData_v33().Ptr());
+            LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData_v33().Ptr());
         }
     }
-    LOGI("  * art::JavaVMExt: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetJavaVM().Ptr());
+    LOGI("  * art::JavaVMExt: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().Ptr());
     if (runtime.GetJavaVM().Ptr()) {
-        LOGI("  *     globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetGlobalsTable().Ptr());
-        LOGI("  *     weak_globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetWeakGlobalsTable().Ptr());
+        LOGI("  *     globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetGlobalsTable().Ptr());
+        LOGI("  *     weak_globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetWeakGlobalsTable().Ptr());
     }
-    LOGI("  * art::jit::Jit: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetJit().Ptr());
+    LOGI("  * art::jit::Jit: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJit().Ptr());
     if (runtime.GetJit().Ptr()) {
-        LOGI("  *     code_cache_: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, runtime.GetJit().GetCodeCache().Ptr());
+        LOGI("  *     code_cache_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJit().GetCodeCache().Ptr());
     }
     return 0;
 }
@@ -259,7 +259,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     if (crc) {
         clocLoadCRC32(num);
     } else {
-        LOGI("  * r_debug: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, CoreApi::GetDebugPtr());
+        LOGI("  * r_debug: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, CoreApi::GetDebugPtr());
         LOGI("  * arm mode: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, !capstone::Disassember::GetArmMode() ? "arm" : "thumb");
         LOGI("  * mNote: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetNotes().size());
         LOGI("  * mLoad: " ANSI_COLOR_LIGHTMAGENTA "%ld\n" ANSI_COLOR_RESET, CoreApi::GetLoads(false).size());
@@ -284,7 +284,7 @@ int EnvCommand::showLoadEnv(bool quick) {
         } else {
             name.append("[]");
         }
-        LOGI("  %-5d " ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %s  %010lx  ""%s"" %s\n",
+        LOGI("  %-5d " ANSI_COLOR_CYAN "[%" PRIx64 ", %" PRIx64 ")" ANSI_COLOR_RESET "  %s  %010" PRIx64 "  ""%s"" %s\n",
                 index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
                 block->realSize(), name.c_str(), block->convertValids().c_str());
         return false;
@@ -301,7 +301,7 @@ int EnvCommand::showNoteEnv() {
     int index = 0;
     LOGI(ANSI_COLOR_LIGHTRED "INDEX   OFFSET        FILESZ\n" ANSI_COLOR_RESET);
     for (const auto& note : CoreApi::GetNotes()) {
-        LOGI("  %-5d 0x%08lx    0x%08lx [*]%s\n", index,
+        LOGI("  %-5d 0x%08" PRIx64 "    0x%08" PRIx64 " [*]%s\n", index,
                 note->offset(), note->realSize(), note->isOverlayBlock()? "(OVERLAY)" : "");
         ++index;
     }
@@ -351,7 +351,7 @@ int EnvCommand::clocLoadCRC32(int num) {
 
                 if (!first) { ENTER(); }
                 first = false;
-                LOGI("%-5d " ANSI_COLOR_CYAN "[%lx, %lx)" ANSI_COLOR_RESET "  %s  %010lx  ""%s""\n",
+                LOGI("%-5d " ANSI_COLOR_CYAN "[%" PRIx64 ", %" PRIx64 ")" ANSI_COLOR_RESET "  %s  %010" PRIx64 "  ""%s""\n",
                         index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
                         block->realSize(), name.c_str());
 
@@ -377,7 +377,7 @@ int EnvCommand::clocLoadCRC32(int num) {
                             if (symbol.IsValid()) LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ":\n", symbol.GetSymbol().c_str());
                         }
                     }
-                    LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %016lx  %s%s  |  %016lx  %016lx  %s%s\n",
+                    LOGI(ANSI_COLOR_CYAN "%" PRIx64 "" ANSI_COLOR_RESET ": %016" PRIx64 "  %016" PRIx64 "  %s%s  |  %016" PRIx64 "  %016" PRIx64 "  %s%s\n",
                             current, orv1, orv2,
                             Utils::ConvertAscii(orv1, 8).c_str(), Utils::ConvertAscii(orv2, 8).c_str(),
                             mmv1, mmv2,

@@ -233,7 +233,7 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
         // continue mmap
         if (mem_size > block->size()) {
-            LOGW("Mmap segment [%lx, %lx) size %lx != %x, maybe reset range!\n",
+            LOGW("Mmap segment [%" PRIx64 ", %" PRIx64 ") size %" PRIx64 " != %x, maybe reset range!\n",
                     block->vaddr(), block->vaddr() + block->size(), block->size(), mem_size);
 
             uint32_t cur_size = block->size();

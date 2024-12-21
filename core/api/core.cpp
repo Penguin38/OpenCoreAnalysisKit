@@ -18,10 +18,10 @@
 #include "api/core.h"
 #include "api/elf.h"
 #include "arm64/core.h"
-#include "arm/core.h"
 #include "riscv64/core.h"
 #include "x86_64/core.h"
 #include "x86/core.h"
+#include "arm/core.h"
 #include "common/bit.h"
 #include "common/elf.h"
 #include "common/exception.h"
@@ -69,16 +69,18 @@ bool CoreApi::Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<v
 
         switch(header->machine) {
             case EM_AARCH64:
+#if defined(__LP64__)
                 INSTANCE = std::make_unique<arm64::Core>(map);
-                break;
-            case EM_ARM:
-                INSTANCE = std::make_unique<arm::Core>(map);
                 break;
             case EM_RISCV:
                 INSTANCE = std::make_unique<riscv64::Core>(map);
                 break;
             case EM_X86_64:
                 INSTANCE = std::make_unique<x86_64::Core>(map);
+                break;
+#endif // __LP64__
+            case EM_ARM:
+                INSTANCE = std::make_unique<arm::Core>(map);
                 break;
             case EM_386:
                 INSTANCE = std::make_unique<x86::Core>(map);
@@ -164,20 +166,20 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
     uint64_t size = RoundUp(old_size, ELF_PAGE_SIZE);
 
     if (!size) {
-        LOGE("Can not fake malloc size 0x%lx\n", size);
+        LOGE("Can not fake malloc size 0x%" PRIx64 "\n", size);
         return 0;
     }
 
     if (mLoad.empty()) {
         if (!begin) begin = FAKE_LOAD_BEGIN;
         if ((begin + size) > getVabitsMask()) {
-            LOGE("Can not fake malloc size 0x%lx\n", size);
+            LOGE("Can not fake malloc size 0x%" PRIx64 "\n", size);
             return 0;
         }
     } else {
         LoadBlock* block = findLoadBlock(begin, false);
         if (block) {
-            LOGE("Can not fake malloc vaddr 0x%lx\n", begin);
+            LOGE("Can not fake malloc vaddr 0x%" PRIx64 "\n", begin);
             return 0;
         }
 
@@ -188,7 +190,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
                     if (idxInLoad == mLoad.size() - 1)
                         endaddr = getVabitsMask();
                     if ((begin + size) > endaddr) {
-                        LOGE("Can not fake malloc vaddr 0x%lx, size(0x%lx) bigger.\n", begin, size);
+                        LOGE("Can not fake malloc vaddr 0x%" PRIx64 ", size(0x%" PRIx64 ") bigger.\n", begin, size);
                         return 0;
                     }
                     break;
@@ -215,7 +217,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
                     }
                 }
                 if (!begin) {
-                    LOGE("Can not fake malloc size 0x%lx\n", size);
+                    LOGE("Can not fake malloc size 0x%" PRIx64 "\n", size);
                     return 0x0;
                 }
 
@@ -301,9 +303,9 @@ void CoreApi::Dump() {
     LOGI("  * Machine: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, GetMachineName());
     LOGI("  * Bits: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, Bits());
     LOGI("  * PointSize: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, GetPointSize());
-    LOGI("  * PointMask: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, GetPointMask());
-    LOGI("  * VabitsMask: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, GetVabitsMask());
-    LOGI("  * PageSize: " ANSI_COLOR_LIGHTMAGENTA "0x%lx\n" ANSI_COLOR_RESET, GetPageSize());
+    LOGI("  * PointMask: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, GetPointMask());
+    LOGI("  * VabitsMask: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, GetVabitsMask());
+    LOGI("  * PageSize: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, GetPageSize());
     LOGI("  * Remote: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, IsRemote()? "true" : "false");
 }
 

@@ -227,7 +227,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 uint64_t ret = fwrite(zero, align_size, 1, fp);
                 if (ret != 1) {
                     need_padd_zero = true;
-                    LOGE("[%lx] write load segment fail. %s %s\n",
+                    LOGE("[%" PRIx64 "] write load segment fail. %s %s\n",
                             (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[index].file.c_str());
                     break;
                 }
@@ -239,7 +239,7 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 for (int i = 0; i < count; i++) {
                     uint64_t ret = fwrite(zero, align_size, 1, fp);
                     if (ret != 1) {
-                        LOGE("[%lx] padding load segment fail. %s %s\n",
+                        LOGE("[%" PRIx64 "] padding load segment fail. %s %s\n",
                                 (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[index].file.c_str());
                     }
                 }

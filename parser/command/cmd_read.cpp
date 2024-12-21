@@ -84,7 +84,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
             if (!filepath) {
                 if (!dump_inst) {
                     std::string ascii = Utils::ConvertAscii(*value, 8);
-                    LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %s\n", begin, (*value), ascii.c_str());
+                    LOGI(ANSI_COLOR_CYAN "%" PRIx64 "" ANSI_COLOR_RESET ": %016" PRIx64 "  %s\n", begin, (*value), ascii.c_str());
                 } else {
                     capstone::Disassember::Option opt(begin, 1);
                     capstone::Disassember::Dump("", (uint8_t *)value, 8, begin, opt);
@@ -104,7 +104,7 @@ int ReadCommand::main(int argc, char* const argv[]) {
             if (!filepath) {
                 if (!dump_inst) {
                     for (int i = 0; i < count; i += 2) {
-                        LOGI(ANSI_COLOR_CYAN "%lx" ANSI_COLOR_RESET ": %016lx  %016lx  %s%s\n", (begin + i * 8), value[i], value[i + 1],
+                        LOGI(ANSI_COLOR_CYAN "%" PRIx64 "" ANSI_COLOR_RESET ": %016" PRIx64 "  %016" PRIx64 "  %s%s\n", (begin + i * 8), value[i], value[i + 1],
                                 Utils::ConvertAscii(value[i], 8).c_str(), Utils::ConvertAscii(value[i + 1], 8).c_str());
                     }
                 } else {

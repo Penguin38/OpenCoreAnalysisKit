@@ -128,11 +128,11 @@ void DexCommand::ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, a
             }
         }
 
-        LOGI("%3d " ANSI_COLOR_LIGHTYELLOW "0x%08lx" ANSI_COLOR_LIGHTCYAN "  [%lx, %lx)" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET " %s\n",
+        LOGI("%3d " ANSI_COLOR_LIGHTYELLOW "0x%08" PRIx64 "" ANSI_COLOR_LIGHTCYAN "  [%" PRIx64 ", %" PRIx64 ")" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET " %s\n",
                 pos, dex_cache.Ptr(), block->vaddr(), block->vaddr() + block->size(),
                 block->convertFlags().c_str(), name.c_str(), block->convertValids().c_str());
     } else {
-        LOGE("Unknown DexCache(0x%lx) %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
+        LOGE("Unknown DexCache(0x%" PRIx64 ") %s region\n", dex_cache.Ptr(), dex_cache.GetLocation().ToModifiedUtf8().c_str());
     }
 
 }

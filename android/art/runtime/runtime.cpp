@@ -302,7 +302,7 @@ Runtime& Runtime::Current() {
             if (memcmp(reinterpret_cast<void *>(callee_methods),
                         reinterpret_cast<void *>(runtime.Real()),
                         sizeof_callee_methods)) {
-                LOGW("'%s' = 0x%lx, but callee_save_methods_ not match image.\n",
+                LOGW("'%s' = 0x%" PRIx64 ", but callee_save_methods_ not match image.\n",
                         Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
                 runtime = AnalysisRuntime(callee_methods, sizeof_callee_methods);
             }
@@ -361,7 +361,7 @@ Runtime Runtime::AnalysisRuntime(uint64_t *callee_methods, uint32_t sizeof_calle
                 ArtMethod& resolution_method_ = runtime.GetResolutionMethod();
                 if (resolution_method_.Block() &&
                         resolution_method_.Block()->virtualContains(callee_methods[0])) {
-                    LOGI(">>> '%s' = 0x%lx\n", Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
+                    LOGI(">>> '%s' = 0x%" PRIx64 "\n", Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
                     return true;
                 }
             }

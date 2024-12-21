@@ -154,7 +154,7 @@ void MethodCommand::Dexdump() {
     if (item.Ptr()) {
         if (verbose) {
             LOGI("Location      : %s\n", dex_file.GetLocation().c_str());
-            LOGI("CodeItem      : 0x%lx\n", item.Ptr());
+            LOGI("CodeItem      : 0x%" PRIx64 "\n", item.Ptr());
             LOGI("Registers     : %d\n", item.num_regs_);
             LOGI("Ins           : %d\n", item.ins_size_);
             LOGI("Outs          : %d\n", item.out_regs_);
@@ -210,7 +210,7 @@ void MethodCommand::Oatdump() {
             LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
         }
         LOGI(ANSI_COLOR_RED "OAT CODE:\n" ANSI_COLOR_RESET);
-        LOGI("  [0x%lx, 0x%lx]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
+        LOGI("  [0x%" PRIx64 ", 0x%" PRIx64 "]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
         if (method_header.IsOptimized()) {
             capstone::Disassember::Option opt(method_header.GetCodeStart(), -1);
             if (CoreApi::GetMachine() == EM_ARM) {
@@ -224,7 +224,7 @@ void MethodCommand::Oatdump() {
             uint64_t code_size = 0;
             for (const auto& stack : submaps) {
                 capstone::Disassember::Dump("  ", start, stack.native_pc - code_size, opt);
-                LOGI("    GeneralStackMap[%lu] (NativePc=0x%lx DexPc=0x%lx)\n",
+                LOGI("    GeneralStackMap[%" PRIu64 "] (NativePc=0x%" PRIx64 " DexPc=0x%" PRIx64 ")\n",
                         subid++, stack.native_pc + method_header.GetCodeStart(),
                         item.Ptr() ? item.Ptr() + item.code_offset_ + 0x2 * stack.dex_pc : 0x0);
                 std::map<uint32_t, art::DexRegisterInfo> vregs;

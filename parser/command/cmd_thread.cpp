@@ -83,7 +83,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
             auto callback = [&](ThreadApi *api) -> bool {
                 uint64_t frame_pc = api->GetFramePC();
                 File* file = CoreApi::FindFile(frame_pc);
-                LOGI("%s%-4d   Thread " ANSI_COLOR_YELLOW "%-10d " ANSI_COLOR_CYAN "0x%lx  " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET,
+                LOGI("%s%-4d   Thread " ANSI_COLOR_YELLOW "%-10d " ANSI_COLOR_CYAN "0x%" PRIx64 "  " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET,
                         api->pid() == Env::CurrentPid() ? "*" : " ",
                         index, api->pid(), frame_pc, file? file->name().c_str() : "");
                 ++index;
@@ -108,7 +108,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
                 int tid = thread->GetTid();
                 auto it = std::find(threads.begin(), threads.end(), tid);
                 LOGI("%s%-4d " ANSI_COLOR_LIGHTYELLOW "%-6d " ANSI_COLOR_LIGHTCYAN "%-31s "
-                               ANSI_COLOR_RESET ANSI_COLOR_LIGHTMAGENTA "0x%-16lx" ANSI_COLOR_RESET
+                               ANSI_COLOR_RESET ANSI_COLOR_LIGHTMAGENTA "0x%-16" PRIx64 "" ANSI_COLOR_RESET
                                "   \"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" %s\n",
                         tid == Env::CurrentPid() ? "*" : " ",
                         thread->GetThreadId(), tid, thread->GetStateDescriptor(), thread->Ptr(),

@@ -216,8 +216,8 @@ bool OatQuickMethodHeader::HasNterpImpl() {
 }
 
 void OatQuickMethodHeader::Dump(const char* prefix) {
-    LOGI("%sOatQuickMethodHeader(0x%lx)\n", prefix, Ptr());
-    LOGI("%s  code_offset: 0x%lx\n", prefix, GetCodeStart());
+    LOGI("%sOatQuickMethodHeader(0x%" PRIx64 ")\n", prefix, Ptr());
+    LOGI("%s  code_offset: 0x%" PRIx64 "\n", prefix, GetCodeStart());
     LOGI("%s  code_size: 0x%x\n", prefix, GetCodeSize());
     if (OatHeader::OatVersion() < 192) {
         LOGI("%s  vmap_table_offset: 0x%x\n", prefix, vmap_table_offset());

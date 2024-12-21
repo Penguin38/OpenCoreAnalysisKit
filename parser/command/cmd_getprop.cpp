@@ -24,7 +24,7 @@
 void GetPropCommand::printProperties() {
     auto callback = [](android::PropInfo& info) {
         if (info.Ptr()) {
-            LOGD("[%lx]", info.Ptr());
+            LOGD("[%" PRIx64 "]", info.Ptr());
             LOGI("[%s]: [%s]\n", info.name(), info.value());
         }
     };

@@ -84,11 +84,11 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
         } else {
             name = map->name();
         }
-        LOGI("%3d " ANSI_COLOR_YELLOW "0x%lx" ANSI_COLOR_CYAN "  [%lx, %lx)" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
+        LOGI("%3d " ANSI_COLOR_YELLOW "0x%l" PRIx64 "" ANSI_COLOR_CYAN "  [%l" PRIx64 ", %l" PRIx64 ")" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
                 pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
                 block->convertFlags().c_str(), name.c_str(), block->convertValids().c_str());
     } else {
-        LOGW("%3d 0x%lx  [%lx, ----)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->name());
+        LOGW("%3d 0x%l" PRIx64 "  [%l" PRIx64 ", ----)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->name());
     }
 }
 
@@ -97,7 +97,7 @@ void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
         uint64_t offset = entry.offset;
         if (CoreApi::GetMachine() == EM_ARM)
             offset &= (CoreApi::GetPointMask() - 1);
-        LOGI(ANSI_COLOR_CYAN "%016lx" ANSI_COLOR_RESET "  %016lx  %016lx  " ANSI_COLOR_YELLOW "%s\n" ANSI_COLOR_RESET,
+        LOGI(ANSI_COLOR_CYAN "%016l" PRIx64 "" ANSI_COLOR_RESET "  %016l" PRIx64 "  %016l" PRIx64 "  " ANSI_COLOR_YELLOW "%s\n" ANSI_COLOR_RESET,
                 map->l_addr() + offset, entry.size, entry.type, entry.symbol.c_str());
     }
 }

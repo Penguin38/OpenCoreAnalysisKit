@@ -199,7 +199,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         total_native += pair.native_size;
     }
 
-    LOGI("TOTAL            " ANSI_COLOR_LIGHTMAGENTA "%8ld      " ANSI_COLOR_LIGHTBLUE "%11ld       " ANSI_COLOR_LIGHTGREEN "%11ld\n" ANSI_COLOR_RESET,
+    LOGI("TOTAL            " ANSI_COLOR_LIGHTMAGENTA "%8" PRId64 "      " ANSI_COLOR_LIGHTBLUE "%11" PRId64 "       " ANSI_COLOR_LIGHTGREEN "%11" PRId64 "\n" ANSI_COLOR_RESET,
          total_count, total_shallow, total_native);
     LOGI("------------------------------------------------------------\n");
 
@@ -233,7 +233,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         if (!cur_max_thiz.Ptr())
             break;
 
-        LOGI(ANSI_COLOR_LIGHTYELLOW "0x%08lx" ANSI_COLOR_RESET "       " "%8ld      " "%11ld       " "%11ld     " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
+        LOGI(ANSI_COLOR_LIGHTYELLOW "0x%08" PRIx64 "" ANSI_COLOR_RESET "       " "%8" PRId64 "      " "%11" PRId64 "       " "%11" PRId64 "     " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
              cur_max_thiz.Ptr(), cur_max_pair.alloc_count,
              cur_max_pair.shallow_size, cur_max_pair.native_size,
              show ? cur_max_thiz.PrettyDescriptor().c_str() : "");
