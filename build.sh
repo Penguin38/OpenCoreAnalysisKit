@@ -13,6 +13,7 @@
 # limitations under the License.
 
 #export ANDROID_NDK_HOME=""
+#export BUILD_TYPE="Release"
 export BUILD_ANDROID_ABIS="arm64-v8a x86_64"
 export SUPPORT_CLANG_VERSIONS="10 11 12 13 14 15 16 17 18"
 for COMPILER_CLANG_VERSION in $SUPPORT_CLANG_VERSIONS
@@ -23,8 +24,9 @@ export BUILD_HOST_C_COMPILER="clang-$COMPILER_CLANG_VERSION"
 export BUILD_HOST_CXX_COMPILER="clang++-$COMPILER_CLANG_VERSION"
 fi
 done
-#export BUILD_TYPE="Release"
-export BUILD_TYPE="Debug"
+if [ -z $BUILD_TYPE ];then
+    export BUILD_TYPE="Debug"
+fi
 export BUILD_PRODUCT="aosp"
 export BUILD_TARGET_PAGESIZE_4K="4K"
 export BUILD_TARGET_PAGESIZE_16K="16K"
