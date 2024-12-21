@@ -135,8 +135,8 @@ void SerializedData::DecodeDump(int filter, int id) {
         strftime(s, sizeof(s), "%Y-%m-%d %H:%M:%S", &tm);
         time.append(s);
         time.append(".");
-        char value[4];
-        sprintf(value, "%03d", ms);
+        char value[8];
+        snprintf(value, sizeof(value), "%03d", ms);
         time.append(value);
 
         std::vector<char *> logs;

@@ -30,7 +30,9 @@ jobs:
         bash ./build_macos.sh
         tar -czvf core-parser_1.0.4.tar.gz output/aosp/release/macos/bin/core-parser \
                                            output/aosp/release/android/arm64-v8a/bin/core-parser \
-                                           output/aosp/release/android/x86_64/bin/core-parser
+                                           output/aosp/release/android/x86_64/bin/core-parser \
+                                           output/aosp/release/android/armeabi-v7a/bin/core-parser \
+                                           output/aosp/release/android/x86/bin/core-parser
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3

@@ -225,9 +225,9 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix,
             sb.append(std::to_string(vreg.first));
             sb.append(" = ");
 
-            char valuehex[11];
+            char valuehex[16];
             if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kConstant)) {
-                sprintf(valuehex, "0x%08x", value);
+                snprintf(valuehex, sizeof(valuehex), "0x%08x", value);
                 sb.append(valuehex);
             } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInRegister)) {
                 sb.append(art::QuickFrame::RegisterDesc(value, true));
@@ -244,7 +244,7 @@ void FrameCommand::ShowJavaFrameRegister(const char* prefix,
             } else if (kind == static_cast<uint32_t>(art::DexRegisterInfo::Kind::kInStack)) {
                 value *= art::kFrameSlotSize;
                 if (frame.Ptr()) {
-                    sprintf(valuehex, "0x%08x", frame.value32Of(value));
+                    snprintf(valuehex, sizeof(valuehex), "0x%08x", frame.value32Of(value));
                     sb.append(valuehex);
                 } else {
                     sb.append("[sp+#");
