@@ -352,14 +352,14 @@ std::string BacktraceCommand::FormatJavaFrame(const char* prefix, uint64_t size)
     } while(current != 0);
     format.append(std::to_string(num));
     format.append("d  ");
-    format.append(ANSI_COLOR_LIGHTCYAN);
+    format.append(Logger::LightCyan());
     format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
     format.append("lx  ");
-    format.append(ANSI_COLOR_LIGHTYELLOW);
+    format.append(Logger::LightYellow());
     format.append("%s\n");
-    format.append(ANSI_COLOR_RESET);
+    format.append(Logger::End());
     return format;
 }
 
@@ -375,14 +375,14 @@ std::string BacktraceCommand::FormatJNINativeFrame(const char* prefix, uint64_t 
     } while(current != 0);
     format.append(std::to_string(num));
     format.append("d  ");
-    format.append(ANSI_COLOR_CYAN);
+    format.append(Logger::Cyan());
     format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
     format.append("lx  ");
-    format.append(ANSI_COLOR_YELLOW);
+    format.append(Logger::Yellow());
     format.append("%s\n");
-    format.append(ANSI_COLOR_RESET);
+    format.append(Logger::End());
     return format;
 }
 
@@ -398,14 +398,14 @@ std::string BacktraceCommand::FormatNativeFrame(const char* prefix, uint64_t siz
     } while(current != 0);
     format.append(std::to_string(num));
     format.append("d  ");
-    format.append(ANSI_COLOR_CYAN);
+    format.append(Logger::Cyan());
     format.append("%0");
     num = CoreApi::Bits() / 4;
     format.append(std::to_string(num));
     format.append("lx  ");
-    format.append(ANSI_COLOR_YELLOW);
+    format.append(Logger::Yellow());
     format.append("%s\n");
-    format.append(ANSI_COLOR_RESET);
+    format.append(Logger::End());
     return format;
 }
 

@@ -164,10 +164,13 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
                 shell->main(argc - nargc, &argv[nargc], callback);
                 return 0;
             } else if (writeout) {
+                bool light = Logger::IsLight();
+                Logger::SetHighLight(false);
                 int fd = Utils::FreopenWrite(argv[position]);
                 int nargc = position - 1;
                 command->execute(nargc, argv);
                 Utils::CloseWriteout(fd);
+                Logger::SetHighLight(light);
                 return 0;
             }
             return command->execute(argc, argv);

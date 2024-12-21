@@ -406,7 +406,13 @@ std::string PrintCommand::FormatSize(uint64_t size) {
         ++num;
     } while(current != 0);
     format.append(std::to_string(num));
-    format.append("x] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s " ANSI_COLOR_RESET "%s");
+    format.append("x] ");
+    format.append(Logger::LightGreen());
+    format.append("%s");
+    format.append(Logger::LightRed());
+    format.append("%s ");
+    format.append(Logger::End());
+    format.append("%s");
     return format;
 }
 

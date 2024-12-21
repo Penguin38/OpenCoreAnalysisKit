@@ -31,7 +31,7 @@ private:
     std::string error;
 public:
     InvalidAddressException(uint64_t p) : addr(p) {
-        if (Logger::IsDebug()) {
+        if (Logger::GetDebugLevel() >= Logger::LEVEL_DEBUG_2) {
             CallStack stack;
             stack.update(2);
             stack.dump(1);

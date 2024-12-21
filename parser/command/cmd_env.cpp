@@ -107,23 +107,32 @@ int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"debug",   no_argument,       0, Logger::LEVEL_DEBUG},
+        {"debug",   required_argument, 0, 'd'},
         {"info",    no_argument,       0, Logger::LEVEL_INFO},
         {"warn",    no_argument,       0, Logger::LEVEL_WARN},
         {"error",   no_argument,       0, Logger::LEVEL_ERROR},
         {"fatal",   no_argument,       0, Logger::LEVEL_FATAL},
-        {0,         0,                 0,  0 }
+        {"enable-high-light",  no_argument, 0,  11 },
+        {"disable-high-light", no_argument, 0,  12 },
     };
 
     if (argc < 2) {
-        LOGI("Current logger level %s\n", long_options[Logger::GetLevel()].name);
+        LOGI("Logger level %s\n", long_options[Logger::GetLevel()].name);
+        LOGI("Logger debug level: %d\n", Logger::GetDebugLevel());
+        LOGI("Logger high-light: %s\n", Logger::IsLight() ? "true" : "false");
         return 0;
     }
 
-    while ((opt = getopt_long(argc, argv, "01234",
+    while ((opt = getopt_long(argc, argv, "d:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 0:
+            case 'd': {
+                int lv = std::atoi(optarg);
+                if (lv >= Logger::LEVEL_NONE && lv <= Logger::LEVEL_DEBUG_2) {
+                    LOGI("Switch logger debug level: %d\n", lv);
+                    Logger::SetDebugLevel(lv);
+                }
+            } break;
             case 1:
             case 2:
             case 3:
@@ -131,8 +140,11 @@ int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
                 LOGI("Switch logger level %s\n", long_options[option_index].name);
                 Logger::SetLevel(opt);
                 break;
-            default:
-                LOGI("Unkown logger level.\n");
+            case 11:
+                Logger::SetHighLight(true);
+                break;
+            case 12:
+                Logger::SetHighLight(false);
                 break;
         }
     }
@@ -266,9 +278,9 @@ int EnvCommand::showLoadEnv(bool quick) {
         index++;
         std::string name;
         if (block->name().length() > 0) {
-            name.append(ANSI_COLOR_GREEN);
+            name.append(Logger::Green());
             name.append(block->name());
-            name.append(ANSI_COLOR_RESET);
+            name.append(Logger::End());
         } else {
             name.append("[]");
         }
@@ -333,9 +345,9 @@ int EnvCommand::clocLoadCRC32(int num) {
 
             if (or_crc != mmap_crc) {
                 std::string name;
-                name.append(ANSI_COLOR_GREEN);
+                name.append(Logger::Green());
                 name.append(block->name());
-                name.append(ANSI_COLOR_RESET);
+                name.append(Logger::End());
 
                 if (!first) { ENTER(); }
                 first = false;
@@ -415,16 +427,20 @@ void EnvCommand::usage() {
     LOGI("Switch android(30) env.\n");
     ENTER();
 
-    LOGI("Usage: env logger <LEVEL>\n");
-    LOGI("Level:\n");
-    LOGI("        --debug           set current logger level to debug\n");
+    LOGI("Usage: env logger <OPTION>\n");
+    LOGI("Option:\n");
+    LOGI("        --debug <LEVEL>   set current logger debug level\n");
     LOGI("        --info            set current logger level to info\n");
     LOGI("        --warn            set current logger level to warn\n");
     LOGI("        --error           set current logger level to error\n");
     LOGI("        --fatal           set current logger level to fatal\n");
+    LOGI("    --enable-high-light   enable logger output high-light\n");
+    LOGI("    --disable-high-light  disable logger output high-light\n");
     ENTER();
     LOGI("core-parser> env logger\n");
-    LOGI("Current logger level error\n");
+    LOGI("Logger level error\n");
+    LOGI("Logger debug level: 0\n");
+    LOGI("Logger high-light: true\n");
     ENTER();
 
     LOGI("Usage: env art [OPTION] ...\n");

@@ -1059,16 +1059,20 @@ Switch android(30) env.
 
 ## Set Log Output Level
 ```
-Usage: env logger <LEVEL>
-Level:
-        --debug           set current logger level to debug
+Usage: env logger <OPTION>
+Option:
+        --debug <LEVEL>   set current logger debug level
         --info            set current logger level to info
         --warn            set current logger level to warn
         --error           set current logger level to error
         --fatal           set current logger level to fatal
+    --enable-high-light   enable logger output high-light
+    --disable-high-light  disable logger output high-light
 
 core-parser> env logger
-Current logger level error
+Logger level error
+Logger debug level: 0
+Logger high-light: true
 ```
 
 ## Query ART Environment Variables

@@ -279,16 +279,24 @@ uint32_t Dexdump::GetDexInstSize(api::MemoryRef& ref) {
 
 void Dexdump::AppendCodecNoArgs(const char* op, api::MemoryRef& ref, std::string& sb) {
     char codec[128];
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, ref.value16Of());
+    snprintf(codec, sizeof(codec), "%04x                     ", ref.value16Of());
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
 }
 
 void Dexdump::AppendCodecArgsvAvB(const char* op, api::MemoryRef& ref, std::string& sb) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0);
+    snprintf(codec, sizeof(codec), "%04x                     ", code0);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t reg = (code0 & 0xFF00) >> 8;
@@ -305,8 +313,12 @@ void Dexdump::AppendCodecArgsvAAvBBBB(const char* op, api::MemoryRef& ref, std::
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -323,8 +335,12 @@ void Dexdump::AppendCodecArgsvAAAAvBBBB(const char* op, api::MemoryRef& ref, std
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint16_t vaaaa = code1;
@@ -339,8 +355,12 @@ void Dexdump::AppendCodecArgsvAAAAvBBBB(const char* op, api::MemoryRef& ref, std
 void Dexdump::AppendCodecArgsvAA(const char* op, api::MemoryRef& ref, std::string& sb) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0);
+    snprintf(codec, sizeof(codec), "%04x                     ", code0);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -351,8 +371,12 @@ void Dexdump::AppendCodecArgsvAA(const char* op, api::MemoryRef& ref, std::strin
 void Dexdump::AppendCodecArgsvAB(const char* op, api::MemoryRef& ref, std::string& sb) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0);
+    snprintf(codec, sizeof(codec), "%04x                     ", code0);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t va = (code0 & 0x0F00) >> 8;
@@ -373,8 +397,12 @@ void Dexdump::AppendCodecArgsvAABBBB(const char* op, api::MemoryRef& ref, std::s
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -396,8 +424,12 @@ void Dexdump::AppendCodecArgsvAABBBBBBBB(const char* op, api::MemoryRef& ref, st
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -418,8 +450,12 @@ void Dexdump::AppendCodecArgsvAABBBB0000(const char* op, api::MemoryRef& ref, st
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -445,8 +481,12 @@ void Dexdump::AppendCodecArgsvAABBBBBBBBBBBBBBBB(const char* op, api::MemoryRef&
     uint16_t code2 = ref.value16Of(4);
     uint16_t code3 = ref.value16Of(6);
     uint16_t code4 = ref.value16Of(8);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x %04x %04x " ANSI_COLOR_RESET" | " ANSI_COLOR_LIGHTGREEN, code0, code1, code2, code3, code4);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x %04x %04x ", code0, code1, code2, code3, code4);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -470,8 +510,12 @@ void Dexdump::AppendCodecArgsvAABBBB000000000000(const char* op, api::MemoryRef&
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -494,8 +538,12 @@ void Dexdump::AppendCodecArgsvAAStringBBBB(const char* op, api::MemoryRef& ref, 
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -515,8 +563,12 @@ void Dexdump::AppendCodecArgsvAAStringBBBBBBBB(const char* op, api::MemoryRef& r
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -535,8 +587,12 @@ void Dexdump::AppendCodecArgsvAATypeBBBB(const char* op, api::MemoryRef& ref, st
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -556,8 +612,12 @@ void Dexdump::AppendCodecArgsvAvBTypeCCCC(const char* op, api::MemoryRef& ref, s
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t reg = (code0 & 0xFF00) >> 8;
@@ -582,8 +642,12 @@ void Dexdump::AppendCodecArgsvAvBTypeCCCC(const char* op, api::MemoryRef& ref, s
 void Dexdump::AppendCodecArgsAA(const char* op, api::MemoryRef& ref, std::string& sb) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0);
+    snprintf(codec, sizeof(codec), "%04x                     ", code0);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     int aa = (code0 & 0xFF00) >> 8;
@@ -600,8 +664,12 @@ void Dexdump::AppendCodecArgsAAAA(const char* op, api::MemoryRef& ref, std::stri
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint16_t aaaa = code1;
@@ -619,8 +687,12 @@ void Dexdump::AppendCodecArgsAAAAAAAA(const char* op, api::MemoryRef& ref, std::
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint32_t aaaaaaaa = ((uint32_t)code2 & 0xFFFF) << 16 | code1;
@@ -637,8 +709,12 @@ void Dexdump::AppendCodecArgsvAAvBBvCC(const char* op, api::MemoryRef& ref, std:
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -658,8 +734,12 @@ void Dexdump::AppendCodecArgsvAvBCCCC(const char* op, api::MemoryRef& ref, std::
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t reg = (code0 & 0xFF00) >> 8;
@@ -685,8 +765,12 @@ void Dexdump::AppendCodecArgsvAAvBBCC(const char* op, api::MemoryRef& ref, std::
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(op);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -711,15 +795,23 @@ void Dexdump::AppendCodecNop(api::MemoryRef& ref, std::string& sb) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
     if (!code0) {
-        snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0);
+        snprintf(codec, sizeof(codec), "%04x                     ", code0);
+        sb.append(Logger::LightYellow());
         sb.append(codec);
+        sb.append(Logger::End());
+        sb.append("| ");
+        sb.append(Logger::LightGreen());
     } else {
         uint16_t code1 = ref.value16Of(2);
         uint16_t code2 = ref.value16Of(4);
         uint16_t code3 = ref.value16Of(6);
         uint16_t code4 = ref.value16Of(8);
-        snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x %04x %04x " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2, code3, code4);
+        snprintf(codec, sizeof(codec), "%04x %04x %04x %04x %04x ", code0, code1, code2, code3, code4);
+        sb.append(Logger::LightYellow());
         sb.append(codec);
+        sb.append(Logger::End());
+        sb.append("| ");
+        sb.append(Logger::LightGreen());
     }
     sb.append("nop");
 }
@@ -869,8 +961,12 @@ void Dexdump::AppendCodecFilledNewArray(api::MemoryRef& ref, std::string& sb, De
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("filled-new-array");
     sb.append(" ");
     int num = (((code0 & 0xFF00) >> 8) & 0xF0) >> 4;
@@ -901,8 +997,12 @@ void Dexdump::AppendCodecFilledNewArrayRange(api::MemoryRef& ref, std::string& s
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("filled-new-array/range");
     sb.append(" ");
     int num = (code0 & 0xFF00) >> 8;
@@ -932,8 +1032,12 @@ void Dexdump::AppendCodecThrow(api::MemoryRef& ref, std::string& sb) {
 void Dexdump::AppendCodecGoto(api::MemoryRef& ref, std::string& sb) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0);
+    snprintf(codec, sizeof(codec), "%04x                     ", code0);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("goto");
     sb.append(" ");
     int aa = (code0 & 0xFF00) >> 8;
@@ -954,8 +1058,12 @@ void Dexdump::AppendCodecGoto16(api::MemoryRef& ref, std::string& sb) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("goto/16");
     sb.append(" ");
     uint16_t aaaa = code1;
@@ -977,8 +1085,12 @@ void Dexdump::AppendCodecGoto32(api::MemoryRef& ref, std::string& sb) {
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("goto/32");
     sb.append(" ");
     uint32_t aaaaaaaa = ((uint32_t)code2 & 0xFFFF) << 16 | code1;
@@ -1028,8 +1140,12 @@ void Dexdump::AppendCodecIfTest(uint8_t op, api::MemoryRef& ref, std::string& sb
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(kIfTest[op-DEXOP::IF_EQ]);
     sb.append(" ");
     uint8_t reg = (code0 & 0xFF00) >> 8;
@@ -1068,8 +1184,12 @@ void Dexdump::AppendCodecIfTestz(uint8_t op, api::MemoryRef& ref, std::string& s
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(kIfTestz[op-DEXOP::IF_EQZ]);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -1132,8 +1252,12 @@ void Dexdump::AppendCodecIInstanceOp(uint8_t op, api::MemoryRef& ref, std::strin
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(kIInstanceOp[op-DEXOP::IGET]);
     sb.append(" ");
     uint8_t reg = (code0 & 0xFF00) >> 8;
@@ -1177,8 +1301,12 @@ void Dexdump::AppendCodecSStaicOp(uint8_t op, api::MemoryRef& ref, std::string& 
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(kSStaticOp[op-DEXOP::SGET]);
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -1209,8 +1337,12 @@ void Dexdump::AppendCodecInvokeKind(uint8_t op, api::MemoryRef& ref, std::string
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(kInvokeKind[op-DEXOP::INVOKE_VIRTUAL]);
     sb.append(" ");
     int num = (((code0 & 0xFF00) >> 8) & 0xF0) >> 4;
@@ -1256,8 +1388,12 @@ void Dexdump::AppendCodecInvokeKindRange(uint8_t op, api::MemoryRef& ref, std::s
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append(kInvokeKindRange[op-DEXOP::INVOKE_VIRTUAL_RANGE]);
     sb.append(" ");
     int num = (code0 & 0xFF00) >> 8;
@@ -1428,7 +1564,12 @@ void Dexdump::AppendCodecInvokePolymorphic(api::MemoryRef& ref, std::string& sb,
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
     uint16_t code3 = ref.value16Of(8);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x %04x      " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2, code3);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x %04x      ", code0, code1, code2, code3);
+    sb.append(Logger::LightYellow());
+    sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("invoke-polymorphic");
     sb.append(" ");
     int num = (((code0 & 0xFF00) >> 8) & 0xF0) >> 4;
@@ -1477,8 +1618,12 @@ void Dexdump::AppendCodecInvokePolymorphicRange(api::MemoryRef& ref, std::string
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
     uint16_t code3 = ref.value16Of(8);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x %04x      " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2, code3);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x %04x      ", code0, code1, code2, code3);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("invoke-polymorphic/range");
     sb.append(" ");
     int num = (code0 & 0xFF00) >> 8;
@@ -1519,8 +1664,12 @@ void Dexdump::AppendCodecInvokeCustom(api::MemoryRef& ref, std::string& sb, DexF
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("invoke-custom");
     sb.append(" ");
     int num = (((code0 & 0xFF00) >> 8) & 0xF0) >> 4;
@@ -1547,8 +1696,12 @@ void Dexdump::AppendCodecInvokeCustomRange(api::MemoryRef& ref, std::string& sb,
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
     uint16_t code2 = ref.value16Of(4);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x %04x           " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1, code2);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("invoke-custom/range");
     sb.append(" ");
     int num = (code0 & 0xFF00) >> 8;
@@ -1567,8 +1720,12 @@ void Dexdump::AppendCodecConstMethodHandle(api::MemoryRef& ref, std::string& sb,
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("const-method-handle");
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -1584,8 +1741,12 @@ void Dexdump::AppendCodecConstMethodType(api::MemoryRef& ref, std::string& sb, D
     char codec[128];
     uint16_t code0 = ref.value16Of();
     uint16_t code1 = ref.value16Of(2);
-    snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x %04x                " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, code0, code1);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
     sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
     sb.append("const-method-type");
     sb.append(" ");
     uint8_t vaa = (code0 & 0xFF00) >> 8;
@@ -1608,15 +1769,20 @@ std::string Dexdump::PrettyDexInst(api::MemoryRef& ref, DexFile& dex_file) {
     char codec[128];
     uint8_t op = GetDexOp(ref);
 
-    sb.append(ANSI_COLOR_LIGHTCYAN);
+    sb.append(Logger::LightCyan());
     sb.append(Utils::ToHex(ref.Ptr()));
-    sb.append(ANSI_COLOR_RESET);
+    sb.append(Logger::End());
     sb.append(": ");
 
     if (!IsVaildDexOp(op)) {
-        snprintf(codec, sizeof(codec), ANSI_COLOR_LIGHTYELLOW "%04x                     " ANSI_COLOR_RESET "| " ANSI_COLOR_LIGHTGREEN, ref.value16Of());
+        snprintf(codec, sizeof(codec), "%04x                     ", ref.value16Of());
+        sb.append(Logger::LightYellow());
         sb.append(codec);
-        sb.append("<unknown>" ANSI_COLOR_RESET);
+        sb.append(Logger::End());
+        sb.append("| ");
+        sb.append(Logger::LightGreen());
+        sb.append("<unknown>");
+        sb.append(Logger::End());
         return sb;
     }
 
@@ -1867,7 +2033,7 @@ std::string Dexdump::PrettyDexInst(api::MemoryRef& ref, DexFile& dex_file) {
         case DEXOP::CONST_METHOD_HANDLE: AppendCodecConstMethodHandle(ref, sb, dex_file); break;
         case DEXOP::CONST_METHOD_TYPE: AppendCodecConstMethodType(ref, sb, dex_file); break;
     }
-    sb.append(ANSI_COLOR_RESET);
+    sb.append(Logger::End());
     return sb;
 }
 

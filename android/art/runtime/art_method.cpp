@@ -223,11 +223,11 @@ std::string ArtMethod::ColorPrettyMethodOnlyNP() {
     std::string result;
     uint32_t dex_method_idx = GetDexMethodIndex();
     if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(ANSI_COLOR_LIGHTYELLOW);
+        result.append(Logger::LightYellow());
         result.append(GetDeclaringClass().PrettyDescriptor());
         result.append(".");
         result.append(GetName());
-        result.append(ANSI_COLOR_RESET);
+        result.append(Logger::End());
         result.append(PrettyParameters());
         return result;
     }
@@ -238,11 +238,11 @@ std::string ArtMethod::ColorPrettyMethodSimple() {
     std::string result;
     uint32_t dex_method_idx = GetDexMethodIndex();
     if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(ANSI_COLOR_LIGHTYELLOW);
+        result.append(Logger::LightYellow());
         result.append(GetDeclaringClass().PrettyDescriptor());
         result.append(".");
         result.append(GetName());
-        result.append(ANSI_COLOR_RESET);
+        result.append(Logger::End());
         return result;
     }
     return GetRuntimeMethodName();
@@ -252,14 +252,14 @@ std::string ArtMethod::ColorPrettyMethod() {
     std::string result;
     uint32_t dex_method_idx = GetDexMethodIndex();
     if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(ANSI_COLOR_LIGHTRED);
+        result.append(Logger::LightRed());
         result.append(PrettyReturnTypeDescriptor());
-        result.append(ANSI_COLOR_LIGHTYELLOW);
+        result.append(Logger::LightYellow());
         result.append(" ");
         result.append(GetDeclaringClass().PrettyDescriptor());
         result.append(".");
         result.append(GetName());
-        result.append(ANSI_COLOR_RESET);
+        result.append(Logger::End());
         result.append(PrettyParameters());
         return result;
     }
