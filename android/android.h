@@ -41,6 +41,9 @@
 
 class Android {
 public:
+    static constexpr int L = 21;
+    static constexpr int L_MR1 = 22;
+    static constexpr int M = 23;
     static constexpr int N = 24;
     static constexpr int N_MR1 = 25;
     static constexpr int O = 26;
@@ -53,6 +56,7 @@ public:
     static constexpr int T = 33;
     static constexpr int U = 34;
     static constexpr int V = 35;
+    static constexpr int B = 36;
 
     enum BasicType {
         basic_object = 2,

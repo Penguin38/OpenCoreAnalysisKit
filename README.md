@@ -45,6 +45,7 @@ export ANDROID_NDK_HOME=<path-to>
 |Android-13.0(33) |   √   |  √   |   √    |   √  |    ?    |
 |Android-14.0(34) |   √   |  √   |   √    |   √  |    ?    |
 |Android-15.0(35) |   √   |  -   |   √    |   -  |    ?    |
+|Android-16.0(36) |   -   |  -   |   -    |   -  |    -    |
 
 # Build Artifacts
 
