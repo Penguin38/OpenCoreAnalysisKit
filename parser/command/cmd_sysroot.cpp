@@ -49,6 +49,9 @@ int SysRootCommand::main(int argc, char* const argv[]) {
         }
     }
 
+    if (optind >= argc)
+        return 0;
+
     if (root & MAP_ROOT)
         CoreApi::SysRoot(argv[optind]);
 

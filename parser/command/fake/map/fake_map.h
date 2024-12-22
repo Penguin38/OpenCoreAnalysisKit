@@ -24,9 +24,11 @@ public:
     static constexpr int FAKE_LD = 1 << 0;
     static constexpr int FAKE_AUTO_CREATE = 1 << 1;
     static constexpr int FAKE_APPEND = 1 << 2;
+    static constexpr int FAKE_SYSROOT = 1 << 3;
 
     static int OptionMap(int argc, char* const argv[]);
     static int LD();
+    static bool FakeLD(LinkMap* map);
     static bool FakeLD64(LinkMap* map);
     static bool FakeLD32(LinkMap* map);
     static int AutoCreate();
@@ -36,6 +38,8 @@ public:
     static int Append64(uint64_t addr, const char* name, uint64_t ld);
     static int Append32(uint32_t addr, const char* name, uint32_t ld);
     static uint64_t FindModuleFromLoadBlock(const char* name);
+    static void SysRoot(const char* dirs);
+    static bool DirectMmap(LinkMap* map, const char* path, const char* sub_file);
     static void Usage();
 };
 
