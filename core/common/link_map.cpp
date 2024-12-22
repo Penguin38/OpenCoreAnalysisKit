@@ -66,7 +66,9 @@ api::MemoryRef& LinkMap::GetAddrCache() {
                 header = CoreApi::FindFile(dynamic->begin() - dynamic->offset());
                 if (header && header->name() == dynamic->name()) {
                     addr_cache = header->begin();
-                } else {
+                }
+#if defined(__CORE_LINK_MAP_PARSER__)
+                else {
                     auto callback = [&](LoadBlock *block) -> bool {
                         if (block->vaddr() < l_addr())
                             return false;
@@ -75,7 +77,7 @@ api::MemoryRef& LinkMap::GetAddrCache() {
                             return false;
 
                         /*
-                         * Find first vaddr >= l_addr
+                         * find first vaddr >= l_addr
                          * ---------
                          * |       | <-- l_addr
                          * ---------
@@ -83,7 +85,7 @@ api::MemoryRef& LinkMap::GetAddrCache() {
                          * --------- <--- vaddr
                          * | PHDR  |  filename
                          * ---------     |
-                         * | TEST  |     | same
+                         * | TEXT  |     | same
                          * ---------     |
                          * |Dynamic|  filename
                          * ---------
@@ -94,6 +96,7 @@ api::MemoryRef& LinkMap::GetAddrCache() {
                     };
                     CoreApi::ForeachLoadBlock(callback, false, false);
                 }
+#endif // __CORE_LINK_MAP_PARSER__
             }
         }
         addr_cache.Prepare(false);
