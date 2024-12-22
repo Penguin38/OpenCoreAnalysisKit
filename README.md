@@ -48,12 +48,12 @@ export ANDROID_NDK_HOME=<path-to>
 
 # Build Artifacts
 
-| Platform     | Path                                             |
-|:------------:|--------------------------------------------------|
-|Emulator      | output/aosp/debug/android/x86_64/bin/core-parser |
-|Phone         | output/aosp/debug/android/arm64/bin/core-parser  |
-|Ubuntu        | output/aosp/debug/linux/bin/core-parser          |
-
+| Platform          | Path |
+|:------------:|-----|
+|Emulator| output/aosp/<BUILD_TYPE>/android/x86_64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/x86/bin/core-parser    |
+|Phone| output/aosp/<BUILD_TYPE>/android/arm64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/armeabi-v7a/bin/core-parser|
+|Ubuntu| output/aosp/<BUILD_TYPE>/linux/bin/core-parser |
+|MacOS| output/aosp/<BUILD_TYPE>/macos/bin/core-parser  |
 
 # How To Launch
 ```
