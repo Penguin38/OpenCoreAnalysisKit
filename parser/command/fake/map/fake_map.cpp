@@ -182,8 +182,6 @@ void FakeLinkMap::SysRoot(const char* path) {
         return false;
     };
     CoreApi::ForeachLinkMap(callback);
-
-    CoreApi::CleanCache();
 }
 
 bool FakeLinkMap::DirectMmap(LinkMap* handle, const char* file, const char* subfile) {
