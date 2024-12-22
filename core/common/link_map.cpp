@@ -21,6 +21,7 @@
 #include "api/elf.h"
 #include "common/link_map.h"
 #include "common/exception.h"
+#include "common/load_block.h"
 #include "common/elf.h"
 #include <linux/elf.h>
 #include <cxxabi.h>
@@ -50,7 +51,7 @@ api::MemoryRef& LinkMap::GetAddrCache() {
         // adjustment
         File* header = CoreApi::FindFile(l_addr());
         File* dynamic = CoreApi::FindFile(l_ld());
-        if (dynamic) {
+        if (dynamic && dynamic->name().length()) {
             if (!header || header->name() != dynamic->name()) {
                 /*
                  * ---------
@@ -62,9 +63,36 @@ api::MemoryRef& LinkMap::GetAddrCache() {
                  * ---------
                  *
                  */
-                header = CoreApi::FindFile(dynamic->begin() - (dynamic->offset() - (header ? header->offset() : 0)));
+                header = CoreApi::FindFile(dynamic->begin() - dynamic->offset());
                 if (header && header->name() == dynamic->name()) {
                     addr_cache = header->begin();
+                } else {
+                    auto callback = [&](LoadBlock *block) -> bool {
+                        if (block->vaddr() < l_addr())
+                            return false;
+
+                        if (block->filename() != dynamic->name())
+                            return false;
+
+                        /*
+                         * Find first vaddr >= l_addr
+                         * ---------
+                         * |       | <-- l_addr
+                         * ---------
+                         * |       |
+                         * --------- <--- vaddr
+                         * | PHDR  |  filename
+                         * ---------     |
+                         * | TEST  |     | same
+                         * ---------     |
+                         * |Dynamic|  filename
+                         * ---------
+                         *
+                         */
+                        addr_cache = block->vaddr();
+                        return true;
+                    };
+                    CoreApi::ForeachLoadBlock(callback, false, false);
                 }
             }
         }
