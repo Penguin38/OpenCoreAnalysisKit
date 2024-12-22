@@ -154,7 +154,8 @@ bool TombstoneParser::parseBacktrace() {
 bool TombstoneParser::parseMemory() {
     LOGD("%s ...\n", __func__);
     while (fgets(kLine, sizeof(kLine), mFp)) {
-        if (strncmp(kLine, "memory near ", 12))
+        if (strncmp(kLine, "memory near ", 12)
+                && strncmp(kLine, "code around ", 12))
             continue;
 
         uint64_t addr;
@@ -177,7 +178,8 @@ bool TombstoneParser::parseMemory() {
 bool TombstoneParser::parseMaps() {
     LOGD("%s ...\n", __func__);
     while (fgets(kLine, sizeof(kLine), mFp)) {
-        if (strncmp(kLine, "memory map ", 11))
+        if (strncmp(kLine, "memory map ", 11)
+                && strncmp(kLine, "memory map:", 11))
             continue;
 
         while (fgets(kLine, sizeof(kLine), mFp)) {

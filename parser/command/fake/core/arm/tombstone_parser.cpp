@@ -69,10 +69,10 @@ bool TombstoneParser::parseRegister() {
         sscanf(kLine, " r4 %x r5 %x r6 %x r7 %x", &regs.regs[4], &regs.regs[5], &regs.regs[6], &regs.regs[7]);
 
         fgets(kLine, sizeof(kLine), mFp);
-        sscanf(kLine, " r8 %x r9 %x r10 %x r11 %x", &regs.regs[8], &regs.regs[9], &regs.regs[10], &regs.regs[11]);
+        sscanf(kLine, " r8 %x r9 %x sl %x fp %x", &regs.regs[8], &regs.regs[9], &regs.regs[10], &regs.regs[11]);
 
         fgets(kLine, sizeof(kLine), mFp);
-        sscanf(kLine, " r12 %x sp %x lr %x pc %x cpsr %x", &regs.regs[12], &regs.sp, &regs.lr, &regs.pc, &regs.cpsr);
+        sscanf(kLine, " ip %x sp %x lr %x pc %x cpsr %x", &regs.regs[12], &regs.sp, &regs.lr, &regs.pc, &regs.cpsr);
 
         return true;
     }
@@ -116,19 +116,24 @@ bool TombstoneParser::parseBacktrace() {
 bool TombstoneParser::parseMemory() {
     LOGD("%s ...\n", __func__);
     while (fgets(kLine, sizeof(kLine), mFp)) {
-        if (strncmp(kLine, "memory near ", 12))
+        if (strncmp(kLine, "memory near ", 12)
+                && strncmp(kLine, "code around ", 12))
             continue;
 
-        uint64_t addr;
-        uint64_t value1;
-        uint64_t value2;
+        uint32_t addr;
+        uint32_t value1;
+        uint32_t value2;
+        uint32_t value3;
+        uint32_t value4;
         while (fgets(kLine, sizeof(kLine), mFp)) {
             if (!strcmp(kLine, "\n"))
                 break;
 
-            if (sscanf(kLine, "    %" PRIx64 " %" PRIx64 " %" PRIx64 "", &addr, &value1, &value2)) {
-                mMemorys.insert({addr, value1});
-                mMemorys.insert({addr + 8, value2});
+            if (sscanf(kLine, "    %x %x %x %x %x", &addr, &value1, &value2, &value3, &value4)) {
+                uint64_t tmp1 = (((uint64_t)value2) << 32) | value1;
+                uint64_t tmp2 = (((uint64_t)value4) << 32) | value3;
+                mMemorys.insert({addr, tmp1});
+                mMemorys.insert({addr + 8, tmp2});
             }
         }
     }
@@ -139,7 +144,8 @@ bool TombstoneParser::parseMemory() {
 bool TombstoneParser::parseMaps() {
     LOGD("%s ...\n", __func__);
     while (fgets(kLine, sizeof(kLine), mFp)) {
-        if (strncmp(kLine, "memory map ", 11))
+        if (strncmp(kLine, "memory map ", 11)
+                && strncmp(kLine, "memory map:", 11))
             continue;
 
         while (fgets(kLine, sizeof(kLine), mFp)) {
