@@ -196,7 +196,7 @@ bool FakeLinkMap::FakeLD32(LinkMap* map) {
     bool need_calibrate = false;
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (phdr[num].p_type == PT_PHDR) {
-            if (phdr[num].p_offset != phdr[num].p_vaddr) {
+            if (phdr[num].p_offset != phdr[num].p_vaddr && !map->l_ld()) {
                 need_calibrate = true;
                 uint32_t vaddr = map->l_addr() + phdr[num].p_offset - phdr[num].p_vaddr;
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_addr), (void *)&vaddr, 4);
