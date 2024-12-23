@@ -75,7 +75,10 @@ api::MemoryRef FdTrack::AnalysisStackTraces() {
     if (!handle)
         return stack_traces;
 
-    api::Elfx_Ehdr ehdr(handle->begin(), handle->block());
+    api::Elfx_Ehdr ehdr(handle->l_addr());
+    if (!ehdr.IsElf())
+        return stack_traces;
+
     api::Elfx_Phdr phdr(ehdr.Ptr() + ehdr.e_phoff(), ehdr);
     int phnum = ehdr.e_phnum();
 
