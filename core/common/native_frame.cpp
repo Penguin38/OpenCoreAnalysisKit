@@ -33,14 +33,16 @@ void NativeFrame::Decode() {
         // FOR TEST
         uint64_t va_pc = frame_pc & CoreApi::GetVabitsMask();
         LoadBlock* ld_block = CoreApi::FindLoadBlock(link->l_ld(), false);
-        if ((va_pc < link->l_ld()
-                || (ld_block ? va_pc < ld_block->vaddr() + ld_block->size() : false))
-                && va_pc > link->begin()) {
+        if (block && block->filename().length()
+                && block->filename() == link->name()) {
             map = link;
             return true;
-        } else if (block && block->filename() == link->name()) {
+        } else if (link->begin() && va_pc >= link->begin()
+                && (va_pc < link->l_ld() ||
+                    (ld_block ? (va_pc <= ld_block->vaddr() + ld_block->size()) : false))) {
             map = link;
             return true;
+
         }
         return false;
     };
@@ -58,14 +60,10 @@ std::string NativeFrame::GetLibrary() {
         return "";
     }
 
-    std::string name;
+    std::string name = map->name();
     LoadBlock* block = map->block();
-    if (block) {
-        if (block->isMmapBlock()) {
-            name = block->name();
-        } else {
-            name = map->name();
-        }
+    if (block && block->isMmapBlock()) {
+        name = block->name();
         return name;
     }
 

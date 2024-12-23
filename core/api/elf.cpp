@@ -235,9 +235,11 @@ Elfx_Dynamic Elf::FindDynamic(LinkMap* handle) {
     if (handle->l_ld()) {
         dynamic = handle->l_ld();
     } else {
-        Elfx_Ehdr ehdr(handle->l_addr(), handle->block());
-        if (!ehdr.IsElf())
+        Elfx_Ehdr ehdr(handle->l_addr());
+        if (!ehdr.IsElf()) {
+            LOGD("%s maybe relocation!\n", handle->name());
             return dynamic;
+        }
 
         Elfx_Phdr phdr(ehdr.Ptr() + ehdr.e_phoff(), ehdr);
         int phnum = ehdr.e_phnum();
@@ -245,6 +247,12 @@ Elfx_Dynamic Elf::FindDynamic(LinkMap* handle) {
         Elfx_Phdr tmp = phdr;
         int index = 0;
         while (index < phnum) {
+            if (tmp.p_type() == PT_PHDR) {
+                if (tmp.p_offset() != tmp.p_vaddr()) {
+                    LOGD("%s relocation!\n", handle->name());
+                    break;
+                }
+            }
             if (tmp.p_type() == PT_DYNAMIC) {
                 dynamic = handle->l_addr() + tmp.p_vaddr();
                 break;
@@ -276,24 +284,18 @@ void Elf::ReadSymbols(LinkMap* handle) {
     api::MemoryRef tables = 0x0;
     Elfx_Sym symbols = 0x0;
 
-    if (!handle->block()) {
-        LOGD("Not found block [%s].\n", handle->name());
-        return;
-    }
-
-    if (handle->block()->virtualContains(strtab)) {
+    if (handle->l_addr() <= strtab)
         tables = strtab;
-    } else {
+    else
         tables = handle->l_addr() + strtab;
-    }
-    tables.checkCopyBlock(handle->block());
 
-    if (handle->block()->virtualContains(symtab)) {
+    if (handle->l_addr() <= symtab)
         symbols = symtab;
-    } else {
+    else
         symbols = handle->l_addr() + symtab;
-    }
-    symbols.checkCopyBlock(handle->block());
+
+    if (!tables.IsValid() || !symbols.IsValid())
+        return;
 
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& dynsyms = handle->GetDynsyms();
     for (int i = 0; i < count; ++i) {

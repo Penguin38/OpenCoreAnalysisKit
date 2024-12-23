@@ -192,9 +192,11 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
     Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
     Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
 
+    int idx = 0;
     for (int index = 0; index < ehdr->e_phnum; ++index) {
         if (phdr[index].p_type != PT_LOAD)
             continue;
+        ++idx;
 
         if (phdr[index].p_flags & PF_W)
             continue;
@@ -207,9 +209,12 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
         LoadBlock* block = api->findLoadBlock(current, false);
         if (!block) {
-            LOGE("Not found LoadBlock(%" PRIx64 ")\n", current);
+            LOGW("Not found %s [%d]LOAD(%" PRIx64 ")\n", file, idx, current);
             continue;
         }
+
+        if (idx == 1 && current == block->vaddr() && handle)
+            handle->GetAddrCache() = current;
 
         if (!block->CheckCanMmap(current))
             continue;
@@ -233,7 +238,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
         // continue mmap
         if (mem_size > block->size()) {
-            LOGW("Mmap segment [%" PRIx64 ", %" PRIx64 ") size %" PRIx64 " != %" PRIx64 ", maybe reset range!\n",
+            LOGD("Mmap segment [%" PRIx64 ", %" PRIx64 ") size %" PRIx64 " != %" PRIx64 ", maybe reset range!\n",
                     block->vaddr(), block->vaddr() + block->size(), block->size(), mem_size);
 
             uint64_t cur_size = block->size();
@@ -243,7 +248,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
                 LoadBlock* next_block = api->findLoadBlock(next, false);
                 if (!next_block) {
-                    LOGE("Not found next LoadBlock(%" PRIx64 ")\n", next);
+                    LOGD("Not found next LoadBlock(%" PRIx64 ")\n", next);
                     break;
                 }
                 cur_size += next_block->size();

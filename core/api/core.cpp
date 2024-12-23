@@ -339,28 +339,26 @@ LinkMap* CoreApi::FindLinkMap(const char* path) {
     LinkMap* second = nullptr;
     std::filesystem::path file(path);
     auto callback = [&](LinkMap* map) -> bool {
+        if (!strcmp(map->name(), path))
+            handle = map;
+
+        if (strstr(map->name(), file.filename().c_str()))
+            second = map;
+
         LoadBlock* block = map->block();
-        if (block) {
-            if (!strcmp(map->name(), path))
-                handle = map;
+        if (block && block->isMmapBlock()) {
+            std::size_t index = block->name().find(path);
+            if (index != std::string::npos) {
+                std::filesystem::path outer(block->name());
+                if (file.filename() == outer.filename())
+                    handle = map;
+            }
 
-            if (strstr(map->name(), file.filename().c_str()))
-                second = map;
-
-            if (block->isMmapBlock()) {
-                std::size_t index = block->name().find(path);
-                if (index != std::string::npos) {
-                    std::filesystem::path outer(block->name());
-                    if (file.filename() == outer.filename())
-                        handle = map;
-                }
-
-                index = block->name().find(file.filename());
-                if (index != std::string::npos) {
-                    std::filesystem::path outer(block->name());
-                    if (file.filename() == outer.filename())
-                        second = map;
-                }
+            index = block->name().find(file.filename());
+            if (index != std::string::npos) {
+                std::filesystem::path outer(block->name());
+                if (file.filename() == outer.filename())
+                    second = map;
             }
         }
         return handle ? true : false;
@@ -460,13 +458,10 @@ void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool 
 uint64_t CoreApi::DlSym(const char* symbol) {
     uint64_t value;
     auto callback = [&](LinkMap* map) -> bool {
-        LoadBlock* block = map->block();
-        if (block) {
-            value = map->DlSym(symbol);
-            if (value) {
-                value += map->l_addr();
-                return true;
-            }
+        value = map->DlSym(symbol);
+        if (value) {
+            value += map->l_addr();
+            return true;
         }
         return false;
     };
@@ -477,11 +472,8 @@ uint64_t CoreApi::DlSym(const char* symbol) {
 uint64_t CoreApi::DlSym(const char* path, const char* symbol) {
     LinkMap* handle = FindLinkMap(path);
     if (handle) {
-        LoadBlock* block = handle->block();
-        if (block) {
-            uint64_t value = handle->DlSym(symbol);
-            if (value) return handle->l_addr() + value;
-        }
+        uint64_t value = handle->DlSym(symbol);
+        if (value) return handle->l_addr() + value;
     }
     return 0x0;
 }

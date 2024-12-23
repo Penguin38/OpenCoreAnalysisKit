@@ -54,7 +54,7 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    if (!num) LOGI(ANSI_COLOR_LIGHTRED "NUM LINKMAP       REGION                   FLAGS NAME\n" ANSI_COLOR_RESET);
+    if (!num) LOGI(ANSI_COLOR_LIGHTRED "NUM LINKMAP       REGION                   FLAGS  L_ADDR         NAME\n" ANSI_COLOR_RESET);
     int pos = 0;
     auto callback = [&](LinkMap* map) -> bool {
         pos++;
@@ -84,11 +84,14 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
         } else {
             name = map->name();
         }
-        LOGI("%3d " ANSI_COLOR_YELLOW "0x%l" PRIx64 "" ANSI_COLOR_CYAN "  [%l" PRIx64 ", %l" PRIx64 ")" ANSI_COLOR_RESET "  %s  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
+        LOGI("%3d " ANSI_COLOR_YELLOW "0x%" PRIx64 "" ANSI_COLOR_CYAN "  [%" PRIx64 ", %" PRIx64 ")"
+                    ANSI_COLOR_RESET "  %s  " ANSI_COLOR_LIGHTMAGENTA " %" PRIx64 "  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
                 pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
-                block->convertFlags().c_str(), name.c_str(), block->convertValids().c_str());
+                block->convertFlags().c_str(), map->l_addr(), name.c_str(), block->convertValids().c_str());
     } else {
-        LOGW("%3d 0x%l" PRIx64 "  [%l" PRIx64 ", ----)  ---  %s [unknown]\n", pos, map->map(), map->begin(), map->name());
+        LOGI("%3d " ANSI_COLOR_YELLOW "0x%" PRIx64 "" ANSI_COLOR_CYAN "  [    ???   ,    ???    )"
+                    ANSI_COLOR_RESET "  ---  " ANSI_COLOR_LIGHTMAGENTA " %" PRIx64 "  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET "\n",
+                pos, map->map(), map->l_addr(), map->name());
     }
 }
 

@@ -45,62 +45,26 @@ void LinkMap::Init() {
 }
 
 api::MemoryRef& LinkMap::GetAddrCache() {
-    if (!addr_cache.Ptr()) {
-        addr_cache = l_addr();
+    if (addr_cache.Ptr())
+        return addr_cache;
 
-        // adjustment
-        File* header = CoreApi::FindFile(l_addr());
-        File* dynamic = CoreApi::FindFile(l_ld());
-        if (dynamic && dynamic->name().length()) {
-            if (!header || header->name() != dynamic->name()) {
-                /*
-                 * ---------
-                 * |N *4096| <---------
-                 * ---------          | offset
-                 * |N *4096|          |
-                 * --------- begin  ---
-                 * |Dynamic|
-                 * ---------
-                 *
-                 */
-                header = CoreApi::FindFile(dynamic->begin() - dynamic->offset());
-                if (header && header->name() == dynamic->name()) {
-                    addr_cache = header->begin();
-                }
-#if defined(__CORE_LINK_MAP_PARSER__)
-                else {
-                    auto callback = [&](LoadBlock *block) -> bool {
-                        if (block->vaddr() < l_addr())
-                            return false;
+    try {
+        api::Elfx_Dynamic dynamic = api::Elf::FindDynamic(this);
+        uint64_t symtab = api::Elf::FindDynamicEntry(dynamic, DT_SYMTAB);
 
-                        if (block->filename() != dynamic->name())
-                            return false;
+        api::Elfx_Sym symbols = 0x0;
+        if (l_addr() <= symtab) symbols = symtab;
+        else symbols = l_addr() + symtab;
 
-                        /*
-                         * find first vaddr >= l_addr
-                         * ---------
-                         * |       | <-- l_addr
-                         * ---------
-                         * |       |
-                         * --------- <--- vaddr
-                         * | PHDR  |  filename
-                         * ---------     |
-                         * | TEXT  |     | same
-                         * ---------     |
-                         * |Dynamic|  filename
-                         * ---------
-                         *
-                         */
-                        addr_cache = block->vaddr();
-                        return true;
-                    };
-                    CoreApi::ForeachLoadBlock(callback, false, false);
-                }
-#endif // __CORE_LINK_MAP_PARSER__
-            }
+        if (symbols.IsValid()) {
+            api::Elfx_Ehdr ehdr(symbols.Block()->vaddr());
+            if (ehdr.IsElf()) addr_cache = symbols.Block()->vaddr();
         }
-        addr_cache.Prepare(false);
+    } catch(InvalidAddressException e) {
+        return addr_cache;
     }
+
+    addr_cache.Prepare(false);
     return addr_cache;
 }
 
@@ -133,37 +97,34 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
     if (symbols.empty()) return;
 
-    LoadBlock* load = block();
-    if (load) {
-        bool vdso = !strcmp(name(), "[vdso]") || load->vaddr() == CoreApi::FindAuxv(AT_SYSINFO_EHDR);
-        uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
-        uint64_t nice_offset = 0;
-        uint64_t nice_size = 0;
+    bool vdso = !strcmp(name(), "[vdso]") || l_addr() == CoreApi::FindAuxv(AT_SYSINFO_EHDR);
+    uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
+    uint64_t nice_offset = 0;
+    uint64_t nice_size = 0;
 
-        const auto& it = std::find_if(symbols.begin(), symbols.end(),
-                [&](const SymbolEntry& entry) {
-                    uint64_t offset = entry.offset;
-                    if (CoreApi::GetMachine() == EM_ARM)
-                        offset &= (CoreApi::GetPointMask() - 1);
+    const auto& it = std::find_if(symbols.begin(), symbols.end(),
+            [&](const SymbolEntry& entry) {
+                uint64_t offset = entry.offset;
+                if (CoreApi::GetMachine() == EM_ARM)
+                    offset &= (CoreApi::GetPointMask() - 1);
 
-                    if (offset > cloc_offset)
-                        return false;
-
-                    if (ELF_ST_TYPE(entry.type) == STT_FUNC
-                            || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
-                        if (cloc_offset < offset + entry.size)
-                            return true;
-                    }
+                if (offset > cloc_offset)
                     return false;
-                });
 
-        if (it != symbols.end()) {
-            nice_offset = it->offset + l_addr();
-            if (CoreApi::GetMachine() == EM_ARM)
-                nice_offset &= (CoreApi::GetPointMask() - 1);
-            nice_size = it->size;
-            symbol.SetNiceMethod(it->symbol.data(), nice_offset, nice_size);
-        }
+                if (ELF_ST_TYPE(entry.type) == STT_FUNC
+                        || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
+                    if (cloc_offset < offset + entry.size)
+                        return true;
+                }
+                return false;
+            });
+
+    if (it != symbols.end()) {
+        nice_offset = it->offset + l_addr();
+        if (CoreApi::GetMachine() == EM_ARM)
+            nice_offset &= (CoreApi::GetPointMask() - 1);
+        nice_size = it->size;
+        symbol.SetNiceMethod(it->symbol.data(), nice_offset, nice_size);
     }
 }
 
