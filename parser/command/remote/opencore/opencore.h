@@ -33,8 +33,10 @@
 #define ARM64_MACHINE   "arm64"
 #define AARCH64_MACHINE "aarch64"
 #define ARM_MACHINE     "arm"
-#define ARMV7L_MACHINE  "v7l"
-#define ARMV8L_MACHINE  "v8l"
+#define V7L_MACHINE     "v7l"
+#define V8L_MACHINE     "v8l"
+#define ARMV7L_MACHINE  "armv7l"
+#define ARMV8L_MACHINE  "armv8l"
 
 #define ELFCOREMAGIC "CORE"
 #define NOTE_CORE_NAME_SZ 5
