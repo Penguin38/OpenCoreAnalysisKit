@@ -181,7 +181,7 @@ int FakeLinkMap::Append64(uint64_t addr, const char* name, uint64_t ld) {
 }
 
 bool FakeLinkMap::FakeLD64(LinkMap* map) {
-    LoadBlock* block = map->block();
+    LoadBlock* block = CoreApi::FindLoadBlock(map->l_addr(), false, false);
     if (!block || !block->isValid())
         return false;
 
@@ -199,7 +199,7 @@ bool FakeLinkMap::FakeLD64(LinkMap* map) {
                 need_calibrate = true;
                 uint64_t vaddr = map->l_addr() + phdr[num].p_offset - phdr[num].p_vaddr;
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_addr), vaddr);
-                LOGI("calibrate %s l_addr(%" PRIx64 ")\n", map->name(), vaddr);
+                LOGI(ANSI_COLOR_GREEN "calibrate %s l_addr(%" PRIx64 ")\n" ANSI_COLOR_RESET, map->name(), vaddr);
             }
             continue;
         }
@@ -208,7 +208,7 @@ bool FakeLinkMap::FakeLD64(LinkMap* map) {
             uint64_t vaddr = map->l_addr() + phdr[num].p_vaddr;
             if (map->l_ld() != vaddr) {
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_ld), vaddr);
-                LOGI("calibrate %s l_ld(%" PRIx64 ")\n", map->name(), vaddr);
+                LOGI(ANSI_COLOR_GREEN "calibrate %s l_ld(%" PRIx64 ")\n" ANSI_COLOR_RESET, map->name(), vaddr);
             }
             break;
         }

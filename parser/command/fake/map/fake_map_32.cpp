@@ -182,7 +182,7 @@ int FakeLinkMap::Append32(uint32_t addr, const char* name, uint32_t ld) {
 }
 
 bool FakeLinkMap::FakeLD32(LinkMap* map) {
-    LoadBlock* block = map->block();
+    LoadBlock* block = CoreApi::FindLoadBlock(map->l_addr(), false, false);
     if (!block || !block->isValid())
         return false;
 
@@ -200,7 +200,7 @@ bool FakeLinkMap::FakeLD32(LinkMap* map) {
                 need_calibrate = true;
                 uint32_t vaddr = map->l_addr() + phdr[num].p_offset - phdr[num].p_vaddr;
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_addr), (void *)&vaddr, 4);
-                LOGI("calibrate %s l_addr(%x)\n", map->name(), vaddr);
+                LOGI(ANSI_COLOR_GREEN "calibrate %s l_addr(%x)\n" ANSI_COLOR_RESET, map->name(), vaddr);
             }
             continue;
         }
@@ -209,7 +209,7 @@ bool FakeLinkMap::FakeLD32(LinkMap* map) {
             uint32_t vaddr = map->l_addr() + phdr[num].p_vaddr;
             if (map->l_ld() != vaddr) {
                 CoreApi::Write(map->Ptr() + OFFSET(LinkMap, l_ld), (void *)&vaddr, 4);
-                LOGI("calibrate %s l_ld(%x)\n", map->name(), vaddr);
+                LOGI(ANSI_COLOR_GREEN "calibrate %s l_ld(%x)\n" ANSI_COLOR_RESET, map->name(), vaddr);
             }
             break;
         }

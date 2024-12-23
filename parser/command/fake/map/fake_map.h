@@ -39,7 +39,7 @@ public:
     static int Append32(uint32_t addr, const char* name, uint32_t ld);
     static uint64_t FindModuleFromLoadBlock(const char* name);
     static void SysRoot(const char* dirs);
-    static bool DirectMmap(LinkMap* map, const char* path, const char* sub_file);
+    static bool DirectMmap(LinkMap* map, LoadBlock* block, const char* path, const char* sub_file);
     static void Usage();
 };
 

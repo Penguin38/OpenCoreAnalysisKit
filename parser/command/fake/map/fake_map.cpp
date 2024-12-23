@@ -173,18 +173,19 @@ void FakeLinkMap::SysRoot(const char* path) {
         if (!filepath.length())
             return false;
 
-        if (!FakeLinkMap::DirectMmap(map, filepath.c_str(), sub_file))
+        LoadBlock* block = CoreApi::FindLoadBlock(map->l_addr(), false, false);
+        if (!FakeLinkMap::DirectMmap(map, block, filepath.c_str(), sub_file))
             return false;
 
-        if (!FakeLinkMap::FakeLD(map) && map->block())
-            map->block()->removeMmap();
+        if (!FakeLinkMap::FakeLD(map))
+            block->removeMmap();
 
         return false;
     };
     CoreApi::ForeachLinkMap(callback);
 }
 
-bool FakeLinkMap::DirectMmap(LinkMap* handle, const char* file, const char* subfile) {
+bool FakeLinkMap::DirectMmap(LinkMap* handle, LoadBlock* block, const char* file, const char* subfile) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file));
     if (subfile) {
         ZipFile zip;
@@ -219,8 +220,8 @@ bool FakeLinkMap::DirectMmap(LinkMap* handle, const char* file, const char* subf
         if (!header->CheckLibrary(file))
             return false;
 
-        if (handle->block()) {
-            handle->block()->setMmapFile(file, map->offset());
+        if (block && block->vaddr() == handle->l_addr()) {
+            block->setMmapFile(file, map->offset());
             return true;
         }
     }
