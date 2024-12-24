@@ -35,6 +35,9 @@ export ANDROID_NDK_HOME=<path-to>
 
 | sdk          | arm64 | arm  | x86_64 | x86  | riscv64 |
 |:------------:|:-----:|:----:|:------:|:----:|:-------:|
+|Android-6.0 (23) |   x   |  x   |   x    |   x  |    ?    |
+|Android-7.0 (24) |   x   |  x   |   x    |   x  |    ?    |
+|Android-7.1 (25) |   -   |  -   |   -    |   -  |    -    |
 |Android-8.0 (26) |   √   |  √   |   √    |   √  |    ?    |
 |Android-8.1 (27) |   -   |  -   |   -    |   -  |    -    |
 |Android-9.0 (28) |   √   |  √   |   √    |   √  |    ?    |
@@ -1009,6 +1012,7 @@ Option:
     --ld                            calibrate link_map l_addr and l_ld
     --auto                          auto create link_map
     --append <ADDR> <NAME> [<LD>]   append link map
+    --sysroot <DIR:DIR>             sysroot and calibrate
 
 core-parser> fake map --ld
 calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)
