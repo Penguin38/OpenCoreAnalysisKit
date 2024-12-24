@@ -79,7 +79,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
     }
 
-    auto callback = [&](art::mirror::Object& object, int type, uint64_t idx) -> bool {
+    auto callback = [&](art::mirror::Object& object, int type, uint64_t iref) -> bool {
         std::string descriptor;
         art::mirror::Class thiz = 0x0;
         if (object.IsClass()) {
@@ -92,8 +92,8 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         art::IndirectRefKind kind = static_cast<art::IndirectRefKind>(type & ((1 << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT) - 1));
         if (kind == art::IndirectRefKind::kLocal)
             LOGI("[%d]", type >> Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
-        LOGI("[%s][%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
-                art::IndirectReferenceTable::GetDescriptor(kind).c_str(), idx, object.Ptr(), descriptor.c_str());
+        LOGI("[%s][0x%04" PRIx64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
+                art::IndirectReferenceTable::GetDescriptor(kind).c_str(), iref, object.Ptr(), descriptor.c_str());
 
         return false;
     };
@@ -106,9 +106,8 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         art::IndirectRefKind kind = art::IndirectReferenceTable::DecodeIndirectRefKind(uref);
         if (kind && kind != art::IndirectRefKind::kLocal) {
             reference = jvm.Decode(uref);
-            LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
-                    art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
-                    art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
+            LOGI("[%s][0x%04" PRIx64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
+                    art::IndirectReferenceTable::GetDescriptor(kind).c_str(), uref, reference.Ptr());
             PrintCommand::OnlyDumpObject(reference, format_hex);
         } else if (kind == art::IndirectRefKind::kLocal) {
             art::ThreadList& thread_list = runtime.GetThreadList();
@@ -122,9 +121,8 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
                     continue;
 
                 LOGI("[%d]\n", thread->GetTid());
-                LOGI("[%s][%d] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
-                        art::IndirectReferenceTable::GetDescriptor(kind).c_str(),
-                        art::IndirectReferenceTable::DecodeIndex(uref), reference.Ptr());
+                LOGI("[%s][0x%04" PRIx64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
+                        art::IndirectReferenceTable::GetDescriptor(kind).c_str(), uref, reference.Ptr());
                 PrintCommand::OnlyDumpObject(reference, format_hex);
             }
         }
