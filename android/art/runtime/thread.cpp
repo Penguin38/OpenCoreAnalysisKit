@@ -170,11 +170,19 @@ void Thread::Init34() {
 }
 
 void Thread::Init35() {
-    __Thread_offset__ = {
-        .tls32_ = 0,
-        .tlsPtr_ = 144,
-        .wait_monitor_ = 6736,
-    };
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 144,
+            .wait_monitor_ = 6736,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 144,
+            .wait_monitor_ = 3448,
+        };
+    }
 }
 
 void Thread::tls_32bit_sized_values::Init26() {
@@ -401,6 +409,20 @@ void Thread::tls_ptr_sized_values::Init35() {
             .name = 184,
             .pthread_self = 192,
             .held_mutexes = 1800,
+        };
+    } else {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .jni_env = 28,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
+            .name = 92,
+            .pthread_self = 96,
+            .held_mutexes = 900,
         };
     }
 }

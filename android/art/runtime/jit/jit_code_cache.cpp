@@ -158,6 +158,14 @@ void JitCodeCache::Init35() {
             .method_code_map_ = 784,
             .zygote_map_ = 880,
         };
+    } else {
+        __JitCodeCache_offset__ = {
+            .shared_region_ = 24,
+            .private_region_ = 220,
+            .jni_stubs_map_ = 416,
+            .method_code_map_ = 428,
+            .zygote_map_ = 524,
+        };
     }
 }
 
