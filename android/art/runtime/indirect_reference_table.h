@@ -37,6 +37,7 @@ struct IndirectReferenceTable_OffsetTable {
     uint32_t segment_state_;
     uint32_t table_mem_map_;
     uint32_t table_;
+    uint32_t kind_;
     uint32_t top_index_;
 };
 
@@ -88,16 +89,22 @@ public:
     inline uint64_t table_mem_map_lv28() { return VALUEOF(IndirectReferenceTable, table_mem_map_); }
     inline uint64_t table() { return VALUEOF(IndirectReferenceTable, table_); }
     inline uint64_t top_index() { return VALUEOF(IndirectReferenceTable, top_index_); }
+    inline uint32_t kind() { return value32Of(OFFSET(IndirectReferenceTable, kind_)); }
 
     static inline IndirectRefKind DecodeIndirectRefKind(uint64_t uref) {
         return static_cast<IndirectRefKind>(uref & kKindMask);
     }
 
+    uint64_t EncodeIndex(uint32_t table_index);
+    uint64_t EncodeSerial(uint32_t serial);
+    uint64_t EncodeIndirectRefKind(IndirectRefKind kind);
+    uint64_t EncodeIndirectRef(uint32_t table_index, uint32_t serial);
+
     static std::string GetDescriptor(IndirectRefKind kind);
     static uint32_t DecodeIndex(uint64_t uref);
     mirror::Object DecodeReference(uint32_t idx);
     void Walk(std::function<bool (mirror::Object& object)> fn);
-    void Walk(std::function<bool (mirror::Object& object, uint64_t idx)> fn);
+    void Walk(std::function<bool (mirror::Object& object, uint64_t iref)> fn);
 };
 
 } // namespace art

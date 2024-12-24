@@ -59,12 +59,14 @@ void IndirectReferenceTable::Init26() {
             .segment_state_ = 0,
             .table_mem_map_ = 8,
             .table_ = 16,
+            .kind_ = 24,
         };
     } else {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
             .table_mem_map_ = 4,
             .table_ = 8,
+            .kind_ = 12,
         };
     }
 }
@@ -75,12 +77,14 @@ void IndirectReferenceTable::Init29() {
             .segment_state_ = 0,
             .table_mem_map_ = 8,
             .table_ = 80,
+            .kind_ = 88,
         };
     } else {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
             .table_mem_map_ = 4,
             .table_ = 44,
+            .kind_ = 48,
         };
     }
 }
@@ -90,12 +94,14 @@ void IndirectReferenceTable::Init34() {
         __IndirectReferenceTable_offset__ = {
             .table_mem_map_ = 0,
             .table_ = 72,
+            .kind_ = 80,
             .top_index_ = 88,
         };
     } else {
         __IndirectReferenceTable_offset__ = {
             .table_mem_map_ = 0,
             .table_ = 40,
+            .kind_ = 44,
             .top_index_ = 48,
         };
     }
@@ -142,8 +148,28 @@ mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
     return object;
 }
 
+uint64_t IndirectReferenceTable::EncodeIndex(uint32_t table_index) {
+    if (Android::Sdk() < Android::T) {
+        return (static_cast<uint64_t>(table_index) << kKindBits << kSerialBits);
+    } else {
+        return (static_cast<uint64_t>(table_index) << kKindBits << kIRTSerialBits);
+    }
+}
+
+uint64_t IndirectReferenceTable::EncodeSerial(uint32_t serial) {
+    return serial << kKindBits;
+}
+
+uint64_t IndirectReferenceTable::EncodeIndirectRefKind(IndirectRefKind kind) {
+    return static_cast<uint64_t>(kind);
+}
+
+uint64_t IndirectReferenceTable::EncodeIndirectRef(uint32_t table_index, uint32_t serial) {
+    return EncodeIndex(table_index) | EncodeSerial(serial) | EncodeIndirectRefKind(static_cast<IndirectRefKind>(kind()));
+}
+
 void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&)> fn) {
-    auto callback = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+    auto callback = [&](art::mirror::Object& object, uint64_t iref) -> bool {
         fn(object);
         return false;
     };
@@ -170,7 +196,7 @@ void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)
             object = ref.value32Of();
         }
         if (object.Ptr() && object.IsValid())
-            fn(object, idx);
+            fn(object, EncodeIndirectRef(idx, entry.serial()));
     }
 }
 

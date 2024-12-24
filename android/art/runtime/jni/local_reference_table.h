@@ -22,7 +22,9 @@
 #include <functional>
 
 struct LocalReferenceTable_OffsetTable {
+    uint32_t previous_state_;
     uint32_t segment_state_;
+    uint32_t small_table_;
     uint32_t tables_;
 };
 
@@ -41,6 +43,9 @@ extern struct LrtEntry_SizeTable __LrtEntry_size__;
 
 namespace art {
 namespace jni {
+
+static uint32_t kInitialLrtBytes = 512;
+static uint32_t kSmallLrtEntries = kInitialLrtBytes / 4;
 
 class LrtEntry : public api::MemoryRef {
 public:
@@ -61,10 +66,16 @@ public:
     LocalReferenceTable(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
+    static void Init34();
+    static void Init35();
     inline uint32_t segment_state() { return value32Of(OFFSET(LocalReferenceTable, segment_state_)); }
+    inline uint64_t small_table() { return VALUEOF(LocalReferenceTable, small_table_); }
     inline uint64_t tables() { return Ptr() + OFFSET(LocalReferenceTable, tables_); }
+
+    mirror::Object DecodeReference(uint64_t iref);
+
     void Walk(std::function<bool (mirror::Object& object)> fn);
-    void Walk(std::function<bool (mirror::Object& object, uint64_t idx)> fn);
+    void Walk(std::function<bool (mirror::Object& object, uint64_t iref)> fn);
 };
 
 } // namespace jni

@@ -17,6 +17,8 @@
 #include "logger/log.h"
 #include "api/core.h"
 #include "android.h"
+#include "cxx/vector.h"
+#include "runtime/indirect_reference_table.h"
 #include "runtime/jni/local_reference_table.h"
 
 struct LocalReferenceTable_OffsetTable __LocalReferenceTable_offset__;
@@ -27,6 +29,27 @@ namespace art {
 namespace jni {
 
 void LocalReferenceTable::Init() {
+    Android::RegisterSdkListener(Android::U, art::jni::LocalReferenceTable::Init34);
+    Android::RegisterSdkListener(Android::V, art::jni::LocalReferenceTable::Init35);
+
+    art::jni::LrtEntry::Init();
+}
+
+void LocalReferenceTable::Init34() {
+    if (CoreApi::Bits() == 64) {
+        __LocalReferenceTable_offset__ = {
+            .segment_state_ = 0,
+            .tables_ = 24,
+        };
+    } else {
+        __LocalReferenceTable_offset__ = {
+            .segment_state_ = 0,
+            .tables_ = 16,
+        };
+    }
+}
+
+void LocalReferenceTable::Init35() {
     if (CoreApi::Bits() == 64) {
         __LocalReferenceTable_offset__ = {
             .segment_state_ = 4,
@@ -38,30 +61,50 @@ void LocalReferenceTable::Init() {
             .tables_ = 20,
         };
     }
-
-    LrtEntry::Init();
 }
 
 void LrtEntry::Init() {
     __LrtEntry_offset__.root_ = 0;
     __LrtEntry_size__.THIS = 4;
+
+    kInitialLrtBytes = kInitialLrtBytes / SIZEOF(LrtEntry);
+}
+
+mirror::Object LocalReferenceTable::DecodeReference(uint64_t iref) {
+    LrtEntry entry = iref & ~static_cast<uint64_t>(kKindMask);
+    cxx::vector tables_ = tables();
+    for (const auto& value : tables_) {
+        api::MemoryRef ref = value;
+        LrtEntry local = ref.valueOf();
+        if (!local.IsValid() || !local.Block()->virtualContains(entry.Ptr()))
+            continue;
+
+        mirror::Object object = entry.root();
+        return object;
+    }
+    return 0x0;
 }
 
 void LocalReferenceTable::Walk(std::function<bool (mirror::Object& object)> fn) {
-    auto callback = [&](art::mirror::Object& object, uint64_t idx) -> bool {
+    auto callback = [&](art::mirror::Object& object, uint64_t iref) -> bool {
         fn(object);
         return false;
     };
     Walk(callback);
 }
 
-void LocalReferenceTable::Walk(std::function<bool (mirror::Object& object, uint64_t idx)> fn) {
-    mirror::Object object = 0x0;
-    uint32_t top_index_ = segment_state();
-
-    for (int idx = 0; idx < top_index_; ++idx) {
-        // FOR TEST
-        if (object.IsValid()) fn(object, idx);
+void LocalReferenceTable::Walk(std::function<bool (mirror::Object& object, uint64_t iref)> fn) {
+    cxx::vector tables_ = tables();
+    tables_.SetEntrySize(CoreApi::GetPointSize());
+    for (int i = 0; i < tables_.size(); ++i) {
+        api::MemoryRef ref = tables_[i];
+        LrtEntry entry = ref.valueOf();
+        for (int pos = 0; pos < kSmallLrtEntries; pos += SIZEOF(LrtEntry)) {
+            mirror::Object object = entry.value32Of(pos);
+            if (object.Ptr() && object.IsValid()) {
+                fn(object, (entry.Ptr() + pos) | IndirectRefKind::kLocal);
+            }
+        }
     }
 }
 

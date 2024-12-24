@@ -73,7 +73,7 @@ mirror::Object JNIEnvExt::Decode(uint64_t uref) {
 
 mirror::Object JNIEnvExt::DecodeLocal(uint64_t uref) {
     if (Android::Sdk() >= Android::U)
-        return 0x0;//return GetLocalsTable_v34().DecodeReference(IndirectReferenceTable::DecodeIndex(uref));
+        return GetLocalsTable_v34().DecodeReference(uref);
     else return GetLocalsTable().DecodeReference(IndirectReferenceTable::DecodeIndex(uref));
 }
 
