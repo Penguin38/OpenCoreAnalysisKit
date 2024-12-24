@@ -27,11 +27,108 @@ struct DexFile_SizeTable __DexFile_size__;
 namespace art {
 
 void DexFile::Init() {
+    Android::RegisterSdkListener(Android::M, art::DexFile::Init23);
+    Android::RegisterSdkListener(Android::N, art::DexFile::Init24);
     Android::RegisterSdkListener(Android::O, art::DexFile::Init26);
     Android::RegisterSdkListener(Android::P, art::DexFile::Init28);
     Android::RegisterSdkListener(Android::Q, art::DexFile::Init29);
     Android::RegisterSdkListener(Android::U, art::DexFile::Init34);
 }
+
+void DexFile::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __DexFile_offset__ = {
+            .begin_ = 8,
+            .size_ = 16,
+            .data_begin_ = 8,
+            .data_size_ = 16,
+            .location_ = 24,
+            .location_checksum_ = 48,
+            .header_ = 64,
+            .string_ids_ = 72,
+            .type_ids_ = 80,
+            .field_ids_ = 88,
+            .method_ids_ = 96,
+            .proto_ids_ = 104,
+            .class_defs_ = 112,
+            .method_handles_ = 120,
+            .num_method_handles_ = 128,
+            .call_site_ids_ = 136,
+            .num_call_site_ids_ = 144,
+            .hiddenapi_class_data_ = 0,
+            .oat_dex_file_ = 152,
+            .container_ = 0,
+            .is_compact_dex_ = 0,
+        };
+
+         __DexFile_size__ = {
+            .THIS = 160,
+            .begin_ = 8,
+            .size_ = 8,
+            .data_begin_ = 8,
+            .data_size_ = 8,
+            .location_ = 24,
+            .location_checksum_ = 8,
+            .header_ = 8,
+            .string_ids_ = 8,
+            .type_ids_ = 8,
+            .field_ids_ = 8,
+            .method_ids_ = 8,
+            .proto_ids_ = 8,
+            .class_defs_ = 8,
+            .method_handles_ = 8,
+            .num_method_handles_ = 8,
+            .call_site_ids_ = 8,
+            .num_call_site_ids_ = 8,
+            .hiddenapi_class_data_ = 8,
+            .oat_dex_file_ = 8,
+        };
+    } else {
+        // TODO
+    }
+}
+
+void DexFile::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __DexFile_offset__ = {
+            .begin_ = 8,
+            .size_ = 16,
+            .data_begin_ = 8,
+            .data_size_ = 16,
+            .location_ = 24,
+            .location_checksum_ = 48,
+            .header_ = 64,
+            .string_ids_ = 72,
+            .type_ids_ = 80,
+            .field_ids_ = 88,
+            .method_ids_ = 96,
+            .proto_ids_ = 104,
+            .class_defs_ = 112,
+            .oat_dex_file_ = 120,
+        };
+
+         __DexFile_size__ = {
+            .THIS = 128,
+            .begin_ = 8,
+            .size_ = 8,
+            .data_begin_ = 8,
+            .data_size_ = 8,
+            .location_ = 24,
+            .location_checksum_ = 8,
+            .header_ = 8,
+            .string_ids_ = 8,
+            .type_ids_ = 8,
+            .field_ids_ = 8,
+            .method_ids_ = 8,
+            .proto_ids_ = 8,
+            .class_defs_ = 8,
+            .oat_dex_file_ = 8,
+        };
+    } else {
+        // TODO
+    }
+}
+
 
 void DexFile::Init26() {
     if (CoreApi::Bits() == 64) {

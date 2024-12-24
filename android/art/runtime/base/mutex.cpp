@@ -28,6 +28,8 @@ struct ReaderWriterMutex_OffsetTable __ReaderWriterMutex_offset__;
 namespace art {
 
 void BaseMutex::Init() {
+    Android::RegisterSdkListener(Android::M, art::BaseMutex::Init26);
+    Android::RegisterSdkListener(Android::N, art::BaseMutex::Init26);
     Android::RegisterSdkListener(Android::O, art::BaseMutex::Init26);
     Android::RegisterSdkListener(Android::Q, art::BaseMutex::Init29);
 

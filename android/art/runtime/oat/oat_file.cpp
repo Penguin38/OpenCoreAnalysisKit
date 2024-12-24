@@ -42,6 +42,8 @@ void OatFile::Init() {
 }
 
 void OatDexFile::Init() {
+    Android::RegisterSdkListener(Android::M, art::OatDexFile::Init26);
+    Android::RegisterSdkListener(Android::N, art::OatDexFile::Init26);
     Android::RegisterSdkListener(Android::O, art::OatDexFile::Init26);
     Android::RegisterSdkListener(Android::P, art::OatDexFile::Init28);
     Android::RegisterSdkListener(Android::S, art::OatDexFile::Init31);

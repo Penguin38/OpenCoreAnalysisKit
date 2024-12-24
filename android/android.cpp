@@ -296,7 +296,7 @@ void Android::RegisterOatListener(int minioat, std::function<void ()> fn) {
 }
 
 void Android::OnSdkChanged(int sdk) {
-    if (sdk < O) {
+    if (sdk < M) {
         LOGE("Invaild sdk(%d)\n", sdk);
         return;
     }

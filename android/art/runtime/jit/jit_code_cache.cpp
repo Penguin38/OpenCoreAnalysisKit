@@ -30,6 +30,8 @@ namespace art {
 namespace jit {
 
 void JitCodeCache::Init() {
+    Android::RegisterSdkListener(Android::M, art::jit::JitCodeCache::Init26);
+    Android::RegisterSdkListener(Android::N, art::jit::JitCodeCache::Init26);
     Android::RegisterSdkListener(Android::O, art::jit::JitCodeCache::Init26);
     Android::RegisterSdkListener(Android::P, art::jit::JitCodeCache::Init28);
     Android::RegisterSdkListener(Android::Q, art::jit::JitCodeCache::Init29);

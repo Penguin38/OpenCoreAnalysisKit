@@ -36,6 +36,8 @@ struct Thread_tls_ptr_sized_values_SizeTable __Thread_tls_ptr_sized_values_size_
 namespace art {
 
 void Thread::Init() {
+    Android::RegisterSdkListener(Android::M, art::Thread::Init26);
+    Android::RegisterSdkListener(Android::N, art::Thread::Init26);
     Android::RegisterSdkListener(Android::O, art::Thread::Init26);
     Android::RegisterSdkListener(Android::P, art::Thread::Init28);
     Android::RegisterSdkListener(Android::Q, art::Thread::Init29);
@@ -45,6 +47,8 @@ void Thread::Init() {
     Android::RegisterSdkListener(Android::U, art::Thread::Init34);
     Android::RegisterSdkListener(Android::V, art::Thread::Init35);
 
+    Android::RegisterSdkListener(Android::M, art::Thread::tls_ptr_sized_values::Init26);
+    Android::RegisterSdkListener(Android::N, art::Thread::tls_ptr_sized_values::Init26);
     Android::RegisterSdkListener(Android::O, art::Thread::tls_ptr_sized_values::Init26);
     Android::RegisterSdkListener(Android::P, art::Thread::tls_ptr_sized_values::Init28);
     Android::RegisterSdkListener(Android::Q, art::Thread::tls_ptr_sized_values::Init29);
@@ -53,6 +57,8 @@ void Thread::Init() {
     Android::RegisterSdkListener(Android::U, art::Thread::tls_ptr_sized_values::Init34);
     Android::RegisterSdkListener(Android::V, art::Thread::tls_ptr_sized_values::Init35);
 
+    Android::RegisterSdkListener(Android::M, art::Thread::tls_32bit_sized_values::Init26);
+    Android::RegisterSdkListener(Android::N, art::Thread::tls_32bit_sized_values::Init26);
     Android::RegisterSdkListener(Android::O, art::Thread::tls_32bit_sized_values::Init26);
     Android::RegisterSdkListener(Android::S, art::Thread::tls_32bit_sized_values::Init31);
 }

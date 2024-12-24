@@ -57,6 +57,15 @@ struct Class_OffsetTable {
     uint32_t status_;
     uint32_t copied_methods_offset_;
     uint32_t virtual_methods_offset_;
+
+    // 23
+    uint32_t dex_cache_strings_;
+    uint32_t direct_methods_;
+    uint32_t virtual_methods_;
+    uint32_t num_direct_methods_;
+    uint32_t num_instance_fields_;
+    uint32_t num_static_fields_;
+    uint32_t num_virtual_methods_;
 };
 
 struct Class_SizeTable {
@@ -98,6 +107,9 @@ public:
     };
 
     static void Init();
+    static void Init23();
+    static void Init24();
+    static void Init26();
     inline uint32_t class_loader() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, class_loader_)); }
     inline uint32_t component_type() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, component_type_)); }
     inline uint32_t dex_cache() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, dex_cache_)); }

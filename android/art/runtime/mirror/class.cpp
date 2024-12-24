@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "android.h"
 #include "common/bit.h"
 #include "api/core.h"
 #include "runtime/mirror/class.h"
@@ -28,6 +29,83 @@ namespace art {
 namespace mirror {
 
 void Class::Init() {
+    Android::RegisterSdkListener(Android::M, art::mirror::Class::Init23);
+    Android::RegisterSdkListener(Android::N, art::mirror::Class::Init24);
+    Android::RegisterSdkListener(Android::O, art::mirror::Class::Init26);
+}
+
+void Class::Init23() {
+    __Class_offset__ = {
+        .class_loader_ = 8,
+        .component_type_ = 12,
+        .dex_cache_ = 16,
+        .iftable_ = 24,
+        .name_ = 28,
+        .super_class_ = 32,
+        .vtable_ = 40,
+        .ifields_ = 56,
+        .sfields_ = 64,
+        .access_flags_ = 44,
+        .class_size_ = 80,
+        .clinit_thread_id_ = 84,
+        .dex_class_def_idx_ = 88,
+        .dex_type_idx_ = 92,
+        .num_reference_instance_fields_ = 104,
+        .num_reference_static_fields_ = 108,
+        .object_size_ = 120,
+        .primitive_type_ = 124,
+        .reference_instance_offsets_ = 128,
+        .status_ = 132,
+        .dex_cache_strings_ = 20,
+        .direct_methods_ = 48,
+        .virtual_methods_ = 72,
+        .num_direct_methods_ = 96,
+        .num_instance_fields_ = 100,
+        .num_static_fields_ = 112,
+        .num_virtual_methods_ = 116,
+    };
+
+    __Class_size__ = {
+        .THIS = 136,
+    };
+
+}
+
+void Class::Init24() {
+    __Class_offset__ = {
+        .class_loader_ = 12,
+        .component_type_ = 16,
+        .dex_cache_ = 20,
+        .iftable_ = 24,
+        .name_ = 28,
+        .super_class_ = 32,
+        .vtable_ = 40,
+        .ifields_ = 56,
+        .methods_ = 64,
+        .sfields_ = 72,
+        .access_flags_ = 44,
+        .class_flags_ = 80,
+        .class_size_ = 84,
+        .clinit_thread_id_ = 88,
+        .dex_class_def_idx_ = 92,
+        .dex_type_idx_ = 96,
+        .num_reference_instance_fields_ = 100,
+        .num_reference_static_fields_ = 104,
+        .object_size_ = 108,
+        .primitive_type_ = 112,
+        .reference_instance_offsets_ = 118,
+        .status_ = 122,
+        .copied_methods_offset_ = 126,
+        .virtual_methods_offset_ = 128,
+        .dex_cache_strings_ = 48,
+    };
+
+    __Class_size__ = {
+        .THIS = 130,
+    };
+}
+
+void Class::Init26() {
     __Class_offset__ = {
         .class_loader_ = 8,
         .component_type_ = 12,

@@ -27,9 +27,13 @@ struct DexCacheData_SizeTable __DexCacheData_size__;
 namespace art {
 
 void ClassLinker::Init() {
+    Android::RegisterSdkListener(Android::M, art::ClassLinker::Init26);
+    Android::RegisterSdkListener(Android::N, art::ClassLinker::Init26);
     Android::RegisterSdkListener(Android::O, art::ClassLinker::Init26);
     Android::RegisterSdkListener(Android::P, art::ClassLinker::Init28);
 
+    Android::RegisterSdkListener(Android::M, art::ClassLinker::DexCacheData::Init26);
+    Android::RegisterSdkListener(Android::N, art::ClassLinker::DexCacheData::Init26);
     Android::RegisterSdkListener(Android::O, art::ClassLinker::DexCacheData::Init26);
     Android::RegisterSdkListener(Android::P, art::ClassLinker::DexCacheData::Init28);
     Android::RegisterSdkListener(Android::T, art::ClassLinker::DexCacheData::Init33);

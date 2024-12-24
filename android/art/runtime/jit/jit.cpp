@@ -24,6 +24,8 @@ namespace art {
 namespace jit {
 
 void Jit::Init() {
+    Android::RegisterSdkListener(Android::M, art::jit::Jit::Init26);
+    Android::RegisterSdkListener(Android::N, art::jit::Jit::Init26);
     Android::RegisterSdkListener(Android::O, art::jit::Jit::Init26);
     Android::RegisterSdkListener(Android::P, art::jit::Jit::Init28);
     Android::RegisterSdkListener(Android::Q, art::jit::Jit::Init29);

@@ -27,8 +27,8 @@ struct FrameData_SizeTable __FrameData_size__;
 namespace android {
 
 void UnwindStack::Init() {
-    Android::RegisterSdkListener(26, android::UnwindStack::FrameData::Init26);
-    Android::RegisterSdkListener(33, android::UnwindStack::FrameData::Init33);
+    Android::RegisterSdkListener(Android::O, android::UnwindStack::FrameData::Init26);
+    Android::RegisterSdkListener(Android::T, android::UnwindStack::FrameData::Init33);
 }
 
 void UnwindStack::FrameData::Init26() {

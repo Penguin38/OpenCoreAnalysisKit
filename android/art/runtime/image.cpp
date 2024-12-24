@@ -26,6 +26,8 @@ namespace art {
 uint32_t ImageHeader::kNumImageMethodsCount = 7;
 
 void ImageHeader::Init() {
+    Android::RegisterSdkListener(Android::M, art::ImageHeader::Init24);
+    Android::RegisterSdkListener(Android::N, art::ImageHeader::Init24);
     Android::RegisterSdkListener(Android::O, art::ImageHeader::Init26);
     Android::RegisterSdkListener(Android::P, art::ImageHeader::Init28);
     Android::RegisterSdkListener(Android::Q, art::ImageHeader::Init29);
@@ -33,6 +35,18 @@ void ImageHeader::Init() {
     Android::RegisterSdkListener(Android::S, art::ImageHeader::Init31);
     Android::RegisterSdkListener(Android::U, art::ImageHeader::Init34);
     Android::RegisterSdkListener(Android::V, art::ImageHeader::Init35);
+}
+
+void ImageHeader::Init24() {
+    __ImageHeader_offset__ = {
+        .image_methods_ = 144,
+    };
+
+    __ImageHeader_size__ = {
+        .THIS = 216,
+    };
+
+    kNumImageMethodsCount = 6;
 }
 
 void ImageHeader::Init26() {

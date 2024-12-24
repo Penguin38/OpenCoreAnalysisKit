@@ -33,10 +33,14 @@ struct PtrSizedFields_OffsetTable __PtrSizedFields_offset__;
 namespace art {
 
 void ArtMethod::Init() {
+    Android::RegisterSdkListener(Android::M, art::ArtMethod::Init26);
+    Android::RegisterSdkListener(Android::N, art::ArtMethod::Init26);
     Android::RegisterSdkListener(Android::O, art::ArtMethod::Init26);
     Android::RegisterSdkListener(Android::P, art::ArtMethod::Init28);
     Android::RegisterSdkListener(Android::S, art::ArtMethod::Init31);
 
+    Android::RegisterSdkListener(Android::M, art::ArtMethod::PtrSizedFields::Init26);
+    Android::RegisterSdkListener(Android::N, art::ArtMethod::PtrSizedFields::Init26);
     Android::RegisterSdkListener(Android::O, art::ArtMethod::PtrSizedFields::Init26);
     Android::RegisterSdkListener(Android::P, art::ArtMethod::PtrSizedFields::Init28);
 }

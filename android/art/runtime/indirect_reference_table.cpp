@@ -25,10 +25,14 @@ struct IndirectReferenceTable_OffsetTable __IndirectReferenceTable_offset__;
 namespace art {
 
 void IndirectReferenceTable::Init() {
+    Android::RegisterSdkListener(Android::M, art::IndirectReferenceTable::Init26);
+    Android::RegisterSdkListener(Android::N, art::IndirectReferenceTable::Init26);
     Android::RegisterSdkListener(Android::O, art::IndirectReferenceTable::Init26);
     Android::RegisterSdkListener(Android::Q, art::IndirectReferenceTable::Init29);
     Android::RegisterSdkListener(Android::U, art::IndirectReferenceTable::Init34);
 
+    Android::RegisterSdkListener(Android::M, art::IrtEntry::Init26);
+    Android::RegisterSdkListener(Android::N, art::IrtEntry::Init26);
     Android::RegisterSdkListener(Android::O, art::IrtEntry::Init26);
     Android::RegisterSdkListener(Android::T, art::IrtEntry::Init33);
 }

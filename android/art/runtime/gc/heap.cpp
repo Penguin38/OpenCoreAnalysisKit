@@ -33,6 +33,8 @@ namespace art {
 namespace gc {
 
 void Heap::Init() {
+    Android::RegisterSdkListener(Android::M, art::gc::Heap::Init26);
+    Android::RegisterSdkListener(Android::N, art::gc::Heap::Init26);
     Android::RegisterSdkListener(Android::O, art::gc::Heap::Init26);
     // Android::RegisterSdkListener(Android::V, art::gc::Heap::Init35);
 }

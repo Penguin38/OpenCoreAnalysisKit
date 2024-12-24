@@ -24,6 +24,8 @@ struct JNIEnvExt_OffsetTable __JNIEnvExt_offset__;
 namespace art {
 
 void JNIEnvExt::Init() {
+    Android::RegisterSdkListener(Android::M, art::JNIEnvExt::Init26);
+    Android::RegisterSdkListener(Android::N, art::JNIEnvExt::Init26);
     Android::RegisterSdkListener(Android::O, art::JNIEnvExt::Init26);
     Android::RegisterSdkListener(Android::V, art::JNIEnvExt::Init35);
 }

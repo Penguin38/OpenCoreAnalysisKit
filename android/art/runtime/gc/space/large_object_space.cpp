@@ -42,15 +42,21 @@ void LargeObjectSpace::Init() {
     art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
     art::gc::space::AllocationInfo::Init();
 
+    Android::RegisterSdkListener(Android::M, art::gc::space::LargeObjectSpace::Init26);
+    Android::RegisterSdkListener(Android::N, art::gc::space::LargeObjectSpace::Init26);
     Android::RegisterSdkListener(Android::O, art::gc::space::LargeObjectSpace::Init26);
     Android::RegisterSdkListener(Android::Q, art::gc::space::LargeObjectSpace::Init29);
     Android::RegisterSdkListener(Android::R, art::gc::space::LargeObjectSpace::Init30);
 
+    Android::RegisterSdkListener(Android::M, art::gc::space::LargeObjectMapSpace::Init26);
+    Android::RegisterSdkListener(Android::N, art::gc::space::LargeObjectMapSpace::Init26);
     Android::RegisterSdkListener(Android::O, art::gc::space::LargeObjectMapSpace::Init26);
     Android::RegisterSdkListener(Android::P, art::gc::space::LargeObjectMapSpace::Init28);
     Android::RegisterSdkListener(Android::Q, art::gc::space::LargeObjectMapSpace::Init29);
     Android::RegisterSdkListener(Android::R, art::gc::space::LargeObjectMapSpace::Init30);
 
+    Android::RegisterSdkListener(Android::M, art::gc::space::FreeListSpace::Init26);
+    Android::RegisterSdkListener(Android::N, art::gc::space::FreeListSpace::Init26);
     Android::RegisterSdkListener(Android::O, art::gc::space::FreeListSpace::Init26);
     Android::RegisterSdkListener(Android::Q, art::gc::space::FreeListSpace::Init29);
     Android::RegisterSdkListener(Android::R, art::gc::space::FreeListSpace::Init30);

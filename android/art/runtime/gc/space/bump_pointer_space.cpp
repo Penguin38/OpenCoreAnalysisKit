@@ -27,6 +27,8 @@ namespace gc {
 namespace space {
 
 void BumpPointerSpace::Init() {
+    Android::RegisterSdkListener(Android::M, art::gc::space::BumpPointerSpace::Init26);
+    Android::RegisterSdkListener(Android::N, art::gc::space::BumpPointerSpace::Init26);
     Android::RegisterSdkListener(Android::O, art::gc::space::BumpPointerSpace::Init26);
     Android::RegisterSdkListener(Android::U, art::gc::space::BumpPointerSpace::Init34);
 }

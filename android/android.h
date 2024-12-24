@@ -93,7 +93,7 @@ public:
     ~Android();
     static std::unique_ptr<Android> INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
-    static bool IsSdkReady() { return IsReady() && Sdk() >= O; }
+    static bool IsSdkReady() { return IsReady() && Sdk() >= M; }
     static bool IsOatReady() { return IsReady() && Oat() > 0; }
     static void Init();
     static void Reset() { Init(); }
