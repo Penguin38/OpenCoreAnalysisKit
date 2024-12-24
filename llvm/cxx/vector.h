@@ -43,6 +43,7 @@ public:
 
     inline bool operator==(vector& ref) { return Ptr() == ref.Ptr(); }
     inline bool operator!=(vector& ref) { return Ptr() != ref.Ptr(); }
+    uint64_t operator[](int idx);
 
     static void Init();
     static uint64_t kDefEntrySize;

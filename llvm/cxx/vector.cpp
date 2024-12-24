@@ -51,6 +51,10 @@ uint64_t vector::size() {
     return (__end() - __begin()) / entry_size;
 }
 
+uint64_t vector::operator[](int idx) {
+    return __begin() + idx * entry_size;
+}
+
 vector::iterator vector::iterator::operator++() {
     current += entry_size;
     return *this;
@@ -69,4 +73,3 @@ uint64_t vector::iterator::operator*() {
 }
 
 } // namespace cxx
-
