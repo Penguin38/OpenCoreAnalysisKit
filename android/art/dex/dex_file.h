@@ -49,27 +49,6 @@ struct DexFile_OffsetTable {
 
 struct DexFile_SizeTable {
     uint32_t THIS;
-    uint32_t begin_;
-    uint32_t size_;
-    uint32_t data_begin_;
-    uint32_t data_size_;
-    uint32_t location_;
-    uint32_t location_checksum_;
-    uint32_t header_;
-    uint32_t string_ids_;
-    uint32_t type_ids_;
-    uint32_t field_ids_;
-    uint32_t method_ids_;
-    uint32_t proto_ids_;
-    uint32_t class_defs_;
-    uint32_t method_handles_;
-    uint32_t num_method_handles_;
-    uint32_t call_site_ids_;
-    uint32_t num_call_site_ids_;
-    uint32_t hiddenapi_class_data_;
-    uint32_t oat_dex_file_;
-    uint32_t container_;
-    uint32_t is_compact_dex_;
 };
 
 extern struct DexFile_OffsetTable __DexFile_offset__;
