@@ -27,6 +27,9 @@ done
 if [ -z $BUILD_TYPE ];then
     export BUILD_TYPE="Debug"
 fi
+if [ -z $BUILD_ANDROID_PLATFORM ];then
+    export BUILD_ANDROID_PLATFORM="android-30"
+fi
 export BUILD_PRODUCT="aosp"
 export BUILD_TARGET_PAGESIZE_4K="4K"
 export BUILD_TARGET_PAGESIZE_16K="16K"
@@ -58,7 +61,7 @@ do
 cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
       -DANDROID_ABI=$CURRENT_ANDROID_ABI \
       -DANDROID_NDK=$ANDROID_NDK_HOME \
-      -DANDROID_PLATFORM=android-30 \
+      -DANDROID_PLATFORM=$BUILD_ANDROID_PLATFORM \
       -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_BUILD_TARGET=android \
