@@ -26,6 +26,24 @@ string(REGEX MATCH "PATCH=([0-9]+)" _ ${version_contents})
 set(PATCH ${CMAKE_MATCH_1})
 add_definitions(-D__PARSER_VERSION__="${MAJOR}.${MINOR}.${PATCH}")
 
+function(get_git_revision_variable VAR)
+    find_package(Git QUIET)
+    if(GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} describe --tags --always --dirty
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE GIT_VERSION
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        set(${VAR} "${GIT_VERSION}" PARENT_SCOPE)
+    else()
+        set(${VAR} "unknown" PARENT_SCOPE)
+    endif()
+endfunction()
+get_git_revision_variable(GIT_VERSION)
+add_definitions(-D__GIT_VERSION__="${GIT_VERSION}")
+
 string(TOUPPER "${CMAKE_BUILD_PRODUCT}" TARGET_BUILD_PRODUCT)
 add_definitions(-D__${TARGET_BUILD_PRODUCT}_PARSER__)
 add_definitions(-D__TARGET_PARSER__="${CMAKE_BUILD_PRODUCT}")

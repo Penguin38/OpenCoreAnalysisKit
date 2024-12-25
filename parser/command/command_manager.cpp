@@ -62,8 +62,9 @@ public:
     VersionCommand() : Command("version") {}
     ~VersionCommand() {}
     void usage() {}
-    int main(int /*argc*/, char* const * /*argv[]*/) {
-        LOGI("%s\n", Get().c_str());
+    int main(int argc, char* const argv[]) {
+        LOGI("%s\n", (argc > 1 && !strcmp("--git", argv[1])) ?
+                Git().c_str() : Get().c_str());
         return 0;
     }
     inline static std::string Get() {
@@ -76,6 +77,9 @@ public:
         version.append(" ");
         version.append(__PARSER_VERSION__);
         return version;
+    }
+    inline static std::string Git() {
+        return __GIT_VERSION__;
     }
 };
 
