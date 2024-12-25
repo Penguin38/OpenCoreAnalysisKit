@@ -156,6 +156,7 @@ include_directories(android/sdk)
 include_directories(android/services)
 add_library(android STATIC
             android/android.cpp
+            android/basic.cpp
 
             android/properties/prop_info.cpp
             android/properties/prop_area.cpp
