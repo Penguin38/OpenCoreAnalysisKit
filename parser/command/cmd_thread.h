@@ -25,10 +25,6 @@ public:
     ThreadCommand() : Command("thread", "t") {}
     ~ThreadCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
     void usage();
 };
 
