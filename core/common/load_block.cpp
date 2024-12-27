@@ -28,14 +28,15 @@ void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
          * avoid not found physical page
          * we need copy file_vma to anon_vma
          */
-        if (RoundUp(map->realSize(), sysconf(_SC_PAGE_SIZE) < size())) {
+        if (RoundUp(map->realSize(), sysconf(_SC_PAGE_SIZE)) < size()) {
             std::unique_ptr<MemoryMap> anon(MemoryMap::MmapMem(map->data(), size(), map->realSize()));
             if (anon) {
-                anon->setName(file);
+                anon->setFile(file, offset);
                 map = std::move(anon);
             }
         }
-        LOGI("Mmap segment [%" PRIx64 ", %" PRIx64 ") %s [%" PRIx64 "]\n", vaddr(), vaddr() + size(), file, offset);
+        LOGI("Mmap segment [%" PRIx64 ", %" PRIx64 ") %s [%" PRIx64 "]\n",
+                vaddr(), vaddr() + size(), map->getName().c_str(), map->offset());
         if (isFake() || isOverlayBlock())
             memcpy(reinterpret_cast<uint64_t *>(mOverlay->data()),
                    reinterpret_cast<uint64_t *>(map->data()),
