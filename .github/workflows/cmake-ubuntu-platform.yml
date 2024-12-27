@@ -27,7 +27,7 @@ jobs:
 
     - name: Build
       run: |
-        bash ./build.sh
+        bash ./script/build.sh
         tar -czvf core-parser_1.0.4.tar.gz output/aosp/debug/linux/bin/core-parser \
                                            output/aosp/debug/android/arm64-v8a/bin/core-parser \
                                            output/aosp/debug/android/x86_64/bin/core-parser \

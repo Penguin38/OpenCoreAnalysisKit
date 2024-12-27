@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#export ANDROID_NDK_HOME=""
-#export BUILD_TYPE="Release"
-export BUILD_ANDROID_ABIS="arm64-v8a armeabi-v7a x86_64 x86"
-export SUPPORT_CLANG_VERSIONS="10 11 12 13 14 15 16 17 18"
+if [ -z "$BUILD_ANDROID_ABIS" ];then
+    export BUILD_ANDROID_ABIS="arm64-v8a armeabi-v7a x86_64 x86"
+fi
+if [ -z "$SUPPORT_CLANG_VERSIONS" ];then
+    export SUPPORT_CLANG_VERSIONS="10 11 12 13 14 15 16 17 18"
+fi
 for COMPILER_CLANG_VERSION in $SUPPORT_CLANG_VERSIONS
 do
 if command -v clang-$COMPILER_CLANG_VERSION &> /dev/null
@@ -37,7 +39,9 @@ export BUILD_TARGET_PAGESIZE_LINUX=$BUILD_TARGET_PAGESIZE_4K
 export BUILD_TARGET_PAGESIZE_ANDROID=$BUILD_TARGET_PAGESIZE_16K
 export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
 
-./capstone.sh
+git submodule update --init --recursive
+./script/capstone.sh
+./script/xz-utils.sh
 
 cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
       -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \
@@ -55,7 +59,7 @@ if [ -z $ANDROID_NDK_HOME ];then
     echo "ANDROID_NDK_HOME is not set"
     echo "Example:"
     echo "    export ANDROID_NDK_HOME=NDK_DIR"
-    echo "    ./build.sh"
+    echo "    ./script/build.sh"
     exit
 fi
 for CURRENT_ANDROID_ABI in $BUILD_ANDROID_ABIS

@@ -210,3 +210,7 @@
    You should have received a copy of the BSD 3-Clause "New" or "Revised"
    License along with Capstone. If not, see
    https://github.com/capstone-engine/capstone/blob/next/LICENSES/LICENSE.TXT for details.
+
+   - XZ (https://github.com/tukaani-project/xz)
+
+   See https://github.com/tukaani-project/xz/blob/master/COPYING for details.

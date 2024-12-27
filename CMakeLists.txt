@@ -83,15 +83,13 @@ string(TOUPPER "${CMAKE_BUILD_TYPE}" TARGET_BUILD_TYPE)
 add_definitions(-D__PARSER_${TARGET_BUILD_TYPE}__)
 
 string(TOUPPER "${CMAKE_BUILD_TARGET_PAGESIZE}" TARGET_BUILD_PAGESIZE)
-#The program may have errors, but we still need to remove it because clang will no longer support it in the future.
-#Remove code comments if necessary.
-#set(AUTO_VAR_INIT_ZERO "-ftrivial-auto-var-init=zero -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang")
+
 if (TARGET_BUILD_TYPE STREQUAL "RELEASE")
 set(OPTIMIZED_LEVEL "-O3")
 else()
 set(OPTIMIZED_LEVEL "-O2")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 ${AUTO_VAR_INIT_ZERO} ${OPTIMIZED_LEVEL} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 ${OPTIMIZED_LEVEL} -fPIC")
 
 set(CAPSTONE_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/../capstone)
 set(CAPSTONE_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/capstone/include)
@@ -104,6 +102,19 @@ message(STATUS "Not found ${CAPSTONE_LIB_DIR}/libcapstone.a")
 else()
 add_definitions(-D__CAPSTONE__)
 set(CAPSTONE_LIB capstone)
+endif()
+
+set(LZMA_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/../xz-utils)
+set(LZMA_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/xz-utils/src/liblzma)
+add_library(lzma STATIC IMPORTED)
+set_target_properties(lzma PROPERTIES IMPORTED_LOCATION ${LZMA_LIB_DIR}/liblzma.a)
+include_directories(${LZMA_INCLUDE_DIR})
+
+if (NOT EXISTS "${LZMA_LIB_DIR}/liblzma.a")
+message(STATUS "Not found ${LZMA_LIB_DIR}/liblzma.a")
+else()
+add_definitions(-D__LZMA__)
+set(LZMA_LIB lzma)
 endif()
 
 include_directories(utils)
@@ -147,12 +158,14 @@ add_library(core STATIC
             core/common/load_block.cpp
             core/common/link_map.cpp
             core/common/native_frame.cpp
-            core/common/disassemble/capstone.cpp)
+            core/common/disassemble/capstone.cpp
+            core/common/xz/codec.cpp
+            core/common/xz/lzma.cpp)
 
 if (TARGET_BUILD_PLATFORM STREQUAL "MACOS")
 target_include_directories(core PUBLIC ${CMAKE_CURRENT_LIST_DIR}/macos)
 endif()
-target_link_libraries(core utils ${CAPSTONE_LIB})
+target_link_libraries(core utils ${CAPSTONE_LIB} ${LZMA_LIB})
 
 include_directories(llvm)
 add_library(llvm STATIC

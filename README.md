@@ -1,5 +1,6 @@
 # Dependencies
 [Capstone Disassembly Framework](https://github.com/capstone-engine/capstone)
+[XZ Utils](https://github.com/tukaani-project/xz)
 
 # Techincal System
 ![core-analysis](https://raw.githubusercontent.com/Penguin38/OpenCoreAnalysisKit/refs/heads/main/doc/OpenCoreAnalyzer.jpg)
@@ -29,7 +30,7 @@ https://github.com/android/ndk/wiki/Unsupported-Downloads
 ```
 ```
 export ANDROID_NDK_HOME=<path-to>
-./build.sh
+./script/build.sh
 ```
 # Compatible
 

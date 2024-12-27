@@ -22,6 +22,7 @@
 #include "common/bit.h"
 #include "common/load_block.h"
 #include "common/exception.h"
+#include "common/xz/codec.h"
 #include <string.h>
 #include <linux/elf.h>
 
@@ -268,79 +269,103 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
     return status;
 }
 
+static void ReadSymbolEntry64(std::unique_ptr<MemoryMap>& map, int symndx, int strndx,
+                            std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols) {
+    if (!symndx || !strndx)
+        return;
+
+    Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
+    Elf64_Shdr* shdr = reinterpret_cast<Elf64_Shdr*>(map->data() + ehdr->e_shoff);
+
+    int count = shdr[symndx].sh_size / shdr[symndx].sh_entsize;
+    Elf64_Sym* symtab = reinterpret_cast<Elf64_Sym*>(map->data() + shdr[symndx].sh_offset);
+    const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[strndx].sh_offset);
+    for (int i = 0; i < count; ++i) {
+        if (symtab[i].st_value && symtab[i].st_size) {
+            SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info, symtab[i].st_size,
+                    const_cast<const char*>(strtab + symtab[i].st_name));
+            symbols.insert(entry);
+        }
+    }
+}
+
+static void ReadSymbol64(std::unique_ptr<MemoryMap>& map,
+                         std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols) {
+    if (!map) return;
+
+    int dynsymndx = 0;
+    int dynstrndx = 0;
+    int symtabndx = 0;
+    int strtabndx = 0;
+
+    Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
+    int sh_num = ehdr->e_shnum;
+    Elf64_Shdr* shdr = reinterpret_cast<Elf64_Shdr*>(map->data() + ehdr->e_shoff);
+    const char* shstr = reinterpret_cast<const char*>(map->data() + shdr[ehdr->e_shstrndx].sh_offset);
+
+    for (int i = 0; i < sh_num; ++i) {
+        if (!strcmp(shstr + shdr[i].sh_name, ".dynsym")) {
+            dynsymndx = i;
+            continue;
+        }
+
+        if (!strcmp(shstr + shdr[i].sh_name, ".dynstr")) {
+            dynstrndx = i;
+            continue;
+        }
+
+        if (!strcmp(shstr + shdr[i].sh_name, ".symtab")) {
+            symtabndx = i;
+            continue;
+        }
+
+        if (!strcmp(shstr + shdr[i].sh_name, ".strtab")) {
+            strtabndx = i;
+            continue;
+        }
+    }
+
+    ReadSymbolEntry64(map, dynsymndx, dynstrndx, symbols);
+    ReadSymbolEntry64(map, symtabndx, strtabndx, symbols);
+}
+
 void lp64::Core::readsym64(::LinkMap* handle) {
+    if (!handle->block())
+        return;
+
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(handle->block()->name().c_str(), handle->block()->GetMmapOffset()));
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = handle->block()->GetSymbols();
     if (map) {
         // already check valid on dlopen
         Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
-        Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
-
-        int dynsymndx = -1;
-        int dynstrndx = -1;
-        int symtabndx = -1;
-        int strtabndx = -1;
-        int gnu_debugdatandx = -1;
+        int gnu_debugdatandx = 0;
 
         int sh_num = ehdr->e_shnum;
         Elf64_Shdr* shdr = reinterpret_cast<Elf64_Shdr*>(map->data() + ehdr->e_shoff);
         const char* shstr = reinterpret_cast<const char*>(map->data() + shdr[ehdr->e_shstrndx].sh_offset);
         for (int i = 0; i < sh_num; ++i) {
-            if (!strcmp(shstr + shdr[i].sh_name, ".dynsym")) {
-                dynsymndx = i;
-                continue;
-            }
-
-            if (!strcmp(shstr + shdr[i].sh_name, ".dynstr")) {
-                dynstrndx = i;
-                continue;
-            }
-
-            if (!strcmp(shstr + shdr[i].sh_name, ".symtab")) {
-                symtabndx = i;
-                continue;
-            }
-
-            if (!strcmp(shstr + shdr[i].sh_name, ".strtab")) {
-                strtabndx = i;
-                continue;
-            }
-
             if (!strcmp(shstr + shdr[i].sh_name, ".gnu_debugdata")) {
                 gnu_debugdatandx = i;
-                continue;
+                break;
             }
         }
 
-        // scan dynsym
-        char* match = nullptr;
-        if (dynsymndx > 0 && dynstrndx > 0) {
-            int count = shdr[dynsymndx].sh_size / shdr[dynsymndx].sh_entsize;
-            Elf64_Sym* symtab = reinterpret_cast<Elf64_Sym*>(map->data() + shdr[dynsymndx].sh_offset);
-            const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[dynstrndx].sh_offset);
-            for (int i = 0; i < count; ++i) {
-                if (symtab[i].st_value && symtab[i].st_size) {
-                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info, symtab[i].st_size,
-                                                    const_cast<const char*>(strtab + symtab[i].st_name));
-                    symbols.insert(entry);
-                }
-            }
-        }
-
-        // scan symtab
-        if (symtabndx > 0 && strtabndx > 0) {
-            int count = shdr[symtabndx].sh_size / shdr[symtabndx].sh_entsize;
-            Elf64_Sym* symtab = reinterpret_cast<Elf64_Sym*>(map->data() + shdr[symtabndx].sh_offset);
-            const char* strtab = reinterpret_cast<const char*>(map->data() + shdr[strtabndx].sh_offset);
-            for (int i = 0; i < count; ++i) {
-                if (symtab[i].st_value && symtab[i].st_size) {
-                    SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info, symtab[i].st_size,
-                                                    const_cast<const char*>(strtab + symtab[i].st_name));
-                    symbols.insert(entry);
-                }
-            }
-        }
+        ReadSymbol64(map, symbols);
 
         // scan gnu_debugdata
+        if (gnu_debugdatandx > 0) {
+            if (!xz::Codec::HasLZMASupport())
+                return;
+
+            std::unique_ptr<xz::Codec> codec = xz::Codec::Create(
+                    reinterpret_cast<uint8_t *>(map->data() + shdr[gnu_debugdatandx].sh_offset),
+                    shdr[gnu_debugdatandx].sh_size);
+
+            if (!codec)
+                return;
+
+            std::unique_ptr<MemoryMap> debug_map(codec->Decode2Map());
+            ReadSymbol64(debug_map, symbols);
+        }
     }
 }
