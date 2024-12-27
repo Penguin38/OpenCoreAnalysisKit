@@ -546,6 +546,21 @@ uint32_t Thread::GetTid() {
 
 std::string Thread::GetName() {
     std::string thread;
+
+    api::MemoryRef ref = GetTlsPtr().name();
+    if (ref.IsValid()) {
+        if (Android::Sdk() < Android::T) {
+            cxx::string name = ref;
+            thread = name.str();
+        } else {
+            const char* buf = reinterpret_cast<const char*>(ref.Real());
+            thread = buf;
+        }
+    }
+
+    if (thread.length())
+        return thread;
+
     java::lang::Thread self = GetTlsPtr().opeer();
     if (self.IsValid()) {
         java::lang::String& name = self.getName();
@@ -553,20 +568,6 @@ std::string Thread::GetName() {
             thread = name.toString();
     }
 
-    if (thread.length())
-        return thread;
-
-    api::MemoryRef ref = GetTlsPtr().name();
-    if (!ref.Ptr())
-        return "<Unknown>";
-
-    if (Android::Sdk() < Android::T) {
-        cxx::string name = ref;
-        thread = name.str();
-    } else {
-        const char* buf = reinterpret_cast<const char*>(ref.Real());
-        thread = buf;
-    }
     return thread;
 }
 
