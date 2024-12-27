@@ -1,6 +1,6 @@
-[submodule "capstone"]
-	path = capstone
+[submodule "3rd-party/capstone"]
+	path = 3rd-party/capstone
 	url = https://github.com/Penguin38/capstone.git
-[submodule "xz-utils"]
-	path = xz-utils
+[submodule "3rd-party/xz-utils"]
+	path = 3rd-party/xz-utils
 	url = https://github.com/Penguin38/xz.git

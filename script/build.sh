@@ -40,8 +40,8 @@ export BUILD_TARGET_PAGESIZE_ANDROID=$BUILD_TARGET_PAGESIZE_16K
 export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
 
 git submodule update --init --recursive
-./script/capstone.sh
-./script/xz-utils.sh
+./3rd-party/capstone.sh
+./3rd-party/xz-utils.sh
 
 cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
       -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \
