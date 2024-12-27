@@ -282,6 +282,12 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
                 uint64_t offset = cloc_pc - native_frame->GetMethodOffset();
                 if (offset && native_frame->GetMethodOffset())
                     method_desc.append("+").append(Utils::ToHex(offset));
+
+                if (!method_desc.length() && native_frame->GetLinkMap()
+                        && native_frame->GetLinkMap()->begin()) {
+                    method_desc.append(native_frame->GetLibrary());
+                    method_desc.append("+").append(Utils::ToHex(offset-native_frame->GetLinkMap()->begin()));
+                }
                 LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
                 LOGI("  {\n");
                 LOGI("      library: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, native_frame->GetLibrary().c_str());

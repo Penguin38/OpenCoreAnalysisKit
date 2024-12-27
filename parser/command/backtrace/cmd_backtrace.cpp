@@ -193,6 +193,12 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
             uint64_t offset = (native_frame->GetFramePc() & CoreApi::GetVabitsMask()) - native_frame->GetMethodOffset();
             if (offset && native_frame->GetMethodOffset())
                 method_desc.append("+").append(Utils::ToHex(offset));
+
+            if (!method_desc.length() && native_frame->GetLinkMap()
+                    && native_frame->GetLinkMap()->begin()) {
+                method_desc.append(native_frame->GetLibrary());
+                method_desc.append("+").append(Utils::ToHex(offset-native_frame->GetLinkMap()->begin()));
+            }
             LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
             ++frameid;
             if (frameid == unwind_stack->GetContextNum()) {
@@ -312,6 +318,12 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
                         uint64_t offset = (native_frame->GetFramePc() & CoreApi::GetVabitsMask()) - native_frame->GetMethodOffset();
                         if (offset && native_frame->GetMethodOffset())
                             method_desc.append("+").append(Utils::ToHex(offset));
+
+                        if (!method_desc.length() && native_frame->GetLinkMap()
+                                && native_frame->GetLinkMap()->begin()) {
+                            method_desc.append(native_frame->GetLibrary());
+                            method_desc.append("+").append(Utils::ToHex(offset-native_frame->GetLinkMap()->begin()));
+                        }
                         LOGI(sub_format.c_str(), sub_frameid, native_frame->GetFramePc(), method_desc.c_str());
                         ++sub_frameid;
                     }
