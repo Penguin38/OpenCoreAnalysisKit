@@ -18,6 +18,7 @@
 #define LLVM_CXX_STRING_H_
 
 #include "api/memory_ref.h"
+#include <string>
 
 struct cxx_string_OffsetTable {
     uint32_t __l__cap_;
@@ -55,6 +56,7 @@ public:
     inline uint64_t __l__data() { return VALUEOF(cxx_string, __l__data_); }
 
     const char *c_str();
+    std::string str();
 };
 
 } // namespace cxx

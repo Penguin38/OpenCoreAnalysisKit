@@ -18,6 +18,7 @@
 #define ANDROID_JDK_JAVA_LANG_THREAD_H_
 
 #include "java/lang/Object.h"
+#include "java/lang/String.h"
 #include "java/lang/ThreadGroup.h"
 
 namespace java {
@@ -34,8 +35,10 @@ public:
     inline Object getTarget() { return GetObjectField("target"); }
     inline Object getUncaughtExceptionHandler() { return GetObjectField("uncaughtExceptionHandler"); }
     inline ThreadGroup& getGroup() { return group(); }
+    inline String& getName() { return name(); }
 private:
     DEFINE_OBJECT_FIELD_CACHE(ThreadGroup, group);
+    DEFINE_OBJECT_FIELD_CACHE(String, name);
 };
 
 } // namespace lang

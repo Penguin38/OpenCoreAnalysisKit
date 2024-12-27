@@ -168,7 +168,7 @@ public:
     const char* GetStateDescriptor();
     uint32_t GetThreadId();
     uint32_t GetTid();
-    const char* GetName();
+    std::string GetName();
     void DumpState();
     api::MemoryRef& GetWaitMonitor();
     mirror::Object GetMonitorEnterObject();

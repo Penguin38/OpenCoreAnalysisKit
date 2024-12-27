@@ -46,5 +46,10 @@ const char* string::c_str() {
     }
 }
 
+std::string string::str() {
+    std::string sb = c_str();
+    return sb;
+}
+
 } // namespace cxx
 

@@ -112,7 +112,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
                                "   \"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" %s\n",
                         tid == Env::CurrentPid() ? "*" : " ",
                         thread->GetThreadId(), tid, thread->GetStateDescriptor(), thread->Ptr(),
-                        thread->GetName(), it != threads.end() ? "" : "(NOT EXIST THREAD)");
+                        thread->GetName().c_str(), it != threads.end() ? "" : "(NOT EXIST THREAD)");
                 if (it != threads.end()) threads.erase(it);
             }
 

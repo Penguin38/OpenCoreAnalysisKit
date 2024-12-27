@@ -544,17 +544,30 @@ uint32_t Thread::GetTid() {
     return GetTls32().tid();
 }
 
-const char* Thread::GetName() {
+std::string Thread::GetName() {
+    std::string thread;
+    java::lang::Thread self = GetTlsPtr().opeer();
+    if (self.IsValid()) {
+        java::lang::String& name = self.getName();
+        if (name.IsValid())
+            thread = name.toString();
+    }
+
+    if (thread.length())
+        return thread;
+
     api::MemoryRef ref = GetTlsPtr().name();
     if (!ref.Ptr())
         return "<Unknown>";
 
     if (Android::Sdk() < Android::T) {
         cxx::string name = ref;
-        return name.c_str();
+        thread = name.str();
     } else {
-        return reinterpret_cast<const char*>(ref.Real());
+        const char* buf = reinterpret_cast<const char*>(ref.Real());
+        thread = buf;
     }
+    return thread;
 }
 
 api::MemoryRef& Thread::GetWaitMonitor() {
@@ -628,7 +641,7 @@ void Thread::DumpState() {
     LOGI("\"" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\" "
               ANSI_COLOR_LIGHTYELLOW "sysTid=%d" ANSI_COLOR_RESET " "
               ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
-         GetName(), GetTid(), GetStateDescriptor());
+         GetName().c_str(), GetTid(), GetStateDescriptor());
     java::lang::Thread self = GetTlsPtr().opeer();
     if (self.IsValid()) {
         java::lang::ThreadGroup& group = self.getGroup();
