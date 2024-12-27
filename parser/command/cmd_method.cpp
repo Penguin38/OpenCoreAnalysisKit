@@ -190,6 +190,12 @@ void MethodCommand::Dexdump() {
 }
 
 void MethodCommand::Oatdump() {
+    if (!pc) {
+        std::string method_pretty_desc = method.GetDeclaringClass().PrettyDescriptor();
+        method_pretty_desc.append(".");
+        method_pretty_desc.append(method.GetName());
+        pc = CoreApi::DlSym(method_pretty_desc.c_str());
+    }
     art::OatQuickMethodHeader method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ pc);
     if (method_header.Ptr()) {
         if (verbose) {
