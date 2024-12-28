@@ -18,6 +18,7 @@
 #include "android.h"
 #include "common/bit.h"
 #include "api/core.h"
+#include "base/macros.h"
 #include "runtime/mirror/class.h"
 #include "dex/descriptors_names.h"
 #include "base/length_prefixed_array.h"
@@ -367,23 +368,35 @@ dex::TypeIndex Class::GetDexTypeIndex() {
 }
 
 uint32_t Class::NumInstanceFields() {
-    LengthPrefixedArray arr(ifields(), this);
-    return arr.Ptr() ? arr.size() : 0u;
+    if (LIKELY(Android::Sdk() >= Android::N)) {
+        LengthPrefixedArray arr(ifields(), this);
+        return arr.Ptr() ? arr.size() : 0u;
+    } else
+        return num_instance_fields();
 }
 
 uint64_t Class::GetIFields() {
-    LengthPrefixedArray arr(ifields(), this);
-    return arr.Ptr() ? arr.data() : 0u;
+    if (LIKELY(Android::Sdk() >= Android::N)) {
+        LengthPrefixedArray arr(ifields(), this);
+        return arr.Ptr() ? arr.data() : 0u;
+    } else
+        return ifields();
 }
 
 uint32_t Class::NumStaticFields() {
-    LengthPrefixedArray arr(sfields(), this);
-    return arr.Ptr() ? arr.size() : 0u;
+    if (LIKELY(Android::Sdk() >= Android::N)) {
+        LengthPrefixedArray arr(sfields(), this);
+        return arr.Ptr() ? arr.size() : 0u;
+    } else
+        return num_static_fields();
 }
 
 uint64_t Class::GetSFields() {
-    LengthPrefixedArray arr(sfields(), this);
-    return arr.Ptr() ? arr.data() : 0u;
+    if (LIKELY(Android::Sdk() >= Android::N)) {
+        LengthPrefixedArray arr(sfields(), this);
+        return arr.Ptr() ? arr.data() : 0u;
+    } else
+        return sfields();
 }
 
 Class Class::GetClassLoader() {
@@ -392,13 +405,35 @@ Class Class::GetClassLoader() {
 }
 
 uint32_t Class::NumMethods() {
-    LengthPrefixedArray arr(methods(), this);
-    return arr.Ptr() ? arr.size() : 0u;
+    if (LIKELY(Android::Sdk() >= Android::N)) {
+        LengthPrefixedArray arr(methods(), this);
+        return arr.Ptr() ? arr.size() : 0u;
+    } else
+        return NumDirectMethods() + NumVirtualMethods();
 }
 
 uint64_t Class::GetMethods() {
     LengthPrefixedArray arr(methods(), this);
     return arr.Ptr() ? RoundUp(arr.data(), CoreApi::GetPointSize()) : 0u;
+}
+
+uint32_t Class::NumDirectMethods() {
+    if (LIKELY(Android::Sdk() >= Android::N))
+        return GetVirtualMethodsStartOffset();
+    else
+        return num_direct_methods();
+}
+
+uint64_t Class::GetDirectMethods() {
+    return direct_methods();
+}
+
+uint32_t Class::NumVirtualMethods() {
+    return num_virtual_methods();
+}
+
+uint64_t Class::GetVirtualMethods() {
+    return virtual_methods();
 }
 
 } // namespcae mirror

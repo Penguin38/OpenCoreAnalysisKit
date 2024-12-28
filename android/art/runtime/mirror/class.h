@@ -136,6 +136,14 @@ public:
     inline uint32_t status() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, status_)); }
     inline uint16_t copied_methods_offset() { return *reinterpret_cast<uint16_t*>(Real() + OFFSET(Class, copied_methods_offset_)); }
     inline uint16_t virtual_methods_offset() { return *reinterpret_cast<uint16_t*>(Real() + OFFSET(Class, virtual_methods_offset_)); }
+    // SDK23
+    inline uint32_t dex_cache_strings() { return value32Of(OFFSET(Class, dex_cache_strings_)); }
+    inline uint64_t direct_methods() { return value64Of(OFFSET(Class, direct_methods_)); }
+    inline uint64_t virtual_methods() { return value64Of(OFFSET(Class, virtual_methods_)); }
+    inline uint32_t num_direct_methods() { return value32Of(OFFSET(Class, num_direct_methods_)); }
+    inline uint32_t num_instance_fields() { return value32Of(OFFSET(Class, num_instance_fields_)); }
+    inline uint32_t num_static_fields() { return value32Of(OFFSET(Class, num_static_fields_)); }
+    inline uint32_t num_virtual_methods() { return value32Of(OFFSET(Class, num_virtual_methods_)); }
 
     bool IsArrayClass();
     inline bool IsStringClass() { return (GetClassFlags() & kClassFlagString) != 0x0; }
@@ -210,9 +218,13 @@ public:
     inline IfTable& GetIfTable() { return QUICK_CACHE(iftable); }
     uint32_t NumMethods();
     uint64_t GetMethods();
-    inline uint32_t NumDirectMethods() { return GetVirtualMethodsStartOffset(); }
+    uint32_t NumDirectMethods();
     inline uint32_t GetVirtualMethodsStartOffset() { return virtual_methods_offset(); }
     inline uint16_t GetDexClassDefIndex() { return dex_class_def_idx(); }
+    // SDK 23
+    uint64_t GetDirectMethods();
+    uint32_t NumVirtualMethods();
+    uint64_t GetVirtualMethods();
 
 private:
     // quick memoryref cache

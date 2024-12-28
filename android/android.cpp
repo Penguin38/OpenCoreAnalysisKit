@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "zip/zip_file.h"
 #include "base/utils.h"
+#include "base/macros.h"
 #include "common/bit.h"
 #include "common/elf.h"
 #include "android.h"
@@ -295,30 +296,45 @@ void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (
 }
 
 void Android::ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
-    uint32_t size = clazz.NumMethods();
-    if (!size) return;
-    api::MemoryRef base(clazz.GetMethods(), clazz);
-    base.Prepare(false);
-    int i = 0;
-    do {
-        art::ArtMethod method(base.Ptr() + i * SIZEOF(ArtMethod), base);
-        if (fn(method)) break;
-        i++;
-    } while(i < size);
+    auto visit_methods_fn = [&](uint64_t methods, uint32_t size) {
+        if (size) {
+            api::MemoryRef base(methods, clazz);
+            base.Prepare(false);
+            int i = 0;
+            do {
+                art::ArtMethod method(base.Ptr() + i * SIZEOF(ArtMethod), base);
+                if (fn(method)) break;
+                i++;
+            } while(i < size);
+        }
+    };
+
+    if (LIKELY(Sdk() >= N))
+        visit_methods_fn(clazz.GetMethods(), clazz.NumMethods());
+    else {
+        visit_methods_fn(clazz.GetDirectMethods(), clazz.NumDirectMethods());
+        visit_methods_fn(clazz.GetVirtualMethods(), clazz.NumVirtualMethods());
+    }
 }
 
 void Android::ForeachVirtualArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
-    uint32_t size = clazz.NumMethods();
-    uint32_t virtual_offset = clazz.NumDirectMethods();
-    if (!(size - virtual_offset)) return;
-    api::MemoryRef base(clazz.GetMethods(), clazz);
-    base.Prepare(false);
-    int i = virtual_offset;
-    do {
-        art::ArtMethod method(base.Ptr() + i * SIZEOF(ArtMethod), base);
-        if (fn(method)) break;
-        i++;
-    } while(i < size);
+    auto visit_methods_fn = [&](uint64_t methods, uint32_t size, uint32_t off) {
+        if ((size - off) > 0) {
+            api::MemoryRef base(methods, clazz);
+            base.Prepare(false);
+            int i = off;
+            do {
+                art::ArtMethod method(base.Ptr() + i * SIZEOF(ArtMethod), base);
+                if (fn(method)) break;
+                i++;
+            } while(i < size);
+        }
+    };
+
+    if (LIKELY(Sdk() >= N))
+        visit_methods_fn(clazz.GetMethods(), clazz.NumMethods(), clazz.NumDirectMethods());
+    else
+        visit_methods_fn(clazz.GetVirtualMethods(), clazz.NumVirtualMethods(), 0x0);
 }
 
 void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> fn) {
