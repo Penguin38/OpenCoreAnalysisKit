@@ -278,7 +278,8 @@ void Elf::ReadSymbols(LinkMap* handle) {
 
     // maybe error match
     int64_t symsz = strtab > versym ? (versym - symtab) : (strtab - symtab);
-    if (symsz < 0) return;
+    if (symsz <= 0 || symsz % syment)
+        return;
 
     int64_t count = symsz / syment;
     api::MemoryRef tables = 0x0;
@@ -300,8 +301,9 @@ void Elf::ReadSymbols(LinkMap* handle) {
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& dynsyms = handle->GetDynsyms();
     for (int i = 0; i < count; ++i) {
         if (symbols.st_value() && symbols.st_size()) {
+            api::MemoryRef symname = tables.Ptr() + symbols.st_name();
             SymbolEntry entry = SymbolEntry(symbols.st_value(), symbols.st_info(), symbols.st_size(),
-                                            reinterpret_cast<const char* >(tables.Real() + symbols.st_name()));
+                                            reinterpret_cast<const char* >(symname.Real()));
             dynsyms.insert(entry);
         }
         symbols.MovePtr(syment);
