@@ -28,16 +28,17 @@ struct ReaderWriterMutex_OffsetTable __ReaderWriterMutex_offset__;
 namespace art {
 
 void BaseMutex::Init() {
-    Android::RegisterSdkListener(Android::M, art::BaseMutex::Init26);
-    Android::RegisterSdkListener(Android::N, art::BaseMutex::Init26);
-    Android::RegisterSdkListener(Android::O, art::BaseMutex::Init26);
+    Android::RegisterSdkListener(Android::M, art::BaseMutex::Init23);
     Android::RegisterSdkListener(Android::Q, art::BaseMutex::Init29);
 
-    art::Mutex::Init();
-    art::ReaderWriterMutex::Init();
+    Android::RegisterSdkListener(Android::M, art::Mutex::Init23);
+    Android::RegisterSdkListener(Android::O, art::Mutex::Init26);
+
+    Android::RegisterSdkListener(Android::M, art::ReaderWriterMutex::Init23);
+    Android::RegisterSdkListener(Android::O, art::ReaderWriterMutex::Init26);
 }
 
-void BaseMutex::Init26() {
+void BaseMutex::Init23() {
     if (CoreApi::Bits() == 64) {
         __BaseMutex_offset__ = {
             .vtbl = 0,
@@ -77,7 +78,19 @@ void BaseMutex::Init29() {
     }
 }
 
-void Mutex::Init() {
+void Mutex::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __Mutex_offset__ = {
+            .exclusive_owner_ = 32,
+        };
+    } else {
+        __Mutex_offset__ = {
+            .exclusive_owner_ = 24,
+        };
+    }
+}
+
+void Mutex::Init26() {
     if (CoreApi::Bits() == 64) {
         __Mutex_offset__ = {
             .exclusive_owner_ = 24,
@@ -89,7 +102,21 @@ void Mutex::Init() {
     }
 }
 
-void ReaderWriterMutex::Init() {
+void ReaderWriterMutex::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __ReaderWriterMutex_offset__ = {
+            .state_ = 24,
+            .exclusive_owner_ = 32,
+        };
+    } else {
+        __ReaderWriterMutex_offset__ = {
+            .state_ = 16,
+            .exclusive_owner_ = 24,
+        };
+    }
+}
+
+void ReaderWriterMutex::Init26() {
     if (CoreApi::Bits() == 64) {
         __ReaderWriterMutex_offset__ = {
             .state_ = 20,

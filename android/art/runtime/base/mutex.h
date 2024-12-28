@@ -57,7 +57,7 @@ public:
     };
 
     static void Init();
-    static void Init26();
+    static void Init23();
     static void Init29();
     inline uint64_t vtbl() { return VALUEOF(BaseMutex, vtbl); }
     inline uint64_t name() { return VALUEOF(BaseMutex, name_); }
@@ -79,7 +79,8 @@ public:
     Mutex(uint64_t v, BaseMutex& ref) : BaseMutex(v, ref) {}
     Mutex(uint64_t v, BaseMutex* ref) : BaseMutex(v, ref) {}
 
-    static void Init();
+    static void Init23();
+    static void Init26();
     inline uint32_t exclusive_owner() { return value32Of(OFFSET(Mutex, exclusive_owner_)); }
     bool IsMutex() { return true; }
     uint32_t GetExclusiveOwnerTid();
@@ -92,7 +93,8 @@ public:
     ReaderWriterMutex(uint64_t v, BaseMutex& ref) : BaseMutex(v, ref) {}
     ReaderWriterMutex(uint64_t v, BaseMutex* ref) : BaseMutex(v, ref) {}
 
-    static void Init();
+    static void Init23();
+    static void Init26();
     inline int32_t state() { return value32Of(OFFSET(ReaderWriterMutex, state_)); }
     inline uint32_t exclusive_owner() { return value32Of(OFFSET(ReaderWriterMutex, exclusive_owner_)); }
     bool IsReaderWriterMutex() { return true; }
