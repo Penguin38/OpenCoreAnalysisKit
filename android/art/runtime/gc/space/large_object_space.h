@@ -112,7 +112,7 @@ public:
     LargeObjectSpace(uint64_t v, DiscontinuousSpace* ref) : DiscontinuousSpace(v, ref) {}
 
     static void Init();
-    static void Init26();
+    static void Init23();
     static void Init29();
     static void Init30();
     inline uint64_t begin() { return VALUEOF(LargeObjectSpace, begin_); }
@@ -134,6 +134,8 @@ public:
     LargeObjectMapSpace(uint64_t v, LargeObjectSpace& ref) : LargeObjectSpace(v, ref) {}
     LargeObjectMapSpace(uint64_t v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
+    static void Init23();
+    static void Init24();
     static void Init26();
     static void Init28();
     static void Init29();
@@ -199,6 +201,7 @@ public:
     FreeListSpace(uint64_t v, LargeObjectSpace& ref) : LargeObjectSpace(v, ref) {}
     FreeListSpace(uint64_t v, LargeObjectSpace* ref) : LargeObjectSpace(v, ref) {}
 
+    static void Init23();
     static void Init26();
     static void Init29();
     static void Init30();

@@ -42,27 +42,24 @@ void LargeObjectSpace::Init() {
     art::gc::space::LargeObjectMapSpace::LargeObjectsPair::Init();
     art::gc::space::AllocationInfo::Init();
 
-    Android::RegisterSdkListener(Android::M, art::gc::space::LargeObjectSpace::Init26);
-    Android::RegisterSdkListener(Android::N, art::gc::space::LargeObjectSpace::Init26);
-    Android::RegisterSdkListener(Android::O, art::gc::space::LargeObjectSpace::Init26);
+    Android::RegisterSdkListener(Android::M, art::gc::space::LargeObjectSpace::Init23);
     Android::RegisterSdkListener(Android::Q, art::gc::space::LargeObjectSpace::Init29);
     Android::RegisterSdkListener(Android::R, art::gc::space::LargeObjectSpace::Init30);
 
-    Android::RegisterSdkListener(Android::M, art::gc::space::LargeObjectMapSpace::Init26);
-    Android::RegisterSdkListener(Android::N, art::gc::space::LargeObjectMapSpace::Init26);
+    Android::RegisterSdkListener(Android::M, art::gc::space::LargeObjectMapSpace::Init23);
+    Android::RegisterSdkListener(Android::N, art::gc::space::LargeObjectMapSpace::Init24);
     Android::RegisterSdkListener(Android::O, art::gc::space::LargeObjectMapSpace::Init26);
     Android::RegisterSdkListener(Android::P, art::gc::space::LargeObjectMapSpace::Init28);
     Android::RegisterSdkListener(Android::Q, art::gc::space::LargeObjectMapSpace::Init29);
     Android::RegisterSdkListener(Android::R, art::gc::space::LargeObjectMapSpace::Init30);
 
-    Android::RegisterSdkListener(Android::M, art::gc::space::FreeListSpace::Init26);
-    Android::RegisterSdkListener(Android::N, art::gc::space::FreeListSpace::Init26);
+    Android::RegisterSdkListener(Android::M, art::gc::space::FreeListSpace::Init23);
     Android::RegisterSdkListener(Android::O, art::gc::space::FreeListSpace::Init26);
     Android::RegisterSdkListener(Android::Q, art::gc::space::FreeListSpace::Init29);
     Android::RegisterSdkListener(Android::R, art::gc::space::FreeListSpace::Init30);
 }
 
-void LargeObjectSpace::Init26() {
+void LargeObjectSpace::Init23() {
     if (CoreApi::Bits() == 64) {
         __LargeObjectSpace_offset__ = {
             .num_bytes_allocated_ = 64,
@@ -150,6 +147,46 @@ void LargeObjectSpace::Init30() {
 
         __LargeObjectSpace_size__ = {
             .THIS = 232,
+        };
+    }
+}
+
+void LargeObjectMapSpace::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __LargeObjectMapSpace_offset__ = {
+            .large_objects_ = 168,
+        };
+
+        __LargeObjectMapSpace_size__ = {
+            .THIS = 192,
+        };
+    } else {
+        __LargeObjectMapSpace_offset__ = {
+            .large_objects_ = 120,
+        };
+
+        __LargeObjectMapSpace_size__ = {
+            .THIS = 136,
+        };
+    }
+}
+
+void LargeObjectMapSpace::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __LargeObjectMapSpace_offset__ = {
+            .large_objects_ = 168,
+        };
+
+        __LargeObjectMapSpace_size__ = {
+            .THIS = 192,
+        };
+    } else {
+        __LargeObjectMapSpace_offset__ = {
+            .large_objects_ = 120,
+        };
+
+        __LargeObjectMapSpace_size__ = {
+            .THIS = 136,
         };
     }
 }
@@ -271,6 +308,34 @@ void AllocationInfo::Init() {
     __AllocationInfo_size__ = {
         .THIS = 8,
     };
+}
+
+void FreeListSpace::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __FreeListSpace_offset__ = {
+            .mem_map_ = 112,
+            .allocation_info_map_ = 120,
+            .allocation_info_ = 128,
+            .free_end_ = 176,
+            .free_blocks_ = 184,
+        };
+
+        __FreeListSpace_size__ = {
+            .THIS = 208,
+        };
+    } else {
+        __FreeListSpace_offset__ = {
+            .mem_map_ = 72,
+            .allocation_info_map_ = 76,
+            .allocation_info_ = 80,
+            .free_end_ = 136,
+            .free_blocks_ = 140,
+        };
+
+        __FreeListSpace_size__ = {
+            .THIS = 152,
+        };
+    }
 }
 
 void FreeListSpace::Init26() {
