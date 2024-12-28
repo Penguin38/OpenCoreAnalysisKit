@@ -69,6 +69,7 @@ public:
     inline static const char* REGION_SPACE = "main space (region space)";
     inline static const char* ZYGOTE_SPACE = "Zygote space";
     inline static const char* NON_MOVING_SPACE = "non moving space";
+    inline static const char* ROSALLOC_SPACE = "main rosalloc space";
     inline static const char* FREELIST_SPACE = "free list large object space";
     inline static const char* MEMMAP_SPACE = "mem map large object space";
     inline static const char* BUMP_POINTER_SPACE = "Bump pointer space";

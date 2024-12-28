@@ -65,7 +65,26 @@ void DexFile::Init23() {
             .THIS = 160,
         };
     } else {
-        // TODO
+        __DexFile_offset__ = {
+            .begin_ = 4,
+            .size_ = 8,
+            .data_begin_ = 4,
+            .data_size_ = 8,
+            .location_ = 12,
+            .location_checksum_ = 24,
+            .header_ = 32,
+            .string_ids_ = 36,
+            .type_ids_ = 40,
+            .field_ids_ = 44,
+            .method_ids_ = 48,
+            .proto_ids_ = 52,
+            .class_defs_ = 56,
+            .oat_dex_file_ = 68,
+        };
+
+         __DexFile_size__ = {
+            .THIS = 72,
+        };
     }
 }
 

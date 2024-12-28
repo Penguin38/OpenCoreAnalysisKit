@@ -28,11 +28,41 @@ struct JavaVMExt_SizeTable __JavaVMExt_size__;
 namespace art {
 
 void JavaVMExt::Init() {
+    Android::RegisterSdkListener(Android::M, art::JavaVMExt::Init23);
+    Android::RegisterSdkListener(Android::N, art::JavaVMExt::Init24);
     Android::RegisterSdkListener(Android::O, art::JavaVMExt::Init26);
     Android::RegisterSdkListener(Android::Q, art::JavaVMExt::Init29);
     Android::RegisterSdkListener(Android::S, art::JavaVMExt::Init31);
     Android::RegisterSdkListener(Android::T, art::JavaVMExt::Init33);
     Android::RegisterSdkListener(Android::U, art::JavaVMExt::Init34);
+}
+
+void JavaVMExt::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __JavaVMExt_offset__ = {
+            .globals_ = 64,
+            .weak_globals_ = 136,
+        };
+    } else {
+        __JavaVMExt_offset__ = {
+            .globals_ = 72,
+            .weak_globals_ = 144,
+        };
+    }
+}
+
+void JavaVMExt::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __JavaVMExt_offset__ = {
+            .globals_ = 112,
+            .weak_globals_ = 224,
+        };
+    } else {
+        __JavaVMExt_offset__ = {
+            .globals_ = 32,
+            .weak_globals_ = 72,
+        };
+    }
 }
 
 void JavaVMExt::Init26() {

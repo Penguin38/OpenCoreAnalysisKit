@@ -162,7 +162,7 @@ void LargeObjectMapSpace::Init23() {
         };
     } else {
         __LargeObjectMapSpace_offset__ = {
-            .large_objects_ = 120,
+            .large_objects_ = 112,
         };
 
         __LargeObjectMapSpace_size__ = {

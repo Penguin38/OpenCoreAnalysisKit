@@ -67,7 +67,7 @@ public:
     IrtEntry(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
     IrtEntry(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
-    static void Init26();
+    static void Init23();
     static void Init33();
     inline uint32_t serial() { return value32Of(OFFSET(IrtEntry, serial_)); }
     inline uint64_t references() { return Ptr() + OFFSET(IrtEntry, references_); }
@@ -81,7 +81,7 @@ public:
     IndirectReferenceTable(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
-    static void Init26();
+    static void Init23();
     static void Init29();
     static void Init34();
     inline uint32_t segment_state() { return value32Of(OFFSET(IndirectReferenceTable, segment_state_)); }

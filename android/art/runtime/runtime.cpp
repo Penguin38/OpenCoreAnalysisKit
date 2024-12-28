@@ -58,14 +58,14 @@ void Runtime::Init23() {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,
             .resolution_method_ = 32,
-            .imt_conflict_method_ = 40,
-            .imt_unimplemented_method_ = 48,
-            .heap_ = 244,
-            .monitor_pool_ = 272,
-            .thread_list_ = 276,
-            .class_linker_ = 284,
-            .java_vm_ = 304,
-            .jit_ = 308,
+            .imt_conflict_method_ = 36,
+            .imt_unimplemented_method_ = 40,
+            .heap_ = 200,
+            .monitor_pool_ = 224,
+            .thread_list_ = 228,
+            .class_linker_ = 236,
+            .java_vm_ = 256,
+            .jit_ = 260,
         };
     }
 

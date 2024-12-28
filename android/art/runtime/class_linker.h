@@ -19,6 +19,7 @@
 
 #include "api/memory_ref.h"
 #include "cxx/list.h"
+#include "cxx/vector.h"
 #include "cxx/unordered_map.h"
 #include "runtime/mirror/dex_cache.h"
 #include <vector>
@@ -59,6 +60,8 @@ public:
     ClassLinker(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
+    static void Init23();
+    static void Init24();
     static void Init26();
     static void Init28();
     inline uint64_t dex_caches() { return Ptr() + OFFSET(ClassLinker, dex_caches_); }
@@ -70,6 +73,7 @@ public:
         DexCacheData(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         DexCacheData(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+        static void Init24();
         static void Init26();
         static void Init28();
         static void Init33();
@@ -89,6 +93,7 @@ public:
     };
 
     uint32_t GetDexCacheCount();
+    cxx::vector& GetDexCachesData_v23();
     cxx::list& GetDexCachesData();
     cxx::unordered_map& GetDexCachesData_v33();
     std::vector<std::unique_ptr<DexCacheData>>& GetDexCacheDatas();
@@ -100,6 +105,7 @@ public:
     }
 private:
     // quick memoryref cache
+    cxx::vector dex_caches_v23_cache = 0x0;
     cxx::list dex_caches_cache = 0x0;
     cxx::unordered_map dex_caches_v33_cache = 0x0;
 

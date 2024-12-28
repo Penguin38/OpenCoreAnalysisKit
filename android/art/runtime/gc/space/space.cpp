@@ -187,6 +187,20 @@ SpaceType Space::GetType() {
             }
         } break;
         case EM_386: {
+            uint64_t inst = *reinterpret_cast<uint64_t *>(getTypeCache.Real());
+            if ((inst & 0xFFFF) == 0xc031) {
+                type_cache = kSpaceTypeImageSpace;
+            } else {
+                inst = inst & 0xFFFFFFFFFFULL;
+                if ((inst & 0xb8) == 0xb8) {
+                    uint8_t type = (inst >> 8) & 0xFF;
+                    if (!((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace))
+                        type_cache = static_cast<SpaceType>(type);
+                }
+            }
+
+            if (type_cache != kSpaceTypeInvalidSpace)
+                break;
             /*
              * <0>  push %ebp
              * <1>  mov %esp,%ebp
@@ -194,17 +208,18 @@ SpaceType Space::GetType() {
              * <6>  mov $type,%eax  // xor %eax,%eax
              * ...
              */
-            uint64_t inst = *reinterpret_cast<uint64_t *>(getTypeCache.Real() + 0x6);
+            inst = *reinterpret_cast<uint64_t *>(getTypeCache.Real() + 0x6);
             // xor
             if ((inst & 0xFFFF) == 0xc031) {
                 type_cache = kSpaceTypeImageSpace;
             } else {
                 inst = inst & 0xFFFFFFFFFFULL;
-                uint8_t type = (inst >> 8) & 0xFF;
-                if ((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace)
-                    break;
-
-                type_cache = static_cast<SpaceType>(type);
+                if ((inst & 0xb8) == 0xb8) {
+                    uint8_t type = (inst >> 8) & 0xFF;
+                    if ((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace)
+                        break;
+                    type_cache = static_cast<SpaceType>(type);
+                }
             }
         } break;
     }
@@ -220,7 +235,8 @@ SpaceType Space::GetType() {
         type_cache = kSpaceTypeRegionSpace;
     } else if (!strcmp(space_name, ZYGOTE_SPACE)) {
         type_cache = kSpaceTypeZygoteSpace;
-    } else if (!strcmp(space_name, NON_MOVING_SPACE)) {
+    } else if (!strcmp(space_name, NON_MOVING_SPACE)
+            || !strcmp(space_name, ROSALLOC_SPACE)) {
         type_cache = kSpaceTypeMallocSpace;
     } else if (!strcmp(space_name, FREELIST_SPACE)
             || !strcmp(space_name, MEMMAP_SPACE)) {

@@ -39,7 +39,7 @@ enum class ThreadState : uint8_t {
   kBlocked,                         // BLOCKED        TS_MONITOR   blocked on a monitor
   kWaiting,                         // WAITING        TS_WAIT      in Object.wait()
   kWaitingForLockInflation,         // WAITING        TS_WAIT      blocked inflating a thin-lock         //  SDK 23
-  kWaitingForTaskProcessor,         // WAITING        TS_WAIT      blocked waiting for taskProcessor     //  sdk 23
+  kWaitingForTaskProcessor,         // WAITING        TS_WAIT      blocked waiting for taskProcessor     //  SDK 23
   kWaitingForGcToComplete,          // WAITING        TS_WAIT      blocked waiting for GC
   kWaitingForCheckPointsToRun,      // WAITING        TS_WAIT      GC waiting for checkpoints to run
   kWaitingPerformingGc,             // WAITING        TS_WAIT      performing GC
@@ -54,8 +54,8 @@ enum class ThreadState : uint8_t {
   kWaitingForMethodTracingStart,    // WAITING        TS_WAIT      waiting for method tracing to start
   kWaitingForVisitObjects,          // WAITING        TS_WAIT      waiting for visiting objects
   kWaitingForGetObjectsAllocated,   // WAITING        TS_WAIT      waiting for getting the number of allocated objects
-  kWaitingWeakGcRootRead,           // WAITING        TS_WAIT      waiting on the GC to read a weak root
-  kWaitingForGcThreadFlip,          // WAITING        TS_WAIT      waiting on the GC thread flip (CC collector) to finish
+  kWaitingWeakGcRootRead,           // WAITING        TS_WAIT      waiting on the GC to read a weak root                   // SDK 24
+  kWaitingForGcThreadFlip,          // WAITING        TS_WAIT      waiting on the GC thread flip (CC collector) to finish  // SDK 24
   kNativeForAbort,                  // WAITING        TS_WAIT      checking other threads are not run on abort.   //  SDK 29
   kStarting,                        // NEW            TS_WAIT      native thread started, not yet ready to run managed code
   kNative,                          // RUNNABLE       TS_RUNNING   running in a JNI native method

@@ -25,19 +25,15 @@ struct IndirectReferenceTable_OffsetTable __IndirectReferenceTable_offset__;
 namespace art {
 
 void IndirectReferenceTable::Init() {
-    Android::RegisterSdkListener(Android::M, art::IndirectReferenceTable::Init26);
-    Android::RegisterSdkListener(Android::N, art::IndirectReferenceTable::Init26);
-    Android::RegisterSdkListener(Android::O, art::IndirectReferenceTable::Init26);
+    Android::RegisterSdkListener(Android::M, art::IndirectReferenceTable::Init23);
     Android::RegisterSdkListener(Android::Q, art::IndirectReferenceTable::Init29);
     Android::RegisterSdkListener(Android::U, art::IndirectReferenceTable::Init34);
 
-    Android::RegisterSdkListener(Android::M, art::IrtEntry::Init26);
-    Android::RegisterSdkListener(Android::N, art::IrtEntry::Init26);
-    Android::RegisterSdkListener(Android::O, art::IrtEntry::Init26);
+    Android::RegisterSdkListener(Android::M, art::IrtEntry::Init23);
     Android::RegisterSdkListener(Android::T, art::IrtEntry::Init33);
 }
 
-void IrtEntry::Init26() {
+void IrtEntry::Init23() {
     __IrtEntry_offset__ = {
         .serial_ = 0,
         .references_ = 4,
@@ -57,7 +53,7 @@ void IrtEntry::Init33() {
     };
 }
 
-void IndirectReferenceTable::Init26() {
+void IndirectReferenceTable::Init23() {
     if (CoreApi::Bits() == 64) {
         __IndirectReferenceTable_offset__ = {
             .segment_state_ = 0,
@@ -122,10 +118,12 @@ std::string IndirectReferenceTable::GetDescriptor(IndirectRefKind kind) {
 }
 
 uint32_t IndirectReferenceTable::DecodeIndex(uint64_t uref) {
-    if (Android::Sdk() < Android::T) {
+    if (Android::Sdk() >= Android::T) {
+        return static_cast<uint32_t>((uref >> kKindBits) >> kIRTSerialBits);
+    } else if (Android::Sdk() >= Android::O) {
         return static_cast<uint32_t>((uref >> kKindBits) >> kSerialBits);
     } else {
-        return static_cast<uint32_t>((uref >> kKindBits) >> kIRTSerialBits);
+        return (uref >> 2) & 0xffff;
     }
 }
 
@@ -133,10 +131,12 @@ mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
     mirror::Object object = 0x0;
     uint64_t top_index_ = 0x0;
 
-    if (Android::Sdk() < Android::T) {
+    if (Android::Sdk() >= Android::T) {
+        top_index_ = top_index();
+    } else if (Android::Sdk() >= Android::O) {
         top_index_ = segment_state();
     } else {
-        top_index_ = top_index();
+        top_index_ = segment_state() & 0xFFFF;
     }
 
     if (idx < top_index_) {
@@ -153,15 +153,20 @@ mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
 }
 
 uint64_t IndirectReferenceTable::EncodeIndex(uint32_t table_index) {
-    if (Android::Sdk() < Android::T) {
+    if (Android::Sdk() >= Android::T) {
+        return (static_cast<uint64_t>(table_index) << kKindBits << kIRTSerialBits);
+    } else if (Android::Sdk() >= Android::O) {
         return (static_cast<uint64_t>(table_index) << kKindBits << kSerialBits);
     } else {
-        return (static_cast<uint64_t>(table_index) << kKindBits << kIRTSerialBits);
+        return (static_cast<uint64_t>(table_index) << 2);
     }
 }
 
 uint64_t IndirectReferenceTable::EncodeSerial(uint32_t serial) {
-    return serial << kKindBits;
+    if (Android::Sdk() >= Android::O)
+        return serial << kKindBits;
+    else
+        return serial << 20;
 }
 
 uint64_t IndirectReferenceTable::EncodeIndirectRefKind(IndirectRefKind kind) {
@@ -184,10 +189,12 @@ void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)
     mirror::Object object = 0x0;
     uint32_t top_index_ = 0x0;
 
-    if (Android::Sdk() < Android::T) {
+    if (Android::Sdk() >= Android::T) {
+        top_index_ = top_index();
+    } else if (Android::Sdk() >= Android::O) {
         top_index_ = segment_state();
     } else {
-        top_index_ = top_index();
+        top_index_ = segment_state() & 0xFFFF;
     }
 
     for (int idx = 0; idx < top_index_; ++idx) {

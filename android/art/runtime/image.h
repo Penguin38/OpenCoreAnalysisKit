@@ -59,6 +59,7 @@ public:
 
     static inline uint8_t kMagic[4] = {0x61, 0x72, 0x74, 0x0A}; // art\n
     static void Init();
+    static void Init23();
     static void Init24();
     static void Init26();
     static void Init28();

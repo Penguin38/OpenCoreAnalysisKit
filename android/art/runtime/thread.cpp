@@ -36,8 +36,8 @@ struct Thread_tls_ptr_sized_values_SizeTable __Thread_tls_ptr_sized_values_size_
 namespace art {
 
 void Thread::Init() {
-    Android::RegisterSdkListener(Android::M, art::Thread::Init26);
-    Android::RegisterSdkListener(Android::N, art::Thread::Init26);
+    Android::RegisterSdkListener(Android::M, art::Thread::Init23);
+    Android::RegisterSdkListener(Android::N, art::Thread::Init24);
     Android::RegisterSdkListener(Android::O, art::Thread::Init26);
     Android::RegisterSdkListener(Android::P, art::Thread::Init28);
     Android::RegisterSdkListener(Android::Q, art::Thread::Init29);
@@ -47,9 +47,8 @@ void Thread::Init() {
     Android::RegisterSdkListener(Android::U, art::Thread::Init34);
     Android::RegisterSdkListener(Android::V, art::Thread::Init35);
 
-    Android::RegisterSdkListener(Android::M, art::Thread::tls_ptr_sized_values::Init26);
-    Android::RegisterSdkListener(Android::N, art::Thread::tls_ptr_sized_values::Init26);
-    Android::RegisterSdkListener(Android::O, art::Thread::tls_ptr_sized_values::Init26);
+    Android::RegisterSdkListener(Android::M, art::Thread::tls_ptr_sized_values::Init23);
+    Android::RegisterSdkListener(Android::N, art::Thread::tls_ptr_sized_values::Init24);
     Android::RegisterSdkListener(Android::P, art::Thread::tls_ptr_sized_values::Init28);
     Android::RegisterSdkListener(Android::Q, art::Thread::tls_ptr_sized_values::Init29);
     Android::RegisterSdkListener(Android::R, art::Thread::tls_ptr_sized_values::Init30);
@@ -57,10 +56,40 @@ void Thread::Init() {
     Android::RegisterSdkListener(Android::U, art::Thread::tls_ptr_sized_values::Init34);
     Android::RegisterSdkListener(Android::V, art::Thread::tls_ptr_sized_values::Init35);
 
-    Android::RegisterSdkListener(Android::M, art::Thread::tls_32bit_sized_values::Init26);
-    Android::RegisterSdkListener(Android::N, art::Thread::tls_32bit_sized_values::Init26);
-    Android::RegisterSdkListener(Android::O, art::Thread::tls_32bit_sized_values::Init26);
+    Android::RegisterSdkListener(Android::M, art::Thread::tls_32bit_sized_values::Init23);
     Android::RegisterSdkListener(Android::S, art::Thread::tls_32bit_sized_values::Init31);
+}
+
+void Thread::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 128,
+            .wait_monitor_ = 2448,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 128,
+            .wait_monitor_ = 1116,
+        };
+    }
+}
+
+void Thread::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 128,
+            .wait_monitor_ = 2448,
+        };
+    } else {
+        __Thread_offset__ = {
+            .tls32_ = 0,
+            .tlsPtr_ = 128,
+            .wait_monitor_ = 1116,
+        };
+    }
 }
 
 void Thread::Init26() {
@@ -191,7 +220,7 @@ void Thread::Init35() {
     }
 }
 
-void Thread::tls_32bit_sized_values::Init26() {
+void Thread::tls_32bit_sized_values::Init23() {
     __Thread_tls_32bit_sized_values_offset__ = {
         .state_and_flags = 0,
         .suspend_count = 4,
@@ -209,7 +238,39 @@ void Thread::tls_32bit_sized_values::Init31() {
     };
 }
 
-void Thread::tls_ptr_sized_values::Init26() {
+void Thread::tls_ptr_sized_values::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 16,
+            .managed_stack = 24,
+            .jni_env = 56,
+            .self = 72,
+            .opeer = 80,
+            .stack_begin = 96,
+            .stack_size = 104,
+            .monitor_enter_object = 128,
+            .name = 208,
+            .pthread_self = 216,
+            .held_mutexes = 1768,
+        };
+    } else {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .jni_env = 28,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
+            .name = 100,
+            .pthread_self = 104,
+            .held_mutexes = 744,
+        };
+    }
+}
+
+void Thread::tls_ptr_sized_values::Init24() {
     if (CoreApi::Bits() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,
@@ -468,6 +529,10 @@ const char* Thread::GetStateDescriptor() {
     if (Android::Sdk() < Android::Q) {
         if (Android::Sdk() <= Android::O_MR1) {
             if (state >= static_cast<uint8_t>(ThreadState::kWaitingForLockInflation))
+                state += 2;
+        }
+        if (Android::Sdk() <= Android::M) {
+            if (state >= static_cast<uint8_t>(ThreadState::kWaitingWeakGcRootRead))
                 state += 2;
         }
         if (state >= static_cast<uint8_t>(ThreadState::kNativeForAbort))

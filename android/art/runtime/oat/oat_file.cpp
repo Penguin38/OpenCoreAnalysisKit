@@ -26,6 +26,33 @@ struct OatDexFile_OffsetTable __OatDexFile_offset__;
 namespace art {
 
 void OatFile::Init() {
+    Android::RegisterSdkListener(Android::M, art::OatFile::Init23);
+    Android::RegisterSdkListener(Android::O, art::OatFile::Init26);
+}
+
+void OatDexFile::Init() {
+    Android::RegisterSdkListener(Android::M, art::OatDexFile::Init23);
+    Android::RegisterSdkListener(Android::N, art::OatDexFile::Init24);
+    Android::RegisterSdkListener(Android::P, art::OatDexFile::Init28);
+    Android::RegisterSdkListener(Android::S, art::OatDexFile::Init31);
+    Android::RegisterSdkListener(Android::V, art::OatDexFile::Init35);
+}
+
+void OatFile::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __OatFile_offset__ = {
+            .begin_ = 24,
+            .is_executable_ = 56,
+        };
+    } else {
+        __OatFile_offset__ = {
+            .begin_ = 12,
+            .is_executable_ = 28,
+        };
+    }
+}
+
+void OatFile::Init26() {
     if (CoreApi::Bits() == 64) {
         __OatFile_offset__ = {
             .vdex_ = 32,
@@ -41,16 +68,21 @@ void OatFile::Init() {
     }
 }
 
-void OatDexFile::Init() {
-    Android::RegisterSdkListener(Android::M, art::OatDexFile::Init26);
-    Android::RegisterSdkListener(Android::N, art::OatDexFile::Init26);
-    Android::RegisterSdkListener(Android::O, art::OatDexFile::Init26);
-    Android::RegisterSdkListener(Android::P, art::OatDexFile::Init28);
-    Android::RegisterSdkListener(Android::S, art::OatDexFile::Init31);
-    Android::RegisterSdkListener(Android::V, art::OatDexFile::Init35);
+void OatDexFile::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 72,
+        };
+    } else {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 36,
+        };
+    }
 }
 
-void OatDexFile::Init26() {
+void OatDexFile::Init24() {
     if (CoreApi::Bits() == 64) {
         __OatDexFile_offset__ = {
             .oat_file_ = 0,

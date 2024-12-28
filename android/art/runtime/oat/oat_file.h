@@ -52,6 +52,8 @@ public:
     OatFile(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
+    static void Init23();
+    static void Init26();
     inline uint64_t vdex() { return VALUEOF(OatFile, vdex_); }
     inline uint64_t begin() { return VALUEOF(OatFile, begin_); }
     inline uint8_t is_executable() { return value8Of(OFFSET(OatFile, is_executable_)); }
@@ -111,7 +113,8 @@ public:
     OatDexFile(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
-    static void Init26();
+    static void Init23();
+    static void Init24();
     static void Init28();
     static void Init31();
     static void Init35();

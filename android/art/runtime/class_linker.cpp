@@ -27,16 +27,39 @@ struct DexCacheData_SizeTable __DexCacheData_size__;
 namespace art {
 
 void ClassLinker::Init() {
-    Android::RegisterSdkListener(Android::M, art::ClassLinker::Init26);
-    Android::RegisterSdkListener(Android::N, art::ClassLinker::Init26);
+    Android::RegisterSdkListener(Android::M, art::ClassLinker::Init23);
+    Android::RegisterSdkListener(Android::N, art::ClassLinker::Init24);
     Android::RegisterSdkListener(Android::O, art::ClassLinker::Init26);
     Android::RegisterSdkListener(Android::P, art::ClassLinker::Init28);
 
-    Android::RegisterSdkListener(Android::M, art::ClassLinker::DexCacheData::Init26);
-    Android::RegisterSdkListener(Android::N, art::ClassLinker::DexCacheData::Init26);
+    Android::RegisterSdkListener(Android::N, art::ClassLinker::DexCacheData::Init24);
     Android::RegisterSdkListener(Android::O, art::ClassLinker::DexCacheData::Init26);
     Android::RegisterSdkListener(Android::P, art::ClassLinker::DexCacheData::Init28);
     Android::RegisterSdkListener(Android::T, art::ClassLinker::DexCacheData::Init33);
+}
+
+void ClassLinker::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __ClassLinker_offset__ = {
+            .dex_caches_ = 100,
+        };
+    } else {
+        __ClassLinker_offset__ = {
+            .dex_caches_ = 76,
+        };
+    }
+}
+
+void ClassLinker::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __ClassLinker_offset__ = {
+            .dex_caches_ = 96,
+        };
+    } else {
+        __ClassLinker_offset__ = {
+            .dex_caches_ = 64,
+        };
+    }
 }
 
 void ClassLinker::Init26() {
@@ -59,6 +82,20 @@ void ClassLinker::Init28() {
     } else {
         __ClassLinker_offset__ = {
             .dex_caches_ = 28,
+        };
+    }
+}
+
+void ClassLinker::DexCacheData::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __DexCacheData_offset__ = {
+            .weak_root = 0,
+            .dex_file = 8,
+        };
+    } else {
+        __DexCacheData_offset__ = {
+            .weak_root = 0,
+            .dex_file = 4,
         };
     }
 }
@@ -112,11 +149,23 @@ void ClassLinker::DexCacheData::Init33() {
 }
 
 uint32_t ClassLinker::GetDexCacheCount() {
-    if (Android::Sdk() < Android::T) {
+    if (Android::Sdk() >= Android::T) {
+        return GetDexCachesData_v33().size();
+    } else if (Android::Sdk() >= Android::N) {
         return GetDexCachesData().size();
     } else {
-        return GetDexCachesData_v33().size();
+        return GetDexCachesData_v23().size();
     }
+}
+
+cxx::vector& ClassLinker::GetDexCachesData_v23() {
+    if (!dex_caches_v23_cache.Ptr()) {
+        dex_caches_v23_cache = dex_caches();
+        dex_caches_v23_cache.copyRef(this);
+        dex_caches_v23_cache.Prepare(false);
+        dex_caches_v23_cache.SetEntrySize(4);
+    }
+    return dex_caches_v23_cache;
 }
 
 cxx::list& ClassLinker::GetDexCachesData() {
@@ -144,7 +193,15 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
     Runtime& runtime = art::Runtime::Current();
     JavaVMExt& vm = runtime.GetJavaVM();
 
-    if (Android::Sdk() < Android::T) {
+    if (Android::Sdk() >= Android::T) {
+        for (const auto& value : GetDexCachesData_v33()) {
+            // std::unordered_map<const DexFile*, DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
+            api::MemoryRef ref = value;
+            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(CoreApi::GetPointSize() + value);
+            data->InitCache(vm.Decode(data->weak_root()), ref.valueOf());
+            dex_caches_second_cache.push_back(std::move(data));
+        }
+    } else if (Android::Sdk() >= Android::N) {
         for (const auto& value : GetDexCachesData()) {
             // std::list<DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
             std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(value);
@@ -152,11 +209,12 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
             dex_caches_second_cache.push_back(std::move(data));
         }
     } else {
-        for (const auto& value : GetDexCachesData_v33()) {
-            // std::unordered_map<const DexFile*, DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
+        for (const auto& value : GetDexCachesData_v23()) {
+            // std::vector<GcRoot<mirror::DexCache>> dex_caches_ GUARDED_BY(dex_lock_);
             api::MemoryRef ref = value;
-            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(CoreApi::GetPointSize() + value);
-            data->InitCache(vm.Decode(data->weak_root()), ref.valueOf());
+            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(0x0);
+            mirror::DexCache dex_cache = ref.value32Of();
+            data->InitCache(dex_cache.Ptr(), dex_cache.GetDexFile().Ptr());
             dex_caches_second_cache.push_back(std::move(data));
         }
     }
