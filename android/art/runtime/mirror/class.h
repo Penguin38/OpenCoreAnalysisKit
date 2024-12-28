@@ -146,7 +146,7 @@ public:
     inline uint32_t num_virtual_methods() { return value32Of(OFFSET(Class, num_virtual_methods_)); }
 
     bool IsArrayClass();
-    inline bool IsStringClass() { return (GetClassFlags() & kClassFlagString) != 0x0; }
+    bool IsStringClass();
     inline bool IsDexCacheClass() { return (GetClassFlags() & kClassFlagDexCache) != 0x0; }
     inline bool IsClassLoaderClass() { return (GetClassFlags() & kClassFlagClassLoader) != 0x0; }
     inline bool IsClassClass() { return GetClass() == *this; }

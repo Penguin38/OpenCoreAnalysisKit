@@ -145,6 +145,13 @@ bool Class::IsArrayClass() {
     return GetComponentType() != 0x0;
 }
 
+bool Class::IsStringClass() {
+    if (LIKELY(Android::Sdk() >= Android::N))
+        return (GetClassFlags() & kClassFlagString) != 0x0;
+    else
+        return (GetAccessFlags() & kAccClassIsStringClass) != 0x0;
+}
+
 bool Class::IsObjectClass() {
     return !IsPrimitive() && GetSuperClass() == 0x0;
 }
@@ -190,23 +197,38 @@ bool Class::IsPrimitiveVoid() {
 }
 
 bool Class::IsTypeOfReferenceClass() {
-    return (GetClassFlags() & kClassFlagReference) != 0x0;
+    if (LIKELY(Android::Sdk() >= Android::N))
+        return (GetClassFlags() & kClassFlagReference) != 0x0;
+    else
+        return (GetAccessFlags() & kAccClassIsReference) != 0x0;
 }
 
 bool Class::IsWeakReferenceClass() {
-    return GetClassFlags() == kClassFlagWeakReference;
+    if (LIKELY(Android::Sdk() >= Android::N))
+        return GetClassFlags() == kClassFlagWeakReference;
+    else
+        return (GetAccessFlags() & kAccClassIsWeakReference) != 0x0;
 }
 
 bool Class::IsSoftReferenceClass() {
-    return GetClassFlags() == kClassFlagSoftReference;
+    if (LIKELY(Android::Sdk() >= Android::N))
+        return GetClassFlags() == kClassFlagSoftReference;
+    else
+        return (GetAccessFlags() & kAccReferenceFlagsMask) == kAccClassIsReference;
 }
 
 bool Class::IsFinalizerReferenceClass() {
-    return GetClassFlags() == kClassFlagFinalizerReference;
+    if (LIKELY(Android::Sdk() >= Android::N))
+        return GetClassFlags() == kClassFlagFinalizerReference;
+    else
+        return (GetAccessFlags() & kAccClassIsFinalizerReference) != 0x0;
 }
 
 bool Class::IsPhantomReferenceClass() {
-    return GetClassFlags() == kClassFlagPhantomReference;
+    if (LIKELY(Android::Sdk() >= Android::N))
+        return GetClassFlags() == kClassFlagPhantomReference;
+    else
+        return (GetAccessFlags() & kAccClassIsPhantomReference) != 0x0;
 }
 
 bool Class::IsRetired() {

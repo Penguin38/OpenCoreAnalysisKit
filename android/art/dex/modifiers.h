@@ -123,6 +123,22 @@ static constexpr uint32_t kAccHasDefaultMethod          = 0x40000000;
 // class/ancestor overrides finalize()
 static constexpr uint32_t kAccClassIsFinalizable        = 0x80000000;
 
+// SDK 23
+// class is a soft/weak/phantom ref
+static constexpr uint32_t kAccClassIsReference          = 0x08000000;
+// class is a weak reference
+static constexpr uint32_t kAccClassIsWeakReference      = 0x04000000;
+// class is a finalizer reference
+static constexpr uint32_t kAccClassIsFinalizerReference = 0x02000000;
+// class is a phantom reference
+static constexpr uint32_t kAccClassIsPhantomReference   = 0x01000000;
+// class is the string class
+static constexpr uint32_t kAccClassIsStringClass        = 0x00800000;
+static constexpr uint32_t kAccReferenceFlagsMask = (kAccClassIsReference
+                                                  | kAccClassIsWeakReference
+                                                  | kAccClassIsFinalizerReference
+                                                  | kAccClassIsPhantomReference);
+
 static constexpr uint32_t kAccHiddenapiBits = kAccPublicApi | kAccCorePlatformApi;
 
 // Continuous sequence of bits used to hold the ordinal of an intrinsic method. Flags

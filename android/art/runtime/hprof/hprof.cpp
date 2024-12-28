@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "base/macros.h"
 #include "runtime/hprof/hprof.h"
 #include "runtime/runtime.h"
 #include "runtime/gc/heap.h"
@@ -532,13 +533,15 @@ private:
 };
 
 bool Hprof::AddRuntimeInternalObjectsField(mirror::Class& klass) {
-    if (klass.IsDexCacheClass())
-        return true;
+    if (LIKELY(Android::Sdk() >= Android::N)) {
+        if (klass.IsDexCacheClass())
+            return true;
 
-    mirror::Class super_clazz = klass.GetSuperClass();
-    if (klass.IsClassLoaderClass() && super_clazz.Ptr()
-            && super_clazz.IsObjectClass()) {
-        return true;
+        mirror::Class super_clazz = klass.GetSuperClass();
+        if (klass.IsClassLoaderClass() && super_clazz.Ptr()
+                && super_clazz.IsObjectClass()) {
+            return true;
+        }
     }
     return false;
 }
