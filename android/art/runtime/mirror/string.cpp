@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "android.h"
 #include "runtime/mirror/string.h"
 #include "runtime/runtime_globals.h"
 #include "dex/utf.h"
@@ -43,7 +44,10 @@ int32_t String::GetCount() {
 }
 
 int32_t String::GetLength() {
-    return GetLengthFromCount(GetCount());
+    if (Android::Sdk() >= Android::O)
+        return GetLengthFromCount(GetCount());
+    else
+        return GetCount();
 }
 
 int32_t String::GetLengthFromCount(int32_t count) {
@@ -51,7 +55,10 @@ int32_t String::GetLengthFromCount(int32_t count) {
 }
 
 bool String::IsCompressed() {
-    return GetCompressionFlagFromCount(GetCount()) == StringCompressionFlag::kCompressed;
+    if (Android::Sdk() >= Android::O)
+        return GetCompressionFlagFromCount(GetCount()) == StringCompressionFlag::kCompressed;
+    else
+        return false;
 }
 
 StringCompressionFlag String::GetCompressionFlagFromCount(int32_t count) {
