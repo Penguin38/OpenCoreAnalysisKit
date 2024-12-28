@@ -33,16 +33,61 @@ struct PtrSizedFields_OffsetTable __PtrSizedFields_offset__;
 namespace art {
 
 void ArtMethod::Init() {
-    Android::RegisterSdkListener(Android::M, art::ArtMethod::Init26);
-    Android::RegisterSdkListener(Android::N, art::ArtMethod::Init26);
+    Android::RegisterSdkListener(Android::M, art::ArtMethod::Init23);
+    Android::RegisterSdkListener(Android::N, art::ArtMethod::Init24);
     Android::RegisterSdkListener(Android::O, art::ArtMethod::Init26);
     Android::RegisterSdkListener(Android::P, art::ArtMethod::Init28);
     Android::RegisterSdkListener(Android::S, art::ArtMethod::Init31);
 
-    Android::RegisterSdkListener(Android::M, art::ArtMethod::PtrSizedFields::Init26);
-    Android::RegisterSdkListener(Android::N, art::ArtMethod::PtrSizedFields::Init26);
+    Android::RegisterSdkListener(Android::M, art::ArtMethod::PtrSizedFields::Init23);
+    Android::RegisterSdkListener(Android::N, art::ArtMethod::PtrSizedFields::Init24);
     Android::RegisterSdkListener(Android::O, art::ArtMethod::PtrSizedFields::Init26);
     Android::RegisterSdkListener(Android::P, art::ArtMethod::PtrSizedFields::Init28);
+}
+
+void ArtMethod::Init23() {
+    __ArtMethod_offset__ = {
+        .declaring_class_ = 0,
+        .access_flags_ = 12,
+        .dex_code_item_offset_ = 16,
+        .dex_method_index_ = 20,
+        .method_index_ = 24,
+        .ptr_sized_fields_ = 28,
+    };
+
+    if (CoreApi::Bits() == 64) {
+        __ArtMethod_size__ = {
+            .THIS = 52,
+        };
+    } else {
+        __ArtMethod_size__ = {
+            .THIS = 40,
+        };
+    }
+}
+
+void ArtMethod::Init24() {
+    __ArtMethod_offset__ = {
+        .declaring_class_ = 0,
+        .access_flags_ = 4,
+        .dex_code_item_offset_ = 8,
+        .dex_method_index_ = 12,
+        .method_index_ = 16,
+        .hotness_count_ = 18,
+        .imt_index_ = 18,
+        .ptr_sized_fields_ = 24,
+    };
+
+    if (CoreApi::Bits() == 64) {
+        __ArtMethod_size__ = {
+            .THIS = 56,
+        };
+    } else {
+        __ArtMethod_offset__.ptr_sized_fields_ = 20;
+        __ArtMethod_size__ = {
+            .THIS = 36,
+        };
+    }
 }
 
 void ArtMethod::Init26() {
@@ -111,6 +156,34 @@ void ArtMethod::Init31() {
     } else {
         __ArtMethod_size__ = {
             .THIS = 24,
+        };
+    }
+}
+
+void ArtMethod::PtrSizedFields::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __PtrSizedFields_offset__ = {
+            .data_ = 8,
+            .entry_point_from_quick_compiled_code_ = 16,
+        };
+    } else {
+        __PtrSizedFields_offset__ = {
+            .data_ = 4,
+            .entry_point_from_quick_compiled_code_ = 8,
+        };
+    }
+}
+
+void ArtMethod::PtrSizedFields::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __PtrSizedFields_offset__ = {
+            .data_ = 16,
+            .entry_point_from_quick_compiled_code_ = 24,
+        };
+    } else {
+        __PtrSizedFields_offset__ = {
+            .data_ = 8,
+            .entry_point_from_quick_compiled_code_ = 12,
         };
     }
 }

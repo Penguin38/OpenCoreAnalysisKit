@@ -65,6 +65,8 @@ public:
     inline bool operator!=(ArtMethod& ref) { return Ptr() != ref.Ptr(); }
 
     static void Init();
+    static void Init23();
+    static void Init24();
     static void Init26();
     static void Init28();
     static void Init31();
@@ -84,6 +86,8 @@ public:
         PtrSizedFields(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
         PtrSizedFields(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
+        static void Init23();
+        static void Init24();
         static void Init26();
         static void Init28();
         inline uint64_t data() { return VALUEOF(PtrSizedFields, data_); }
