@@ -40,6 +40,16 @@ public:
             return oraddr();
         return 0x0;
     }
+    inline uint64_t size() { return size(OPT_READ_ALL); }
+    inline uint64_t size(int opt) {
+        if (UNLIKELY(mOverlay && (opt & OPT_READ_OVERLAY)))
+            return mOverlay->size();
+        if (UNLIKELY(mMmap && (opt & OPT_READ_MMAP)))
+            return mMmap->size();
+        if (LIKELY(oraddr() && (opt & OPT_READ_OR)))
+            return realSize();
+        return 0x0;
+    }
     inline bool isValid() {
         if ((isValidBlock() || mMmap || mOverlay))
             return true;

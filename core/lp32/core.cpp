@@ -228,7 +228,7 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
         uint32_t mem_size = RoundUp(phdr[index].p_offset + map->offset()
                                   + phdr[index].p_memsz, phdr[index].p_align)
                                   - page_offset;
-        if (mem_size >= block->size()) {
+        if (mem_size >= block->memsz()) {
             block->setMmapFile(file, page_offset);
             if (handle) block->bind(handle);
             status = true;
@@ -238,11 +238,11 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
         }
 
         // continue mmap
-        if (mem_size > block->size()) {
+        if (mem_size > block->memsz()) {
             LOGD("Mmap segment [%" PRIx64 ", %" PRIx64 ") size %" PRIx64 " != %x, maybe reset range!\n",
-                    block->vaddr(), block->vaddr() + block->size(), block->size(), mem_size);
+                    block->vaddr(), block->vaddr() + block->memsz(), block->memsz(), mem_size);
 
-            uint32_t cur_size = block->size();
+            uint32_t cur_size = block->memsz();
             while (cur_size < mem_size) {
                 uint32_t next = current + cur_size;
                 uint32_t next_page_offset = page_offset + cur_size;
@@ -252,7 +252,7 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
                     LOGD("Not found next LoadBlock(%x)\n", next);
                     break;
                 }
-                cur_size += next_block->size();
+                cur_size += next_block->memsz();
 
                 if (!next_block->CheckCanMmap(next))
                     continue;

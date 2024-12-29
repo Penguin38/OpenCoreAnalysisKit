@@ -39,7 +39,7 @@ void NativeFrame::Decode() {
             return true;
         } else if (link->begin() && va_pc >= link->begin()
                 && (va_pc < link->l_ld() ||
-                    (ld_block ? (va_pc <= ld_block->vaddr() + ld_block->size()) : false))) {
+                    (ld_block ? (va_pc <= ld_block->vaddr() + ld_block->memsz()) : false))) {
             map = link;
             return true;
 

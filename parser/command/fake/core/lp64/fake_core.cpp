@@ -59,7 +59,7 @@ int FakeCore::execute(const char* output) {
         tmp[num].p_vaddr = note->vaddr();
         tmp[num].p_paddr = note->paddr();
         tmp[num].p_filesz = note->realSize();
-        tmp[num].p_memsz = note->size();
+        tmp[num].p_memsz = note->memsz();
         tmp[num].p_align = note->align();
 
         current_offset = RoundUp(tmp[num].p_offset + tmp[num].p_filesz, ELF_PAGE_SIZE);
@@ -76,7 +76,7 @@ int FakeCore::execute(const char* output) {
         tmp[num].p_vaddr = block->vaddr();
         tmp[num].p_paddr = block->paddr();
         tmp[num].p_filesz = block->realSize();
-        tmp[num].p_memsz = block->size();
+        tmp[num].p_memsz = block->memsz();
         tmp[num].p_align = block->align();
 
         if (!block->realSize() && block->isValid())

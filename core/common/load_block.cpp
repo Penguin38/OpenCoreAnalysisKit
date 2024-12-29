@@ -22,21 +22,21 @@
 #include <unistd.h>
 
 void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
-    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, size(), offset));
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, memsz(), offset));
     if (map) {
         /*
          * avoid not found physical page
          * we need copy file_vma to anon_vma
          */
-        if (RoundUp(map->realSize(), sysconf(_SC_PAGE_SIZE)) < size()) {
-            std::unique_ptr<MemoryMap> anon(MemoryMap::MmapMem(map->data(), size(), map->realSize()));
+        if (RoundUp(map->realSize(), sysconf(_SC_PAGE_SIZE)) < memsz()) {
+            std::unique_ptr<MemoryMap> anon(MemoryMap::MmapMem(map->data(), memsz(), map->realSize()));
             if (anon) {
                 anon->setFile(file, offset);
                 map = std::move(anon);
             }
         }
         LOGI("Mmap segment [%" PRIx64 ", %" PRIx64 ") %s [%" PRIx64 "]\n",
-                vaddr(), vaddr() + size(), map->getName().c_str(), map->offset());
+                vaddr(), vaddr() + memsz(), map->getName().c_str(), map->offset());
         if (isFake() || isOverlayBlock())
             memcpy(reinterpret_cast<uint64_t *>(mOverlay->data()),
                    reinterpret_cast<uint64_t *>(map->data()),
@@ -50,15 +50,15 @@ bool LoadBlock::newOverlay() {
         std::unique_ptr<MemoryMap> map;
         if (isValid()) {
             std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapMem(
-                begin(), size(), !isMmapBlock()? size() : mMmap->realSize()));
+                begin(), memsz(), !isMmapBlock()? realSize() : mMmap->realSize()));
             map = std::move(tmp);
         } else {
-            std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapZeroMem(size()));
+            std::unique_ptr<MemoryMap> tmp(MemoryMap::MmapZeroMem(memsz()));
             map = std::move(tmp);
         }
         if (map) {
             mOverlay = std::move(map);
-            LOGI("New overlay [%" PRIx64 ", %" PRIx64 ")\n", vaddr(), vaddr() + size());
+            LOGI("New overlay [%" PRIx64 ", %" PRIx64 ")\n", vaddr(), vaddr() + memsz());
         }
     }
     return mOverlay != 0x0;
@@ -73,7 +73,7 @@ void LoadBlock::setOverlay(uint64_t addr, void *buf, uint64_t size) {
 
 void LoadBlock::removeMmap() {
     if (mMmap) {
-        LOGI("Remove mmap [%" PRIx64 ", %" PRIx64 ") %s\n", vaddr(), vaddr() + size(), name().c_str());
+        LOGI("Remove mmap [%" PRIx64 ", %" PRIx64 ") %s\n", vaddr(), vaddr() + memsz(), name().c_str());
         mSymbols.clear();
         mMmap.reset();
     }
@@ -82,7 +82,7 @@ void LoadBlock::removeMmap() {
 void LoadBlock::removeOverlay() {
     if (mOverlay) {
         if (!isFake()) {
-            LOGI("Remove overlay [%" PRIx64 ", %" PRIx64 ")\n", vaddr(), vaddr() + size());
+            LOGI("Remove overlay [%" PRIx64 ", %" PRIx64 ")\n", vaddr(), vaddr() + memsz());
             mOverlay.reset();
         } else {
             LOGE("Can't remove fake load\n");

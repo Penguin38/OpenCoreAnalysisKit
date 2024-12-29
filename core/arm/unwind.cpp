@@ -42,7 +42,7 @@ uint32_t UnwindStack::GetUContext() {
         while(uc.Ptr() + sizeof(struct ucontext) < (block->vaddr() + block->size())) {
             struct ucontext* context = (struct ucontext*)uc.Real();
             if (block->virtualContains(context->uc_stack.ss_sp)
-                    && context->uc_stack.ss_size <= block->size()
+                    && context->uc_stack.ss_size <= block->memsz()
                     && context->uc_stack.ss_size >= CoreApi::GetPageSize()
                     && !(context->uc_stack.ss_size % CoreApi::GetPageSize())
                     // uc_link must 0

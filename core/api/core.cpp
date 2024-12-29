@@ -208,9 +208,9 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
             } else {
                 for (int idx = 1; idx < mLoad.size(); ++idx) {
                     std::shared_ptr<LoadBlock> right = mLoad[idx];
-                    if (right->vaddr() - (left->vaddr() + left->size()) >= size) {
+                    if (right->vaddr() - (left->vaddr() + left->memsz()) >= size) {
                         idxInLoad = idx;
-                        begin = left->vaddr() + left->size();
+                        begin = left->vaddr() + left->memsz();
                         break;
                     } else {
                         left = right;

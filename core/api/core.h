@@ -208,7 +208,7 @@ public:
         uint64_t clocaddr = vaddr & getVabitsMask();
 
         if (clocaddr < loads[left]->vaddr()
-                || clocaddr >= (loads[right - 1]->vaddr() + loads[right - 1]->size()))
+                || clocaddr >= (loads[right - 1]->vaddr() + loads[right - 1]->memsz()))
            return nullptr;
 
         while (left < right) {
@@ -217,7 +217,7 @@ public:
             if (block->vaddr() > clocaddr) {
                 right = mid;
             } else {
-                if (clocaddr < (block->vaddr() + block->size()))
+                if (clocaddr < (block->vaddr() + block->memsz()))
                     return block;
                 left = mid + 1;
             }

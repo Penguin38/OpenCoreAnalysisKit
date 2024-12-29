@@ -86,7 +86,7 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
         }
         LOGI("%3d " ANSI_COLOR_YELLOW "0x%" PRIx64 "" ANSI_COLOR_CYAN "  [%" PRIx64 ", %" PRIx64 ")"
                     ANSI_COLOR_RESET "  %s  " ANSI_COLOR_LIGHTMAGENTA " %" PRIx64 "  " ANSI_COLOR_GREEN "%s" ANSI_COLOR_RESET " %s\n",
-                pos, map->map(), block->vaddr(), block->vaddr() + block->size(),
+                pos, map->map(), block->vaddr(), block->vaddr() + block->memsz(),
                 block->convertFlags().c_str(), map->l_addr(), name.c_str(), block->convertValids().c_str());
     } else {
         LOGI("%3d " ANSI_COLOR_YELLOW "0x%" PRIx64 "" ANSI_COLOR_CYAN "  [    ???   ,    ???    )"

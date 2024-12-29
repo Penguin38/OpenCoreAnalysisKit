@@ -495,7 +495,7 @@ void DexFile::dumpReason(uint64_t vaddr) {
         } else {
             LoadBlock* block = CoreApi::FindLoadBlock(vaddr, false);
             if (block) {
-                LOGD("[%" PRIx64 ", %" PRIx64 ") %s [EMPTY]\n", block->vaddr(), block->vaddr() + block->size(), GetLocation().c_str());
+                LOGD("[%" PRIx64 ", %" PRIx64 ") %s [EMPTY]\n", block->vaddr(), block->vaddr() + block->memsz(), GetLocation().c_str());
             }
         }
     }

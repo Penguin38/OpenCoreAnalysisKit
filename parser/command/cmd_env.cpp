@@ -285,7 +285,7 @@ int EnvCommand::showLoadEnv(bool quick) {
             name.append("[]");
         }
         LOGI("  %-5d " ANSI_COLOR_CYAN "[%" PRIx64 ", %" PRIx64 ")" ANSI_COLOR_RESET "  %s  %010" PRIx64 "  ""%s"" %s\n",
-                index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
+                index, block->vaddr(), block->vaddr() + block->memsz(), block->convertFlags().c_str(),
                 block->realSize(), name.c_str(), block->convertValids().c_str());
         return false;
     };
@@ -335,9 +335,9 @@ int EnvCommand::clocLoadCRC32(int num) {
             if (!memcmp(header->ident, ELFMAG, 4)) {
                 // skip elf header
                 or_crc = Utils::CRC32(reinterpret_cast<uint8_t*>(block->begin(LoadBlock::OPT_READ_OR)) + SIZEOF(Elfx_Ehdr),
-                        block->size() - SIZEOF(Elfx_Ehdr));
+                        block->size(LoadBlock::OPT_READ_OR) - SIZEOF(Elfx_Ehdr));
                 mmap_crc = Utils::CRC32(reinterpret_cast<uint8_t*>(block->begin(LoadBlock::OPT_READ_MMAP)) + SIZEOF(Elfx_Ehdr),
-                        block->size() - SIZEOF(Elfx_Ehdr));
+                        block->size(LoadBlock::OPT_READ_MMAP) - SIZEOF(Elfx_Ehdr));
             } else {
                 or_crc = block->GetCRC32(LoadBlock::OPT_READ_OR);
                 mmap_crc = block->GetCRC32(LoadBlock::OPT_READ_MMAP);
@@ -352,12 +352,12 @@ int EnvCommand::clocLoadCRC32(int num) {
                 if (!first) { ENTER(); }
                 first = false;
                 LOGI("%-5d " ANSI_COLOR_CYAN "[%" PRIx64 ", %" PRIx64 ")" ANSI_COLOR_RESET "  %s  %010" PRIx64 "  ""%s""\n",
-                        index, block->vaddr(), block->vaddr() + block->size(), block->convertFlags().c_str(),
+                        index, block->vaddr(), block->vaddr() + block->memsz(), block->convertFlags().c_str(),
                         block->realSize(), name.c_str());
 
                 uint64_t* orv = reinterpret_cast<uint64_t*>(block->begin(LoadBlock::OPT_READ_OR));
                 uint64_t* mmv = reinterpret_cast<uint64_t*>(block->begin(LoadBlock::OPT_READ_MMAP));
-                int count = RoundUp(block->size() / 8, 2);
+                int count = RoundUp(block->size(LoadBlock::OPT_READ_OR) / 8, 2);
                 LinkMap::NiceSymbol symbol;
                 for (int k = 0; k < count; k += 2) {
                     uint64_t orv1 = orv[k];
