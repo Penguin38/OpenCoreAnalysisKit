@@ -99,10 +99,7 @@ void MemoryMap::setFile(const char* file, uint64_t off) {
 }
 
 uint32_t MemoryMap::GetCRC32() {
-    if (!mCRC32) {
-        mCRC32 = Utils::CRC32(reinterpret_cast<uint8_t *>(mBegin), mSize);
-    }
-    return mCRC32;
+    return Utils::CRC32(reinterpret_cast<uint8_t *>(mBegin), mSize);
 }
 
 MemoryMap::~MemoryMap() {

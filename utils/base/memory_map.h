@@ -40,13 +40,12 @@ public:
 private:
     static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);
     MemoryMap(void *m, uint64_t s, uint64_t off, uint64_t max)
-        : mBegin(m), mSize(s), mOffset(off), mCRC32(0x0), mMaxSize(max) {}
+        : mBegin(m), mSize(s), mOffset(off), mMaxSize(max) {}
 
     std::string mName;
     void* mBegin;
     uint64_t mSize;
     uint64_t mOffset;
-    uint32_t mCRC32;
     uint64_t mMaxSize;
 };
 
