@@ -184,7 +184,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
     LOGI("  * LIB: " ANSI_COLOR_LIGHTGREEN "%s\n" ANSI_COLOR_RESET, Android::GetRealLibart().c_str());
     LOGI("  * art::OatHeader::kOatVersion: " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, Android::Oat());
     LOGI("  * art::Runtime: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.Ptr());
-    if (art::Runtime::Origin() != runtime.Ptr())
+    if (art::Runtime::Origin().Ptr() && art::Runtime::Origin() != runtime.Ptr())
         LOGI("  * art::Runtime::instance_: " ANSI_COLOR_LIGHTRED "0x%" PRIx64 "\n" ANSI_COLOR_RESET, art::Runtime::Origin().Ptr());
 
     if (!runtime.Ptr())
