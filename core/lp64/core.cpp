@@ -298,12 +298,17 @@ static void ReadSymbol64(std::unique_ptr<MemoryMap>& map,
     int symtabndx = 0;
     int strtabndx = 0;
 
+    // already check truncated
     Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
-    int sh_num = ehdr->e_shnum;
     Elf64_Shdr* shdr = reinterpret_cast<Elf64_Shdr*>(map->data() + ehdr->e_shoff);
     const char* shstr = reinterpret_cast<const char*>(map->data() + shdr[ehdr->e_shstrndx].sh_offset);
 
+    int sh_num = ehdr->e_shnum;
     for (int i = 0; i < sh_num; ++i) {
+        uint64_t addr = reinterpret_cast<uint64_t>(shstr + shdr[i].sh_name);
+        if (addr < map->data() || addr >= (map->data() + map->size()))
+            continue;
+
         if (!strcmp(shstr + shdr[i].sh_name, ".dynsym")) {
             dynsymndx = i;
             continue;
@@ -337,13 +342,28 @@ void lp64::Core::readsym64(::LinkMap* handle) {
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = handle->block()->GetSymbols();
     if (map) {
         // already check valid on dlopen
-        Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
         int gnu_debugdatandx = 0;
 
-        int sh_num = ehdr->e_shnum;
+        Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
+        if (ehdr->e_shoff > map->size()) {
+            LOGW("%s mmap file is truncated or no match.\n", map->getName().c_str());
+            return;
+        }
+
         Elf64_Shdr* shdr = reinterpret_cast<Elf64_Shdr*>(map->data() + ehdr->e_shoff);
+        if (shdr[ehdr->e_shstrndx].sh_offset > map->size()) {
+            LOGW("%s mmap file is truncated or no match.\n", map->getName().c_str());
+            return;
+        }
+
         const char* shstr = reinterpret_cast<const char*>(map->data() + shdr[ehdr->e_shstrndx].sh_offset);
+
+        int sh_num = ehdr->e_shnum;
         for (int i = 0; i < sh_num; ++i) {
+            uint64_t addr = reinterpret_cast<uint64_t>(shstr + shdr[i].sh_name);
+            if (addr < map->data() || addr >= (map->data() + map->size()))
+                continue;
+
             if (!strcmp(shstr + shdr[i].sh_name, ".gnu_debugdata")) {
                 gnu_debugdatandx = i;
                 break;

@@ -77,6 +77,11 @@ public:
         std::string valid;
         if (isValid()) {
             valid.append("[*]");
+            if (realSize() && realSize() != memsz()) {
+                valid.append("(MEMSZ ");
+                valid.append(Utils::ToHex(memsz()));
+                valid.append(")");
+            }
             if (isMmapBlock()) {
                 valid.append("(MMAP");
                 if (GetMmapOffset()) {

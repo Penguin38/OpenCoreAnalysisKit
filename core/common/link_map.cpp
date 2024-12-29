@@ -142,6 +142,10 @@ SymbolEntry LinkMap::DlSymEntry(const char* symbol) {
 void LinkMap::ReadSymbols() {
     LoadBlock* load = block();
     if (load && load->isMmapBlock()) {
+        ElfHeader* header = reinterpret_cast<ElfHeader*>(load->begin());
+        if (!header->CheckLibrary(load->name().c_str()))
+            return;
+
         std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = load->GetSymbols();
         symbols.clear(); // clear prev symbols
         if (CoreApi::Bits() == 64) {
