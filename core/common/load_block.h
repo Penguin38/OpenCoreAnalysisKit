@@ -92,6 +92,8 @@ public:
             }
         } else {
             valid.append("[EMPTY]");
+            if (isTruncated())
+                valid.append("(TRUNCATE)");
         }
         return valid;
     }

@@ -45,6 +45,7 @@ public:
     inline bool isValidBlock() { return !mTruncated && (mFileSize > 0); }
     inline uint64_t oraddr() { return mOriAddr; }
     inline bool isFake() { return mFake; }
+    inline bool isTruncated() { return mTruncated; }
 
     Block(uint32_t f, uint64_t off, uint64_t va, uint64_t pa,
             uint64_t filesz, uint64_t memsz, uint64_t align)
