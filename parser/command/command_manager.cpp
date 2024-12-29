@@ -55,6 +55,8 @@
 #include "base/utils.h"
 #include <string.h>
 
+#define __PREVIEW_DEV__
+
 std::unique_ptr<CommandManager> CommandManager::INSTANCE;
 
 class VersionCommand : public Command {
@@ -76,6 +78,9 @@ public:
         version.append(__CORE_PARSER__);
         version.append(" ");
         version.append(__PARSER_VERSION__);
+#if defined(__PREVIEW_DEV__)
+        version.append(" preview");
+#endif
         return version;
     }
     inline static std::string Git() {
