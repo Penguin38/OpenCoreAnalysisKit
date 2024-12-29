@@ -90,6 +90,10 @@ SpaceType Space::GetType() {
 
     api::MemoryRef getTypeCache(vtbl_cache.valueOf(OFFSET(Space, vtbl_GetType)), vtbl_cache);
     int machine = CoreApi::GetMachine();
+
+    if (!getTypeCache.IsValid())
+        goto second;
+
     switch(machine) {
         case EM_AARCH64: {
             // mov w0 type
@@ -227,6 +231,7 @@ SpaceType Space::GetType() {
     if (type_cache != kSpaceTypeInvalidSpace)
         return type_cache;
 
+second:
     // second check space name
     const char* space_name = GetName();
     if (!space_name) return type_cache;
