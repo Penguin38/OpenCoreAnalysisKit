@@ -196,20 +196,36 @@ void MethodCommand::Oatdump() {
         method_pretty_desc.append(method.GetName());
         pc = CoreApi::DlSym(method_pretty_desc.c_str());
     }
-    art::OatQuickMethodHeader method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ pc);
+    art::OatQuickMethodHeader method_header = 0x0;
+    if (method.IsNative()) {
+        uint64_t existing_entry_point = method.GetEntryPointFromQuickCompiledCode();
+        art::Runtime& runtime = art::Runtime::Current();
+        art::ClassLinker& class_linker = runtime.GetClassLinker();
+        if (!class_linker.IsQuickGenericJniStub(existing_entry_point) &&
+                !class_linker.IsQuickResolutionStub(existing_entry_point)) {
+            method_header = art::OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
+        }
+    } else {
+        method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ pc);
+    }
     if (method_header.Ptr()) {
         if (verbose) {
             method_header.Dump("");
             art::QuickMethodFrameInfo frame;
-            if (method_header.IsOptimized()) {
-                art::CodeInfo code_info = art::CodeInfo::Decode(method_header.GetOptimizedCodeInfoPtr());
-                code_info.ExtendNumRegister(method);
-                code_info.Dump("    ");
+            if(Android::Sdk() >= Android::R) {
+                if (method_header.IsOptimized()) {
+                    art::CodeInfo code_info = art::CodeInfo::Decode(method_header.GetOptimizedCodeInfoPtr());
+                    code_info.ExtendNumRegister(method);
+                    code_info.Dump("    ");
+                    frame = method_header.GetFrameInfo();
+                    LOGI("  QuickMethodFrameInfo\n");
+                } else if (method_header.IsNterpMethodHeader()) {
+                    frame = NterpFrameInfo(method);
+                    LOGI("  NterpFrameInfo\n");
+                }
+            } else {
                 frame = method_header.GetFrameInfo();
                 LOGI("  QuickMethodFrameInfo\n");
-            } else if (method_header.IsNterpMethodHeader()) {
-                frame = NterpFrameInfo(method);
-                LOGI("  NterpFrameInfo\n");
             }
             LOGI("    frame_size_in_bytes: 0x%x\n", frame.FrameSizeInBytes());
             LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
