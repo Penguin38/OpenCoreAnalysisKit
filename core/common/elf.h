@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+#include <string>
 
 #define EM_NONE     0
 #define EM_386      3
@@ -47,6 +48,7 @@ public:
     uint16_t machine;
     uint32_t version;
     bool CheckLibrary(const char* file);
+    static std::string ToMachineName(uint16_t machine);
 };
 
 #endif  // CORE_COMMON_ELF_H_

@@ -86,7 +86,7 @@ bool CoreApi::Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<v
                 INSTANCE = std::make_unique<x86::Core>(map);
                 break;
             default:
-                LOGW("Not support machine (%d)\n", header->machine);
+                LOGW("Not support machine (%s)\n", ElfHeader::ToMachineName(header->machine).c_str());
                 break;
         }
 

@@ -36,3 +36,14 @@ bool ElfHeader::CheckLibrary(const char* file) {
 
     return true;
 }
+
+std::string ElfHeader::ToMachineName(uint16_t machine) {
+    switch(machine) {
+        case EM_AARCH64: return "arm64";
+        case EM_RISCV: return "riscv64";
+        case EM_X86_64: return "x86_64";
+        case EM_ARM: return "arm";
+        case EM_386: return "x86";
+    }
+    return std::to_string(machine);
+}
