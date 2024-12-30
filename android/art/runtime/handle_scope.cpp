@@ -25,13 +25,11 @@ struct HandleScope_SizeTable __HandleScope_size__;
 namespace art {
 
 void HandleScope::Init() {
-    Android::RegisterSdkListener(Android::M, art::HandleScope::Init26);
-    Android::RegisterSdkListener(Android::N, art::HandleScope::Init26);
-    Android::RegisterSdkListener(Android::O, art::HandleScope::Init26);
+    Android::RegisterSdkListener(Android::M, art::HandleScope::Init23);
     Android::RegisterSdkListener(Android::U, art::HandleScope::Init34);
 }
 
-void HandleScope::Init26() {
+void HandleScope::Init23() {
     if (CoreApi::Bits() == 64) {
         __HandleScope_size__ = {
             .THIS = 12,

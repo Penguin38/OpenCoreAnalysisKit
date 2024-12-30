@@ -430,6 +430,8 @@ public:
     inline uint32_t HeaderSize() { return cache_header_size; }
     inline uint32_t NonHeaderSize() { return cache_non_header_size; }
 
+    inline uint32_t NumberOfStackMaps() { return number_of_stack_maps; }
+
     ByteSizedTable& GetDexRegisterMap() { return dex_register_map; }
     ByteSizedTable& GetLocationCatalog() { return location_catalog; }
     BitEncodingTable<StackMapEncoding>& GetStackMap() { return stack_map; }
@@ -440,6 +442,10 @@ public:
 
     void Dump(const char* prefix);
 private:
+    uint32_t number_of_stack_maps;
+    uint32_t stack_map_size_in_bytes;
+    uint32_t number_of_location_catalog_entries;
+
     uint32_t cache_header_size = kInvalidSize;
     uint32_t cache_non_header_size = kInvalidSize;
 
@@ -466,6 +472,7 @@ public:
     };
 
     static void Init();
+    static void OatInit79();
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit150(); // Add method frame info to CodeInfo.
     static void OatInit171(); // Optimize stack maps: add fast path for no inline info.

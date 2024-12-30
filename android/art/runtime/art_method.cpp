@@ -456,9 +456,15 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
     uint64_t existing_entry_point = GetEntryPointFromQuickCompiledCode();
     ClassLinker& class_linker = runtime.GetClassLinker();
 
-    if (existing_entry_point == GetQuickProxyInvokeHandler()) {
-        return 0x0;
+    if (LIKELY(Android::Sdk() >= Android::P)) {
+        // do nothing
+    } else {
+        if (class_linker.IsQuickGenericJniStub(existing_entry_point))
+            return 0x0;
     }
+
+    if (existing_entry_point == GetQuickProxyInvokeHandler())
+        return 0x0;
 
     if (!class_linker.IsQuickGenericJniStub(existing_entry_point) &&
         !class_linker.IsQuickResolutionStub(existing_entry_point) &&
@@ -471,7 +477,7 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
         } catch (InvalidAddressException e) {}
     }
 
-    if (Android::Sdk() > Android::Q) {
+    if (LIKELY(Android::Sdk() >= Android::R)) {
         if (OatQuickMethodHeader::IsNterpPc(pc)) {
             return OatQuickMethodHeader::GetNterpMethodHeader();
         }
@@ -490,17 +496,32 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
 
     bool found = false;
     OatFile::OatMethod oat_method = FindOatMethodFor(*this, CoreApi::GetPointSize(), &found);
-    if (!found)
-        return 0x0;
+    if (!found) {
+        if (Android::Sdk() >= Android::U) {
+            return 0x0;
+        } else if (Android::Sdk() >= Android::P) {
+            if (IsNative())
+                return 0x0;
+            return OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
+        } else if (Android::Sdk() >= Android::N) {
+            if (class_linker.IsQuickResolutionStub(existing_entry_point))
+                return 0x0;
+
+            return OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
+        } else {
+            return 0x0;
+        }
+    }
 
     uint64_t oat_entry_point = oat_method.GetQuickCode();
     if (!oat_entry_point || class_linker.IsQuickGenericJniStub(oat_entry_point))
         return 0x0;
 
     OatQuickMethodHeader method_header = OatQuickMethodHeader::FromEntryPoint(oat_entry_point);
-    if (IsNative() && !method_header.Contains(pc))
-        return 0x0;
-
+    if (Android::Sdk() >= Android::U) {
+        if (IsNative() && !method_header.Contains(pc))
+            return 0x0;
+    }
     return method_header;
 }
 

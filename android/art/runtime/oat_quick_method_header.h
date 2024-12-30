@@ -30,6 +30,8 @@ struct OatQuickMethodHeader_OffsetTable {
     uint32_t frame_info_;
     uint32_t code_size_;
     uint32_t code_;
+    uint32_t mapping_table_offset_;
+    uint32_t gc_map_offset_;
 };
 
 struct OatQuickMethodHeader_SizeTable {
@@ -62,6 +64,8 @@ public:
     static constexpr uint32_t kShouldDeoptimizeMask = 0x80000000;
 
     static void Init();
+    static void OatInit64();
+    static void OatInit79();
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit156(); // Remove frame info from OatQuickMethodHeader.
     static void OatInit158(); // Move MethodInfo to CodeInfo.

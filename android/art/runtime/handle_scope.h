@@ -35,7 +35,7 @@ public:
     HandleScope(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
-    static void Init26();
+    static void Init23();
     static void Init34();
     static uint32_t SizeOf(uint32_t num_references);
 };

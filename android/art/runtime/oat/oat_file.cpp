@@ -42,7 +42,7 @@ void OatFile::Init23() {
     if (CoreApi::Bits() == 64) {
         __OatFile_offset__ = {
             .begin_ = 24,
-            .is_executable_ = 56,
+            .is_executable_ = 64,
         };
     } else {
         __OatFile_offset__ = {

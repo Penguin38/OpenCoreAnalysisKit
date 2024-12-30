@@ -32,12 +32,42 @@ uint32_t OatQuickMethodHeader::kCodeInfoMask = 0x3FFFFFFF;
 uint32_t OatQuickMethodHeader::kCodeSizeMask = 0x3FFFFFFF;
 
 void OatQuickMethodHeader::Init() {
+    Android::RegisterOatListener(64,  art::OatQuickMethodHeader::OatInit64);
+    Android::RegisterOatListener(79,  art::OatQuickMethodHeader::OatInit79);
     Android::RegisterOatListener(124, art::OatQuickMethodHeader::OatInit124);
     Android::RegisterOatListener(156, art::OatQuickMethodHeader::OatInit156);
     Android::RegisterOatListener(158, art::OatQuickMethodHeader::OatInit158);
     Android::RegisterOatListener(192, art::OatQuickMethodHeader::OatInit192);
     Android::RegisterOatListener(238, art::OatQuickMethodHeader::OatInit238);
     Android::RegisterOatListener(239, art::OatQuickMethodHeader::OatInit239);
+}
+
+void OatQuickMethodHeader::OatInit64() {
+    __OatQuickMethodHeader_offset__ = {
+        .vmap_table_offset_ = 4,
+        .frame_info_ = 12,
+        .code_size_ = 24,
+        .code_ = 28,
+        .mapping_table_offset_ = 0,
+        .gc_map_offset_ = 8,
+    };
+
+    __OatQuickMethodHeader_size__ = {
+        .THIS = 28,
+    };
+}
+
+void OatQuickMethodHeader::OatInit79() {
+    __OatQuickMethodHeader_offset__ = {
+        .vmap_table_offset_ = 0,
+        .frame_info_ = 4,
+        .code_size_ = 16,
+        .code_ = 20,
+    };
+
+    __OatQuickMethodHeader_size__ = {
+        .THIS = 20,
+    };
 }
 
 void OatQuickMethodHeader::OatInit124() {
@@ -159,8 +189,10 @@ uint32_t OatQuickMethodHeader::GetCodeSize() {
         } else {
             return (data() & kCodeSizeMask);
         }
-    } else {
+    } else if (OatHeader::OatVersion() >= 124) {
         return code_size() & kCodeSizeMask;
+    } else {
+        return code_size();
     }
 }
 
