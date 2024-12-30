@@ -127,7 +127,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     LOGI(ANSI_COLOR_LIGHTYELLOW "[0x%" PRIx64 "]\n" ANSI_COLOR_RESET, clazz.Ptr());
     art::mirror::Class super = clazz.GetSuperClass();
     art::mirror::IfTable& iftable = clazz.GetIfTable();
-    int32_t ifcount = iftable.Count();
+    int32_t ifcount = (iftable.Ptr() && iftable.IsValid()) ? iftable.Count() : 0;
     bool needEnd = false;
     if (super.Ptr()) {
         LOGI(ANSI_COLOR_LIGHTGREEN "%s" "class " ANSI_COLOR_RESET "%s" ANSI_COLOR_LIGHTGREEN " extends " ANSI_COLOR_RESET "%s" " {\n",

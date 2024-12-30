@@ -36,6 +36,9 @@ bool Object::instanceof(const char* classname) {
     } while (super.Ptr());
 
     art::mirror::IfTable& iftable = klass().GetIfTable();
+    if (!iftable.Ptr())
+        return false;
+
     int32_t ifcount = iftable.Count();
     for (int i = 0; i < ifcount; ++i) {
         art::mirror::Class interface = iftable.GetInterface(i);
