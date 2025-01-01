@@ -38,6 +38,7 @@
 #define __ART_THREAD_WAIT_MONITOR_PARSER__
 #define __ART_HEAP_CONTINUOUS_SPACE_PARSER__
 #define __ART_HEAP_DISCONTINUOUS_SPACE_PARSER__
+#define __ART_LARGE_OBJECT_MAP_SPACE_PARSER__
 
 class Android {
 public:
@@ -89,7 +90,7 @@ public:
     inline static const char* EXECUTE_NTERP_WITH_CLINIT_IMPL = "ExecuteNterpWithClinitImpl";
     inline static const char* END_EXECUTE_NTERP_WITH_CLINIT_IMPL = "EndExecuteNterpWithClinitImpl";
 
-    Android() : trunk(0), sdk(0), oat(0) {}
+    Android() : trunk(0), sdk(0), oat(0), patch(0) {}
     ~Android();
     static std::unique_ptr<Android> INSTANCE;
     static bool IsReady() { return INSTANCE != nullptr; }
@@ -102,6 +103,7 @@ public:
     static int Trunk() { return INSTANCE->trunk; }
     static int Sdk() { return INSTANCE->sdk; }
     static int Oat() { return INSTANCE->oat; }
+    static int Patch() { return INSTANCE->patch; }
     static const char* Id() { return INSTANCE->id.c_str(); }
     static const char* Name() { return INSTANCE->name.c_str(); }
     static const char* Model() { return INSTANCE->model.c_str(); }
@@ -205,6 +207,7 @@ private:
     int trunk;
     int sdk;
     int oat;
+    int patch;
     std::string id;
     std::string name;
     std::string model;

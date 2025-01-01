@@ -166,8 +166,14 @@ void LargeObjectMapSpace::Init23() {
         };
 
         __LargeObjectMapSpace_size__ = {
-            .THIS = 136,
+            .THIS = 128,
         };
+
+        /* 6.0.1 */
+        if (Android::Patch() >= 1) {
+            __LargeObjectMapSpace_offset__.large_objects_ = 120;
+            __LargeObjectMapSpace_size__.THIS = 136;
+        }
     }
 }
 
@@ -456,6 +462,9 @@ cxx::map& LargeObjectMapSpace::GetLargeObjectsCache() {
         large_objects_cache = large_objects();
         large_objects_cache.copyRef(this);
         large_objects_cache.Prepare(false);
+
+#if defined(__ART_LARGE_OBJECT_MAP_SPACE_PARSER__)
+#endif // __ART_LARGE_OBJECT_MAP_SPACE_PARSER__
     }
     return large_objects_cache;
 }

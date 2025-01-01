@@ -45,6 +45,12 @@ void Monitor::Init23() {
             .owner_ = 60,
             .obj_ = 68,
         };
+
+        /* 6.0.1 */
+        if (Android::Patch() >= 1) {
+            __Monitor_offset__.owner_ = 68;
+            __Monitor_offset__.obj_ = 76;
+        }
     }
 }
 

@@ -65,6 +65,7 @@
 #include "base/length_prefixed_array.h"
 #include "base/mem_map.h"
 #include "logcat/log.h"
+#include <stdio.h>
 
 std::unique_ptr<Android> Android::INSTANCE = nullptr;
 
@@ -108,6 +109,8 @@ void Android::init() {
             }
         }
     }
+    release = android::Property::Get("ro.build.version.release", INVALID_VALUE);
+    sscanf(release.c_str(), "%*d.%*d.%d", &patch);
     id = android::Property::Get("ro.build.id", INVALID_VALUE);
     name = android::Property::Get("ro.product.name", INVALID_VALUE);
     model = android::Property::Get("ro.product.model", INVALID_VALUE);
@@ -116,7 +119,6 @@ void Android::init() {
     hardware = android::Property::Get("ro.hardware", INVALID_VALUE);
     abis = android::Property::Get("ro.product.cpu.abilist", INVALID_VALUE);
     incremental = android::Property::Get("ro.build.version.incremental", INVALID_VALUE);
-    release = android::Property::Get("ro.build.version.release", INVALID_VALUE);
     security = android::Property::Get("ro.build.version.security_patch", INVALID_VALUE);
     type = android::Property::Get("ro.build.type", INVALID_VALUE);
     tag = android::Property::Get("ro.build.tags", INVALID_VALUE);
