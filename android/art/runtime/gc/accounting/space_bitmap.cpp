@@ -26,8 +26,6 @@ namespace gc {
 namespace accounting {
 
 void ContinuousSpaceBitmap::Init() {
-    Android::RegisterSdkListener(Android::M, art::gc::accounting::ContinuousSpaceBitmap::Init26);
-    Android::RegisterSdkListener(Android::N, art::gc::accounting::ContinuousSpaceBitmap::Init26);
     Android::RegisterSdkListener(Android::O, art::gc::accounting::ContinuousSpaceBitmap::Init26);
     Android::RegisterSdkListener(Android::Q, art::gc::accounting::ContinuousSpaceBitmap::Init29);
 }

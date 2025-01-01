@@ -41,7 +41,7 @@ void ClassLinker::Init() {
 void ClassLinker::Init23() {
     if (CoreApi::Bits() == 64) {
         __ClassLinker_offset__ = {
-            .dex_caches_ = 100,
+            .dex_caches_ = 120,
         };
     } else {
         __ClassLinker_offset__ = {

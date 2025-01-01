@@ -40,8 +40,8 @@ void JavaVMExt::Init() {
 void JavaVMExt::Init23() {
     if (CoreApi::Bits() == 64) {
         __JavaVMExt_offset__ = {
-            .globals_ = 64,
-            .weak_globals_ = 136,
+            .globals_ = 112,
+            .weak_globals_ = 224,
         };
     } else {
         __JavaVMExt_offset__ = {
@@ -59,8 +59,8 @@ void JavaVMExt::Init24() {
         };
     } else {
         __JavaVMExt_offset__ = {
-            .globals_ = 32,
-            .weak_globals_ = 72,
+            .globals_ = 72,
+            .weak_globals_ = 144,
         };
     }
 }

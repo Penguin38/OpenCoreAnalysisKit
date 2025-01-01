@@ -41,7 +41,7 @@ public:
     JNIEnvExt(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
-    static void Init26();
+    static void Init23();
     static void Init35();
     inline uint64_t functions() { return VALUEOF(JNIEnvExt, functions); }
     inline uint64_t self() { return VALUEOF(JNIEnvExt, self_); }

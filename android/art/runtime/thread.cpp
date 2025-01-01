@@ -49,6 +49,7 @@ void Thread::Init() {
 
     Android::RegisterSdkListener(Android::M, art::Thread::tls_ptr_sized_values::Init23);
     Android::RegisterSdkListener(Android::N, art::Thread::tls_ptr_sized_values::Init24);
+    Android::RegisterSdkListener(Android::O, art::Thread::tls_ptr_sized_values::Init26);
     Android::RegisterSdkListener(Android::P, art::Thread::tls_ptr_sized_values::Init28);
     Android::RegisterSdkListener(Android::Q, art::Thread::tls_ptr_sized_values::Init29);
     Android::RegisterSdkListener(Android::R, art::Thread::tls_ptr_sized_values::Init30);
@@ -65,7 +66,7 @@ void Thread::Init23() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
-            .wait_monitor_ = 2448,
+            .wait_monitor_ = 2104,
         };
     } else {
         __Thread_offset__ = {
@@ -81,13 +82,13 @@ void Thread::Init24() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
-            .wait_monitor_ = 2448,
+            .wait_monitor_ = 2224,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
-            .wait_monitor_ = 1116,
+            .wait_monitor_ = 1176,
         };
     }
 }
@@ -249,9 +250,9 @@ void Thread::tls_ptr_sized_values::Init23() {
             .stack_begin = 96,
             .stack_size = 104,
             .monitor_enter_object = 128,
-            .name = 208,
-            .pthread_self = 216,
-            .held_mutexes = 1768,
+            .name = 200,
+            .pthread_self = 208,
+            .held_mutexes = 1488,
         };
     } else {
         __Thread_tls_ptr_sized_values_offset__ = {
@@ -271,6 +272,38 @@ void Thread::tls_ptr_sized_values::Init23() {
 }
 
 void Thread::tls_ptr_sized_values::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 16,
+            .managed_stack = 24,
+            .jni_env = 56,
+            .self = 72,
+            .opeer = 80,
+            .stack_begin = 96,
+            .stack_size = 104,
+            .monitor_enter_object = 128,
+            .name = 208,
+            .pthread_self = 216,
+            .held_mutexes = 1544,
+        };
+    } else {
+        __Thread_tls_ptr_sized_values_offset__ = {
+            .stack_end = 8,
+            .managed_stack = 12,
+            .jni_env = 28,
+            .self = 36,
+            .opeer = 40,
+            .stack_begin = 48,
+            .stack_size = 52,
+            .monitor_enter_object = 64,
+            .name = 104,
+            .pthread_self = 108,
+            .held_mutexes = 884,
+        };
+    }
+}
+
+void Thread::tls_ptr_sized_values::Init26() {
     if (CoreApi::Bits() == 64) {
         __Thread_tls_ptr_sized_values_offset__ = {
             .stack_end = 16,

@@ -252,6 +252,8 @@ second:
         int len = strlen(space_name);
         if (len > 4 && !strncmp(space_name + len - 4, ".art", 4))
             type_cache = kSpaceTypeImageSpace;
+        else if (!strncmp(space_name, ROSALLOC_SPACE, strlen(ROSALLOC_SPACE)))
+            type_cache = kSpaceTypeMallocSpace;
     }
     return type_cache;
 }

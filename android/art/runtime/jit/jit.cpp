@@ -24,11 +24,35 @@ namespace art {
 namespace jit {
 
 void Jit::Init() {
-    Android::RegisterSdkListener(Android::M, art::jit::Jit::Init26);
-    Android::RegisterSdkListener(Android::N, art::jit::Jit::Init26);
+    Android::RegisterSdkListener(Android::M, art::jit::Jit::Init23);
+    Android::RegisterSdkListener(Android::N, art::jit::Jit::Init24);
     Android::RegisterSdkListener(Android::O, art::jit::Jit::Init26);
     Android::RegisterSdkListener(Android::P, art::jit::Jit::Init28);
     Android::RegisterSdkListener(Android::Q, art::jit::Jit::Init29);
+}
+
+void Jit::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __Jit_offset__ = {
+            .code_cache_ = 208,
+        };
+    } else {
+        __Jit_offset__ = {
+            .code_cache_ = 140,
+        };
+    }
+}
+
+void Jit::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __Jit_offset__ = {
+            .code_cache_ = 368,
+        };
+    } else {
+        __Jit_offset__ = {
+            .code_cache_ = 248,
+        };
+    }
 }
 
 void Jit::Init26() {

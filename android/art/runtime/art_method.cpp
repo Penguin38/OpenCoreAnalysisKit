@@ -52,14 +52,15 @@ void ArtMethod::Init23() {
         .dex_code_item_offset_ = 16,
         .dex_method_index_ = 20,
         .method_index_ = 24,
-        .ptr_sized_fields_ = 28,
+        .ptr_sized_fields_ = 32,
     };
 
     if (CoreApi::Bits() == 64) {
         __ArtMethod_size__ = {
-            .THIS = 52,
+            .THIS = 56,
         };
     } else {
+        __ArtMethod_offset__.ptr_sized_fields_ = 28;
         __ArtMethod_size__ = {
             .THIS = 40,
         };

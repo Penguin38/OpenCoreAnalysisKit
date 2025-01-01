@@ -92,12 +92,12 @@ void Runtime::Init24() {
             .resolution_method_ = 32,
             .imt_conflict_method_ = 40,
             .imt_unimplemented_method_ = 48,
-            .heap_ = 244,
-            .monitor_pool_ = 272,
-            .thread_list_ = 276,
-            .class_linker_ = 284,
-            .java_vm_ = 304,
-            .jit_ = 308,
+            .heap_ = 200,
+            .monitor_pool_ = 228,
+            .thread_list_ = 232,
+            .class_linker_ = 240,
+            .java_vm_ = 260,
+            .jit_ = 264,
         };
     }
 

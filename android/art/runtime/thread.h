@@ -124,6 +124,7 @@ public:
 
         static void Init23();
         static void Init24();
+        static void Init26();
         static void Init28();
         static void Init29();
         static void Init30();

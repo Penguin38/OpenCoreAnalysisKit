@@ -51,18 +51,11 @@ void DexFile::Init23() {
             .method_ids_ = 96,
             .proto_ids_ = 104,
             .class_defs_ = 112,
-            .method_handles_ = 120,
-            .num_method_handles_ = 128,
-            .call_site_ids_ = 136,
-            .num_call_site_ids_ = 144,
-            .hiddenapi_class_data_ = 0,
-            .oat_dex_file_ = 152,
-            .container_ = 0,
-            .is_compact_dex_ = 0,
+            .oat_dex_file_ = 136,
         };
 
          __DexFile_size__ = {
-            .THIS = 160,
+            .THIS = 144,
         };
     } else {
         __DexFile_offset__ = {
@@ -111,7 +104,26 @@ void DexFile::Init24() {
             .THIS = 128,
         };
     } else {
-        // TODO
+        __DexFile_offset__ = {
+            .begin_ = 4,
+            .size_ = 8,
+            .data_begin_ = 4,
+            .data_size_ = 8,
+            .location_ = 12,
+            .location_checksum_ = 24,
+            .header_ = 32,
+            .string_ids_ = 36,
+            .type_ids_ = 40,
+            .field_ids_ = 44,
+            .method_ids_ = 48,
+            .proto_ids_ = 52,
+            .class_defs_ = 56,
+            .oat_dex_file_ = 60,
+        };
+
+         __DexFile_size__ = {
+            .THIS = 64,
+        };
     }
 }
 

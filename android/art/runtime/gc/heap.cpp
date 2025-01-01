@@ -33,13 +33,11 @@ namespace art {
 namespace gc {
 
 void Heap::Init() {
-    Android::RegisterSdkListener(Android::M, art::gc::Heap::Init26);
-    Android::RegisterSdkListener(Android::N, art::gc::Heap::Init26);
-    Android::RegisterSdkListener(Android::O, art::gc::Heap::Init26);
+    Android::RegisterSdkListener(Android::M, art::gc::Heap::Init23);
     // Android::RegisterSdkListener(Android::V, art::gc::Heap::Init35);
 }
 
-void Heap::Init26() {
+void Heap::Init23() {
     if (CoreApi::Bits() == 64) {
         __Heap_offset__ = {
             .continuous_spaces_ = 0,

@@ -303,10 +303,21 @@ bool BaseMutex::IsSpecialMutex(const char* type, uint32_t off) {
             if ((inst & 0xFFFF) == 0xc031) {
             } else {
                 inst = inst & 0xFFFFFFFFFFULL;
-                ret = ((inst >> 8) & 0xFF) == 1;
+                if ((inst & 0xb8) == 0xb8)
+                    ret = ((inst >> 8) & 0xFF) == 1;
             }
         } break;
         case EM_386: {
+            uint64_t inst = *reinterpret_cast<uint64_t *>(cache.Real());
+            if ((inst & 0xFFFF) == 0xc031) {
+            } else {
+                inst = inst & 0xFFFFFFFFFFULL;
+                if ((inst & 0xb8) == 0xb8)
+                    ret = ((inst >> 8) & 0xFF) == 1;
+            }
+
+            if (ret)
+                break;
             /*
              * <0>  push %ebp
              * <1>  mov %esp,%ebp
@@ -314,7 +325,7 @@ bool BaseMutex::IsSpecialMutex(const char* type, uint32_t off) {
              * <6>  mov $type,%eax  // xor %eax,%eax
              * ...
              */
-            uint64_t inst = *reinterpret_cast<uint64_t *>(cache.Real() + 0x6);
+            inst = *reinterpret_cast<uint64_t *>(cache.Real() + 0x6);
             // xor
             if ((inst & 0xFFFF) == 0xc031) {
             } else {

@@ -26,6 +26,8 @@ public:
     static uint8_t kMonitorLock;
     static uint8_t kLockLevelCount;
     static void Init();
+    static void Init23();
+    static void Init24();
     static void Init26();
     static void Init28();
     static void Init29();

@@ -30,8 +30,8 @@ namespace art {
 namespace jit {
 
 void JitCodeCache::Init() {
-    Android::RegisterSdkListener(Android::M, art::jit::JitCodeCache::Init26);
-    Android::RegisterSdkListener(Android::N, art::jit::JitCodeCache::Init26);
+    Android::RegisterSdkListener(Android::M, art::jit::JitCodeCache::Init23);
+    Android::RegisterSdkListener(Android::N, art::jit::JitCodeCache::Init24);
     Android::RegisterSdkListener(Android::O, art::jit::JitCodeCache::Init26);
     Android::RegisterSdkListener(Android::P, art::jit::JitCodeCache::Init28);
     Android::RegisterSdkListener(Android::Q, art::jit::JitCodeCache::Init29);
@@ -59,6 +59,32 @@ void ZygoteMap::Init30() {
             .size_ = 4,
             .region_ = 8,
             .compilation_state_ = 12,
+        };
+    }
+}
+
+void JitCodeCache::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __JitCodeCache_offset__ = {
+            .method_code_map_ = 136,
+        };
+    } else {
+        __JitCodeCache_offset__ = {
+            .method_code_map_ = 80,
+        };
+    }
+}
+
+void JitCodeCache::Init24() {
+    if (CoreApi::Bits() == 64) {
+        __JitCodeCache_offset__ = {
+            .code_map_ = 96,
+            .method_code_map_ = 136,
+        };
+    } else {
+        __JitCodeCache_offset__ = {
+            .code_map_ = 60,
+            .method_code_map_ = 80,
         };
     }
 }
@@ -273,9 +299,10 @@ bool JitCodeCache::ContainsPc(uint64_t pc) {
         return PrivateRegionContainsPc(pc) || GetSharedRegion().IsInExecSpace(pc);
     } else if (Android::Sdk() >= Android::Q) {
         return GetExecPages().HasAddress(pc) || GetZygoteExecPages().HasAddress(pc);
-    } else {
+    } else if (Android::Sdk() >= Android::N) {
         return GetCodeMap().HasAddress(pc);
     }
+    return false;
 }
 
 uint64_t JitCodeCache::GetJniStubCode(ArtMethod& method) {
