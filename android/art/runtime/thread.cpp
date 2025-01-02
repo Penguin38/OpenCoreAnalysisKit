@@ -674,13 +674,13 @@ api::MemoryRef& Thread::GetWaitMonitor() {
 #if defined(__ART_THREAD_WAIT_MONITOR_PARSER__)
     bool invalid = false;
     Monitor monitor_ = wait_monitor_;
-    try {
+    if (monitor_.IsValid()) {
         BaseMutex monitor_lock_(monitor_.monitor_lock(), wait_monitor_);
-        if (monitor_lock_.Ptr() && !monitor_lock_.IsMutex()
-                || (monitor_.Ptr() && !monitor_.GetObject().IsValid()))
-            invalid = true;
-    } catch(InvalidAddressException e) {
-        invalid = true;
+        if (monitor_lock_.IsValid()) {
+            api::MemoryRef name = monitor_lock_.name();
+            if (!name.IsValid() || strcmp(monitor_lock_.GetName(), "a monitor lock"))
+                invalid = true;
+        }
     }
 
     if (invalid) {
@@ -688,26 +688,30 @@ api::MemoryRef& Thread::GetWaitMonitor() {
         bool found = false;
         int count = 0;
         uint64_t point_size = CoreApi::GetPointSize();
-        uint64_t endloop = RoundUp(Ptr(), 0x2000);
-        int loopcount = (endloop - Ptr()) / point_size;
+
+        /* near memory match */
+        int loopcount = 1000;
         do {
             count++;
             monitor_ = valueOf(OFFSET(Thread, wait_monitor_) + count * point_size);
             monitor_.copyRef(this);
-            BaseMutex monitor_lock_(monitor_.monitor_lock(), monitor_);
-            try {
-                if (!monitor_.Ptr() || (monitor_lock_.IsMutex()
-                        && monitor_.GetObject().IsValid())) {
-                    LOGD(">>> 'wait_monitor_' = 0x%" PRIx64 "\n", monitor_.Ptr());
-                    found = true;
-                    break;
+
+            if (monitor_.IsValid()) {
+                BaseMutex monitor_lock_(monitor_.monitor_lock(), wait_monitor_);
+                if (monitor_lock_.IsValid()) {
+                    api::MemoryRef name = monitor_lock_.name();
+                    if (name.IsValid() && !strcmp(monitor_lock_.GetName(), "a monitor lock")) {
+                        LOGD(">>> 'wait_monitor_' = 0x%" PRIx64 "\n", monitor_.Ptr());
+                        found = true;
+                        break;
+                    }
                 }
-            } catch(InvalidAddressException e) {}
+            }
         } while(count < loopcount);
+
         if (found) {
             wait_monitor_ = monitor_;
             wait_monitor_.copyRef(monitor_);
-            // __Thread_offset__.wait_monitor_ += count * point_size;
         }
     }
 #endif

@@ -150,30 +150,35 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
         weak_globals_cache.copyRef(this);
         weak_globals_cache.Prepare(false);
 #if defined(__ART_JVM_WEAK_GLOBALS_PARSER__)
-        if (Android::Sdk() > Android::P && weak_globals_cache.IsValid()) {
-            bool found = false;
-            int count = 0;
-            uint64_t point_size = CoreApi::GetPointSize();
-            MemMap table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
-            table_mem_map_.copyRef(weak_globals_cache);
-            uint64_t endloop = RoundUp(table_mem_map_.Ptr(), 0x2000) - SIZEOF(MemMap);
-            int loopcount = (endloop - table_mem_map_.Ptr()) / point_size;
-            do {
-                if (!table_mem_map_.IsValid())
-                    break;
-                try {
-                    if (!strcmp("indirect ref table", table_mem_map_.GetName())) {
-                        found = true;
-                        break;
-                    }
-                } catch (InvalidAddressException e) {}
-                count++;
-                table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
+        if (Android::Sdk() >= Android::P) {
+            if (weak_globals_cache.IsValid()) {
+                bool found = false;
+                int count = 0;
+                uint64_t point_size = CoreApi::GetPointSize();
+                MemMap table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
                 table_mem_map_.copyRef(weak_globals_cache);
-            } while (count < loopcount);
-            if (found) {
-                weak_globals_cache = table_mem_map_.Ptr() - OFFSET(IndirectReferenceTable, table_mem_map_);
-                weak_globals_cache.copyRef(table_mem_map_);
+
+                /* near memory match */
+                int loopcount = 1000;
+                do {
+                    if (!table_mem_map_.IsValid())
+                        break;
+                    try {
+                        if (!strcmp("indirect ref table", table_mem_map_.GetName())) {
+                            found = true;
+                            break;
+                        }
+                    } catch (InvalidAddressException e) {}
+                    count++;
+                    table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
+                    table_mem_map_.copyRef(weak_globals_cache);
+                } while (count < loopcount);
+
+                if (found && count) {
+                    weak_globals_cache = table_mem_map_.Ptr() - OFFSET(IndirectReferenceTable, table_mem_map_);
+                    weak_globals_cache.copyRef(table_mem_map_);
+                    LOGD(">>> 'weak_globals_' = 0x%" PRIx64 "\n", weak_globals_cache.Ptr());
+                }
             }
         }
 #endif
