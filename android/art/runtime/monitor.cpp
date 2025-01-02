@@ -179,7 +179,8 @@ uint32_t Monitor::GetLockOwnerThreadId(mirror::Object& obj) {
             return lock_word.ThinLockOwner();
         case LockWord::kFatLocked: {
             Monitor monitor = lock_word.FatLockMonitor();
-            return monitor.GetOwnerThreadId();
+            return monitor.IsValid() ? monitor.GetOwnerThreadId()
+                                     : ThreadList::kInvalidThreadId;
         }
     }
     return ThreadList::kInvalidThreadId;

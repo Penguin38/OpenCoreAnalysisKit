@@ -17,6 +17,7 @@
 #include "api/core.h"
 #include "runtime/runtime.h"
 #include "runtime/monitor_pool.h"
+#include "runtime/lock_word.h"
 
 struct MonitorPool_OffsetTable __MonitorPool_offset__;
 
@@ -35,7 +36,10 @@ void MonitorPool::Init() {
 }
 
 Monitor MonitorPool::MonitorFromMonitorId(uint32_t mon_id) {
-    return GetMonitorPool().LookupMonitor(mon_id);
+    if (CoreApi::Bits() == 64)
+        return GetMonitorPool().IsValid() ? GetMonitorPool().LookupMonitor(mon_id) : 0x0;
+    else
+        return mon_id << LockWord::kMonitorIdAlignmentShift;
 }
 
 MonitorPool& MonitorPool::GetMonitorPool() {
