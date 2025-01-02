@@ -404,7 +404,7 @@ void Android::ForeachReferences(std::function<bool (art::mirror::Object& object,
         art::ThreadList& thread_list = runtime.GetThreadList();
         for (const auto& thread : thread_list.GetList()) {
             int current = thread->GetTid();
-            if (tid && tid != current)
+            if (tid && tid != current || !current)
                 continue;
 
             auto local_fn = [&](art::mirror::Object& object, uint64_t idx) -> bool {

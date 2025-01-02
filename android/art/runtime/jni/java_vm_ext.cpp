@@ -48,6 +48,11 @@ void JavaVMExt::Init23() {
             .globals_ = 72,
             .weak_globals_ = 144,
         };
+
+        /* 6.0.1 */
+        if (Android::Patch() >= 1) {
+            __JavaVMExt_offset__.weak_globals_ = 152;
+        }
     }
 }
 
