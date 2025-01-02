@@ -29,7 +29,7 @@ void VdexFile::Init() {
 
 MemMap& VdexFile::GetMap() {
     if (!mmap_cache.Ptr()) {
-        if (Android::Sdk() > Android::P) {
+        if (Android::Sdk() >= Android::Q) {
             mmap_cache = mmap();
         } else {
             mmap_cache = mmap_lv29();
