@@ -234,6 +234,9 @@ add_library(android STATIC
             android/art/runtime/gc/space/zygote_space.cpp
             android/art/runtime/gc/space/large_object_space.cpp
             android/art/runtime/gc/space/bump_pointer_space.cpp
+            android/art/runtime/gc/space/malloc_space.cpp
+            android/art/runtime/gc/space/rosalloc_space.cpp
+            android/art/runtime/gc/space/dlmalloc_space.cpp
             android/art/runtime/gc/accounting/space_bitmap.cpp
 
             android/art/runtime/jni/java_vm_ext.cpp

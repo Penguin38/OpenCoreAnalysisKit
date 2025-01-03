@@ -50,6 +50,8 @@ public:
     inline uint64_t block_sizes() { return Ptr() + OFFSET(BumpPointerSpace, block_sizes_); }
 
     SpaceType GetType() { return kSpaceTypeBumpPointerSpace; }
+    bool IsRosAllocSpace() { return false; }
+    bool IsDlMallocSpace() { return false; }
     void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
     void SlowWalk(std::function<bool (mirror::Object& object)> fn);
 

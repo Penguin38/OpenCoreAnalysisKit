@@ -363,13 +363,19 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
             if (flag & EACH_ZYGOTE_OBJECTS) walkfn(space.get());
         } else if (space->IsRegionSpace() || space->IsBumpPointerSpace()) {
             if (flag & EACH_APP_OBJECTS) walkfn(space.get());
+        } else if (space->IsMallocSpace()) {
+            if (space->IsRosAllocSpace()) {
+                if (flag & EACH_APP_OBJECTS) walkfn(space.get());
+            } else if (space->IsDlMallocSpace()) {
+                if (flag & EACH_APP_OBJECTS) walkfn(space.get());
+            }
         } else if (space->IsFakeSpace()) {
             if (flag & EACH_FAKE_OBJECTS) walkfn(space.get());
         } else {
             if (space->GetType() != art::gc::space::kSpaceTypeInvalidSpace) {
                 walkfn(space.get());
             } else {
-                LOGE("please run sysroot libart.so, %s invalid space.\n", space->GetName());
+                LOGE("please run sysroot libart.so and run env art -c, %s invalid space.\n", space->GetName());
             }
         }
     }

@@ -25,6 +25,8 @@
 #include "runtime/gc/space/large_object_space.h"
 #include "runtime/gc/space/fake_space.h"
 #include "runtime/gc/space/bump_pointer_space.h"
+#include "runtime/gc/space/rosalloc_space.h"
+#include "runtime/gc/space/dlmalloc_space.h"
 
 struct Heap_OffsetTable __Heap_offset__;
 struct Heap_SizeTable __Heap_size__;
@@ -140,6 +142,17 @@ std::vector<std::unique_ptr<space::ContinuousSpace>>& Heap::GetContinuousSpaces(
             } else if (space->IsBumpPointerSpace()) {
                 std::unique_ptr<space::BumpPointerSpace> bump_pointer_space = std::make_unique<space::BumpPointerSpace>(space->Ptr(), space->Block());
                 continuous_spaces_second_cache.push_back(std::move(bump_pointer_space));
+            } else if (space->IsMallocSpace()) {
+                if (space->IsRosAllocSpace()) {
+                    std::unique_ptr<space::RosAllocSpace> rosalloc_space = std::make_unique<space::RosAllocSpace>(space->Ptr(), space->Block());
+                    continuous_spaces_second_cache.push_back(std::move(rosalloc_space));
+                } else if (space->IsDlMallocSpace()) {
+                    std::unique_ptr<space::DlMallocSpace> dlmalloc_space = std::make_unique<space::DlMallocSpace>(space->Ptr(), space->Block());
+                    continuous_spaces_second_cache.push_back(std::move(dlmalloc_space));
+                } else {
+                    std::unique_ptr<space::MallocSpace> malloc_space = std::make_unique<space::MallocSpace>(space->Ptr(), space->Block());
+                    continuous_spaces_second_cache.push_back(std::move(malloc_space));
+                }
             } else {
                 continuous_spaces_second_cache.push_back(std::move(space));
             }

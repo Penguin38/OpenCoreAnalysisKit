@@ -25,6 +25,8 @@
 struct Space_OffsetTable {
     uint32_t vtbl;
     uint32_t vtbl_GetType;
+    uint32_t vtbl_IsDlMallocSpace;
+    uint32_t vtbl_IsRosAllocSpace;
     uint32_t name_;
 };
 
@@ -97,6 +99,9 @@ public:
     inline bool IsRegionSpace() { return GetType() == kSpaceTypeRegionSpace; }
 
     virtual SpaceType GetType();
+    virtual bool IsRosAllocSpace();
+    virtual bool IsDlMallocSpace();
+    bool GetXMallocSpaceFlag(uint32_t off);
     virtual void Walk(std::function<bool (mirror::Object& object)> fn, bool check) {}
     virtual bool IsVaildSpace() { return false; }
 private:

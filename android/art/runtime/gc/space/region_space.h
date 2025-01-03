@@ -81,6 +81,8 @@ public:
     inline uint64_t mark_bitmap_v28() { return VALUEOF(RegionSpace, mark_bitmap_); }
 
     SpaceType GetType() { return kSpaceTypeRegionSpace; }
+    bool IsRosAllocSpace() { return false; }
+    bool IsDlMallocSpace() { return false; }
     void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
     void WalkInternal(std::function<bool (mirror::Object& object)> fn, bool only, bool check);
 

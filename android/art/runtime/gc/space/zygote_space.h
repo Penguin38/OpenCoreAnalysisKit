@@ -43,8 +43,9 @@ public:
     ZygoteSpace(uint64_t v, ContinuousMemMapAllocSpace* ref) : ContinuousMemMapAllocSpace(v, ref) {}
 
     static void Init();
-
     SpaceType GetType() { return kSpaceTypeZygoteSpace; }
+    bool IsRosAllocSpace() { return false; }
+    bool IsDlMallocSpace() { return false; }
     void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
 };
 

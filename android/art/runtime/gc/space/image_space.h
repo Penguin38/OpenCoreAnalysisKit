@@ -43,8 +43,9 @@ public:
     ImageSpace(uint64_t v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
 
     static void Init();
-
     SpaceType GetType() { return kSpaceTypeImageSpace; }
+    bool IsRosAllocSpace() { return false; }
+    bool IsDlMallocSpace() { return false; }
     void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
 };
 
