@@ -72,7 +72,7 @@ int OatHeader::AnalysiOatVersion() {
                         && kOatVersion[2] >= 0x30 && kOatVersion[2] <= 0x39
                         && kOatVersion[3] == 0x0) {
                     found_version = std::stoi(kOatVersion);
-                    LOGI(">>> \'%s\' = %d\n", Android::ART_OAT_HEADER_VERSION, found_version);
+                    LOGD(">>> \'%s\' = %d\n", Android::ART_OAT_HEADER_VERSION, found_version);
                     return true;
                 }
             }

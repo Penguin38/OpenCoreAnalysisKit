@@ -427,7 +427,7 @@ Runtime Runtime::AnalysisRuntime(uint64_t *callee_methods, uint32_t sizeof_calle
                 ArtMethod& resolution_method_ = runtime.GetResolutionMethod();
                 if (resolution_method_.Block() &&
                         resolution_method_.Block()->virtualContains(callee_methods[0])) {
-                    LOGI(">>> '%s' = 0x%" PRIx64 "\n", Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
+                    LOGD(">>> '%s' = 0x%" PRIx64 "\n", Android::ART_RUNTIME_INSTANCE, runtime.Ptr());
                     return true;
                 }
             }
