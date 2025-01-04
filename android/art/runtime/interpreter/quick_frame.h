@@ -37,6 +37,7 @@ public:
         }
         return method;
     }
+    inline ArtMethod& DirectGetMethod() { return method; }
     inline OatQuickMethodHeader& GetMethodHeader() { return method_header; }
     inline uint64_t GetFramePc() { return frame_pc; }
     void SetFramePc(uint64_t pc);

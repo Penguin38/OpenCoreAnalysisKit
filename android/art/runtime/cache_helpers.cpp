@@ -154,11 +154,9 @@ OatQuickMethodHeader& CacheHelper::NterpMethodHeader() {
         return NterpMethodHeaderRef;
     }
 
-    try {
-        api::MemoryRef value = Android::DlSym(Android::NTERP_METHOD_HEADER);
+    api::MemoryRef value = Android::DlSym(Android::NTERP_METHOD_HEADER);
+    if (value.IsValid())
         NterpMethodHeaderRef = value.valueOf();
-    } catch(InvalidAddressException e) {
-    }
 
     if (!NterpMethodHeaderRef.Ptr()) {
         if (OatHeader::OatVersion() >= 239) {

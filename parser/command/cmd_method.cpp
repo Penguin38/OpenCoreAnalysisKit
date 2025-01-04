@@ -25,6 +25,7 @@
 #include "runtime/oat.h"
 #include "runtime/oat/stack_map.h"
 #include "runtime/nterp_helpers.h"
+#include "runtime/interpreter/quick_frame.h"
 #include "common/disassemble/capstone.h"
 #include "common/elf.h"
 #include <unistd.h>
@@ -132,19 +133,18 @@ int MethodCommand::main(int argc, char* const argv[]) {
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
         LOGI(ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
                        method.ColorPrettyMethod().c_str(), dex_method_idx);
-
         if (dump_opt & METHOD_DUMP_DEXCODE)
             Dexdump();
-
-        if (dump_opt & METHOD_DUMP_OATCODE)
-            Oatdump();
-
-        if (dump_opt & METHOD_DUMP_BINARY)
-            Binarydump();
-
     } else {
-        LOGI("%s\n", method.ColorPrettyMethod().c_str());
+        LOGI(ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\n", method.GetRuntimeMethodName());
     }
+
+    if (dump_opt & METHOD_DUMP_OATCODE)
+        Oatdump();
+
+    if (dump_opt & METHOD_DUMP_BINARY)
+        Binarydump();
+
     return 0;
 }
 
@@ -190,7 +190,8 @@ void MethodCommand::Dexdump() {
 }
 
 void MethodCommand::Oatdump() {
-    if (!pc) {
+    uint32_t dex_method_idx = method.GetDexMethodIndex();
+    if (!pc && LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
         std::string method_pretty_desc = method.GetDeclaringClass().PrettyDescriptor();
         method_pretty_desc.append(".");
         method_pretty_desc.append(method.GetName());
@@ -208,29 +209,37 @@ void MethodCommand::Oatdump() {
     } else {
         method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ pc);
     }
-    if (method_header.Ptr()) {
-        if (verbose) {
+
+    if (verbose) {
+        if (method_header.Ptr())
             method_header.Dump("");
-            art::QuickMethodFrameInfo frame;
-            if(Android::Sdk() >= Android::R) {
-                if (method_header.IsOptimized()) {
-                    art::CodeInfo code_info = art::CodeInfo::Decode(method_header.GetOptimizedCodeInfoPtr());
-                    code_info.ExtendNumRegister(method);
-                    code_info.Dump("    ");
-                    frame = method_header.GetFrameInfo();
-                    LOGI("  QuickMethodFrameInfo\n");
-                } else if (method_header.IsNterpMethodHeader()) {
-                    frame = NterpFrameInfo(method);
-                    LOGI("  NterpFrameInfo\n");
-                }
-            } else {
-                frame = method_header.GetFrameInfo();
-                LOGI("  QuickMethodFrameInfo\n");
-            }
-            LOGI("    frame_size_in_bytes: 0x%x\n", frame.FrameSizeInBytes());
-            LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
-            LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
+        if (method_header.Ptr() && method_header.IsOptimized()) {
+            art::CodeInfo code_info = art::CodeInfo::Decode(method_header.GetOptimizedCodeInfoPtr());
+            code_info.ExtendNumRegister(method);
+            code_info.Dump("    ");
         }
+
+        art::QuickMethodFrameInfo frame;
+        art::QuickFrame quick = 0x0;
+        quick.GetMethodHeader() = method_header.Ptr();
+        quick.DirectGetMethod() = method.Ptr();
+        quick.SetFramePc(pc);
+        frame = quick.GetFrameInfo();
+        if (method_header.Ptr()) {
+            if (!method_header.IsNterpMethodHeader())
+                LOGI("  QuickMethodFrameInfo\n");
+            else
+                LOGI("  NterpFrameInfo\n");
+        } else {
+            LOGI("  MethodFrameInfo\n");
+        }
+
+        LOGI("    frame_size_in_bytes: 0x%x\n", frame.FrameSizeInBytes());
+        LOGI("    core_spill_mask: 0x%x %s\n", frame.CoreSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.CoreSpillMask()).c_str());
+        LOGI("    fp_spill_mask: 0x%x %s\n", frame.FpSpillMask(), art::QuickMethodFrameInfo::PrettySpillMask(frame.FpSpillMask()).c_str());
+    }
+
+    if (method_header.Ptr()) {
         LOGI(ANSI_COLOR_RED "OAT CODE:\n" ANSI_COLOR_RESET);
         LOGI("  [0x%" PRIx64 ", 0x%" PRIx64 "]\n", method_header.GetCodeStart(), method_header.GetCodeStart() + method_header.GetCodeSize());
         if (method_header.IsOptimized()) {
