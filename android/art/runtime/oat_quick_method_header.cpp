@@ -200,8 +200,10 @@ uint32_t OatQuickMethodHeader::GetCodeInfoOffset() {
     if (OatHeader::OatVersion() >= 241 ||
             (OatHeader::OatVersion() >= 239 && HasNterpImpl())) {
         return code_info_offset();
-    } else {
+    } else if (OatHeader::OatVersion() >= 192) {
         return data() & kCodeInfoMask;
+    } else {
+        return vmap_table_offset();
     }
 }
 

@@ -71,6 +71,7 @@ uint32_t DexRegisterInfo::kColNumKind = 0;
 uint32_t DexRegisterInfo::kColNumPackedValue = 1;
 
 void CodeInfo::Init() {
+    Android::RegisterOatListener(64, art::CodeInfo::OatInit64);
     Android::RegisterOatListener(79, art::CodeInfo::OatInit79);
     Android::RegisterOatListener(124, art::CodeInfo::OatInit124);
     Android::RegisterOatListener(150, art::CodeInfo::OatInit150);
@@ -102,6 +103,11 @@ void CodeInfo::Init() {
 
     Android::RegisterOatListener(150, art::DexRegisterInfo::OatInit150);
     Android::RegisterOatListener(170, art::DexRegisterInfo::OatInit170);
+}
+
+void CodeInfo::OatInit64() {
+    kNumHeaders = 2;
+    kNumBitTables = 8;
 }
 
 void CodeInfo::OatInit79() {
@@ -237,8 +243,12 @@ void StackMapEncoding::Decode(const uint8_t** ptr) {
     inline_info_bit_offset_ = (*ptr)[2];
     register_mask_index_bit_offset_ = (*ptr)[3];
     stack_mask_index_bit_offset_ = (*ptr)[4];
-    total_bit_size_ = (*ptr)[5];
-    (*ptr) += sizeof(StackMapEncoding);
+    if (OatHeader::OatVersion() >= 124) {
+        total_bit_size_ = (*ptr)[5];
+        (*ptr) += sizeof(StackMapEncoding);
+    } else {
+        (*ptr) += (sizeof(StackMapEncoding) - 1);
+    }
 }
 
 void InvokeInfoEncoding::Decode(const uint8_t** ptr) {
@@ -279,6 +289,13 @@ CodeInfoEncoding::CodeInfoEncoding(uint64_t code_info_data) {
         number_of_stack_maps = DecodeUnsignedLeb128(&ptr);
         stack_map_size_in_bytes = DecodeUnsignedLeb128(&ptr);
         number_of_location_catalog_entries = DecodeUnsignedLeb128(&ptr);
+        stack_map.DecodeOnlyTable(&ptr);
+        if (stack_map.encoding.GetInlineInfoEncoding().BitSize() > 0) {
+            inline_info.DecodeOnlyTable(&ptr);
+        } else {
+            inline_info = BitEncodingTable<InlineInfoEncoding>();
+        }
+        cache_header_size = static_cast<uint32_t>(ptr - reinterpret_cast<const uint8_t *>(data.Real()));
     }
 }
 
@@ -455,6 +472,13 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
     } else if (OatHeader::OatVersion() >= 79) {
         code_info.encoding_ = CodeInfoEncoding(code_info_data);
         code_info.number_of_stack_maps_ = code_info.encoding_.NumberOfStackMaps();
+        code_info.region_ = MemoryRegion(code_info_data,
+                                         code_info.encoding_.HeaderSize()
+                                         + code_info.encoding_.NonHeaderSize());
+    } else if (OatHeader::OatVersion() >= 64) {
+        api::MemoryRef sizeref = code_info_data;
+        uint32_t size = sizeref.value32Of();
+        code_info.region_ = MemoryRegion(code_info_data, size);
     }
     return code_info;
 }
@@ -603,6 +627,24 @@ void CodeInfo::NativeStackMaps(std::vector<GeneralStackMap>& maps) {
             stack.dex_pc = dex_pc;
             maps.push_back(stack);
         }
+    } else if (OatHeader::OatVersion() >= 79) {
+        if (region_.size() == 0)
+            return;
+
+        uint32_t stack_map_size = encoding_.StackMapsSizeInByte();
+        MemoryRegion stack_region = region_.Subregion(encoding_.StackMapsOffset(), encoding_.StackMapsSize());
+
+        for (int row = 0; row < number_of_stack_maps_; row++) {
+            BitMemoryRegion bit_region = stack_region.Subregion(row * stack_map_size, stack_map_size);
+            uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
+            uint32_t dex_pc = encoding_.GetStackMap().encoding.GetDexPcEncoding().Load(bit_region);
+            GeneralStackMap stack;
+            stack.native_pc = current_native_pc;
+            stack.dex_pc = dex_pc;
+            maps.push_back(stack);
+        }
+    } else if (OatHeader::OatVersion() >= 64) {
+
     }
 }
 
@@ -629,7 +671,21 @@ uint32_t CodeInfo::NativePc2DexPc(uint32_t native_pc) {
             if (current_native_pc > native_pc)
                 break;
         }
+    } else if (OatHeader::OatVersion() >= 79) {
+        if (region_.size() == 0)
+            return dex_pc;
 
+        uint32_t stack_map_size = encoding_.StackMapsSizeInByte();
+        MemoryRegion stack_region = region_.Subregion(encoding_.StackMapsOffset(), encoding_.StackMapsSize());
+
+        for (int row = 0; row < number_of_stack_maps_; row++) {
+            BitMemoryRegion bit_region = stack_region.Subregion(row * stack_map_size, stack_map_size);
+            uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
+            dex_pc = encoding_.GetStackMap().encoding.GetDexPcEncoding().Load(bit_region);
+            if (current_native_pc > native_pc)
+                break;
+        }
+    } else if (OatHeader::OatVersion() >= 64) {
     }
     return dex_pc;
 }
@@ -642,6 +698,10 @@ void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegister
             // do nothing
         } else if (OatHeader::OatVersion() >= 124) {
             NativePc2VRegsV1(native_pc, vreg_map);
+        } else if (OatHeader::OatVersion() >= 79) {
+
+        } else if (OatHeader::OatVersion() >= 64) {
+
         }
     }
 }
@@ -786,14 +846,19 @@ void CodeInfo::Dump(const char* prefix) {
         }
     } else if (OatHeader::OatVersion() >= 79) {
         LOGI("%sCodeInfo (number_of_dex_registers=%d, number_of_stack_maps=%d)\n", prefix, number_of_dex_registers_, number_of_stack_maps_);
+        GetEncoding().Dump(sub_prefix.c_str());
+    } else if (OatHeader::OatVersion() >= 64) {
+        LOGI("%sCodeInfo\n", prefix);
     }
 }
 
 void StackMap::Dump(const char* prefix) {
     if (IsValid()) {
         if (OatHeader::OatVersion() >= 170) {
-            LOGI("%sStackMap BitSize=%ld Rows=%d Bits={Kind=%d PackedNativePc=0x%x DexPc=0x%x RegisterMaskIndex=%d StackMaskIndex=%d InlineInfoIndex=%d DexRegisterMaskIndex=%d DexRegisterMapIndex=%d}\n",
-                    prefix, DataBitSize(), NumRows(), kind, packed_native_pc, dex_pc, register_mask_index, stack_mask_index, inline_info_index, dex_register_mask_index, dex_register_map_index);
+            LOGI("%sStackMap BitSize=%ld Rows=%d Bits={Kind=%d PackedNativePc=0x%x DexPc=0x%x RegisterMaskIndex=%d "
+                            "StackMaskIndex=%d InlineInfoIndex=%d DexRegisterMaskIndex=%d DexRegisterMapIndex=%d}\n",
+                    prefix, DataBitSize(), NumRows(), kind, packed_native_pc, dex_pc, register_mask_index,
+                    stack_mask_index, inline_info_index, dex_register_mask_index, dex_register_map_index);
         } else if (OatHeader::OatVersion() >= 150) {
 
         }
@@ -875,18 +940,34 @@ void DexRegisterInfo::Dump(const char* prefix) {
 }
 
 void CodeInfoEncoding::Dump(const char* prefix) {
-    dex_register_map.Dump(prefix, "DexRegisterMap");
-    stack_map.Dump(prefix);
-    register_mask.Dump(prefix, "RegisterMask");
-    stack_mask.Dump(prefix, "StackMask");
-    invoke_info.Dump(prefix);
-    inline_info.Dump(prefix);
-    location_catalog.Dump(prefix, "DexRegisterLocationCatalog");
+    if (OatHeader::OatVersion() >= 124) {
+        dex_register_map.Dump(prefix, "DexRegisterMap");
+        stack_map.Dump(prefix);
+        register_mask.Dump(prefix, "RegisterMask");
+        stack_mask.Dump(prefix, "StackMask");
+        invoke_info.Dump(prefix);
+        inline_info.Dump(prefix);
+        location_catalog.Dump(prefix, "DexRegisterLocationCatalog");
+    } else if (OatHeader::OatVersion() >= 79) {
+        stack_map.Dump(prefix);
+        inline_info.Dump(prefix);
+    }
 }
 
 void StackMapEncoding::Dump(const char* prefix) {
-    LOGI("%sStackMapEncoding (native_pc_bit_offset=%d, dex_pc_bit_offset=%d, dex_register_map_bit_offset=%d, inline_info_bit_offset=%d, register_mask_bit_offset=%d, stack_mask_index_bit_offset=%d, total_bit_size=%d)\n",
-            prefix, kNativePcBitOffset, dex_pc_bit_offset_, dex_register_map_bit_offset_, inline_info_bit_offset_, register_mask_index_bit_offset_, stack_mask_index_bit_offset_, total_bit_size_);
+    if (OatHeader::OatVersion() >= 124) {
+        LOGI("%sStackMapEncoding (native_pc_bit_offset=%d, dex_pc_bit_offset=%d, "
+                                 "dex_register_map_bit_offset=%d, inline_info_bit_offset=%d, "
+                                 "register_mask_bit_offset=%d, stack_mask_index_bit_offset=%d, total_bit_size=%d)\n",
+            prefix, kNativePcBitOffset, dex_pc_bit_offset_, dex_register_map_bit_offset_,
+            inline_info_bit_offset_, register_mask_index_bit_offset_, stack_mask_index_bit_offset_, total_bit_size_);
+    } else {
+        LOGI("%sStackMapEncoding (native_pc_bit_offset=%d, dex_pc_bit_offset=%d, "
+                                 "dex_register_map_bit_offset=%d, inline_info_bit_offset=%d, "
+                                 "register_mask_bit_offset=%d, stack_mask_index_bit_offset=%d)\n",
+            prefix, kNativePcBitOffset, dex_pc_bit_offset_, dex_register_map_bit_offset_,
+            inline_info_bit_offset_, register_mask_index_bit_offset_, stack_mask_index_bit_offset_);
+    }
 }
 
 void InvokeInfoEncoding::Dump(const char* prefix) {
@@ -905,7 +986,6 @@ void ByteSizedTable::Dump(const char* prefix, const char* name) {
 
 void BitRegionEncoding::Dump(const char* prefix, const char* name) {
     LOGI("%s%s (number_of_bits=%d)\n", prefix, name, num_bits);
-
 }
 
 } // namespace art

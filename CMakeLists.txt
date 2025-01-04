@@ -261,6 +261,7 @@ add_library(android STATIC
             android/art/base/mem_map.cpp
             android/art/base/bit_memory_region.cpp
             android/art/base/bit_table.cpp
+            android/art/base/memory_region.cpp
 
             android/art/dexdump/dexdump.cpp
 

@@ -38,6 +38,8 @@ public:
     MemoryRegion Subregion(uint64_t offset, uint64_t size_in) {
         return MemoryRegion(begin() + offset, size_in);
     }
+
+    uint32_t LoadUnaligned32(uint64_t offset);
 private:
     uint64_t pointer_;
     uint64_t size_;

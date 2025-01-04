@@ -22,6 +22,7 @@
 #include "base/memory_region.h"
 #include "base/leb128.h"
 #include "base/bit_table.h"
+#include "base/globals.h"
 #include <map>
 
 namespace art {
@@ -34,6 +35,10 @@ class GeneralStackMap {
 public:
     uint32_t native_pc;
     uint32_t dex_pc;
+};
+
+class OldStackMap {
+
 };
 
 class StackMap : public BitTable {
@@ -388,6 +393,9 @@ public:
         num_entries = DecodeUnsignedLeb128(ptr);
         encoding.Decode(ptr);
     }
+    inline void DecodeOnlyTable(const uint8_t** ptr) {
+        encoding.Decode(ptr);
+    }
 
     void UpdateBitOffset(uint32_t* offset) {
         bit_offset = *offset;
@@ -402,6 +410,7 @@ public:
     inline void Dump(const char* prefix) { encoding.Dump(prefix); }
     inline void Dump(const char* prefix, const char* name) { encoding.Dump(prefix, name); }
     inline uint32_t NumEntries() { return num_entries; }
+
     Encoding encoding;
 private:
     uint32_t num_entries = 0;
@@ -431,6 +440,9 @@ public:
     inline uint32_t NonHeaderSize() { return cache_non_header_size; }
 
     inline uint32_t NumberOfStackMaps() { return number_of_stack_maps; }
+    inline uint32_t StackMapsSizeInByte() { return stack_map_size_in_bytes; }
+    inline uint32_t StackMapsSize() { return StackMapsSizeInByte() * NumberOfStackMaps(); }
+    inline uint32_t StackMapsOffset() { return HeaderSize(); }
 
     ByteSizedTable& GetDexRegisterMap() { return dex_register_map; }
     ByteSizedTable& GetLocationCatalog() { return location_catalog; }
@@ -472,6 +484,7 @@ public:
     };
 
     static void Init();
+    static void OatInit64();
     static void OatInit79();
     static void OatInit124(); // 8.0.0_r1 Base
     static void OatInit150(); // Add method frame info to CodeInfo.
@@ -513,6 +526,20 @@ protected:
 private:
     void NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
     void NativePc2VRegsV2(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
+
+    /* 64 */
+    static constexpr int kOverallSizeOffset = 0;
+    static constexpr int kEncodingInfoOffset = kOverallSizeOffset + sizeof(uint32_t);
+    static constexpr int kNumberOfDexRegisterLocationCatalogEntriesOffset = kEncodingInfoOffset + sizeof(uint16_t);
+    static constexpr int kNumberOfStackMapsOffset = kNumberOfDexRegisterLocationCatalogEntriesOffset + sizeof(uint32_t);
+    static constexpr int kStackMaskSizeOffset = kNumberOfStackMapsOffset + sizeof(uint32_t);
+    static constexpr int kFixedSize = kStackMaskSizeOffset + sizeof(uint32_t);
+    static constexpr int kHasInlineInfoBitOffset = (kEncodingInfoOffset * kBitsPerByte);
+    static constexpr int kInlineInfoBitOffset = kHasInlineInfoBitOffset + 1;
+    static constexpr int kDexRegisterMapBitOffset = kInlineInfoBitOffset + 3;
+    static constexpr int kDexPcBitOffset = kDexRegisterMapBitOffset + 3;
+    static constexpr int kNativePcBitOffset = kDexPcBitOffset + 3;
+    static constexpr int kRegisterMaskBitOffset = kNativePcBitOffset + 3;
 
     uint64_t data_ = 0;
     BitMemoryReader reader = 0;
