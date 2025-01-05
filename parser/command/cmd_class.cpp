@@ -90,9 +90,12 @@ int ClassCommand::main(int argc, char* const argv[]) {
         obj_each_flags |= Android::EACH_FAKE_OBJECTS;
     }
 
-    show_flag = !show_flag ? SHOW_ALL : show_flag;
     total_classes = 0;
-    if (optind < argc) dump_all = false;
+
+    if (optind < argc) {
+        dump_all = false;
+        show_flag = !show_flag ? SHOW_ALL : show_flag;
+    }
 
     const char* classname = argv[optind];
     auto callback = [&](art::mirror::Object& object) -> bool {
@@ -100,7 +103,17 @@ int ClassCommand::main(int argc, char* const argv[]) {
     };
 
     try {
-        Android::ForeachObjects(callback, obj_each_flags, false);
+        if (!dump_all) {
+            art::mirror::Object obj = Utils::atol(argv[optind]);
+            if (obj.Ptr() && obj.IsValid() && obj.IsClass()) {
+                art::mirror::Class thiz = obj;
+                PrintPrettyClassContent(thiz);
+            } else {
+                Android::ForeachObjects(callback, obj_each_flags, false);
+            }
+        } else {
+            Android::ForeachObjects(callback, obj_each_flags, false);
+        }
     } catch(InvalidAddressException e) {
         LOGW("The statistical process was interrupted!\n");
     }
@@ -116,6 +129,7 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
         total_classes++;
         LOGI("[%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 total_classes, thiz.Ptr(), thiz.PrettyDescriptor().c_str());
+        if (show_flag) PrintPrettyClassContent(thiz);
     } else if (thiz.PrettyDescriptor() == classname) {
         PrintPrettyClassContent(thiz);
     }

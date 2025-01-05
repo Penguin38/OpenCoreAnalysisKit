@@ -447,7 +447,7 @@ uint32_t Class::NumDirectMethods() {
 }
 
 uint64_t Class::GetDirectMethods() {
-    return direct_methods();
+    return direct_methods() & CoreApi::GetPointMask();
 }
 
 uint32_t Class::NumVirtualMethods() {
@@ -455,7 +455,7 @@ uint32_t Class::NumVirtualMethods() {
 }
 
 uint64_t Class::GetVirtualMethods() {
-    return virtual_methods();
+    return virtual_methods() & CoreApi::GetPointMask();
 }
 
 } // namespcae mirror
