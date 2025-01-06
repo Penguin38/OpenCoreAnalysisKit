@@ -18,6 +18,7 @@
 #include "android.h"
 #include "base/macros.h"
 #include "base/enums.h"
+#include "common/exception.h"
 #include "runtime/runtime.h"
 #include "runtime/art_method.h"
 #include "runtime/entrypoints/runtime_asm_entrypoints.h"
@@ -301,12 +302,16 @@ std::string ArtMethod::ColorPrettyMethodOnlyNP() {
     std::string result;
     uint32_t dex_method_idx = GetDexMethodIndex();
     if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(Logger::LightYellow());
-        result.append(GetDeclaringClass().PrettyDescriptor());
-        result.append(".");
-        result.append(GetName());
-        result.append(Logger::End());
-        result.append(PrettyParameters());
+        try {
+            result.append(Logger::LightYellow());
+            result.append(GetDeclaringClass().PrettyDescriptor());
+            result.append(".");
+            result.append(GetName());
+            result.append(Logger::End());
+            result.append(PrettyParameters());
+        } catch(InvalidAddressException e) {
+            // do nothing
+        }
         return result;
     }
     return GetRuntimeMethodName();
@@ -316,11 +321,15 @@ std::string ArtMethod::ColorPrettyMethodSimple() {
     std::string result;
     uint32_t dex_method_idx = GetDexMethodIndex();
     if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(Logger::LightYellow());
-        result.append(GetDeclaringClass().PrettyDescriptor());
-        result.append(".");
-        result.append(GetName());
-        result.append(Logger::End());
+        try {
+            result.append(Logger::LightYellow());
+            result.append(GetDeclaringClass().PrettyDescriptor());
+            result.append(".");
+            result.append(GetName());
+            result.append(Logger::End());
+        } catch(InvalidAddressException e) {
+            // do nothing
+        }
         return result;
     }
     return GetRuntimeMethodName();
@@ -330,15 +339,19 @@ std::string ArtMethod::ColorPrettyMethod() {
     std::string result;
     uint32_t dex_method_idx = GetDexMethodIndex();
     if (LIKELY(dex_method_idx != dex::kDexNoIndex)) {
-        result.append(Logger::LightRed());
-        result.append(PrettyReturnTypeDescriptor());
-        result.append(Logger::LightYellow());
-        result.append(" ");
-        result.append(GetDeclaringClass().PrettyDescriptor());
-        result.append(".");
-        result.append(GetName());
-        result.append(Logger::End());
-        result.append(PrettyParameters());
+        try {
+            result.append(Logger::LightRed());
+            result.append(PrettyReturnTypeDescriptor());
+            result.append(Logger::LightYellow());
+            result.append(" ");
+            result.append(GetDeclaringClass().PrettyDescriptor());
+            result.append(".");
+            result.append(GetName());
+            result.append(Logger::End());
+            result.append(PrettyParameters());
+        } catch(InvalidAddressException e) {
+            // do nothing
+        }
         return result;
     }
     return GetRuntimeMethodName();

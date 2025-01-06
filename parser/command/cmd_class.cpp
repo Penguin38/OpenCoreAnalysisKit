@@ -156,7 +156,11 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
         LOGI(ANSI_COLOR_LIGHTCYAN "  // Implements:\n" ANSI_COLOR_RESET);
         for (int i = 0; i < ifcount; ++i) {
             art::mirror::Class interface = iftable.GetInterface(i);
-            LOGI("    %s\n", interface.PrettyDescriptor().c_str());
+            try {
+                LOGI("    %s\n", interface.PrettyDescriptor().c_str());
+            } catch(InvalidAddressException e) {
+                LOGI("    java.lang.Class<0x%" PRIx64 ">\n", interface.Ptr());
+            }
         }
         needEnd = true;
     }
