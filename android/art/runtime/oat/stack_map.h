@@ -443,6 +443,7 @@ public:
     inline uint32_t StackMapsSizeInByte() { return stack_map_size_in_bytes; }
     inline uint32_t StackMapsSize() { return StackMapsSizeInByte() * NumberOfStackMaps(); }
     inline uint32_t StackMapsOffset() { return HeaderSize(); }
+    inline uint32_t NumberOfLocationCatalogEntries() { return number_of_location_catalog_entries; }
 
     ByteSizedTable& GetDexRegisterMap() { return dex_register_map; }
     ByteSizedTable& GetLocationCatalog() { return location_catalog; }
@@ -524,6 +525,7 @@ protected:
     MemoryRegion region_;
     CodeInfoEncoding encoding_;
 private:
+    void NativePc2VRegsV0(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
     void NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
     void NativePc2VRegsV2(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
 

@@ -259,7 +259,7 @@ void MethodCommand::Oatdump() {
                         subid++, stack.native_pc + method_header.GetCodeStart(),
                         item.Ptr() ? item.Ptr() + item.code_offset_ + 0x2 * stack.dex_pc : 0x0);
                 std::map<uint32_t, art::DexRegisterInfo> vregs;
-                method_header.NativePc2VRegs(start - method_header.GetCodeStart(), vregs);
+                method_header.NativePc2VRegs(start - method_header.GetCodeStart(), vregs, method);
                 FrameCommand::ShowJavaFrameRegister("      ", vregs);
                 start = stack.native_pc + method_header.GetCodeStart();
                 code_size = stack.native_pc;

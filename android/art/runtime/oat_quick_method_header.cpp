@@ -235,8 +235,10 @@ uint32_t OatQuickMethodHeader::NativePc2DexPc(uint32_t native_pc) {
     return code_info.NativePc2DexPc(native_pc);
 }
 
-void OatQuickMethodHeader::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs) {
+void OatQuickMethodHeader::NativePc2VRegs(uint32_t native_pc,
+            std::map<uint32_t, DexRegisterInfo>& vregs, art::ArtMethod& method) {
     CodeInfo code_info = CodeInfo::Decode(GetOptimizedCodeInfoPtr());
+    code_info.ExtendNumRegister(method);
     code_info.NativePc2VRegs(native_pc, vregs);
 }
 

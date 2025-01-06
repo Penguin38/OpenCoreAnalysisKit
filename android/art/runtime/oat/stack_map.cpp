@@ -699,15 +699,35 @@ void CodeInfo::NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegister
         } else if (OatHeader::OatVersion() >= 124) {
             NativePc2VRegsV1(native_pc, vreg_map);
         } else if (OatHeader::OatVersion() >= 79) {
-
+            NativePc2VRegsV0(native_pc, vreg_map);
         } else if (OatHeader::OatVersion() >= 64) {
 
         }
     }
 }
 
+void CodeInfo::NativePc2VRegsV0(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs) {
+    if (region_.size() == 0)
+        return;
+
+    uint32_t dex_register_map_offset = BitTable::kNoValue;
+    uint32_t stack_map_size = encoding_.StackMapsSizeInByte();
+    MemoryRegion stack_region = region_.Subregion(encoding_.StackMapsOffset(), encoding_.StackMapsSize());
+
+    for (int row = 0; row < number_of_stack_maps_; row++) {
+        BitMemoryRegion bit_region = stack_region.Subregion(row * stack_map_size, stack_map_size);
+        uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
+        dex_register_map_offset = encoding_.GetStackMap().encoding.GetDexRegisterMapEncoding().Load(bit_region);
+        if (current_native_pc > native_pc)
+            break;
+    }
+
+    if (dex_register_map_offset == BitTable::kNoValue)
+        return;
+}
+
 void CodeInfo::NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vreg_map) {
-    int32_t dex_register_map = -1;
+    uint32_t dex_register_map = BitTable::kNoValue;
     for (int row = 0; row < number_of_stack_maps_; row++) {
         BitMemoryRegion bit_region = encoding_.GetStackMap().BitRegion(region_, row);
         uint32_t current_native_pc = encoding_.GetStackMap().encoding.GetNativePcEncoding().Load(bit_region);
@@ -715,7 +735,9 @@ void CodeInfo::NativePc2VRegsV1(uint32_t native_pc, std::map<uint32_t, DexRegist
         if (current_native_pc > native_pc)
             break;
     }
-    // TODO
+
+    if (dex_register_map == BitTable::kNoValue)
+        return;
 }
 
 void CodeInfo::NativePc2VRegsV2(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vreg_map) {

@@ -68,7 +68,7 @@ std::map<uint32_t, DexRegisterInfo>& QuickFrame::GetVRegs() {
     } else if (method_header.Ptr()) {
         if (method_header.IsOptimized()) {
             uint32_t native_pc = static_cast<uint32_t>(frame_pc - method_header.GetCodeStart());
-            method_header.NativePc2VRegs(native_pc, vregs_cache);
+            method_header.NativePc2VRegs(native_pc, vregs_cache, method);
         } else {
             NterpGetFrameVRegs(*this);
         }

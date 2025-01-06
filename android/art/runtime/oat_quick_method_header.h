@@ -18,6 +18,7 @@
 #define ANDROID_ART_RUNTIME_OAT_QUICK_METHOD_HEADER_H_
 
 #include "api/memory_ref.h"
+#include "runtime/art_method.h"
 #include "runtime/quick/quick_method_frame_info.h"
 #include "runtime/oat/stack_map.h"
 #include <map>
@@ -99,7 +100,7 @@ public:
     static api::MemoryRef& NterpImpl();
     bool IsNterpMethodHeader();
     uint32_t NativePc2DexPc(uint32_t native_pc);
-    void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);
+    void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs, art::ArtMethod& method);
     void NativeStackMaps(std::vector<GeneralStackMap>& maps);
     void Dump(const char* prefix);
 private:
