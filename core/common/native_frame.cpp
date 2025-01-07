@@ -56,19 +56,14 @@ void NativeFrame::Decode() {
 }
 
 std::string NativeFrame::GetLibrary() {
-    if (!map) {
+    if (!map)
         return "";
-    }
 
     std::string name = map->name();
     LoadBlock* block = map->block();
-    if (block && block->isMmapBlock()) {
+    if (block && block->isMmapBlock())
         name = block->name();
-        return name;
-    }
 
-    File* file = CoreApi::FindFile(frame_pc);
-    name = file? file->name() : "";
     return name;
 }
 

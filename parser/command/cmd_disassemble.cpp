@@ -61,63 +61,58 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
         return 0;
     }
 
-    bool found_symbol = false;
     char* symbol = argv[optind];
+    uint64_t addr = Utils::atol(symbol);
     auto callback = [&](LinkMap* map) -> bool {
         SymbolEntry entry = map->DlSymEntry(symbol);
-        if (entry.IsValid()) {
-            LOGI("LIB: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, map->name());
+        if (!entry.IsValid())
+            entry = map->DlRegionSymEntry(addr);
 
-            std::string d_symbol;
-            int status;
-            char* demangled_name = abi::__cxa_demangle(symbol, nullptr, nullptr, &status);
-            if (status == 0) {
-                d_symbol = demangled_name;
-                std::free(demangled_name);
-            } else {
-                d_symbol = symbol;
-            }
+        if (!entry.IsValid())
+            return false;
 
-            bool vdso = !strcmp(map->name(), "[vdso]");
-            uint64_t vaddr = map->l_addr() + entry.offset;
-            if (ELF_ST_TYPE(entry.type) == STT_FUNC
-                    || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
-                bool thumb = false;
-                if (CoreApi::GetMachine() == EM_ARM) {
-                    if (entry.offset & 0x1) {
-                        vaddr &= (CoreApi::GetPointMask() - 1);
-                        thumb = true;
-                    }
-                }
+        LOGI("LIB: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, map->name());
 
-                capstone::Disassember::Option opt(vaddr, -1);
-                if (CoreApi::GetMachine() == EM_ARM) {
-                    opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, thumb?
-                                    capstone::Disassember::Option::MODE_THUMB : capstone::Disassember::Option::MODE_ARM);
-                }
-
-                uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(vaddr, read_opt));
-                if (data) {
-                    LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ":\n", d_symbol.c_str());
-                    capstone::Disassember::Dump("  ", data, entry.size, vaddr, opt);
-                }
-            } else {
-                LOGI("  * %s: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, d_symbol.c_str(), vaddr);
-            }
-            found_symbol = true;
-            return true;
+        std::string d_symbol;
+        int status;
+        char* demangled_name = abi::__cxa_demangle(entry.symbol.data(), nullptr, nullptr, &status);
+        if (status == 0) {
+            LOGI("SYMBOL: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, entry.symbol.c_str());
+            d_symbol = demangled_name;
+            std::free(demangled_name);
+        } else {
+            d_symbol = entry.symbol;
         }
-        return false;
+
+        bool vdso = !strcmp(map->name(), "[vdso]");
+        uint64_t vaddr = map->l_addr() + entry.offset;
+        if (ELF_ST_TYPE(entry.type) == STT_FUNC
+                || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
+            bool thumb = false;
+            if (CoreApi::GetMachine() == EM_ARM) {
+                if (entry.offset & 0x1) {
+                    vaddr &= (CoreApi::GetPointMask() - 1);
+                    thumb = true;
+                }
+            }
+
+            capstone::Disassember::Option opt(vaddr, -1);
+            if (CoreApi::GetMachine() == EM_ARM) {
+                opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, thumb?
+                        capstone::Disassember::Option::MODE_THUMB : capstone::Disassember::Option::MODE_ARM);
+            }
+
+            uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(vaddr, read_opt));
+            if (data) {
+                LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ":\n", d_symbol.c_str());
+                capstone::Disassember::Dump("  ", data, entry.size, vaddr, opt);
+            }
+        } else {
+            LOGI("  * %s: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, d_symbol.c_str(), vaddr);
+        }
+        return true;
     };
     CoreApi::ForeachLinkMap(callback);
-
-    if (!found_symbol) {
-        std::unique_ptr<NativeFrame> frame = std::make_unique<NativeFrame>(0, 0, Utils::atol(symbol));
-        frame->Decode();
-        symbol = frame->GetMethodSymbol().data();
-        if (frame->GetLinkMap()) callback(frame->GetLinkMap());
-    }
-
     return 0;
 }
 

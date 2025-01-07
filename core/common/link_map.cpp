@@ -94,14 +94,45 @@ LoadBlock* LinkMap::block() {
 }
 
 void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
-    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
-    if (symbols.empty()) return;
-
-    bool vdso = !strcmp(name(), "[vdso]") || l_addr() == CoreApi::FindAuxv(AT_SYSINFO_EHDR);
-    uint64_t cloc_offset = (pc & CoreApi::GetVabitsMask()) - l_addr();
     uint64_t nice_offset = 0;
     uint64_t nice_size = 0;
 
+    SymbolEntry entry = DlRegionSymEntry(pc);
+    if (!entry.IsValid())
+        return;
+
+    bool vdso = !strcmp(name(), "[vdso]") || l_addr() == CoreApi::FindAuxv(AT_SYSINFO_EHDR);
+    if (ELF_ST_TYPE(entry.type) == STT_FUNC
+            || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
+        nice_offset = entry.offset + l_addr();
+        if (CoreApi::GetMachine() == EM_ARM)
+            nice_offset &= (CoreApi::GetPointMask() - 1);
+        nice_size = entry.size;
+        symbol.SetNiceMethod(entry.symbol.data(), nice_offset, nice_size);
+    }
+}
+
+SymbolEntry LinkMap::DlSymEntry(const char* symbol) {
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
+    const auto& it = std::find_if(symbols.begin(), symbols.end(),
+            [&](const SymbolEntry& entry) {
+                return entry.symbol == symbol;
+            });
+    if (it != symbols.end())
+        return *it;
+    return SymbolEntry::Invalid();
+}
+
+SymbolEntry LinkMap::DlRegionSymEntry(uint64_t addr) {
+    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
+    if (!symbols.size())
+        return SymbolEntry::Invalid();
+
+    uint64_t cloc_addr = addr & CoreApi::GetVabitsMask();
+    if (cloc_addr <= l_addr())
+        return SymbolEntry::Invalid();
+
+    uint64_t cloc_offset = cloc_addr - l_addr();
     const auto& it = std::find_if(symbols.begin(), symbols.end(),
             [&](const SymbolEntry& entry) {
                 uint64_t offset = entry.offset;
@@ -111,28 +142,10 @@ void LinkMap::NiceMethod(uint64_t pc, NiceSymbol& symbol) {
                 if (offset > cloc_offset)
                     return false;
 
-                if (ELF_ST_TYPE(entry.type) == STT_FUNC
-                        || (vdso && ELF_ST_TYPE(entry.type) == STT_NOTYPE)) {
-                    if (cloc_offset < offset + entry.size)
-                        return true;
-                }
+                if (cloc_offset < offset + entry.size)
+                    return true;
+
                 return false;
-            });
-
-    if (it != symbols.end()) {
-        nice_offset = it->offset + l_addr();
-        if (CoreApi::GetMachine() == EM_ARM)
-            nice_offset &= (CoreApi::GetPointMask() - 1);
-        nice_size = it->size;
-        symbol.SetNiceMethod(it->symbol.data(), nice_offset, nice_size);
-    }
-}
-
-SymbolEntry LinkMap::DlSymEntry(const char* symbol) {
-    std::unordered_set<SymbolEntry, SymbolEntry::Hash>& symbols = GetCurrentSymbols();
-    const auto& it = std::find_if(symbols.begin(), symbols.end(),
-            [&](const SymbolEntry& entry) {
-                return entry.symbol == symbol;
             });
     if (it != symbols.end())
         return *it;

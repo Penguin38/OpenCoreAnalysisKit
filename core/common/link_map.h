@@ -76,6 +76,7 @@ public:
     void ReadDynsyms();
     void NiceMethod(uint64_t pc, NiceSymbol& symbol);
     SymbolEntry DlSymEntry(const char* symbol);
+    SymbolEntry DlRegionSymEntry(uint64_t addr);
     inline uint64_t DlSym(const char* symbol) { return DlSymEntry(symbol).offset; }
     api::MemoryRef& GetAddrCache();
     api::MemoryRef& GetNameCache();
