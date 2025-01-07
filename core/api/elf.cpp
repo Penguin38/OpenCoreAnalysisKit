@@ -302,8 +302,12 @@ void Elf::ReadSymbols(LinkMap* handle) {
     for (int i = 0; i < count; ++i) {
         if (symbols.st_value() && symbols.st_size()) {
             api::MemoryRef symname = tables.Ptr() + symbols.st_name();
+            if (symname.Ptr() >= CoreApi::GetPointMask())
+                continue;
+
             if (!tables.Block()->virtualContains(symname.Ptr()))
                 break;
+
             SymbolEntry entry = SymbolEntry(symbols.st_value(), symbols.st_info(), symbols.st_size(),
                                             reinterpret_cast<const char* >(symname.Real()));
             dynsyms.insert(entry);
