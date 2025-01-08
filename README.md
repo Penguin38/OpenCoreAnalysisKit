@@ -28,10 +28,39 @@ Dowload NDK r22+, please see:
 ```
 https://github.com/android/ndk/wiki/Unsupported-Downloads
 ```
+
+## Build For Ubuntu
 ```
-export ANDROID_NDK_HOME=<path-to>
+Optional:
+export BUILD_TYPE="Debug"
+export SUPPORT_CLANG_VERSIONS="10 11 12 13 14 15 16 17 18"
+
+Required:
 ./script/build.sh
 ```
+
+## Build For MacOS
+```
+Optional:
+export BUILD_TYPE="Debug"
+export SUPPORT_CLANG_VERSIONS="10 11 12 13 14 15 16 17 18"
+
+Required:
+./script/build_macos.sh
+```
+
+## Build For Android
+```
+Optional:
+export BUILD_TYPE="Debug"
+export BUILD_ANDROID_ABIS="arm64-v8a armeabi-v7a x86_64 x86"
+export BUILD_ANDROID_PLATFORM="android-30"
+
+Required:
+export ANDROID_NDK_HOME=<NDK_DIR>
+./script/build_android.sh
+```
+
 # Compatible
 
 | sdk          | arm64 | arm  | x86_64 | x86  | riscv64 |
