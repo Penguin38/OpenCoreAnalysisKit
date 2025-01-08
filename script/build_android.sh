@@ -28,8 +28,6 @@ export BUILD_TARGET_PAGESIZE_ANDROID=$BUILD_TARGET_PAGESIZE_16K
 export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
 
 git submodule update --init --recursive
-./3rd-party/capstone_android.sh
-./3rd-party/xz-utils_android.sh
 
 if [ $BUILD_PRODUCT == "aosp" ];then
 if [ -z $ANDROID_NDK_HOME ];then
@@ -41,6 +39,32 @@ if [ -z $ANDROID_NDK_HOME ];then
 fi
 for CURRENT_ANDROID_ABI in $BUILD_ANDROID_ABIS
 do
+#build capstone
+cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+      -DANDROID_ABI=$CURRENT_ANDROID_ABI \
+      -DANDROID_NDK=$ANDROID_NDK_HOME \
+      -DANDROID_PLATFORM=$BUILD_ANDROID_PLATFORM \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      3rd-party/capstone/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/capstone
+
+make -C $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/capstone -j8
+
+# build xz-utils
+cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+      -DANDROID_ABI=$CURRENT_ANDROID_ABI \
+      -DANDROID_NDK=$ANDROID_NDK_HOME \
+      -DANDROID_PLATFORM=$BUILD_ANDROID_PLATFORM \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      -DXZ_NLS=OFF \
+      3rd-party/xz-utils/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/xz-utils
+
+make -C $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/xz-utils -j8
+
+# build core-parser
 cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
       -DANDROID_ABI=$CURRENT_ANDROID_ABI \
       -DANDROID_NDK=$ANDROID_NDK_HOME \

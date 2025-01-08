@@ -33,9 +33,29 @@ export BUILD_TARGET_PAGESIZE_LINUX=$BUILD_TARGET_PAGESIZE_4K
 export INSTALL_OUTPUT=output/$BUILD_PRODUCT/"$(echo $BUILD_TYPE | tr '[:upper:]' '[:lower:]')"
 
 git submodule update --init --recursive
-./3rd-party/capstone.sh
-./3rd-party/xz-utils.sh
 
+# build capstone
+cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
+      -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      3rd-party/capstone/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/linux/3rd-party/capstone
+
+make -C $INSTALL_OUTPUT/linux/3rd-party/capstone -j8
+
+# build xz-utils
+cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
+      -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      -DXZ_NLS=OFF \
+      3rd-party/xz-utils/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/linux/3rd-party/xz-utils
+
+make -C $INSTALL_OUTPUT/linux/3rd-party/xz-utils -j8
+
+# build core-parser
 cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
       -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \
       -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
