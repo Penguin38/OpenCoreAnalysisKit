@@ -66,7 +66,7 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 | Platform          | Path |
 |:------------:|-----|
 |Emulator| output/aosp/<BUILD_TYPE>/android/x86_64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/x86/bin/core-parser    |
-|Phone| output/aosp/<BUILD_TYPE>/android/arm64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/armeabi-v7a/bin/core-parser|
+|Phone| output/aosp/<BUILD_TYPE>/android/arm64-v8a/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/armeabi-v7a/bin/core-parser|
 |Ubuntu| output/aosp/<BUILD_TYPE>/linux/bin/core-parser |
 |MacOS| output/aosp/<BUILD_TYPE>/macos/bin/core-parser  |
 
