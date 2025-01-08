@@ -26,5 +26,5 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: core-parser_1.0.5.tar.gz
-        path: core-parser_1.0.5_for_macos.tar.gz
+        name: core-parser_1.0.5_for_macos.tar.gz
+        path: core-parser_1.0.5.tar.gz
