@@ -61,6 +61,15 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 ./script/build_android.sh
 ```
 
+# Build Artifacts
+
+| Platform          | Path |
+|:------------:|-----|
+|Emulator| output/aosp/<BUILD_TYPE>/android/x86_64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/x86/bin/core-parser    |
+|Phone| output/aosp/<BUILD_TYPE>/android/arm64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/armeabi-v7a/bin/core-parser|
+|Ubuntu| output/aosp/<BUILD_TYPE>/linux/bin/core-parser |
+|MacOS| output/aosp/<BUILD_TYPE>/macos/bin/core-parser  |
+
 # Compatible
 
 | sdk          | arm64 | arm  | x86_64 | x86  | riscv64 |
@@ -68,7 +77,7 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 |Android-5.0 (21) |   x   |  x   |   x    |   x  |    ?    |
 |Android-5.1 (22) |   x   |  x   |   x    |   x  |    ?    |
 |Android-6.0 (23) |   x   |  x   |   x    |   x  |    ?    |
-|Android-7.0 (24) |   x   |  x   |   x    |   x  |    ?    |
+|Android-7.0 (24) |   √   |  √   |   √    |   √  |    ?    |
 |Android-7.1 (25) |   -   |  -   |   -    |   -  |    -    |
 |Android-8.0 (26) |   √   |  √   |   √    |   √  |    ?    |
 |Android-8.1 (27) |   -   |  -   |   -    |   -  |    -    |
@@ -81,15 +90,6 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 |Android-14.0(34) |   √   |  √   |   √    |   √  |    ?    |
 |Android-15.0(35) |   √   |  -   |   √    |   -  |    ?    |
 |Android-16.0(36) |   -   |  -   |   -    |   -  |    -    |
-
-# Build Artifacts
-
-| Platform          | Path |
-|:------------:|-----|
-|Emulator| output/aosp/<BUILD_TYPE>/android/x86_64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/x86/bin/core-parser    |
-|Phone| output/aosp/<BUILD_TYPE>/android/arm64/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/armeabi-v7a/bin/core-parser|
-|Ubuntu| output/aosp/<BUILD_TYPE>/linux/bin/core-parser |
-|MacOS| output/aosp/<BUILD_TYPE>/macos/bin/core-parser  |
 
 # How To Launch
 ```

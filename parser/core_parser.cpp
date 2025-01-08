@@ -57,7 +57,7 @@ void show_compat_android_version() {
     LOGI("| AOSP-5.0 (21) |    x    |    x    |    x    |    x    |    ?    |\n");
     LOGI("| AOSP-5.1 (22) |    x    |    x    |    x    |    x    |    ?    |\n");
     LOGI("| AOSP-6.0 (23) |    x    |    x    |    x    |    x    |    ?    |\n");
-    LOGI("| AOSP-7.0 (24) |    x    |    x    |    x    |    x    |    ?    |\n");
+    LOGI("| AOSP-7.0 (24) |    √    |    √    |    √    |    √    |    ?    |\n");
     LOGI("| AOSP-7.1 (25) |    -    |    -    |    -    |    -    |    -    |\n");
     LOGI("| AOSP-8.0 (26) |    √    |    √    |    √    |    √    |    ?    |\n");
     LOGI("| AOSP-8.1 (27) |    -    |    -    |    -    |    -    |    -    |\n");
