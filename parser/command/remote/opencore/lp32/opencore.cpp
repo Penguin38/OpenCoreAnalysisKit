@@ -139,6 +139,9 @@ void OpencoreImpl::WriteCoreNoteHeader(FILE* fp) {
 }
 
 void OpencoreImpl::WriteCoreProgramHeaders(FILE* fp) {
+    if (!phnum)
+        return;
+
     uint32_t offset = RoundUp(note.p_offset + note.p_filesz, align_size);
     phdr[0].p_offset = offset;
     fwrite(&phdr[0], sizeof(Elf32_Phdr), 1, fp);
@@ -226,6 +229,9 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 pread64(fd, zero, phdr[index].p_align, phdr[index].p_vaddr + (i * align_size));
                 uint32_t ret = fwrite(zero, align_size, 1, fp);
                 if (ret != 1) {
+                    if (errno == ENOSPC)
+                        return;
+
                     need_padd_zero = true;
                     LOGE("[%x] write load segment fail. %s %s\n",
                             (uint32_t)phdr[index].p_vaddr, strerror(errno), maps[index].file.c_str());
@@ -236,13 +242,8 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 memset(zero, 0x0, align_size);
                 fseek(fp, current_pos, SEEK_SET);
                 int count = phdr[index].p_memsz / align_size;
-                for (int i = 0; i < count; i++) {
-                    uint32_t ret = fwrite(zero, align_size, 1, fp);
-                    if (ret != 1) {
-                        LOGE("[%x] padding load segment fail. %s %s\n",
-                                (uint32_t)phdr[index].p_vaddr, strerror(errno), maps[index].file.c_str());
-                    }
-                }
+                for (int i = 0; i < count; i++)
+                    fwrite(zero, align_size, 1, fp);
             }
         }
         index++;
@@ -312,10 +313,9 @@ bool OpencoreImpl::NeedFilterFile(Opencore::VirtualMemoryArea& vma) {
 
 void OpencoreImpl::Prepare(const char* filename) {
     LOGI("Coredump %s ...\n", filename);
+    zero = (uint8_t*)malloc(align_size);
     memset(&ehdr, 0, sizeof(Elf32_Ehdr));
     memset(&note, 0, sizeof(Elf32_Phdr));
-    pids.clear();
-    maps.clear();
 }
 
 OpencoreImpl::~OpencoreImpl() {

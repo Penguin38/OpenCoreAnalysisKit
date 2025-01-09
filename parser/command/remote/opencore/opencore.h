@@ -78,7 +78,7 @@ public:
         extra_note_filesz = 0;
         page_size = sysconf(_SC_PAGE_SIZE);
         align_size = ELF_PAGE_SIZE;
-        zero = (uint8_t*)malloc(align_size);
+        zero = nullptr;
     }
 
     struct VirtualMemoryArea {
@@ -109,10 +109,12 @@ public:
     bool IsFilterSegment(Opencore::VirtualMemoryArea& vma);
     void StopTheWorld(int pid);
     void StopTheThread(int tid);
+    void Continue();
     static bool IsBit64(int pid);
     static std::string DecodeMachine(int pid);
     static std::unique_ptr<Opencore> MakeArch(std::string& type);
     static void ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps);
+    static void TermStopHandle(int signal);
 protected:
     int extra_note_filesz;
     std::vector<int> pids;

@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <signal.h>
 #include <memory>
 
 typedef int (*RemoteCall)(int argc, char* const argv[]);
@@ -55,6 +56,12 @@ int RemoteCommand::main(int argc, char* const argv[]) {
         usage();
         return 0;
     }
+
+    struct sigaction stact;
+    memset(&stact, 0, sizeof(stact));
+    stact.sa_handler = Opencore::TermStopHandle;
+    sigaction(SIGINT, &stact, NULL);
+    sigaction(SIGTERM, &stact, NULL);
 
     int count = sizeof(remote_option)/sizeof(remote_option[0]);
     for (int index = 0; index < count; ++index) {

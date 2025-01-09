@@ -200,7 +200,9 @@ bool Opencore::Coredump(const char* filename) {
 }
 
 Opencore::~Opencore() {
+    Continue();
     if (zero) free(zero);
+    maps.clear();
 }
 
 bool Opencore::IsFilterSegment(Opencore::VirtualMemoryArea& vma) {
@@ -273,6 +275,17 @@ void Opencore::StopTheThread(int tid) {
     waitpid(tid, &status, WUNTRACED);
 }
 
+void Opencore::Continue() {
+    for (int index = 0; index < pids.size(); index++) {
+        pid_t tid = pids[index];
+        if (ptrace(PTRACE_DETACH, tid, NULL, 0) < 0) {
+            LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
+            continue;
+        }
+    }
+    pids.clear();
+}
+
 bool Opencore::IsBit64(int pid) {
     char filename[32];
     lp64::Auxv vec[32];
@@ -339,6 +352,17 @@ std::string Opencore::DecodeMachine(int pid) {
         LOGE("uname fail!\n");
     }
     return NONE_MACHINE;
+}
+
+void Opencore::TermStopHandle(int signal) {
+    struct utsname buf;
+    int major = 0;
+    if (!uname(&buf)) {
+        sscanf(buf.release, "%d.%*d.%*d+", &major);
+        if (major >= 4)
+            _exit(0);
+        // other do nothing
+    }
 }
 
 void Opencore::ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps) {
