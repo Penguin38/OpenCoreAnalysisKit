@@ -2,14 +2,14 @@
  * Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file ercept in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either erpress or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -330,7 +330,7 @@ EventTags kEventTags[] = {
     {62198, "input_dispatcher"},
     {65537, "exp_det_netlink_failure"},
     {70000, "screen_toggled"},
-    {70001, "intercept_power"},
+    {70001, "intexcept_power"},
     {70101, "browser_zoom_level_change"},
     {70102, "browser_double_tap_duration"},
     {70150, "browser_snap_center"},

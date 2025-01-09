@@ -2,14 +2,14 @@
  * Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file ercept in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either erpress or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -35,14 +35,14 @@ void show_copyright() {
     LOGI(ANSI_COLOR_LIGHTRED "Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.\n\n" ANSI_COLOR_RESET);
 
     LOGI("Licensed under the Apache License, Version 2.0 (the \"License\");\n");
-    LOGI("you may not use this file ercept in compliance with the License.\n");
+    LOGI("you may not use this file except in compliance with the License.\n");
     LOGI("You may obtain a copy of the License at\n\n");
 
     LOGI(ANSI_COLOR_LIGHTGREEN "     http://www.apache.org/licenses/LICENSE-2.0\n\n" ANSI_COLOR_RESET);
 
     LOGI("Unless required by applicable law or agreed to in writing, software\n");
     LOGI("distributed under the License is distributed on an \"AS IS\" BASIS,\n");
-    LOGI("WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either erpress or implied.\n");
+    LOGI("WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n");
     LOGI("See the License for the specific language governing permissions and\n");
     LOGI("limitations under the License.\n\n");
 
