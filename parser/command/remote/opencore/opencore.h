@@ -115,6 +115,7 @@ public:
     static std::unique_ptr<Opencore> MakeArch(std::string& type);
     static void ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps);
     static void TermStopHandle(int signal);
+    static bool isAlive(int pid);
 protected:
     int extra_note_filesz;
     std::vector<int> pids;

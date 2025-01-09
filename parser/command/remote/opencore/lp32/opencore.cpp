@@ -254,6 +254,9 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
 bool OpencoreImpl::DoCoredump(const char* filename) {
     Prepare(filename);
 
+    if (!Opencore::isAlive(getPid()))
+        return false;
+
     FILE* fp = fopen(filename, "wb");
     if (!fp) {
         LOGE("%s %s: %s\n", __func__, filename, strerror(errno));

@@ -365,6 +365,22 @@ void Opencore::TermStopHandle(int signal) {
     }
 }
 
+bool Opencore::isAlive(int pid) {
+    if (pid <= 0) {
+        return false;
+    }
+
+    if (kill(pid, 0) == -1) {
+        if (errno == ESRCH) {
+            return false;
+        } else if (errno == EPERM) {
+            return true;
+        }
+        return false;
+    }
+    return true;
+}
+
 void Opencore::ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps) {
     char filename[32];
     char line[1024];
