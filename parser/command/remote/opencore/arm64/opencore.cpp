@@ -38,13 +38,12 @@ void Opencore::CreateCorePrStatus(int pid) {
         pid_t tid = pids[index];
         prstatus[index].pr_pid = tid;
 
-        uintptr_t regset = 1;
-        struct iovec ioVec;
+        struct iovec ioVec = {
+            &prstatus[index].pr_reg,
+            sizeof(arm64::pt_regs),
+        };
 
-        ioVec.iov_base = &prstatus[index].pr_reg;
-        ioVec.iov_len = sizeof(arm64::pt_regs);
-
-        if (ptrace(PTRACE_GETREGSET, tid, regset, &ioVec) < 0) {
+        if (ptrace(PTRACE_GETREGSET, tid, NT_PRSTATUS, &ioVec) < 0) {
             LOGI("%s %d: %s\n", __func__ , tid, strerror(errno));
             continue;
         }

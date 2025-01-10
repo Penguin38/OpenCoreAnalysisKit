@@ -201,7 +201,6 @@ bool Opencore::Coredump(const char* filename) {
 
 Opencore::~Opencore() {
     Continue();
-    if (zero) free(zero);
     maps.clear();
 }
 
