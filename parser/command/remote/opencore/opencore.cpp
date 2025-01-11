@@ -86,6 +86,7 @@ int Opencore::Dump(int argc, char* const argv[]) {
     if (impl) {
         impl->setDir(dir);
         impl->setPid(pid);
+        impl->setTid(pid);
         impl->setFilter(filter);
         impl->Coredump(filename);
     }
@@ -118,19 +119,21 @@ std::unique_ptr<Opencore> Opencore::MakeArch(std::string& type) {
 
 bool Opencore::Coredump(const char* filename) {
     int ori_dumpable;
-    int flag;
-    int pid = 0;
+    int flag, pid, tid;
     char comm[16];
     bool need_split = false;
     bool need_restore_dumpable = false;
     bool need_restore_ptrace = false;
     std::string output;
 
+    pid = getPid();
+    tid = getTid();
+    flag = getFlag();
+
     if (getDir().length() > 0) {
         output.append(getDir()).append("/");
     }
     if (!filename) {
-        flag = getFlag();
         if (!(flag & FLAG_ALL)) {
             flag |= FLAG_CORE;
             flag |= FLAG_TID;
@@ -140,7 +143,6 @@ bool Opencore::Coredump(const char* filename) {
             output.append("core.");
 
         if (flag & FLAG_PROCESS_COMM) {
-            pid = getPid();
             char comm_path[32];
             snprintf(comm_path, sizeof(comm_path), "/proc/%d/comm", pid);
             int fd = open(comm_path, O_RDONLY);
@@ -165,11 +167,43 @@ bool Opencore::Coredump(const char* filename) {
         }
 
         if (flag & FLAG_PID) {
-            if (!pid)
-                pid = getPid();
             if (need_split)
                 output.append("_");
             output.append(std::to_string(pid));
+            need_split = true;
+        }
+
+        if (flag & FLAG_THREAD_COMM) {
+            if (need_split)
+                output.append("_");
+
+            char thread_comm_path[64];
+            snprintf(thread_comm_path, sizeof(thread_comm_path), "/proc/%d/task/%d/comm", pid, tid);
+            int fd = open(thread_comm_path, O_RDONLY);
+            if (fd > 0) {
+                memset(&comm, 0x0, sizeof(comm));
+                int rc = read(fd, &comm, sizeof(comm) - 1);
+                if (rc > 0) {
+                    for (int i = 0; i < rc; i++) {
+                        if (comm[i] == '\n') {
+                            comm[i] = 0;
+                            break;
+                        }
+                    }
+                    comm[rc] = 0;
+                    output.append(comm);
+                } else {
+                    output.append("unknown");
+                }
+                close(fd);
+            }
+            need_split = true;
+        }
+
+        if (flag & FLAG_TID) {
+            if (need_split)
+                output.append("_");
+            output.append(std::to_string(tid));
             need_split = true;
         }
 

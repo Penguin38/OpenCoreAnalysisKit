@@ -64,6 +64,7 @@ public:
     static const int FILTER_SHARED_VMA = 1 << 2;
     static const int FILTER_SANITIZER_SHADOW_VMA = 1 << 3;
     static const int FILTER_NON_READ_VMA = 1 << 4;
+    static const int FILTER_SIGNAL_CONTEXT = 1 << 5;
 
     static int Dump(int argc, char* const argv[]);
     static void Usage();
@@ -74,6 +75,7 @@ public:
              | FLAG_PROCESS_COMM
              | FLAG_TIMESTAMP;
         pid = INVALID_TID;
+        tid = INVALID_TID;
         filter = FILTER_NONE;
         extra_note_filesz = 0;
         page_size = sysconf(_SC_PAGE_SIZE);
@@ -95,10 +97,12 @@ public:
 
     void setDir(const char* d) { dir = d; }
     void setPid(int p) { pid = p; }
+    void setTid(int t) { tid = t; }
     void setFilter(int f) { filter = f; }
     std::string& getDir() { return dir; }
     int getFlag() { return flag; }
     int getPid() { return pid; }
+    int getTid() { return tid; }
     int getFilter() { return filter; }
     int getExtraNoteFilesz() { return extra_note_filesz; }
     bool Coredump(const char* filename);
@@ -127,6 +131,7 @@ private:
     std::string dir;
     int flag;
     int pid;
+    int tid;
     int filter;
 };
 
