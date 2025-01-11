@@ -252,11 +252,11 @@ void Opencore::StopTheWorld(int pid) {
             }
 
             pid_t tid = std::atoi(entry->d_name);
+            pids.push_back(tid);
             if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
                 LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
                 continue;
             }
-            pids.push_back(tid);
             int status = 0;
             waitpid(tid, &status, WUNTRACED);
         }
@@ -265,11 +265,11 @@ void Opencore::StopTheWorld(int pid) {
 }
 
 void Opencore::StopTheThread(int tid) {
+    pids.push_back(tid);
     if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
         LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
         return;
     }
-    pids.push_back(tid);
     int status = 0;
     waitpid(tid, &status, WUNTRACED);
 }
@@ -278,7 +278,7 @@ void Opencore::Continue() {
     for (int index = 0; index < pids.size(); index++) {
         pid_t tid = pids[index];
         if (ptrace(PTRACE_DETACH, tid, NULL, 0) < 0) {
-            LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
+            LOGD("%s %d: %s\n", __func__ , tid, strerror(errno));
             continue;
         }
     }
