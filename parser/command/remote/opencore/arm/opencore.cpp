@@ -39,7 +39,7 @@ void Opencore::CreateCorePrStatus(int pid) {
         };
 
         if (ptrace(PTRACE_GETREGSET, tid, NT_PRSTATUS, &ioVec) < 0) {
-            LOGI("%s %d: %s\n", __func__ , tid, strerror(errno));
+            LOGD("%s %d: %s\n", __func__ , tid, strerror(errno));
             continue;
         }
     }
