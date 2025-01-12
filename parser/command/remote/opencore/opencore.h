@@ -65,6 +65,7 @@ public:
     static const int FILTER_SANITIZER_SHADOW_VMA = 1 << 3;
     static const int FILTER_NON_READ_VMA = 1 << 4;
     static const int FILTER_SIGNAL_CONTEXT = 1 << 5;
+    static const int FILTER_MINIDUMP = 1 << 6;
 
     static int Dump(int argc, char* const argv[]);
     static void Usage();
