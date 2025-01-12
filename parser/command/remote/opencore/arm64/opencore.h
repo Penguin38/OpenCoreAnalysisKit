@@ -30,6 +30,7 @@ public:
     ~Opencore();
     void CreateCorePrStatus(int pid);
     void WriteCorePrStatus(FILE* fp);
+    bool IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma);
     void WriteCorePAC(int tid, FILE* fp);
     void WriteCoreMTE(int tid, FILE* fp);
     int getMachine() { return EM_AARCH64; }

@@ -127,7 +127,7 @@ void OpencoreImpl::CreateCoreAUXV(int pid) {
 void OpencoreImpl::SpecialCoreFilter() {
     for (int index = 0; index < maps.size(); ++index) {
         Opencore::VirtualMemoryArea& vma = maps[index];
-        if (IsFilterSegment(vma))
+        if (IsFilterSegment(vma) || IsSpecialFilterSegment(vma))
             phdr[index].p_filesz = 0x0;
     }
 }

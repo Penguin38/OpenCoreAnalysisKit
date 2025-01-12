@@ -77,6 +77,10 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
     }
 }
 
+bool Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) {
+    return false;
+}
+
 void Opencore::WriteCorePAC(int tid, FILE* fp) {
     // NT_ARM_PAC_MASK
     Elf64_Nhdr elf_nhdr;
