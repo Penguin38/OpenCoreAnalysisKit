@@ -92,7 +92,7 @@ bool Hook::Continue() {
         return false;
 
     int stat = 0;
-    waitpid(Pid(), &stat, WUNTRACED);
+    waitpid(Pid(), &stat, WCONTINUED);
     return true;
 }
 
