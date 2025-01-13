@@ -113,7 +113,7 @@ public:
     virtual int getMachine() { return EM_NONE; }
     bool IsFilterSegment(Opencore::VirtualMemoryArea& vma);
     void StopTheWorld(int pid);
-    void StopTheThread(int tid);
+    bool StopTheThread(int tid);
     void Continue();
     static bool IsBit64(int pid);
     static std::string DecodeMachine(int pid);

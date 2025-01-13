@@ -286,26 +286,37 @@ void Opencore::StopTheWorld(int pid) {
             }
 
             pid_t tid = std::atoi(entry->d_name);
-            pids.push_back(tid);
-            if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
-                LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
-                continue;
-            }
-            int status = 0;
-            waitpid(tid, &status, WUNTRACED);
+            Opencore::StopTheThread(tid);
         }
         closedir(dp);
     }
 }
 
-void Opencore::StopTheThread(int tid) {
+bool Opencore::StopTheThread(int tid) {
     pids.push_back(tid);
     if (ptrace(PTRACE_ATTACH, tid, NULL, 0) < 0) {
         LOGW("%s %d: %s\n", __func__ , tid, strerror(errno));
-        return;
+        return false;
     }
     int status = 0;
-    waitpid(tid, &status, WUNTRACED);
+    int result = waitpid(tid, &status, WUNTRACED | __WALL);
+    if (result != tid) {
+        LOGW("waitpid failed on %d while detaching\n", tid);
+        return false;
+    }
+
+    if (WIFSTOPPED(status)) {
+        int received_signal = 0;
+        if (status >> 16 == PTRACE_EVENT_STOP) {
+            received_signal = 0;
+        } else {
+            received_signal = WSTOPSIG(status);
+        }
+        LOGD("waitpid on %d, status 0x%x received_signal %d\n", tid, status, received_signal);
+        return true;
+    }
+    LOGW("waitpid failed on %d while non-stop, status 0x%x\n", tid, status);
+    return false;
 }
 
 void Opencore::Continue() {
