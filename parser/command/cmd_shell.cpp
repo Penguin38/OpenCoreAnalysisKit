@@ -55,7 +55,7 @@ int ShellCommand::main(int argc, char* const argv[], std::function<void ()> call
             callback();
             dup2(fileno(stdin), 1);
         }
-        waitpid(pid, &status, WUNTRACED);
+        waitpid(pid, &status, 0);
     }
 
     return 0;

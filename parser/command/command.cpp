@@ -39,7 +39,7 @@ int Command::execute(int argc, char* const argv[]) {
             }
             exit(0);
         } else if (pid > 0) {
-            waitpid(pid, &status, WUNTRACED);
+            waitpid(pid, &status, 0);
             if (WIFEXITED(status) && WEXITSTATUS(status) != ERREXIT) {
                 exitMain(argc, argv);
             }

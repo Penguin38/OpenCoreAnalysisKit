@@ -229,7 +229,10 @@ int RemoteCommand::OptionPause(int argc, char* const argv[]) {
     std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
     for (int i = optind; i < argc; ++i) {
         int tid = std::atoi(argv[i]);
-        all ? opencore->StopTheWorld(tid) : opencore->StopTheThread(tid);
+        if (all)
+            opencore->StopTheWorld(tid);
+        else
+            opencore->StopTheThread(tid);
     }
 
     LOGI("please enter any key cancel.\n");
