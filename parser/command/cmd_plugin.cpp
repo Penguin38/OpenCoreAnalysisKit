@@ -36,10 +36,10 @@ int PluginCommand::main(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'u':
-                need_unload = true;
+                // need_unload = true;
                 break;
             case 'r':
-                need_reload = true;
+                // need_reload = true;
                 break;
         }
     }
@@ -49,7 +49,6 @@ int PluginCommand::main(int argc, char* const argv[]) {
         return 0;
     }
 
-    LOGI("Linker env...\n");
     if (need_unload) {
         return UnLoad(argv[optind]);
     } else {
@@ -59,15 +58,18 @@ int PluginCommand::main(int argc, char* const argv[]) {
 }
 
 int PluginCommand::UnLoad(const char* path) {
-    std::vector<std::unique_ptr<Plugin>>::iterator iter;
-    for (iter = plugins.begin(); iter != plugins.end(); iter++) {
-        if (iter->get()->Path() == path) {
-            Plugin* plugin = iter->get();
-            if (plugin->Cmd()) CommandManager::PopExtendCommand(plugin->Cmd());
-            if (plugin->Handle()) dlclose(plugin->Handle());
-            plugins.erase(iter);
-            return 1;
+    auto it = std::remove_if(plugins.begin(), plugins.end(),
+        [&](const std::unique_ptr<Plugin>& plugin) {
+            return plugin->Path() == path;
         }
+    );
+    if (it != plugins.end()) {
+        Plugin* plugin = it->get();
+        Command* command = plugin->Cmd();
+        void* handle = plugin->Handle();
+        plugins.erase(it);
+        if (command) CommandManager::PopExtendCommand(command);
+        // if (handle) dlclose(handle);
     }
     return 0;
 }
@@ -76,16 +78,17 @@ int PluginCommand::Load(const char* path, bool flag) {
     if (flag) UnLoad(path);
 
     std::unique_ptr<Plugin> plugin = std::make_unique<Plugin>(path, nullptr);
-    plugins.push_back(std::move(plugin));
-
+    current_plugin = plugin.get();
     void* handle = dlopen(path, RTLD_NOW);
     // do plugin constructor
-    if (plugins[plugins.size() - 1]->Cmd()) {
-        plugins[plugins.size() - 1]->HookHandle(handle);
+    if (plugin->Cmd() && handle) {
+        LOGI("Linker env...\n");
+        plugin->HookHandle(handle);
+        plugins.push_back(std::move(plugin));
+        current_plugin = nullptr;
         LOGI("env new command \"%s\"\n", plugins[plugins.size() - 1]->Cmd()->get().c_str());
     } else {
         if (!handle) LOGE("dlopen %s fail!\n", path);
-        plugins.pop_back();
     }
 
     return 0;
@@ -101,10 +104,10 @@ void PluginCommand::ShowEnv() {
 
 void PluginCommand::usage() {
     LOGI("Usage: plugin <PATH> [Option]\n");
-    LOGI("Option:\n");
-    LOGI("    -u, --unload   remove extend library\n");
-    LOGI("    -r, --reload   reload extend library\n");
-    ENTER();
+    // LOGI("Option:\n");
+    // LOGI("    -u, --unload   remove extend library\n");
+    // LOGI("    -r, --reload   reload extend library\n");
+    // ENTER();
     LOGI("core-parser> plugin plugin-simple.so\n");
     LOGI("Linker env...\n");
     LOGI("env new command \"simple\"\n");

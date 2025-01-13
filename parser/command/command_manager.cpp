@@ -239,6 +239,9 @@ int CommandManager::pushExtendCommand(Command* command) {
     if (!command)
         return 0;
 
+    if (!plugin->GetCurrent())
+        return 0;
+
     std::unique_ptr<Command> ref(command);
     Command* tmp = FindCommand(command->get().c_str());
     if (tmp) {
@@ -247,7 +250,7 @@ int CommandManager::pushExtendCommand(Command* command) {
     }
 
     extend_commands.push_back(std::move(ref));
-    plugin->GetPlugins()[plugin->GetPlugins().size() - 1]->HookCommand(command);
+    plugin->GetCurrent()->HookCommand(command);
     return 1;
 }
 

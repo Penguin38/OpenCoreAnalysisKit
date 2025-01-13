@@ -54,8 +54,10 @@ public:
     void usage();
     void ShowEnv();
     std::vector<std::unique_ptr<Plugin>>& GetPlugins() { return plugins; }
+    Plugin* GetCurrent() { return current_plugin; }
 private:
     std::vector<std::unique_ptr<Plugin>> plugins;
+    Plugin* current_plugin = nullptr;
 };
 
 #endif // PARSER_COMMAND_CMD_PLUGIN_H_
