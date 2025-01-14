@@ -212,7 +212,7 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
 static void PrintObject(art::mirror::Object& obj, const char* msg, uint32_t owner_tid) {
     std::string msg_buf;
     msg_buf.append(msg);
-    if (!obj.Ptr()) {
+    if (!obj.Ptr() || !obj.IsValid()) {
         msg_buf.append("an unknown object");
     } else {
         msg_buf.append("<");
