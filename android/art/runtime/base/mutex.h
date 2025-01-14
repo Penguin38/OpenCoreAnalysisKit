@@ -42,6 +42,15 @@ struct ReaderWriterMutex_OffsetTable {
 
 extern struct ReaderWriterMutex_OffsetTable __ReaderWriterMutex_offset__;
 
+struct ConditionVariable_OffsetTable {
+    uint32_t name_;
+    uint32_t guard_;
+    uint32_t sequence_;
+    uint32_t num_waiters_;
+};
+
+extern struct ConditionVariable_OffsetTable __ConditionVariable_offset__;
+
 namespace art {
 
 class BaseMutex : public api::MemoryRef {
@@ -109,6 +118,21 @@ public:
     MutatorMutex(uint64_t v, ReaderWriterMutex* ref) : ReaderWriterMutex(v, ref) {}
 
     bool IsMutatorMutexMutex() { return true; }
+};
+
+class ConditionVariable : public api::MemoryRef {
+public:
+    ConditionVariable(uint64_t v) : api::MemoryRef(v) {}
+    ConditionVariable(const api::MemoryRef& ref) : api::MemoryRef(ref) {}
+    ConditionVariable(uint64_t v, api::MemoryRef& ref) : api::MemoryRef(v, ref) {}
+    ConditionVariable(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
+
+    static void Init23();
+    inline uint64_t name() { return VALUEOF(ConditionVariable, name_); }
+    inline uint64_t guard() { return VALUEOF(ConditionVariable, guard_); }
+    inline int32_t sequence() { return value32Of(OFFSET(ConditionVariable, sequence_)); }
+    inline int32_t num_waiters() { return value32Of(OFFSET(ConditionVariable, num_waiters_)); }
+    const char* GetName();
 };
 
 } // namespace art

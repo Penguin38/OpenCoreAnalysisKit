@@ -24,6 +24,7 @@
 struct BaseMutex_OffsetTable __BaseMutex_offset__;
 struct Mutex_OffsetTable __Mutex_offset__;
 struct ReaderWriterMutex_OffsetTable __ReaderWriterMutex_offset__;
+struct ConditionVariable_OffsetTable __ConditionVariable_offset__;
 
 namespace art {
 
@@ -36,6 +37,8 @@ void BaseMutex::Init() {
 
     Android::RegisterSdkListener(Android::M, art::ReaderWriterMutex::Init23);
     Android::RegisterSdkListener(Android::O, art::ReaderWriterMutex::Init26);
+
+    Android::RegisterSdkListener(Android::M, art::ConditionVariable::Init23);
 }
 
 void BaseMutex::Init23() {
@@ -126,6 +129,24 @@ void ReaderWriterMutex::Init26() {
         __ReaderWriterMutex_offset__ = {
             .state_ = 12,
             .exclusive_owner_ = 16,
+        };
+    }
+}
+
+void ConditionVariable::Init23() {
+    if (CoreApi::Bits() == 64) {
+        __ConditionVariable_offset__ = {
+            .name_ = 0,
+            .guard_ = 8,
+            .sequence_ = 16,
+            .num_waiters_ = 20,
+        };
+    } else {
+        __ConditionVariable_offset__ = {
+            .name_ = 0,
+            .guard_ = 4,
+            .sequence_ = 8,
+            .num_waiters_ = 12,
         };
     }
 }
@@ -372,6 +393,11 @@ uint32_t ReaderWriterMutex::GetExclusiveOwnerTid() {
     } else {
         return exclusive_owner();
     }
+}
+
+const char* ConditionVariable::GetName() {
+    api::MemoryRef name_ = name();
+    return reinterpret_cast<const char*>(name_.Real());
 }
 
 } // namespace art

@@ -27,6 +27,8 @@
 struct Thread_OffsetTable {
     uint32_t tls32_;
     uint32_t tlsPtr_;
+    uint32_t wait_mutex_;
+    uint32_t wait_cond_;
     uint32_t wait_monitor_;
 };
 
@@ -98,6 +100,8 @@ public:
     static void Init35();
     inline uint64_t tls32() { return Ptr() + OFFSET(Thread, tls32_); }
     inline uint64_t tlsPtr() { return Ptr() + OFFSET(Thread, tlsPtr_); }
+    inline uint64_t wait_mutex() { return VALUEOF(Thread, wait_mutex_); }
+    inline uint64_t wait_cond() { return VALUEOF(Thread, wait_cond_); }
     inline uint64_t wait_monitor() { return VALUEOF(Thread, wait_monitor_); }
 
     class tls_32bit_sized_values : public api::MemoryRef {
@@ -184,6 +188,7 @@ private:
     // quick memoryref cache
     tls_32bit_sized_values tls32_cache = 0x0;
     tls_ptr_sized_values tlsPtr_cache = 0x0;
+    DEFINE_QUICK_CACHE(api::MemoryRef, wait_cond);
     DEFINE_QUICK_CACHE(api::MemoryRef, wait_monitor);
     FakeFrame fake_frame;
 };

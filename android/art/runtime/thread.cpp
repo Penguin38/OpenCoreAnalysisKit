@@ -66,12 +66,16 @@ void Thread::Init23() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
+            .wait_mutex_ = 2088,
+            .wait_cond_ = 2096,
             .wait_monitor_ = 2104,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
+            .wait_mutex_ = 1108,
+            .wait_cond_ = 1112,
             .wait_monitor_ = 1116,
         };
     }
@@ -82,12 +86,16 @@ void Thread::Init24() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
+            .wait_mutex_ = 2208,
+            .wait_cond_ = 2216,
             .wait_monitor_ = 2224,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
+            .wait_mutex_ = 1168,
+            .wait_cond_ = 1172,
             .wait_monitor_ = 1176,
         };
     }
@@ -98,12 +106,16 @@ void Thread::Init26() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
+            .wait_mutex_ = 2432,
+            .wait_cond_ = 2440,
             .wait_monitor_ = 2448,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 128,
+            .wait_mutex_ = 1280,
+            .wait_cond_ = 1284,
             .wait_monitor_ = 1288,
         };
     }
@@ -114,12 +126,16 @@ void Thread::Init28() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 136,
+            .wait_mutex_ = 2504,
+            .wait_cond_ = 2512,
             .wait_monitor_ = 2520,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 136,
+            .wait_mutex_ = 1320,
+            .wait_cond_ = 1324,
             .wait_monitor_ = 1328,
         };
     }
@@ -130,12 +146,16 @@ void Thread::Init29() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 152,
+            .wait_mutex_ = 6672,
+            .wait_cond_ = 6680,
             .wait_monitor_ = 6688,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 152,
+            .wait_mutex_ = 3424,
+            .wait_cond_ = 3428,
             .wait_monitor_ = 3432,
         };
     }
@@ -146,12 +166,16 @@ void Thread::Init30() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 160,
+            .wait_mutex_ = 6736,
+            .wait_cond_ = 6744,
             .wait_monitor_ = 6752,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 160,
+            .wait_mutex_ = 3456,
+            .wait_cond_ = 3460,
             .wait_monitor_ = 3464,
         };
     }
@@ -162,12 +186,16 @@ void Thread::Init31() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 152,
+            .wait_mutex_ = 6720,
+            .wait_cond_ = 6728,
             .wait_monitor_ = 6736,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 152,
+            .wait_mutex_ = 3440,
+            .wait_cond_ = 3444,
             .wait_monitor_ = 3448,
         };
     }
@@ -178,12 +206,16 @@ void Thread::Init33() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 144,
+            .wait_mutex_ = 6704,
+            .wait_cond_ = 6712,
             .wait_monitor_ = 6720,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 144,
+            .wait_mutex_ = 3424,
+            .wait_cond_ = 3428,
             .wait_monitor_ = 3432,
         };
     }
@@ -194,12 +226,16 @@ void Thread::Init34() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 152,
+            .wait_mutex_ = 6736,
+            .wait_cond_ = 6744,
             .wait_monitor_ = 6752,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 152,
+            .wait_mutex_ = 3456,
+            .wait_cond_ = 3460,
             .wait_monitor_ = 3464,
         };
     }
@@ -210,12 +246,16 @@ void Thread::Init35() {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 144,
+            .wait_mutex_ = 6720,
+            .wait_cond_ = 6728,
             .wait_monitor_ = 6736,
         };
     } else {
         __Thread_offset__ = {
             .tls32_ = 0,
             .tlsPtr_ = 144,
+            .wait_mutex_ = 3440,
+            .wait_cond_ = 3444,
             .wait_monitor_ = 3448,
         };
     }
@@ -670,18 +710,14 @@ std::string Thread::GetName() {
 }
 
 api::MemoryRef& Thread::GetWaitMonitor() {
+    api::MemoryRef& wait_cond_ = QUICK_CACHE(wait_cond);
     api::MemoryRef& wait_monitor_ = QUICK_CACHE(wait_monitor);
 #if defined(__ART_THREAD_WAIT_MONITOR_PARSER__)
     bool invalid = false;
+    ConditionVariable cond_ = wait_cond_;
     Monitor monitor_ = wait_monitor_;
-    if (monitor_.IsValid()) {
-        BaseMutex monitor_lock_(monitor_.monitor_lock(), wait_monitor_);
-        if (monitor_lock_.IsValid()) {
-            api::MemoryRef name = monitor_lock_.name();
-            if (!name.IsValid() || strcmp(monitor_lock_.GetName(), "a monitor lock"))
-                invalid = true;
-        }
-    }
+    if (!cond_.IsValid() || strcmp(cond_.GetName(), "a thread wait condition variable"))
+        invalid = true;
 
     if (invalid) {
         LOGD("wait_monitor_ invalid, do analysis ...\n");
@@ -690,26 +726,24 @@ api::MemoryRef& Thread::GetWaitMonitor() {
         uint64_t point_size = CoreApi::GetPointSize();
 
         /* near memory match */
-        int loopcount = 1000;
+        int loopcount = 200;
         do {
             count++;
+            cond_ = valueOf(OFFSET(Thread, wait_cond_) + count * point_size);
             monitor_ = valueOf(OFFSET(Thread, wait_monitor_) + count * point_size);
+            cond_.copyRef(this);
             monitor_.copyRef(this);
-
-            if (monitor_.IsValid()) {
-                BaseMutex monitor_lock_(monitor_.monitor_lock(), wait_monitor_);
-                if (monitor_lock_.IsValid()) {
-                    api::MemoryRef name = monitor_lock_.name();
-                    if (name.IsValid() && !strcmp(monitor_lock_.GetName(), "a monitor lock")) {
-                        LOGD(">>> 'wait_monitor_' = 0x%" PRIx64 "\n", monitor_.Ptr());
-                        found = true;
-                        break;
-                    }
-                }
+            if (cond_.IsValid() && !strcmp(cond_.GetName(), "a thread wait condition variable")) {
+                LOGD(">>> 'wait_cond_' = 0x%" PRIx64 "\n", cond_.Ptr());
+                LOGD(">>> 'wait_monitor_' = 0x%" PRIx64 "\n", monitor_.Ptr());
+                found = true;
+                break;
             }
         } while(count < loopcount);
 
         if (found) {
+            wait_cond_ = cond_;
+            wait_cond_.copyRef(cond_);
             wait_monitor_ = monitor_;
             wait_monitor_.copyRef(monitor_);
         }

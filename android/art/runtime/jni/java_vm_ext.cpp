@@ -164,7 +164,7 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
                 table_mem_map_.copyRef(weak_globals_cache);
 
                 /* near memory match */
-                int loopcount = 1000;
+                int loopcount = 200;
                 do {
                     if (!table_mem_map_.IsValid())
                         break;
