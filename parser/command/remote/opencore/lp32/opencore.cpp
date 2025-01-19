@@ -127,7 +127,10 @@ void OpencoreImpl::CreateCoreAUXV(int pid) {
 void OpencoreImpl::SpecialCoreFilter() {
     for (int index = 0; index < maps.size(); ++index) {
         Opencore::VirtualMemoryArea& vma = maps[index];
-        if (IsFilterSegment(vma) || IsSpecialFilterSegment(vma))
+        if (IsFilterSegment(vma))
+            phdr[index].p_filesz = 0x0;
+
+        if (IsSpecialFilterSegment(vma, index))
             phdr[index].p_filesz = 0x0;
     }
 }
@@ -318,6 +321,14 @@ bool OpencoreImpl::NeedFilterFile(Opencore::VirtualMemoryArea& vma) {
         }
     }
     return ret;
+}
+
+uint32_t OpencoreImpl::FindAuxv(uint32_t type) {
+    for (int idx = 0; idx < auxvnum; ++idx) {
+        if (auxv[idx].type == type)
+            return auxv[idx].value;
+    }
+    return 0;
 }
 
 void OpencoreImpl::Prepare(const char* filename) {

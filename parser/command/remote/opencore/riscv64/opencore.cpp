@@ -66,7 +66,51 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
     }
 }
 
-bool Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) {
+bool Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma, int idx) {
+    int filter = getFilter();
+    if (filter & FILTER_MINIDUMP) {
+        if (!prnum)
+            return true;
+
+        riscv64::pt_regs *regs = &prstatus[0].pr_reg;
+        if (regs->pc >= vma.begin && regs->pc < vma.end
+                || regs->ra >= vma.begin && regs->ra < vma.end
+                || regs->sp >= vma.begin && regs->sp < vma.end
+                || regs->gp >= vma.begin && regs->gp < vma.end
+                || regs->tp >= vma.begin && regs->tp < vma.end
+                || regs->t0 >= vma.begin && regs->t0 < vma.end
+                || regs->t1 >= vma.begin && regs->t1 < vma.end
+                || regs->t2 >= vma.begin && regs->t2 < vma.end
+                || regs->s0 >= vma.begin && regs->s0 < vma.end
+                || regs->s1 >= vma.begin && regs->s1 < vma.end
+                || regs->a0 >= vma.begin && regs->a0 < vma.end
+                || regs->a1 >= vma.begin && regs->a1 < vma.end
+                || regs->a2 >= vma.begin && regs->a2 < vma.end
+                || regs->a3 >= vma.begin && regs->a3 < vma.end
+                || regs->a4 >= vma.begin && regs->a4 < vma.end
+                || regs->a5 >= vma.begin && regs->a5 < vma.end
+                || regs->a6 >= vma.begin && regs->a6 < vma.end
+                || regs->a7 >= vma.begin && regs->a7 < vma.end
+                || regs->s2 >= vma.begin && regs->s2 < vma.end
+                || regs->s3 >= vma.begin && regs->s3 < vma.end
+                || regs->s4 >= vma.begin && regs->s4 < vma.end
+                || regs->s5 >= vma.begin && regs->s5 < vma.end
+                || regs->s6 >= vma.begin && regs->s6 < vma.end
+                || regs->s7 >= vma.begin && regs->s7 < vma.end
+                || regs->s8 >= vma.begin && regs->s8 < vma.end
+                || regs->s9 >= vma.begin && regs->s9 < vma.end
+                || regs->s10 >= vma.begin && regs->s10 < vma.end
+                || regs->s11 >= vma.begin && regs->s11 < vma.end
+                || regs->t3 >= vma.begin && regs->t3 < vma.end
+                || regs->t4 >= vma.begin && regs->t4 < vma.end
+                || regs->t5 >= vma.begin && regs->t5 < vma.end
+                || regs->t6 >= vma.begin && regs->t6 < vma.end) {
+            phdr[idx].p_filesz = phdr[idx].p_memsz;
+            return false;
+        }
+
+        return true;
+    }
     return false;
 }
 

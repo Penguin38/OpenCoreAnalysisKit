@@ -66,7 +66,35 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
     }
 }
 
-bool Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) {
+bool Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma, int idx) {
+    int filter = getFilter();
+    if (filter & FILTER_MINIDUMP) {
+        if (!prnum)
+            return true;
+
+        x86_64::pt_regs *regs = &prstatus[0].pr_reg;
+        if (regs->r15 >= vma.begin && regs->r15 < vma.end
+                || regs->r14 >= vma.begin && regs->r14 < vma.end
+                || regs->r13 >= vma.begin && regs->r13 < vma.end
+                || regs->r12 >= vma.begin && regs->r12 < vma.end
+                || regs->rbp >= vma.begin && regs->rbp < vma.end
+                || regs->rbx >= vma.begin && regs->rbx < vma.end
+                || regs->r11 >= vma.begin && regs->r11 < vma.end
+                || regs->r10 >= vma.begin && regs->r10 < vma.end
+                || regs->r9 >= vma.begin && regs->r9 < vma.end
+                || regs->r8 >= vma.begin && regs->r8 < vma.end
+                || regs->rax >= vma.begin && regs->rax < vma.end
+                || regs->rcx >= vma.begin && regs->rcx < vma.end
+                || regs->rdx >= vma.begin && regs->rdx < vma.end
+                || regs->rsi >= vma.begin && regs->rsi < vma.end
+                || regs->rdi >= vma.begin && regs->rdi < vma.end
+                || regs->rip >= vma.begin && regs->rip < vma.end) {
+            phdr[idx].p_filesz = phdr[idx].p_memsz;
+            return false;
+        }
+
+        return true;
+    }
     return false;
 }
 

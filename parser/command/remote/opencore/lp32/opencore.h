@@ -54,9 +54,11 @@ public:
     void AlignNoteSegment(FILE* fp);
     void WriteCoreLoadSegment(int pid, FILE* fp);
 
+    uint32_t FindAuxv(uint32_t type);
+
     virtual void CreateCorePrStatus(int pid) = 0;
     virtual void WriteCorePrStatus(FILE* fp) = 0;
-    virtual bool IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) = 0;
+    virtual bool IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma, int idx) = 0;
 protected:
     Elf32_Ehdr ehdr;
     Elf32_Phdr *phdr;
