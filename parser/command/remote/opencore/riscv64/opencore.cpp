@@ -29,12 +29,22 @@ void Opencore::CreateCorePrStatus(int pid) {
     prstatus = (Elf64_prstatus *)malloc(prnum * sizeof(Elf64_prstatus));
     memset(prstatus, 0, prnum * sizeof(Elf64_prstatus));
 
+    int cur = 1;
     for (int index = 0; index < prnum; index++) {
         pid_t tid = pids[index];
-        prstatus[index].pr_pid = tid;
+        int idx;
+        if (tid == getTid()) {
+            idx = 0;
+            prstatus[idx].pr_pid = tid;
+        } else {
+            // 0 top thread was truncated
+            idx = (cur >= prnum) ? 0 : cur;
+            ++cur;
+            prstatus[idx].pr_pid = tid;
+        }
 
         struct iovec ioVec = {
-            &prstatus[index].pr_reg,
+            &prstatus[idx].pr_reg,
             sizeof(riscv64::pt_regs),
         };
 
@@ -57,12 +67,10 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
     memset(magic, 0, sizeof(magic));
     snprintf(magic, NOTE_CORE_NAME_SZ, ELFCOREMAGIC);
 
-    int index = 0;
-    while (index < prnum) {
+    for (int index = 0; index < prnum; index++) {
         fwrite(&elf_nhdr, sizeof(Elf64_Nhdr), 1, fp);
         fwrite(magic, sizeof(magic), 1, fp);
         fwrite(&prstatus[index], sizeof(Elf64_prstatus), 1, fp);
-        index++;
     }
 }
 
