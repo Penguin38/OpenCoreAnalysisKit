@@ -74,11 +74,11 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
     }
 }
 
-bool Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma, int idx) {
+int Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) {
     int filter = getFilter();
     if (filter & FILTER_MINIDUMP) {
         if (!prnum)
-            return true;
+            return VMA_NULL;
 
         x86::pt_regs *regs = &prstatus[0].pr_reg;
         if (regs->ebx >= vma.begin && regs->ebx < vma.end
@@ -89,13 +89,12 @@ bool Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma, int idx)
                 || regs->eax >= vma.begin && regs->eax < vma.end
                 || regs->eip >= vma.begin && regs->eip < vma.end
                 || regs->esp >= vma.begin && regs->esp < vma.end) {
-            phdr[idx].p_filesz = phdr[idx].p_memsz;
-            return false;
+            return VMA_INCLUDE;
         }
 
-        return true;
+        return VMA_NULL;
     }
-    return false;
+    return VMA_NORMAL;
 }
 
 Opencore::~Opencore() {

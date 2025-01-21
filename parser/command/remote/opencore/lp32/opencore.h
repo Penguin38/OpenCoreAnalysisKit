@@ -31,7 +31,7 @@ public:
                      file(nullptr), fileslen(0) {}
     ~OpencoreImpl();
     bool DoCoredump(const char* filename);
-    bool NeedFilterFile(Opencore::VirtualMemoryArea& vma);
+    int NeedFilterFile(Opencore::VirtualMemoryArea& vma);
     void Prepare(const char* filename);
     void ParseProcessMapsVma(int pid);
     void ParserPhdr(int index, Opencore::VirtualMemoryArea& vma);
@@ -58,7 +58,7 @@ public:
 
     virtual void CreateCorePrStatus(int pid) = 0;
     virtual void WriteCorePrStatus(FILE* fp) = 0;
-    virtual bool IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma, int idx) = 0;
+    virtual int IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) = 0;
 protected:
     Elf32_Ehdr ehdr;
     Elf32_Phdr *phdr;

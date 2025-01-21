@@ -47,25 +47,29 @@
 
 class Opencore {
 public:
-    static const int FLAG_CORE = 1 << 0;
-    static const int FLAG_PROCESS_COMM = 1 << 1;
-    static const int FLAG_PID = 1 << 2;
-    static const int FLAG_THREAD_COMM = 1 << 3;
-    static const int FLAG_TID = 1 << 4;
-    static const int FLAG_TIMESTAMP = 1 << 5;
-    static const int FLAG_ALL = FLAG_CORE | FLAG_PROCESS_COMM | FLAG_PID
+    static constexpr int FLAG_CORE = 1 << 0;
+    static constexpr int FLAG_PROCESS_COMM = 1 << 1;
+    static constexpr int FLAG_PID = 1 << 2;
+    static constexpr int FLAG_THREAD_COMM = 1 << 3;
+    static constexpr int FLAG_TID = 1 << 4;
+    static constexpr int FLAG_TIMESTAMP = 1 << 5;
+    static constexpr int FLAG_ALL = FLAG_CORE | FLAG_PROCESS_COMM | FLAG_PID
                               | FLAG_THREAD_COMM | FLAG_TID | FLAG_TIMESTAMP;
 
-    static const int INVALID_TID = 0;
+    static constexpr int INVALID_TID = 0;
 
-    static const int FILTER_NONE = 0x0;
-    static const int FILTER_SPECIAL_VMA = 1 << 0;
-    static const int FILTER_FILE_VMA = 1 << 1;
-    static const int FILTER_SHARED_VMA = 1 << 2;
-    static const int FILTER_SANITIZER_SHADOW_VMA = 1 << 3;
-    static const int FILTER_NON_READ_VMA = 1 << 4;
-    static const int FILTER_SIGNAL_CONTEXT = 1 << 5;
-    static const int FILTER_MINIDUMP = 1 << 6;
+    static constexpr int FILTER_NONE = 0x0;
+    static constexpr int FILTER_SPECIAL_VMA = 1 << 0;
+    static constexpr int FILTER_FILE_VMA = 1 << 1;
+    static constexpr int FILTER_SHARED_VMA = 1 << 2;
+    static constexpr int FILTER_SANITIZER_SHADOW_VMA = 1 << 3;
+    static constexpr int FILTER_NON_READ_VMA = 1 << 4;
+    static constexpr int FILTER_SIGNAL_CONTEXT = 1 << 5;
+    static constexpr int FILTER_MINIDUMP = 1 << 6;
+
+    static constexpr int VMA_NORMAL = 0;
+    static constexpr int VMA_NULL = 1 << 0;
+    static constexpr int VMA_INCLUDE = 1 << 1;
 
     static int Dump(int argc, char* const argv[]);
     static void Usage();
@@ -109,9 +113,9 @@ public:
     bool Coredump(const char* filename);
     virtual ~Opencore();
     virtual bool DoCoredump(const char* filename) { return false; }
-    virtual bool NeedFilterFile(Opencore::VirtualMemoryArea& vma) { return false; }
+    virtual int NeedFilterFile(Opencore::VirtualMemoryArea& vma) { return VMA_NORMAL; }
     virtual int getMachine() { return EM_NONE; }
-    bool IsFilterSegment(Opencore::VirtualMemoryArea& vma);
+    int IsFilterSegment(Opencore::VirtualMemoryArea& vma);
     void StopTheWorld(int pid);
     bool StopTheThread(int tid);
     void Continue();

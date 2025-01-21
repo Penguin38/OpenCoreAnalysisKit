@@ -30,7 +30,7 @@ public:
     ~Opencore();
     void CreateCorePrStatus(int pid);
     void WriteCorePrStatus(FILE* fp);
-    bool IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma, int idx);
+    int IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma);
     int getMachine() { return EM_X86_64; }
 private:
     int prnum;
