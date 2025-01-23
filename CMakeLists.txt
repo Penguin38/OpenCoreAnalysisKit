@@ -322,36 +322,38 @@ set(CORE_PARSER_SOURCES
     parser/command/command_manager.cpp
     parser/command/help.cpp
     parser/command/cmd_time.cpp
-    parser/command/cmd_core.cpp
-    parser/command/cmd_exec.cpp
-    parser/command/cmd_sysroot.cpp
-    parser/command/cmd_mmap.cpp
-    parser/command/cmd_auxv.cpp
-    parser/command/cmd_file.cpp
-    parser/command/cmd_linkmap.cpp
-    parser/command/cmd_read.cpp
-    parser/command/cmd_write.cpp
-    parser/command/cmd_register.cpp
-    parser/command/cmd_disassemble.cpp
-    parser/command/cmd_thread.cpp
-    parser/command/cmd_getprop.cpp
-    parser/command/cmd_print.cpp
-    parser/command/cmd_reference.cpp
-    parser/command/cmd_hprof.cpp
-    parser/command/cmd_search.cpp
-    parser/command/cmd_class.cpp
-    parser/command/cmd_top.cpp
-    parser/command/cmd_space.cpp
-    parser/command/cmd_dex.cpp
-    parser/command/cmd_method.cpp
-    parser/command/cmd_logcat.cpp
-    parser/command/cmd_dumpsys.cpp
-    parser/command/cmd_fdtrack.cpp
     parser/command/cmd_env.cpp
     parser/command/cmd_shell.cpp
     parser/command/cmd_plugin.cpp
-    parser/command/cmd_cxx.cpp
-    parser/command/cmd_scudo.cpp
+    parser/command/core/cmd_core.cpp
+    parser/command/core/cmd_exec.cpp
+    parser/command/core/cmd_sysroot.cpp
+    parser/command/core/cmd_mmap.cpp
+    parser/command/core/cmd_auxv.cpp
+    parser/command/core/cmd_file.cpp
+    parser/command/core/cmd_linkmap.cpp
+    parser/command/core/cmd_read.cpp
+    parser/command/core/cmd_write.cpp
+    parser/command/core/cmd_register.cpp
+    parser/command/core/cmd_disassemble.cpp
+    parser/command/core/cmd_thread.cpp
+    parser/command/core/backtrace/cmd_backtrace.cpp
+    parser/command/core/backtrace/cmd_frame.cpp
+    parser/command/android/cmd_getprop.cpp
+    parser/command/android/cmd_print.cpp
+    parser/command/android/cmd_reference.cpp
+    parser/command/android/cmd_hprof.cpp
+    parser/command/android/cmd_search.cpp
+    parser/command/android/cmd_class.cpp
+    parser/command/android/cmd_top.cpp
+    parser/command/android/cmd_space.cpp
+    parser/command/android/cmd_dex.cpp
+    parser/command/android/cmd_method.cpp
+    parser/command/android/cmd_logcat.cpp
+    parser/command/android/cmd_dumpsys.cpp
+    parser/command/android/cmd_fdtrack.cpp
+    parser/command/llvm/cmd_cxx.cpp
+    parser/command/llvm/cmd_scudo.cpp
     parser/command/fake/cmd_fake.cpp
     parser/command/fake/core/fake_core.cpp
     parser/command/fake/core/lp64/fake_core.cpp
@@ -370,9 +372,7 @@ set(CORE_PARSER_SOURCES
     parser/command/fake/map/fake_map_64.cpp
     parser/command/fake/map/fake_map_32.cpp
     parser/command/fake/load/fake_load_block.cpp
-    parser/command/fake/stack/fake_java_stack.cpp
-    parser/command/backtrace/cmd_backtrace.cpp
-    parser/command/backtrace/cmd_frame.cpp)
+    parser/command/fake/stack/fake_java_stack.cpp)
 
 if (NOT TARGET_BUILD_PLATFORM STREQUAL "MACOS")
     list(APPEND CORE_PARSER_SOURCES

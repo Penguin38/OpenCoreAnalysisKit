@@ -21,7 +21,7 @@
 #include "android.h"
 #include "common/elf.h"
 #include "command/env.h"
-#include "command/cmd_core.h"
+#include "command/core/cmd_core.h"
 #include "command/command.h"
 #include "command/command_manager.h"
 #include "command/remote/opencore/opencore.h"

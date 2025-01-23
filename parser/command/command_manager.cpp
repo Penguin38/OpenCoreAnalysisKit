@@ -18,39 +18,39 @@
 #include "command/command_manager.h"
 #include "command/help.h"
 #include "command/cmd_time.h"
-#include "command/cmd_core.h"
-#include "command/cmd_exec.h"
-#include "command/cmd_sysroot.h"
-#include "command/cmd_mmap.h"
-#include "command/cmd_auxv.h"
-#include "command/cmd_file.h"
-#include "command/cmd_linkmap.h"
-#include "command/cmd_read.h"
-#include "command/cmd_write.h"
-#include "command/cmd_register.h"
-#include "command/cmd_disassemble.h"
-#include "command/cmd_thread.h"
-#include "command/cmd_getprop.h"
-#include "command/cmd_print.h"
-#include "command/cmd_reference.h"
-#include "command/cmd_hprof.h"
-#include "command/cmd_search.h"
-#include "command/cmd_class.h"
-#include "command/cmd_top.h"
-#include "command/cmd_space.h"
-#include "command/cmd_dex.h"
-#include "command/cmd_method.h"
-#include "command/cmd_logcat.h"
-#include "command/cmd_dumpsys.h"
 #include "command/cmd_env.h"
-#include "command/cmd_cxx.h"
-#include "command/cmd_fdtrack.h"
-#include "command/cmd_scudo.h"
 #include "command/cmd_shell.h"
+#include "command/core/cmd_core.h"
+#include "command/core/cmd_exec.h"
+#include "command/core/cmd_sysroot.h"
+#include "command/core/cmd_mmap.h"
+#include "command/core/cmd_auxv.h"
+#include "command/core/cmd_file.h"
+#include "command/core/cmd_linkmap.h"
+#include "command/core/cmd_read.h"
+#include "command/core/cmd_write.h"
+#include "command/core/cmd_register.h"
+#include "command/core/cmd_disassemble.h"
+#include "command/core/cmd_thread.h"
+#include "command/core/backtrace/cmd_backtrace.h"
+#include "command/core/backtrace/cmd_frame.h"
+#include "command/android/cmd_getprop.h"
+#include "command/android/cmd_print.h"
+#include "command/android/cmd_reference.h"
+#include "command/android/cmd_hprof.h"
+#include "command/android/cmd_search.h"
+#include "command/android/cmd_class.h"
+#include "command/android/cmd_top.h"
+#include "command/android/cmd_space.h"
+#include "command/android/cmd_dex.h"
+#include "command/android/cmd_method.h"
+#include "command/android/cmd_logcat.h"
+#include "command/android/cmd_dumpsys.h"
+#include "command/android/cmd_fdtrack.h"
+#include "command/llvm/cmd_cxx.h"
+#include "command/llvm/cmd_scudo.h"
 #include "command/remote/cmd_remote.h"
 #include "command/fake/cmd_fake.h"
-#include "command/backtrace/cmd_backtrace.h"
-#include "command/backtrace/cmd_frame.h"
 #include "common/exception.h"
 #include "base/utils.h"
 #include <string.h>
@@ -123,10 +123,12 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new FdtrackCommand());
 #endif
 
-    // other
-    CommandManager::PushInlineCommand(new EnvCommand());
+    // llvm
     CommandManager::PushInlineCommand(new CxxCommand());
     CommandManager::PushInlineCommand(new ScudoCommand());
+
+    // other
+    CommandManager::PushInlineCommand(new EnvCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
     INSTANCE->plugin = new PluginCommand();
     CommandManager::PushInlineCommand(INSTANCE->plugin);
