@@ -24,7 +24,7 @@ jobs:
         tar -czvf core-parser_1.0.7.tar.gz output/aosp/debug/linux/bin/core-parser
 
     - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: core-parser_1.0.7_for_ubuntu.tar.gz
         path: core-parser_1.0.7.tar.gz
