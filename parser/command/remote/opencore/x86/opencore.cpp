@@ -23,15 +23,15 @@
 namespace x86 {
 
 void Opencore::CreateCorePrStatus(int pid) {
-    if (!pids.size()) return;
+    if (!threads.size()) return;
 
-    prnum = pids.size();
+    prnum = threads.size();
     prstatus = (Elf32_prstatus *)malloc(prnum * sizeof(Elf32_prstatus));
     memset(prstatus, 0, prnum * sizeof(Elf32_prstatus));
 
     int cur = 1;
     for (int index = 0; index < prnum; index++) {
-        pid_t tid = pids[index];
+        pid_t tid = threads[index].pid;
         int idx;
         if (tid == getTid()) {
             idx = 0;

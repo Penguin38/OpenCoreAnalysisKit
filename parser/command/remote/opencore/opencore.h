@@ -100,6 +100,11 @@ public:
         std::string buildid;
     };
 
+    struct ThreadRecord {
+        int pid;
+        bool attached;
+    };
+
     void setDir(const char* d) { dir = d; }
     void setPid(int p) { pid = p; }
     void setTid(int t) { tid = t; }
@@ -127,7 +132,7 @@ public:
     static bool isAlive(int pid);
 protected:
     int extra_note_filesz;
-    std::vector<int> pids;
+    std::vector<ThreadRecord> threads;
     std::vector<VirtualMemoryArea> maps;
     uint8_t* zero;
     uint32_t align_size;
