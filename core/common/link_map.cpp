@@ -60,7 +60,7 @@ api::MemoryRef& LinkMap::GetAddrCache() {
             api::Elfx_Ehdr ehdr(symbols.Block()->vaddr());
             if (ehdr.IsElf()) addr_cache = symbols.Block()->vaddr();
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         return addr_cache;
     }
 
@@ -174,7 +174,7 @@ void LinkMap::ReadDynsyms() {
     dynsyms.clear();
     try {
         api::Elf::ReadSymbols(this);
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
     }
     if (dynsyms.size()) LOGD("Read dynsyms[%ld] (%s)\n", dynsyms.size(), name());
 }

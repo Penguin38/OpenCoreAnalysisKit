@@ -109,7 +109,7 @@ int FakeCore::execute(const char* output) {
     for (const auto& mem : memorys) {
         try {
             CoreApi::Write(mem.first, mem.second);
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             // do nothing
         }
     }

@@ -45,7 +45,7 @@ std::list<std::unique_ptr<Thread>>& ThreadList::GetList() {
                 if (thread->IsValid())
                     list_second_cache.push_back(std::move(thread));
             }
-        } catch (InvalidAddressException e) {}
+        } catch (InvalidAddressException& e) {}
     }
     return list_second_cache;
 }

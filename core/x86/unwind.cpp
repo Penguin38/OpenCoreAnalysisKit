@@ -58,7 +58,7 @@ uint32_t UnwindStack::GetUContext() {
             }
             uc.MovePtr(4);
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
     return cur_uc_;
@@ -98,7 +98,7 @@ void UnwindStack::Backtrace(Register& regs) {
     try {
         cur_frame_pc_ = regs.eip;
         VisitFrame();
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
 }

@@ -309,7 +309,7 @@ std::string ArtMethod::ColorPrettyMethodOnlyNP() {
             result.append(GetName());
             result.append(Logger::End());
             result.append(PrettyParameters());
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             // do nothing
         }
         return result;
@@ -327,7 +327,7 @@ std::string ArtMethod::ColorPrettyMethodSimple() {
             result.append(".");
             result.append(GetName());
             result.append(Logger::End());
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             // do nothing
         }
         return result;
@@ -349,7 +349,7 @@ std::string ArtMethod::ColorPrettyMethod() {
             result.append(GetName());
             result.append(Logger::End());
             result.append(PrettyParameters());
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             // do nothing
         }
         return result;
@@ -488,7 +488,7 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
         try {
             if (method_header.Contains(pc))
                 return method_header;
-        } catch (InvalidAddressException e) {}
+        } catch (InvalidAddressException& e) {}
     }
 
     if (LIKELY(Android::Sdk() >= Android::R)) {
@@ -505,7 +505,7 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
             if (method_header.Ptr()
                     /* && method_header.Contains(pc)*/)
                 return method_header;
-        } catch (InvalidAddressException e) {}
+        } catch (InvalidAddressException& e) {}
     }
 
     bool found = false;

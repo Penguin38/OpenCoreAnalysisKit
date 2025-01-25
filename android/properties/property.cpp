@@ -46,7 +46,7 @@ const char* android::Property::Get(const char *name, const char* def) {
                     result = info;
                     return true;
                 }
-            } catch (InvalidAddressException e) {
+            } catch (InvalidAddressException& e) {
                 // do nothing
             }
         }

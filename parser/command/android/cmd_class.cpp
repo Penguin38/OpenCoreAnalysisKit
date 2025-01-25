@@ -114,7 +114,7 @@ int ClassCommand::main(int argc, char* const argv[]) {
         } else {
             Android::ForeachObjects(callback, obj_each_flags, false);
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         LOGW("The statistical process was interrupted!\n");
     }
     return 0;
@@ -158,7 +158,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
             art::mirror::Class interface = iftable.GetInterface(i);
             try {
                 LOGI("    %s\n", interface.PrettyDescriptor().c_str());
-            } catch(InvalidAddressException e) {
+            } catch(InvalidAddressException& e) {
                 LOGI("    java.lang.Class<0x%" PRIx64 ">\n", interface.Ptr());
             }
         }

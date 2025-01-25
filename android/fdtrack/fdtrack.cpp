@@ -131,7 +131,7 @@ api::MemoryRef FdTrack::AnalysisStackTraces() {
                             || !__begin.Block()->virtualContains(backtrace.__end())
                             /*|| !__begin.Block()->virtualContains(backtrace.__value())*/)
                         throw InvalidAddressException(tmp.Ptr());
-                } catch(InvalidAddressException e) {
+                } catch(InvalidAddressException& e) {
                     fd = 0;
                     break;
                 }
@@ -156,7 +156,7 @@ api::MemoryRef FdTrack::GetStackTraces() {
 
     try {
         stack_traces = AnalysisStackTraces();
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
     return stack_traces;

@@ -157,7 +157,7 @@ void BacktraceCommand::DumpTrace() {
             try {
                 art::Thread* thread = reinterpret_cast<art::Thread*>(record->thread);
                 thread->DumpState();
-            } catch(InvalidAddressException e) {}
+            } catch(InvalidAddressException& e) {}
         } else {
             LOGI("Thread(\"" ANSI_COLOR_YELLOW "%d" ANSI_COLOR_RESET "\") " ANSI_COLOR_CYAN "%s\n" ANSI_COLOR_RESET,
                     record->pid, art::Runtime::Current().Ptr() ? "NotAttachJVM" : "");
@@ -169,7 +169,7 @@ void BacktraceCommand::DumpTrace() {
 #if defined(__AOSP_PARSER__)
         try {
             DumpJavaStack(record->thread, record->api);
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             LOGI(ANSI_COLOR_RED "  (STACK MAYBE INCOIMPLETE)\n" ANSI_COLOR_RESET);
         }
 #endif
@@ -346,7 +346,7 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
         if (!frameid) {
             try {
                 DumpJavaFrameState("  ", thread, java_frame.get());
-            } catch(InvalidAddressException e) {}
+            } catch(InvalidAddressException& e) {}
         }
         ++frameid;
     }

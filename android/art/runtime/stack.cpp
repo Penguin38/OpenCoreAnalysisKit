@@ -148,7 +148,7 @@ void StackVisitor::WalkStack() {
                     cur_shadow_frame_ = cur_shadow_frame_.link();
                 } while(cur_shadow_frame_.Ptr());
             }
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             LOGI("  ManagedStack* 0x%" PRIx64 " maybe invalid.\n", current_fragment.Ptr());
         }
     }

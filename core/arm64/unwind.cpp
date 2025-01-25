@@ -58,7 +58,7 @@ uint64_t UnwindStack::GetUContext() {
             }
             uc.MovePtr(8);
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
     return cur_uc_;
@@ -97,7 +97,7 @@ void UnwindStack::FpBacktrace(Register& regs) {
         if (!block || (regs.lr != fp.value64Of(8)))
             VisitFrame();
 
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
 
@@ -129,7 +129,7 @@ void UnwindStack::OnlyFpBackStack(uint64_t curfp) {
 
             VisitFrame();
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
 }

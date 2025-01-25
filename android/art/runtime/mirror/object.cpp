@@ -169,7 +169,7 @@ bool Object::IsValid() {
         if (LIKELY(klass_.IsClass())
                 && LIKELY(!((int64_t)SizeOf() < (int64_t)kObjectAlignment)))
             return true;
-    } catch (InvalidAddressException e) {
+    } catch (InvalidAddressException& e) {
         // do nothing
     }
     return false;
@@ -194,7 +194,7 @@ bool Object::IsNonLargeValid() {
                 return false;
             }
         }
-    } catch (InvalidAddressException e) {
+    } catch (InvalidAddressException& e) {
         // do nothing
     }
     return false;

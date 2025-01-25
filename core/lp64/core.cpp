@@ -118,7 +118,7 @@ void lp64::Core::loadLinkMap64(CoreApi* api) {
             api->addLinkMap(map);
             map = link->next;
         }
-    } catch (InvalidAddressException e) {
+    } catch (InvalidAddressException& e) {
         LOGE("%s\n", e.what());
     }
 }

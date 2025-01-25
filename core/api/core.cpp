@@ -567,7 +567,7 @@ void CoreApi::foreachLinkMap(std::function<bool (LinkMap *)> callback) {
     if (mLinkMap.size() == 0) {
         try {
             loadLinkMap();
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             // do nothing
         }
     }

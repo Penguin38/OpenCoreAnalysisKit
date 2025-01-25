@@ -149,7 +149,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         } else {
             Android::ForeachReferences(callback, ref_each_flags);
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         LOGW("The statistical process was interrupted!\n");
     }
 
@@ -183,7 +183,7 @@ int TopCommand::main(int argc, char* const argv[]) {
 
             TopCommand::Pair& pair = it->second;
             pair.native_size += registry.getSize();
-        } catch (InvalidAddressException e) {}
+        } catch (InvalidAddressException& e) {}
     }
 
     uint64_t total_count = 0;

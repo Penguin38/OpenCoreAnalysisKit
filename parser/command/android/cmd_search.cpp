@@ -136,7 +136,7 @@ int SearchCommand::main(int argc, char* const argv[]) {
         } else {
             Android::ForeachReferences(callback, ref_each_flags);
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         LOGW("The statistical process was interrupted!\n");
     }
     return 0;

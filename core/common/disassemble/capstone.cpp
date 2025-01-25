@@ -44,7 +44,7 @@ void Disassember::SetArmMode(const char* mode) {
 void Disassember::Dump(const char* prefix, api::MemoryRef& begin, uint32_t size, uint64_t address, Option& opt) {
     try {
         Dump(prefix, (uint8_t *)begin.Real(), size, address, opt);
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
 }

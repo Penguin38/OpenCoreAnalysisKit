@@ -173,7 +173,7 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
                             found = true;
                             break;
                         }
-                    } catch (InvalidAddressException e) {}
+                    } catch (InvalidAddressException& e) {}
                     count++;
                     table_mem_map_ = point_size * count + weak_globals_cache.table_mem_map();
                     table_mem_map_.copyRef(weak_globals_cache);

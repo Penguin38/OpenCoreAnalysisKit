@@ -129,7 +129,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
     } else {
         try {
             Android::ForeachReferences(callback, flags);
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             LOGW("The statistical process was interrupted!\n");
         }
     }

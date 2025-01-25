@@ -42,7 +42,7 @@ static void PrintSerializedLogBuf(const char* header, cxx::list& logs, int filte
                 continue;
             content.DecodeDump(filter, id);
         }
-    } catch (InvalidAddressException e) {
+    } catch (InvalidAddressException& e) {
         LOGW("maybe loss of partial logs!!\n");
     }
 }

@@ -34,7 +34,7 @@ int Command::execute(int argc, char* const argv[]) {
             sigaction(SIGTERM, &stact, NULL);
             try {
                 main(argc, argv);
-            } catch (InvalidAddressException e) {
+            } catch (InvalidAddressException& e) {
                 LOGE("%s\n", e.what());
             }
             exit(0);

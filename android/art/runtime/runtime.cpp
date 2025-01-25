@@ -373,7 +373,7 @@ Runtime& Runtime::Current() {
                 runtime = AnalysisRuntime(callee_methods, sizeof_callee_methods);
             }
 #endif
-        } catch(InvalidAddressException e) {
+        } catch(InvalidAddressException& e) {
             runtime = AnalysisInstance();
         }
     }

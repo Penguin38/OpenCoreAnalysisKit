@@ -160,7 +160,7 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
             };
             Android::ForeachObjects(callback);
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         // do nothing
     }
 }
@@ -177,7 +177,7 @@ void PrintCommand::OnlyDumpObject(art::mirror::Object& object, bool format_hex) 
         } else {
             PrintCommand::DumpInstance(object, format_hex);
         }
-    } catch(InvalidAddressException e) {
+    } catch(InvalidAddressException& e) {
         LOGE("%s\n", e.what());
     }
 }

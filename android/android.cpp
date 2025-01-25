@@ -552,7 +552,7 @@ void Android::Prepare() {
             heap.GetContinuousSpaces();
             heap.GetDiscontinuousSpaces();
         }
-    } catch (InvalidAddressException e) {}
+    } catch (InvalidAddressException& e) {}
 }
 
 void Android::OatPrepare() {

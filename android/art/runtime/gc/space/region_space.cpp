@@ -232,7 +232,7 @@ void RegionSpace::WalkInternal(std::function<bool (mirror::Object& object)> visi
         } else {
             try {
                 WalkNonLargeRegion(visitor, r, check);
-            } catch (InvalidAddressException e) {
+            } catch (InvalidAddressException& e) {
                 LOGW("[0x%" PRIx64 "] Region:[0x%" PRIx64 ", 0x%" PRIx64 ") walkspace exception!\n", r.Ptr(), pos, top);
             }
         }

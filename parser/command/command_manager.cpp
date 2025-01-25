@@ -185,7 +185,7 @@ int CommandManager::Execute(const char* cmd, int argc, char* const argv[]) {
                 return 0;
             }
             return command->execute(argc, argv);
-        } catch (InvalidAddressException e) {
+        } catch (InvalidAddressException& e) {
             LOGE("%s\n", e.what());
         }
     } else {
