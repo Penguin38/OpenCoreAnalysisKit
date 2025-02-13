@@ -39,7 +39,6 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
         {"origin",  no_argument,       0,  0 },
         {"mmap",    no_argument,       0,  1 },
         {"overlay", no_argument,       0,  2 },
-        {0,         0,                 0,  0 }
     };
 
     while ((opt = getopt_long(argc, argv, "012",
@@ -57,16 +56,22 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
         }
     }
 
-    if (optind >= argc) {
+    if (optind >= argc)
         return 0;
-    }
 
     char* symbol = argv[optind];
     uint64_t addr = Utils::atol(symbol);
+    uint32_t num = -1;
+    if (optind + 1 < argc)
+        num = std::atoi(argv[optind + 1]);
+
     auto callback = [&](LinkMap* map) -> bool {
+        bool argv_addr = false;
         SymbolEntry entry = map->DlSymEntry(symbol);
-        if (!entry.IsValid())
+        if (!entry.IsValid()) {
             entry = map->DlRegionSymEntry(addr);
+            argv_addr = true;
+        }
 
         if (!entry.IsValid())
             return false;
@@ -96,7 +101,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
                 }
             }
 
-            capstone::Disassember::Option opt(vaddr, -1);
+            capstone::Disassember::Option opt(argv_addr? addr : vaddr, num);
             if (CoreApi::GetMachine() == EM_ARM) {
                 opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, thumb?
                         capstone::Disassember::Option::MODE_THUMB : capstone::Disassember::Option::MODE_ARM);
@@ -104,7 +109,8 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
 
             uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(vaddr, read_opt));
             if (data) {
-                LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ":\n", d_symbol.c_str());
+                LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ": [%" PRIx64 ", %" PRIx64 "]\n",
+                        d_symbol.c_str(), vaddr, vaddr + entry.size);
                 capstone::Disassember::Dump("  ", data, entry.size, vaddr, opt);
             }
         } else {
@@ -117,7 +123,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
 }
 
 void DisassembleCommand::usage() {
-    LOGI("Usage: disassemble|disas [<SYMBOL>|<ADDRESS>] [OPTION]\n");
+    LOGI("Usage: disassemble|disas [<SYMBOL>|<ADDRESS>] [NUM] [OPTION]\n");
     LOGI("Option:\n");
     LOGI("    --origin    disassemble from corefile\n");
     LOGI("    --mmap      disassemble from file mmap\n");

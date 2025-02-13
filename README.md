@@ -590,7 +590,7 @@ VADDR             SIZE              INFO              NAME
 # Function Symbol Disassemble
 ```
 core-parser> help disas
-Usage: disassemble|disas <SYMBOL> [OPTION]
+Usage: disassemble|disas [<SYMBOL>|<ADDRESS>] [NUM] [OPTION]
 Option:
     --origin    disassemble from corefile
     --mmap      disassemble from file mmap
