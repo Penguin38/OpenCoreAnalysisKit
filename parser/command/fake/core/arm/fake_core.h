@@ -26,6 +26,10 @@ class FakeCore : public lp32::FakeCore {
 public:
     FakeCore() : lp32::FakeCore(),
                  prnum(0), prstatus(nullptr) {}
+    FakeCore(std::unique_ptr<FakeCore::Stream>& in) {
+        FakeCore();
+        InitStream(in);
+    }
     int execute(const char* output);
     int getMachine() { return EM_ARM; }
     void CreateCorePrStatus();

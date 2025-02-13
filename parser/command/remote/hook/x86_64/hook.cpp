@@ -21,17 +21,25 @@
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/x86_64/hook.h"
 #include "command/remote/cmd_remote.h"
+#include "command/remote/fakecore/process.h"
+#include <unistd.h>
 #include <dlfcn.h>
 #include <string.h>
 
 namespace x86_64 {
 
 bool Hook::InjectLibrary(const char* library) {
-    if (!CoreApi::IsRemote())
-        return false;
+    if (!CoreApi::IsRemote() || Env::CurrentRemotePid() != Pid()) {
+        std::unique_ptr<FakeCore::Stream> process =
+                std::make_unique<fakecore::Process>(Pid());
+        std::unique_ptr<FakeCore> impl = FakeCore::Make(process);
+        if (!impl)
+            return false;
 
-    if (Env::CurrentRemotePid() != Pid())
-        return false;
+        impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
+        impl->InitRebuild(false);
+        impl->execute(nullptr);
+    }
 
     if (!library || !strlen(library))
         return false;

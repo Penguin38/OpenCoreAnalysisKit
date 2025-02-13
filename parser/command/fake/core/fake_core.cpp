@@ -104,9 +104,8 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         std::unique_ptr<FakeCore::Stream> tombstone =
                 std::make_unique<android::Tombstone>(tomb_file);
         filename = tomb_file;
-        impl = FakeCore::Make(tombstone, sysroot_dir);
+        impl = FakeCore::Make(tombstone);
         if (impl) {
-            impl->InitStream(tombstone);
             impl->InitSysRoot(sysroot_dir);
             impl->InitVaBits(va_bits);
             impl->InitPageSize(page_size);
@@ -130,26 +129,26 @@ std::unique_ptr<FakeCore> FakeCore::Make(int bits) {
     return std::move(impl);
 }
 
-std::unique_ptr<FakeCore> FakeCore::Make(std::unique_ptr<FakeCore::Stream>& stream, const char* sysroot) {
+std::unique_ptr<FakeCore> FakeCore::Make(std::unique_ptr<FakeCore::Stream>& stream) {
     std::unique_ptr<FakeCore> impl;
     std::string type = stream->ABI();
 #if defined(__LP64__)
     if (type == "arm64" || type == "ARM64") {
-        impl = std::make_unique<arm64::FakeCore>();
+        impl = std::make_unique<arm64::FakeCore>(stream);
     } else if (type == "x86_64" || type == "X86_64") {
-        impl = std::make_unique<x86_64::FakeCore>();
+        impl = std::make_unique<x86_64::FakeCore>(stream);
     } else if (type == "riscv64" || type == "RISCV64") {
-        impl = std::make_unique<riscv64::FakeCore>();
+        impl = std::make_unique<riscv64::FakeCore>(stream);
     } else if (type == "arm" || type == "ARM") {
-        impl = std::make_unique<arm::FakeCore>();
+        impl = std::make_unique<arm::FakeCore>(stream);
     } else if (type == "x86" || type == "X86") {
-        impl = std::make_unique<x86::FakeCore>();
+        impl = std::make_unique<x86::FakeCore>(stream);
     }
 #else
     if (type == "arm" || type == "ARM") {
-        impl = std::make_unique<arm::FakeCore>();
+        impl = std::make_unique<arm::FakeCore>(stream);
     } else if (type == "x86" || type == "X86") {
-        impl = std::make_unique<x86::FakeCore>();
+        impl = std::make_unique<x86::FakeCore>(stream);
     }
 #endif
     return std::move(impl);

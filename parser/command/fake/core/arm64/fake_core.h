@@ -27,6 +27,10 @@ public:
     FakeCore() : lp64::FakeCore(),
                  has_pac(false), has_taggle_addr(false),
                  prnum(0), prstatus(nullptr) {}
+    FakeCore(std::unique_ptr<FakeCore::Stream>& in) {
+        FakeCore();
+        InitStream(in);
+    }
     int execute(const char* output);
     int getMachine() { return EM_AARCH64; }
     void CreateCorePrStatus();

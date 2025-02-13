@@ -437,7 +437,7 @@ void FakeCore::CreateFakeStrtab(uint32_t fake_strtab, uint32_t fake_link_map, st
 }
 
 void FakeCore::Prepare(const char* filename) {
-    LOGI("Create Fakecore %s ...\n", filename);
+    LOGI("Create Fakecore %s ...\n", filename ? filename : "[anon::coredump]");
     memset(&ehdr, 0, sizeof(Elf32_Ehdr));
     memset(&note, 0, sizeof(Elf32_Phdr));
 }

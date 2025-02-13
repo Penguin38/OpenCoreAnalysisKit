@@ -385,6 +385,12 @@ if (NOT TARGET_BUILD_PLATFORM STREQUAL "MACOS")
         parser/command/remote/opencore/x86_64/opencore.cpp
         parser/command/remote/opencore/x86/opencore.cpp
         parser/command/remote/opencore/riscv64/opencore.cpp
+        parser/command/remote/fakecore/process.cpp
+        parser/command/remote/fakecore/arm64/process_parser.cpp
+        parser/command/remote/fakecore/arm/process_parser.cpp
+        parser/command/remote/fakecore/x86_64/process_parser.cpp
+        parser/command/remote/fakecore/x86/process_parser.cpp
+        parser/command/remote/fakecore/riscv64/process_parser.cpp
         parser/command/remote/hook/hook.cpp
         parser/command/remote/hook/arm64/hook.cpp
         parser/command/remote/hook/arm/hook.cpp

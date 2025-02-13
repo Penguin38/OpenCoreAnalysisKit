@@ -36,17 +36,18 @@
 int Hook::Main(int argc, char* const argv[]) {
     bool inject = false;
     char* library = nullptr;
+    int pid = 0;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        /* {"pid",     required_argument, 0, 'p'}, */
+        {"pid",     required_argument, 0, 'p'},
         {"inject",  no_argument,       0,  1 },
         {"lib",     required_argument, 0, 'l'},
     };
 
-    while ((opt = getopt_long(argc, argv, "l:",
+    while ((opt = getopt_long(argc, argv, "l:p:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1:
@@ -55,15 +56,15 @@ int Hook::Main(int argc, char* const argv[]) {
             case 'l':
                 library = optarg;
                 break;
+            case 'p':
+                pid = std::atoi(optarg);
+                break;
         }
     }
 
-    if (!CoreApi::IsRemote()) {
-        LOGE("Only support core-parser on remote mode!\n");
-        return 0;
-    }
+    if (!pid && CoreApi::IsRemote())
+        pid = Env::CurrentRemotePid();
 
-    int pid = Env::CurrentRemotePid();
     std::unique_ptr<Hook> impl = Hook::MakeArch(pid);
     if (impl && inject)
         impl->InjectLibrary(library);

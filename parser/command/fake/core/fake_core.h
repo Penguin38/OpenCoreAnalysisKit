@@ -100,11 +100,14 @@ public:
         align_size = ELF_PAGE_SIZE;
         page_size = ELF_PAGE_SIZE;
         va_bits = 0;
+        need_rebuild = true;
     }
     void InitStream(std::unique_ptr<FakeCore::Stream>& in) { stream = std::move(in); }
     void InitSysRoot(const char* root) { if (root) sysroot = root; }
     void InitVaBits(int va) { if (va) va_bits = va; }
     void InitPageSize(uint64_t size) { if (IS_ALIGNED(size, ELF_PAGE_SIZE)) page_size = size; }
+    void InitRebuild(bool rebuild) { need_rebuild = rebuild; }
+    bool NeedRebuild() { return need_rebuild; }
 
     virtual ~FakeCore() {}
     virtual int execute(const char* output) { return 0; }
@@ -113,7 +116,7 @@ public:
     static int OptionCore(int argc, char* const argv[]);
     static void Usage();
     static std::unique_ptr<FakeCore> Make(int bits);
-    static std::unique_ptr<FakeCore> Make(std::unique_ptr<FakeCore::Stream>& stream, const char* sysroot);
+    static std::unique_ptr<FakeCore> Make(std::unique_ptr<FakeCore::Stream>& stream);
     static uint64_t FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps, const char* name);
 
     std::unique_ptr<FakeCore::Stream>& GetInputStream() { return stream; }
@@ -127,6 +130,7 @@ protected:
 private:
     std::unique_ptr<FakeCore::Stream> stream;
     std::string sysroot;
+    bool need_rebuild;
 };
 
 #endif // PARSER_COMMAND_FAKE_CORE_FAKECORE_H_

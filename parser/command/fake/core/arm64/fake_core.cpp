@@ -128,8 +128,11 @@ int FakeCore::execute(const char* output) {
     }
 
     /** CREATE FAKECORE */
-    std::unique_ptr<::FakeCore> impl = FakeCore::Make(CoreApi::Bits());
-    return impl ? impl->execute(output) : 0;
+    if (NeedRebuild()) {
+        std::unique_ptr<::FakeCore> impl = FakeCore::Make(CoreApi::Bits());
+        return impl ? impl->execute(output) : 0;
+    }
+    return 0;
 }
 
 void FakeCore::CreateCorePrStatus() {
