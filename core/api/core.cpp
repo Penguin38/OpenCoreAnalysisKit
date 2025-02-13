@@ -456,7 +456,7 @@ void CoreApi::ForeachLoadBlock(std::function<bool (LoadBlock *)> callback, bool 
 }
 
 uint64_t CoreApi::DlSym(const char* symbol) {
-    uint64_t value;
+    uint64_t value = 0x0;
     auto callback = [&](LinkMap* map) -> bool {
         value = map->DlSym(symbol);
         if (value) {
