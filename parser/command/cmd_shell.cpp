@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdio.h>
+#include <errno.h>
 
 int ShellCommand::main(int argc, char* const argv[]) {
     return main(argc, argv, nullptr);
@@ -45,7 +46,7 @@ int ShellCommand::main(int argc, char* const argv[], std::function<void ()> call
             close(fd[0]);
         }
         if (execvp(cmd, &argv[1]) == -1)
-            LOGI("Unknown command %s .  Try \"help\".\n", cmd);
+            LOGI("Unknown shell command %s . %s.\n", cmd, strerror(errno));
         exit(0);
     } else if (pid > 0) {
         if (callback) {

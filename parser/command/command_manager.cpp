@@ -32,6 +32,7 @@
 #include "command/core/cmd_register.h"
 #include "command/core/cmd_disassemble.h"
 #include "command/core/cmd_thread.h"
+#include "command/core/cmd_search.h"
 #include "command/core/backtrace/cmd_backtrace.h"
 #include "command/core/backtrace/cmd_frame.h"
 #include "command/android/cmd_getprop.h"
@@ -102,6 +103,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new WriteCommand());
     CommandManager::PushInlineCommand(new RegisterCommand());
     CommandManager::PushInlineCommand(new ThreadCommand());
+    CommandManager::PushInlineCommand(new CoreSearchCommand());
     CommandManager::PushInlineCommand(new BacktraceCommand());
     CommandManager::PushInlineCommand(new FrameCommand());
     CommandManager::PushInlineCommand(new DisassembleCommand());

@@ -337,6 +337,7 @@ set(CORE_PARSER_SOURCES
     parser/command/core/cmd_register.cpp
     parser/command/core/cmd_disassemble.cpp
     parser/command/core/cmd_thread.cpp
+    parser/command/core/cmd_search.cpp
     parser/command/core/backtrace/cmd_backtrace.cpp
     parser/command/core/backtrace/cmd_frame.cpp
     parser/command/android/cmd_getprop.cpp
