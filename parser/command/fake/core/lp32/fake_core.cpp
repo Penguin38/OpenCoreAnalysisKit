@@ -82,6 +82,9 @@ int FakeCore::execute(const char* output) {
         if (!block->realSize() && block->isValid())
             tmp[num].p_filesz = tmp[num].p_memsz;
 
+        if (block->realSize() && !block->isValid())
+            tmp[num].p_filesz = 0x0;
+
         current_offset += tmp[num].p_filesz;
         fwrite(&tmp[num], sizeof(Elf32_Phdr), 1, fp);
         ++num;
