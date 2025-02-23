@@ -222,15 +222,16 @@ const char* BaseMutex::GetName() {
  */
 bool BaseMutex::IsSpecialMutex(const char* type, uint32_t off) {
     api::MemoryRef cache = GetVTBL();
+    bool ret = false;
+    int machine = CoreApi::GetMachine();
+
     if (!cache.IsValid())
-        return false;
+        goto second;
 
     cache = cache.valueOf(off);
     if (!cache.IsValid())
-        return false;
+        goto second;
 
-    bool ret = false;
-    int machine = CoreApi::GetMachine();
     switch(machine) {
         case EM_AARCH64: {
             // mov w0 type
@@ -357,7 +358,7 @@ bool BaseMutex::IsSpecialMutex(const char* type, uint32_t off) {
     }
 
     if (ret) return ret;
-
+second:
     // second check
     const char* name = GetName();
     for (int i = 0; i < sizeof(kLockTable)/sizeof(kLockTable[0]); i++) {

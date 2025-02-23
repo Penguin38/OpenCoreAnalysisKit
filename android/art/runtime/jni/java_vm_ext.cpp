@@ -192,12 +192,14 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
 }
 
 mirror::Object JavaVMExt::Decode(uint64_t uref) {
-    IndirectRefKind kind = IndirectReferenceTable::DecodeIndirectRefKind(uref);
-    if (kind == IndirectRefKind::kGlobal) {
-        return DecodeGlobal(uref);
-    } else if (kind == IndirectRefKind::kWeakGlobal) {
-        return DecodeWeakGlobal(uref);
-    }
+    try {
+        IndirectRefKind kind = IndirectReferenceTable::DecodeIndirectRefKind(uref);
+        if (kind == IndirectRefKind::kGlobal) {
+            return DecodeGlobal(uref);
+        } else if (kind == IndirectRefKind::kWeakGlobal) {
+            return DecodeWeakGlobal(uref);
+        }
+    } catch(InvalidAddressException& e) {}
     return 0x0;
 }
 

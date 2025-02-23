@@ -87,13 +87,19 @@ SpaceType Space::GetType() {
     if (type_cache != kSpaceTypeInvalidSpace)
         return type_cache;
 
+    int machine = CoreApi::GetMachine();
+    api::MemoryRef getTypeCache = 0x0;
+
     if (!vtbl_cache.Ptr()) {
         vtbl_cache = vtbl();
         vtbl_cache.Prepare(false);
     }
 
-    api::MemoryRef getTypeCache(vtbl_cache.valueOf(OFFSET(Space, vtbl_GetType)), vtbl_cache);
-    int machine = CoreApi::GetMachine();
+    if (!vtbl_cache.IsValid())
+        goto second;
+
+    getTypeCache = vtbl_cache.valueOf(OFFSET(Space, vtbl_GetType));
+    getTypeCache.copyRef(vtbl_cache);
 
     if (!getTypeCache.IsValid())
         goto second;
