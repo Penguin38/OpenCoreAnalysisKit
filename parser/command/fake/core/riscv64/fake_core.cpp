@@ -108,7 +108,15 @@ int FakeCore::execute(const char* output) {
     std::map<uint64_t, uint64_t>& memorys = stream->Memorys();
     for (const auto& mem : memorys) {
         try {
-            CoreApi::Write(mem.first, mem.second);
+            LoadBlock *block = CoreApi::FindLoadBlock(mem.first, false, false);
+            if (block) {
+                std::string& vma = block->filename();
+                if (vma == "[anon:low shadow]"
+                        || vma == "[anon:high shadow]"
+                        || (vma.compare(0, 12, "[anon:hwasan") == 0))
+                    continue;
+                CoreApi::Write(mem.first, mem.second);
+            }
         } catch(InvalidAddressException& e) {
             // do nothing
         }
