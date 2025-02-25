@@ -276,6 +276,9 @@ bool Space::GetXMallocSpaceFlag(uint32_t off) {
         vtbl_cache.Prepare(false);
     }
 
+    if (!vtbl_cache.IsValid())
+        return false;
+
     api::MemoryRef vtbl_IsXMallocSpace(vtbl_cache.valueOf(off), vtbl_cache);
     int machine = CoreApi::GetMachine();
 

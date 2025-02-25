@@ -349,10 +349,14 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
 
     auto walkfn = [&](art::gc::space::Space* space) {
         LOGD("Walk [%s] ...\n", space->GetName());
-        if (space->IsVaildSpace()) {
-            space->Walk(fn, check);
-        } else {
-            LOGE("%s invalid space.\n", space->GetName());
+        try {
+            if (space->IsVaildSpace()) {
+                space->Walk(fn, check);
+            } else {
+                LOGE("%s invalid space.\n", space->GetName());
+            }
+        } catch (InvalidAddressException& e) {
+            LOGD("Walk [%s] was interrupted!\n", space->GetName());
         }
     };
 
