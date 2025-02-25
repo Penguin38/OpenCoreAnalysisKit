@@ -51,9 +51,9 @@ void CacheHelper::NterpDump() {
     Android::OatPrepare();
     LOGI("  * ExecuteNterpImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, ExecuteNterpImplEntryPoint());
     LOGI("  * art::OatQuickMethodHeader::NterpWithClinitImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "  [0x%" PRIx64 "]\n" ANSI_COLOR_RESET,
-            NterpWithClinitImpl().Ptr(), NterpWithClinitImpl().Ptr() ? NterpWithClinitImpl().valueOf(CoreApi::GetPointSize()) : 0x0);
+            NterpWithClinitImpl().Ptr(), NterpWithClinitImpl().IsValid() ? NterpWithClinitImpl().valueOf(CoreApi::GetPointSize()) : 0x0);
     LOGI("  * art::OatQuickMethodHeader::NterpImpl: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "  [0x%" PRIx64 "]\n" ANSI_COLOR_RESET,
-            NterpImpl().Ptr(), NterpImpl().Ptr() ? NterpImpl().valueOf(CoreApi::GetPointSize()) : 0x0);
+            NterpImpl().Ptr(), NterpImpl().IsValid() ? NterpImpl().valueOf(CoreApi::GetPointSize()) : 0x0);
     LOGI("  * art::OatQuickMethodHeader::NterpMethodHeader: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, NterpMethodHeader().Ptr());
 }
 
@@ -160,7 +160,7 @@ OatQuickMethodHeader& CacheHelper::NterpMethodHeader() {
 
     if (!NterpMethodHeaderRef.Ptr()) {
         if (OatHeader::OatVersion() >= 239) {
-            NterpMethodHeaderRef = NterpImpl().Ptr() ?
+            NterpMethodHeaderRef = NterpImpl().IsValid() ?
                                    OatQuickMethodHeader::FromCodePointer(NterpImpl().valueOf())
                                    : 0x0;
         }

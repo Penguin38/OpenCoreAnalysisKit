@@ -151,8 +151,8 @@ bool OatQuickMethodHeader::Contains(uint64_t pc) {
 bool OatQuickMethodHeader::IsOptimized() {
     if (OatHeader::OatVersion() >= 241 ||
             (OatHeader::OatVersion() >= 239 && HasNterpImpl())) {
-        if ((CacheHelper::NterpWithClinitImpl().Ptr() && code() == CacheHelper::NterpWithClinitImpl().valueOf())
-                || (CacheHelper::NterpImpl().Ptr() && code() == CacheHelper::NterpImpl().valueOf())) {
+        if ((CacheHelper::NterpWithClinitImpl().IsValid() && code() == CacheHelper::NterpWithClinitImpl().valueOf())
+                || (CacheHelper::NterpImpl().IsValid() && code() == CacheHelper::NterpImpl().valueOf())) {
             return false;
         }
         return true;
@@ -176,10 +176,10 @@ uint64_t OatQuickMethodHeader::GetCodeStart() {
 uint32_t OatQuickMethodHeader::GetCodeSize() {
     if (OatHeader::OatVersion() >= 241 ||
             (OatHeader::OatVersion() >= 239 && HasNterpImpl())) {
-        if (CacheHelper::NterpWithClinitImpl().Ptr() && code() == CacheHelper::NterpWithClinitImpl().valueOf()) {
+        if (CacheHelper::NterpWithClinitImpl().IsValid() && code() == CacheHelper::NterpWithClinitImpl().valueOf()) {
             return CacheHelper::NterpWithClinitImpl().valueOf(CoreApi::GetPointSize());
         }
-        if (CacheHelper::NterpImpl().Ptr() && code() == CacheHelper::NterpImpl().valueOf()) {
+        if (CacheHelper::NterpImpl().IsValid() && code() == CacheHelper::NterpImpl().valueOf()) {
             return CacheHelper::NterpImpl().valueOf(CoreApi::GetPointSize());
         }
         return CodeInfo::DecodeCodeSize(GetOptimizedCodeInfoPtr());
