@@ -356,7 +356,7 @@ void Android::ForeachObjects(std::function<bool (art::mirror::Object& object)> f
                 LOGE("%s invalid space.\n", space->GetName());
             }
         } catch (InvalidAddressException& e) {
-            LOGD("Walk [%s] was interrupted!\n", space->GetName());
+            LOGW("Walk [%s] was interrupted!\n", space->GetName());
         }
     };
 
