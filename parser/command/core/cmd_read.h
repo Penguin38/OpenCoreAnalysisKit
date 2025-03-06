@@ -26,6 +26,7 @@ public:
     int main(int argc, char* const argv[]);
     void usage();
     void saveBinary(char* path, uint64_t* real, uint64_t size);
+    static void ShowBuffer(uint64_t ptr, int size);
 };
 
 #endif // PARSER_COMMAND_CORE_CMD_READ_H_

@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "command/llvm/cmd_cxx.h"
+#include "command/core/cmd_read.h"
 #include "base/utils.h"
 #include "api/core.h"
 #include "cxx/string.h"
@@ -70,18 +71,23 @@ int CxxCommand::DumpCxxString(int argc, char* const argv[]) {
 
 int CxxCommand::DumpCxxVector(int argc, char* const argv[]) {
     int entry_size = CoreApi::GetPointSize();
+    int buffer_size = 0x0;
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
         {"entry-size",       required_argument, 0,  'e'},
+        {"buffer-size",      required_argument, 0,  's'},
     };
 
-    while ((opt = getopt_long(argc, argv, "e:",
+    while ((opt = getopt_long(argc, argv, "e:s:",
                 long_options, &option_index)) != -1) {
         switch(opt) {
             case 'e':
                 entry_size = std::atoi(optarg);
+                break;
+            case 's':
+                buffer_size = std::atoi(optarg);
                 break;
         }
     }
@@ -92,54 +98,118 @@ int CxxCommand::DumpCxxVector(int argc, char* const argv[]) {
     int idx = 0;
     for (const auto& value : target) {
         LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
+        if (buffer_size)
+            ReadCommand::ShowBuffer(value, buffer_size);
     }
     return 0;
 }
 
 int CxxCommand::DumpCxxMap(int argc, char* const argv[]) {
-    uint64_t addr = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
+    int buffer_size = 0x0;
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"buffer-size",      required_argument, 0,  's'},
+    };
+
+    while ((opt = getopt_long(argc, argv, "s:",
+                long_options, &option_index)) != -1) {
+        switch(opt) {
+            case 's':
+                buffer_size = std::atoi(optarg);
+                break;
+        }
+    }
+
+    uint64_t addr = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
     cxx::map target = addr;
     int idx = 0;
     for (const auto& value : target) {
         LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
+        if (buffer_size)
+            ReadCommand::ShowBuffer(value, buffer_size);
     }
     return 0;
 }
 
 int CxxCommand::DumpCxxUnOrderedMap(int argc, char* const argv[]) {
-    uint64_t addr = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
+    int buffer_size = 0x0;
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"buffer-size",      required_argument, 0,  's'},
+    };
+
+    while ((opt = getopt_long(argc, argv, "s:",
+                long_options, &option_index)) != -1) {
+        switch(opt) {
+            case 's':
+                buffer_size = std::atoi(optarg);
+                break;
+        }
+    }
+
+    uint64_t addr = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
     cxx::unordered_map target = addr;
     int idx = 0;
     for (const auto& value : target) {
         LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
+        if (buffer_size)
+            ReadCommand::ShowBuffer(value, buffer_size);
     }
     return 0;
 }
 
 int CxxCommand::DumpCxxList(int argc, char* const argv[]) {
-    uint64_t addr = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
+    int buffer_size = 0x0;
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"buffer-size",      required_argument, 0,  's'},
+    };
+
+    while ((opt = getopt_long(argc, argv, "s:",
+                long_options, &option_index)) != -1) {
+        switch(opt) {
+            case 's':
+                buffer_size = std::atoi(optarg);
+                break;
+        }
+    }
+
+    uint64_t addr = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
     cxx::list target = addr;
     int idx = 0;
     for (const auto& value : target) {
         LOGI("[%d] 0x%" PRIx64 "\n", idx++, value);
+        if (buffer_size)
+            ReadCommand::ShowBuffer(value, buffer_size);
     }
     return 0;
 }
 
 int CxxCommand::DumpCxxDeque(int argc, char* const argv[]) {
     int block_size = CoreApi::GetPointSize();
+    int buffer_size = 0x0;
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
         {"block-size",       required_argument, 0,  'b'},
+        {"buffer-size",      required_argument, 0,  's'},
     };
 
-    while ((opt = getopt_long(argc, argv, "b:",
+    while ((opt = getopt_long(argc, argv, "b:s:",
                 long_options, &option_index)) != -1) {
         switch(opt) {
             case 'b':
                 block_size = std::atoi(optarg);
+                break;
+            case 's':
+                buffer_size = std::atoi(optarg);
                 break;
         }
     }
@@ -150,6 +220,8 @@ int CxxCommand::DumpCxxDeque(int argc, char* const argv[]) {
     int idx = 0;
     for (const auto& value : target) {
         LOGI("[%d] 0x%" PRIx64 "\n", idx++, value.Ptr());
+        if (buffer_size)
+            ReadCommand::ShowBuffer(value.Ptr(), buffer_size);
     }
     return 0;
 }
@@ -161,7 +233,8 @@ void CxxCommand::usage() {
     LOGI("    unordered_map   list      deque\n");
     LOGI("Option:\n");
     LOGI("    -e, --entry-size    only vector set entry-size\n");
-    LOGI("    -b, block-size      only deque set block-size\n");
+    LOGI("    -b, --block-size    only deque set block-size\n");
+    LOGI("    -s, --buffer-size   show target pointer near memory\n");
     ENTER();
     LOGI("core-parser> cxx string 0x79191ce66ed8\n");
     LOGI("/apex/com.android.art/javalib/x86_64/boot-okhttp.art\n");
