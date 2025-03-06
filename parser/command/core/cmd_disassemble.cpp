@@ -101,7 +101,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
                 }
             }
 
-            capstone::Disassember::Option opt(argv_addr? addr : vaddr, num);
+            capstone::Disassember::Option opt((argv_addr && num > 0)? addr : vaddr, num);
             if (CoreApi::GetMachine() == EM_ARM) {
                 opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, thumb?
                         capstone::Disassember::Option::MODE_THUMB : capstone::Disassember::Option::MODE_ARM);
