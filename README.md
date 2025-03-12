@@ -766,6 +766,18 @@ core-parser> auxv
      0           AT_NULL  0x0
 ```
 
+# Virtual To Real
+```
+core-parser> help vtor
+Usage: vtor <VADDR>
+
+core-parser> vtor 0x14000000
+  * OR: 0x73072868d000
+  * MMAP: 0x0
+  * OVERLAY: 0x0
+[14000000, 38000000)  rw-  0024000000  0024000000  [anon:dalvik-main space] [*]
+```
+
 # Query the Maps Table
 ```
 core-parser> help file
