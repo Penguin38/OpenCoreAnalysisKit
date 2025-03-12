@@ -284,12 +284,12 @@ int EnvCommand::showLoadEnv(bool quick) {
         } else {
             name.append("[]");
         }
-        LOGI("  %-5d " ANSI_COLOR_CYAN "[%" PRIx64 ", %" PRIx64 ")" ANSI_COLOR_RESET "  %s  %010" PRIx64 "  ""%s"" %s\n",
+        LOGI("  %-5d " ANSI_COLOR_CYAN "[%" PRIx64 ", %" PRIx64 ")" ANSI_COLOR_RESET "  %s  %010" PRIx64 "  %010" PRIx64 "  %s %s\n",
                 index, block->vaddr(), block->vaddr() + block->memsz(), block->convertFlags().c_str(),
-                block->realSize(), name.c_str(), block->convertValids().c_str());
+                block->realSize(), block->memsz(), name.c_str(), block->convertValids().c_str());
         return false;
     };
-    LOGI(ANSI_COLOR_LIGHTRED "INDEX   REGION               FLAGS FILESZ      PATH\n" ANSI_COLOR_RESET);
+    LOGI(ANSI_COLOR_LIGHTRED "INDEX   REGION               FLAGS FILESZ      MEMSZ      PATH\n" ANSI_COLOR_RESET);
     CoreApi::ForeachLoadBlock(callback, false, quick);
     return 0;
 }
