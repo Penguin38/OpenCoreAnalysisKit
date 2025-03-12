@@ -48,11 +48,8 @@ uint32_t UnwindStack::GetUContext() {
                     // uc_link must 0
                     && context->uc_link == 0x0) {
                 if (!memcmp(__padding, context->__padding, sizeof(__padding))) {
-                    api::MemoryRef uc_sp = context->uc_mcontext.arm_sp;
-                    if (uc_sp.IsValid()) {
-                        cur_uc_ = uc.Ptr();
-                        break;
-                    }
+                    cur_uc_ = uc.Ptr();
+                    break;
                 }
             }
             uc.MovePtr(4);

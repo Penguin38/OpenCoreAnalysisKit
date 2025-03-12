@@ -49,11 +49,8 @@ uint64_t UnwindStack::GetUContext() {
                     // uc_link must 0
                     && context->uc_link == 0x0) {
                 if (!memcmp(__reserved, context->__reserved, sizeof(__reserved))) {
-                    api::MemoryRef uc_sp = context->uc_mcontext.sp;
-                    if (uc_sp.IsValid()) {
-                        cur_uc_ = uc.Ptr();
-                        break;
-                    }
+                    cur_uc_ = uc.Ptr();
+                    break;
                 }
             }
             uc.MovePtr(8);
@@ -119,7 +116,7 @@ void UnwindStack::OnlyFpBackStack(uint64_t curfp) {
                 cur_frame_pc_ -= 0x4;
             cur_frame_fp_ = fp.value64Of();
 
-            if (cur_frame_fp_ == fp.Ptr())
+            if (cur_frame_fp_ <= fp.Ptr())
                 break;
 
             fp = cur_frame_fp_;
