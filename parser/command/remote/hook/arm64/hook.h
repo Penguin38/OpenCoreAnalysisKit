@@ -25,8 +25,11 @@ namespace arm64 {
 class Hook : public lp64::HookImpl {
 public:
     Hook(int pid) : lp64::HookImpl(pid) {}
-    bool InjectLibrary(const char* library);
     uint64_t RegsSize() { return sizeof(pt_regs); }
+    bool InjectLibrary(const char* library);
+    bool CallMethod(const char* method, int argc, char* const argv[]);
+    bool MethodContext(const char* method, pt_regs* call_regs,
+                       int argc, char* const argv[]);
 private:
     pt_regs ori_regs;
 };

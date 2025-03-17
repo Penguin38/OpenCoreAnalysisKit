@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "base/utils.h"
 #include "command/env.h"
 #include "command/remote/hook/hook.h"
 #include "command/remote/hook/arm64/hook.h"
@@ -35,6 +36,8 @@
 
 int Hook::Main(int argc, char* const argv[]) {
     bool inject = false;
+    bool call_method = false;
+    char* method = nullptr;
     char* library = nullptr;
     int pid = 0;
 
@@ -45,9 +48,10 @@ int Hook::Main(int argc, char* const argv[]) {
         {"pid",     required_argument, 0, 'p'},
         {"inject",  no_argument,       0,  1 },
         {"lib",     required_argument, 0, 'l'},
+        {"call",    required_argument, 0, 'c'},
     };
 
-    while ((opt = getopt_long(argc, argv, "l:p:",
+    while ((opt = getopt_long(argc, argv, "l:p:c:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1:
@@ -59,6 +63,10 @@ int Hook::Main(int argc, char* const argv[]) {
             case 'p':
                 pid = std::atoi(optarg);
                 break;
+            case 'c':
+                call_method = true;
+                method = optarg;
+                break;
         }
     }
 
@@ -66,8 +74,13 @@ int Hook::Main(int argc, char* const argv[]) {
         pid = Env::CurrentRemotePid();
 
     std::unique_ptr<Hook> impl = Hook::MakeArch(pid);
-    if (impl && inject)
-        impl->InjectLibrary(library);
+    if (impl) {
+        if (inject) {
+            impl->InjectLibrary(library);
+        } else if (call_method) {
+            impl->CallMethod(method, argc - optind, &argv[optind]);
+        }
+    }
     return 1;
 }
 
