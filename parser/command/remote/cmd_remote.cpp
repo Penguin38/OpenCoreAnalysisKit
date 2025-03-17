@@ -171,6 +171,9 @@ int RemoteCommand::OptionWrite(int argc, char* const argv[]) {
 }
 
 void RemoteCommand::Write(int pid, uint64_t vaddr, void *buf, uint64_t size) {
+#ifdef __ARM64__
+    vaddr &= ((1ULL << 56) - 1);
+#endif
     char filename[32];
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     int fd = open(filename, O_RDWR);
@@ -186,6 +189,9 @@ void RemoteCommand::Write(int pid, uint64_t vaddr, void *buf, uint64_t size) {
 }
 
 bool RemoteCommand::Read(int pid, uint64_t vaddr, uint64_t size, uint8_t* buf) {
+#ifdef __ARM64__
+    vaddr &= ((1ULL << 56) - 1);
+#endif
     char filename[32];
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     int fd = open(filename, O_RDONLY);
