@@ -52,7 +52,7 @@ public:
 
     static void Init();
     static void Init23();
-    static void Init35();
+    static void Init36();
     inline uint64_t continuous_spaces() { return Ptr() + OFFSET(Heap, continuous_spaces_); }
     inline uint64_t discontinuous_spaces() { return Ptr() + OFFSET(Heap, discontinuous_spaces_); }
 

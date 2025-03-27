@@ -89,7 +89,7 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 |Android-13.0(33) |   √   |  √   |   √    |   √  |    ?    |
 |Android-14.0(34) |   √   |  √   |   √    |   √  |    ?    |
 |Android-15.0(35) |   √   |  -   |   √    |   -  |    ?    |
-|Android-16.0(36) |   -   |  -   |   -    |   -  |    -    |
+|Android-16.0(36) |   √   |  -   |   √    |   -  |    ?    |
 
 # How To Launch
 ```
@@ -98,7 +98,7 @@ Option:
     -c, --core <COREFILE>    load core-parser from corefile
     -p, --pid <PID>          load core-parser from target process
     -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64
-        --sdk <SDK>          sdk support 26 ~ 35
+        --sdk <SDK>          sdk support 26 ~ 36
         --non-quick          load core-parser no filter non-read vma.
     -t, --tomb <TOMBSTONE>   load core-parser form tombstone file
         --sysroot <DIR:DIR>  set sysroot path

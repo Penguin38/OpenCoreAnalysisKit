@@ -15,6 +15,7 @@
  */
 
 #include "api/core.h"
+#include "android.h"
 #include "runtime/gc/space/space.h"
 #include "runtime/runtime_globals.h"
 #include "arm64/inst/constant.h"
@@ -27,6 +28,8 @@ struct Space_OffsetTable __Space_offset__;
 struct Space_SizeTable __Space_size__;
 struct ContinuousSpace_OffsetTable __ContinuousSpace_offset__;
 struct ContinuousSpace_SizeTable __ContinuousSpace_size__;
+struct ContinuousMemMapAllocSpace_OffsetTable __ContinuousMemMapAllocSpace_offset__;
+struct ContinuousMemMapAllocSpace_SizeTable __ContinuousMemMapAllocSpace_size__;
 
 namespace art {
 namespace gc {
@@ -64,6 +67,26 @@ void ContinuousSpace::Init() {
             .begin_ = 20,
             .end_ = 24,
             .limit_ = 28,
+        };
+    }
+}
+
+void ContinuousMemMapAllocSpace::Init() {
+    Android::RegisterSdkListener(Android::W, art::gc::space::ContinuousMemMapAllocSpace::Init36);
+}
+
+void ContinuousMemMapAllocSpace::Init36() {
+    if (CoreApi::Bits() == 64) {
+        __ContinuousMemMapAllocSpace_offset__ = {
+            .live_bitmap_ = 144,
+            .mark_bitmap_ = 272,
+            .temp_bitmap_ = 400,
+        };
+    } else {
+        __ContinuousMemMapAllocSpace_offset__ = {
+            .live_bitmap_ = 76,
+            .mark_bitmap_ = 144,
+            .temp_bitmap_ = 212,
         };
     }
 }

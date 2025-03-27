@@ -98,6 +98,7 @@ public:
     static void Init33();
     static void Init34();
     static void Init35();
+    static void Init36();
     inline uint64_t tls32() { return Ptr() + OFFSET(Thread, tls32_); }
     inline uint64_t tlsPtr() { return Ptr() + OFFSET(Thread, tlsPtr_); }
     inline uint64_t wait_mutex() { return VALUEOF(Thread, wait_mutex_); }
@@ -135,6 +136,7 @@ public:
         static void Init33();
         static void Init34();
         static void Init35();
+        static void Init36();
         inline uint64_t stack_end() { return VALUEOF(Thread_tls_ptr_sized_values, stack_end); }
         inline uint64_t managed_stack() { return Ptr() + OFFSET(Thread_tls_ptr_sized_values, managed_stack); }
         inline uint64_t jni_env() { return VALUEOF(Thread_tls_ptr_sized_values, jni_env); }

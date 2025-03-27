@@ -57,7 +57,7 @@ public:
     static constexpr int T = 33;
     static constexpr int U = 34;
     static constexpr int V = 35;
-    static constexpr int B = 36;
+    static constexpr int W = 36;
 
     enum BasicType {
         basic_object = 2,

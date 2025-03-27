@@ -38,6 +38,8 @@ void Runtime::Init() {
     Android::RegisterSdkListener(Android::S, art::Runtime::Init31);
     Android::RegisterSdkListener(Android::T, art::Runtime::Init33);
     Android::RegisterSdkListener(Android::U, art::Runtime::Init34);
+    Android::RegisterSdkListener(Android::V, art::Runtime::Init35);
+    Android::RegisterSdkListener(Android::W, art::Runtime::Init36);
 }
 
 void Runtime::Init23() {
@@ -297,6 +299,70 @@ void Runtime::Init33() {
 }
 
 void Runtime::Init34() {
+    if (CoreApi::Bits() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 72,
+            .imt_unimplemented_method_ = 80,
+            .heap_ = 512,
+            .monitor_pool_ = 576,
+            .thread_list_ = 584,
+            .class_linker_ = 600,
+            .java_vm_ = 632,
+            .jit_ = 640,
+        };
+    } else {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
+            .heap_ = 296,
+            .monitor_pool_ = 328,
+            .thread_list_ = 332,
+            .class_linker_ = 340,
+            .java_vm_ = 356,
+            .jit_ = 360,
+        };
+    }
+
+    kNumCalleeMethodsCount = 6;
+}
+
+void Runtime::Init35() {
+    if (CoreApi::Bits() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 72,
+            .imt_unimplemented_method_ = 80,
+            .heap_ = 512,
+            .monitor_pool_ = 576,
+            .thread_list_ = 584,
+            .class_linker_ = 600,
+            .java_vm_ = 632,
+            .jit_ = 640,
+        };
+    } else {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
+            .heap_ = 296,
+            .monitor_pool_ = 328,
+            .thread_list_ = 332,
+            .class_linker_ = 340,
+            .java_vm_ = 356,
+            .jit_ = 360,
+        };
+    }
+
+    kNumCalleeMethodsCount = 6;
+}
+
+void Runtime::Init36() {
     if (CoreApi::Bits() == 64) {
         __Runtime_offset__ = {
             .callee_save_methods_ = 0,

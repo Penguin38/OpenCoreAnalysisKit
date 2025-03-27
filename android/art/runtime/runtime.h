@@ -73,6 +73,8 @@ public:
     static void Init31();
     static void Init33();
     static void Init34();
+    static void Init35();
+    static void Init36();
     inline uint64_t callee_save_methods() { return Ptr() + OFFSET(Runtime, callee_save_methods_); }
     inline uint64_t resolution_method() { return VALUEOF(Runtime, resolution_method_); }
     inline uint64_t imt_conflict_method() { return VALUEOF(Runtime, imt_conflict_method_); }

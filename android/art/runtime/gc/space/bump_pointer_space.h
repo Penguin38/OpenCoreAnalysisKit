@@ -26,6 +26,7 @@ struct BumpPointerSpace_OffsetTable {
     uint32_t main_block_size_;
     uint32_t num_blocks_;
     uint32_t block_sizes_;
+    uint32_t black_dense_region_size_;
 };
 
 extern struct BumpPointerSpace_OffsetTable __BumpPointerSpace_offset__;
@@ -45,9 +46,11 @@ public:
     static void Init();
     static void Init26();
     static void Init34();
+    static void Init36();
     inline uint64_t main_block_size() { return VALUEOF(BumpPointerSpace, main_block_size_); }
     inline uint64_t num_blocks() { return VALUEOF(BumpPointerSpace, num_blocks_); }
     inline uint64_t block_sizes() { return Ptr() + OFFSET(BumpPointerSpace, block_sizes_); }
+    inline uint64_t black_dense_region_size() { return VALUEOF(BumpPointerSpace, black_dense_region_size_); }
 
     SpaceType GetType() { return kSpaceTypeBumpPointerSpace; }
     bool IsRosAllocSpace() { return false; }

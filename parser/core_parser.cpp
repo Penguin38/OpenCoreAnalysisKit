@@ -69,7 +69,7 @@ void show_compat_android_version() {
     LOGI("| AOSP-13.0(33) |    √    |    √    |    √    |    √    |    ?    |\n");
     LOGI("| AOSP-14.0(34) |    √    |    √    |    √    |    √    |    ?    |\n");
     LOGI("| AOSP-15.0(35) |    √    |    -    |    √    |    -    |    ?    |\n");
-    LOGI("| AOSP-16.0(36) |    -    |    -    |    -    |    -    |    -    |\n");
+    LOGI("| AOSP-16.0(36) |    √    |    -    |    √    |    -    |    ?    |\n");
     LOGI("+-----------------------------------------------------------------+\n\n");
 }
 
@@ -81,7 +81,7 @@ void show_parser_usage() {
     LOGI("    -p, --pid <PID>          load core-parser from target process\n");
 #endif
     LOGI("    -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64\n");
-    LOGI("        --sdk <SDK>          sdk support 26 ~ 35\n");
+    LOGI("        --sdk <SDK>          sdk support 26 ~ 36\n");
     LOGI("        --non-quick          load core-parser no filter non-read vma.\n");
     LOGI("    -t, --tomb <TOMBSTONE>   load core-parser form tombstone file\n");
     LOGI("        --sysroot <DIR:DIR>  set sysroot path\n");

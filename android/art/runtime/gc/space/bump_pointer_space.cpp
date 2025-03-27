@@ -17,6 +17,7 @@
 #include "api/core.h"
 #include "android.h"
 #include "runtime/gc/space/bump_pointer_space.h"
+#include "runtime/gc/accounting/space_bitmap.h"
 #include "runtime/runtime_globals.h"
 #include "cxx/vector.h"
 
@@ -29,6 +30,7 @@ namespace space {
 void BumpPointerSpace::Init() {
     Android::RegisterSdkListener(Android::O, art::gc::space::BumpPointerSpace::Init26);
     Android::RegisterSdkListener(Android::U, art::gc::space::BumpPointerSpace::Init34);
+    Android::RegisterSdkListener(Android::W, art::gc::space::BumpPointerSpace::Init36);
 }
 
 void BumpPointerSpace::Init26() {
@@ -58,6 +60,23 @@ void BumpPointerSpace::Init34() {
         };
     }
 }
+
+void BumpPointerSpace::Init36() {
+    if (CoreApi::Bits() == 64) {
+        __BumpPointerSpace_offset__ = {
+            .main_block_size_ = 584,
+            .block_sizes_ = 592,
+            .black_dense_region_size_ = 640,
+        };
+    } else {
+        __BumpPointerSpace_offset__ = {
+            .main_block_size_ = 328,
+            .block_sizes_ = 332,
+            .black_dense_region_size_ = 356,
+        };
+    }
+}
+
 
 cxx::deque& BumpPointerSpace::GetBlockSizesCache() {
     if (!block_sizes_cache.Ptr()) {
@@ -109,6 +128,7 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
     uint64_t pos = Begin();
     uint64_t end = End();
     uint64_t main_end = pos;
+    uint64_t black_dense_size = 0x0;
 
     mirror::Object object_cache = pos;
     object_cache.Prepare(false);
@@ -124,6 +144,25 @@ void BumpPointerSpace::Walk(std::function<bool (mirror::Object& object)> visitor
         end = main_end;
     } else {
         // do nothing
+    }
+
+    if (Android::Sdk() >= Android::W) {
+        black_dense_size = black_dense_region_size();
+        if (black_dense_size > 0) {
+            mirror::Object last_obj = 0x0;
+            auto return_obj_visit = [&](mirror::Object& obj) -> bool {
+                bool ret = visitor(obj);
+                last_obj = obj;
+                return ret;
+            };
+            accounting::ContinuousSpaceBitmap mark_bitmap_ = mark_bitmap();
+            mark_bitmap_.VisitMarkedRange(pos, pos + black_dense_size, return_obj_visit, check);
+
+            pos += black_dense_size;
+            if (last_obj.Ptr()) {
+                pos = std::max(pos, GetNextObject(last_obj));
+            }
+        }
     }
 
     while (pos < main_end) {

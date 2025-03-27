@@ -85,7 +85,7 @@ static int kTrunkData[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 8, 8, 9, 10,
-    11,12,12,13,14,15,
+    11,12,12,13,14,15,16,
 };
 
 int Android::Sdk2Trunk(int sdk) {
@@ -162,6 +162,7 @@ void Android::preLoad() {
 
     art::gc::space::Space::Init();
     art::gc::space::ContinuousSpace::Init();
+    art::gc::space::ContinuousMemMapAllocSpace::Init();
 
     art::HandleScope::Init();
     art::DexFile::Init();

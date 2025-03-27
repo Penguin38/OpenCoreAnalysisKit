@@ -38,6 +38,7 @@ void JitCodeCache::Init() {
     Android::RegisterSdkListener(Android::R, art::jit::JitCodeCache::Init30);
     Android::RegisterSdkListener(Android::S, art::jit::JitCodeCache::Init31);
     Android::RegisterSdkListener(Android::V, art::jit::JitCodeCache::Init35);
+    Android::RegisterSdkListener(Android::W, art::jit::JitCodeCache::Init36);
 
     Android::RegisterSdkListener(Android::P, art::jit::JitCodeCache::JniStubData::Init28);
     Android::RegisterSdkListener(Android::P, art::jit::JitCodeCache::JniStubsMapPair::Init28);
@@ -193,6 +194,26 @@ void JitCodeCache::Init35() {
             .jni_stubs_map_ = 416,
             .method_code_map_ = 428,
             .zygote_map_ = 524,
+        };
+    }
+}
+
+void JitCodeCache::Init36() {
+    if (CoreApi::Bits() == 64) {
+        __JitCodeCache_offset__ = {
+            .shared_region_ = 40,
+            .private_region_ = 400,
+            .jni_stubs_map_ = 760,
+            .method_code_map_ = 784,
+            .zygote_map_ = 952,
+        };
+    } else {
+        __JitCodeCache_offset__ = {
+            .shared_region_ = 24,
+            .private_region_ = 220,
+            .jni_stubs_map_ = 416,
+            .method_code_map_ = 428,
+            .zygote_map_ = 512,
         };
     }
 }

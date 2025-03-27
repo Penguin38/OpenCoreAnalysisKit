@@ -50,6 +50,19 @@ struct ContinuousSpace_SizeTable {
 extern struct ContinuousSpace_OffsetTable __ContinuousSpace_offset__;
 extern struct ContinuousSpace_SizeTable __ContinuousSpace_size__;
 
+struct ContinuousMemMapAllocSpace_OffsetTable {
+    uint32_t live_bitmap_;
+    uint32_t mark_bitmap_;
+    uint32_t temp_bitmap_;
+};
+
+struct ContinuousMemMapAllocSpace_SizeTable {
+    uint32_t THIS;
+};
+
+extern struct ContinuousMemMapAllocSpace_OffsetTable __ContinuousMemMapAllocSpace_offset__;
+extern struct ContinuousMemMapAllocSpace_SizeTable __ContinuousMemMapAllocSpace_size__;
+
 namespace art {
 namespace gc {
 namespace space {
@@ -157,6 +170,12 @@ public:
     ContinuousMemMapAllocSpace(const MemMapSpace& ref) : MemMapSpace(ref) {}
     ContinuousMemMapAllocSpace(uint64_t v, MemMapSpace& ref) : MemMapSpace(v, ref) {}
     ContinuousMemMapAllocSpace(uint64_t v, MemMapSpace* ref) : MemMapSpace(v, ref) {}
+
+    static void Init();
+    static void Init36();
+    inline uint64_t live_bitmap() { return Ptr() + OFFSET(ContinuousMemMapAllocSpace, live_bitmap_); }
+    inline uint64_t mark_bitmap() { return Ptr() + OFFSET(ContinuousMemMapAllocSpace, mark_bitmap_); }
+    inline uint64_t temp_bitmap() { return Ptr() + OFFSET(ContinuousMemMapAllocSpace, temp_bitmap_); }
 };
 
 } // namespace space
