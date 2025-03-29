@@ -102,7 +102,7 @@ Option:
         --non-quick          load core-parser no filter non-read vma.
     -t, --tomb <TOMBSTONE>   load core-parser form tombstone file
         --sysroot <DIR:DIR>  set sysroot path
-        --va_bits <BITS>     set virtual invalid addr bits
+        --va_bits <BITS>     set virtual valid addr bits
         --page_size <SIZE>   set target core page size
 Exp:
     core-parser -c /tmp/tmp.core

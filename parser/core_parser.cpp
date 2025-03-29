@@ -85,7 +85,7 @@ void show_parser_usage() {
     LOGI("        --non-quick          load core-parser no filter non-read vma.\n");
     LOGI("    -t, --tomb <TOMBSTONE>   load core-parser form tombstone file\n");
     LOGI("        --sysroot <DIR:DIR>  set sysroot path\n");
-    LOGI("        --va_bits <BITS>     set virtual invalid addr bits\n");
+    LOGI("        --va_bits <BITS>     set virtual valid addr bits\n");
     LOGI("        --page_size <SIZE>   set target core page size\n");
     LOGI("Exp:\n");
     LOGI("    core-parser -c /tmp/tmp.core\n");
