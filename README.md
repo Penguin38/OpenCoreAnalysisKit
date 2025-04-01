@@ -460,13 +460,14 @@ core-parser> class android.net.wifi.WifiNetworkSpecifier -m | grep desc
 core-parser> help method
 Usage: method <ART_METHOD> [OPTIONE...]
 Option:
-    --dex-dump        show dalvik byte codes
-    -i, --inst <PC>   only dex-dump, show instpc byte code
-    -n, --num <NUM>   only dex-dump, show maxline num
-    --oat-dump        show oat machine codes
-        --pc <PC>     only oat-dump
-    -b, --binary      show ArtMethod memory
-    -v, --verbaose    show more info
+    --dex-dump            show dalvik byte codes
+    -i, --inst <PC>       only dex-dump, show instpc byte code
+    -n, --num <NUM>       only dex-dump, show maxline num
+    --oat-dump            show oat machine codes
+        --pc <PC>         only oat-dump
+    -b, --binary          show ArtMethod memory
+    -v, --verbaose        show more info
+    -s, --search <dexpc>  search all ArtMethod include that dexpc
 
 core-parser> method 0x70b509c0 -v --dex-dump --oat-dump
 public static void com.android.internal.os.ZygoteInit.main(java.lang.String[]) [dex_method_idx=49967]
@@ -520,6 +521,12 @@ OAT CODE:
   0x71907614:             fecf453e2d8d | lea ebp, [rip - 0x130bac2]
   0x7190761a:                 34246c89 | mov dword ptr [rsp + 0x34], ebp
   ...
+
+core-parser> method -s 0000786c528044a8 --dex-dump --inst 0000786c528044a8
+[0x6fe055e8]
+public static void android.os.Looper.loop() [dex_method_idx=9185]
+DEX CODE:
+  0x786c528044a8: 4071 23e2 3210           | invoke-static {v0, v1, v2, v3}, boolean android.os.Looper.loopOnce(android.os.Looper, long, int) // method@9186
 ```
 # DexCache Mapped Memory and Dump
 ```

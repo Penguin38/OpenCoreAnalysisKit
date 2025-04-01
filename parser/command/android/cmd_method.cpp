@@ -39,6 +39,9 @@ bool MethodCommand::prepare(int argc, char* const argv[]) {
             || !(argc > 1))
         return false;
 
+    dump_opt = METHOD_DUMP_NAME;
+    dexpc = 0x0;
+
     int opt;
     int option_index = 0;
     optind = 0; // reset
@@ -50,10 +53,10 @@ bool MethodCommand::prepare(int argc, char* const argv[]) {
         {"num",         required_argument, 0, 'n'},
         {"verbose",     no_argument,       0, 'v'},
         {"binary",      no_argument,       0, 'b'},
-        {0,               0,               0,  0 }
+        {"search",      required_argument, 0, 's'},
     };
 
-    while ((opt = getopt_long(argc, argv, "i:n:01bv",
+    while ((opt = getopt_long(argc, argv, "i:n:01bvs:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 0:
@@ -62,12 +65,17 @@ bool MethodCommand::prepare(int argc, char* const argv[]) {
             case 1:
                 dump_opt |= METHOD_DUMP_OATCODE;
                 break;
+            case 's':
+                dexpc = Utils::atol(optarg);
+                break;
         }
     }
 
     if (dump_opt & METHOD_DUMP_OATCODE) {
         Android::OatPrepare();
     }
+
+    if (dexpc) Android::Prepare();
     return true;
 }
 
@@ -78,10 +86,12 @@ int MethodCommand::main(int argc, char* const argv[]) {
         return 0;
 
     int opt;
+    method = 0x0;
     dump_opt = METHOD_DUMP_NAME;
     verbose = false;
     count = 0;
     pc = 0x0;
+    dexpc = 0x0;
 
     int option_index = 0;
     optind = 0; // reset
@@ -93,10 +103,10 @@ int MethodCommand::main(int argc, char* const argv[]) {
         {"num",         required_argument, 0, 'n'},
         {"verbose",     no_argument,       0, 'v'},
         {"binary",      no_argument,       0, 'b'},
-        {0,               0,               0,  0 }
+        {"search",      required_argument, 0, 's'},
     };
 
-    while ((opt = getopt_long(argc, argv, "i:n:012bv",
+    while ((opt = getopt_long(argc, argv, "i:n:012bvs:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'i':
@@ -120,15 +130,51 @@ int MethodCommand::main(int argc, char* const argv[]) {
             case 'b':
                 dump_opt |= METHOD_DUMP_BINARY;
                 break;
+            case 's':
+                dexpc = Utils::atol(optarg);
+                break;
         }
     }
 
-    if (optind >= argc) {
+    if (optind >= argc && !dexpc) {
         usage();
         return 0;
     }
 
-    method = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
+    if (!dexpc) {
+        method = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
+    } else {
+        bool found = false;
+        auto search_method = [&](art::ArtMethod& tmp) -> bool {
+            art::dex::CodeItem item = tmp.GetCodeItem();
+            art::DexFile& dex_file = tmp.GetDexFile();
+            if (item.Ptr()) {
+                uint64_t start = item.Ptr() + item.code_offset_;
+                uint64_t end = start + (item.insns_count_ << 1);
+                if (dexpc >= start && dexpc < end) {
+                    found = true;
+                    method = tmp;
+                    LOGI(ANSI_COLOR_LIGHTYELLOW "[0x%" PRIx64 "]\n" ANSI_COLOR_RESET, method.Ptr());
+                }
+            }
+            return found;
+        };
+
+        auto callback = [&](art::mirror::Object& object) -> bool {
+            if (!object.IsClass())
+                return false;
+
+            art::mirror::Class current = object;
+            Android::ForeachArtMethods(current, search_method);
+            return found;
+        };
+        Android::ForeachObjects(callback);
+        if (!found) {
+            LOGE("Not found ArtMethod include dexpc 0x%" PRIx64 "\n", dexpc);
+            return 0;
+        }
+    }
+
     uint32_t dex_method_idx = method.GetDexMethodIndex();
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
         LOGI(ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
@@ -283,15 +329,16 @@ void MethodCommand::Binarydump() {
 }
 
 void MethodCommand::usage() {
-    LOGI("Usage: method <ART_METHOD> [OPTIONE...]\n");
+    LOGI("Usage: method [<ART_METHOD>|-s, --search <DEXPC>] [OPTIONE...]\n");
     LOGI("Option:\n");
-    LOGI("    --dex-dump        show dalvik byte codes\n");
-    LOGI("    -i, --inst <PC>   only dex-dump, show instpc byte code\n");
-    LOGI("    -n, --num <NUM>   only dex-dump, show maxline num\n");
-    LOGI("    --oat-dump        show oat machine codes\n");
-    LOGI("        --pc <PC>     only oat-dump\n");
-    LOGI("    -b, --binary      show ArtMethod memory\n");
-    LOGI("    -v, --verbaose    show more info\n");
+    LOGI("    --dex-dump            show dalvik byte codes\n");
+    LOGI("    -i, --inst <PC>       only dex-dump, show instpc byte code\n");
+    LOGI("    -n, --num <NUM>       only dex-dump, show maxline num\n");
+    LOGI("    --oat-dump            show oat machine codes\n");
+    LOGI("        --pc <PC>         only oat-dump\n");
+    LOGI("    -b, --binary          show ArtMethod memory\n");
+    LOGI("    -v, --verbaose        show more info\n");
+    LOGI("    -s, --search <dexpc>  search all ArtMethod include that dexpc\n");
     ENTER();
     LOGI("core-parser> method 0x70b509c0 -v --dex-dump --oat-dump\n");
     LOGI("public static void com.android.internal.os.ZygoteInit.main(java.lang.String[]) [dex_method_idx=49967]\n");
@@ -345,4 +392,10 @@ void MethodCommand::usage() {
     LOGI("  0x71907614:             fecf453e2d8d | lea ebp, [rip - 0x130bac2]\n");
     LOGI("  0x7190761a:                 34246c89 | mov dword ptr [rsp + 0x34], ebp\n");
     LOGI("  ...\n");
+    ENTER();
+    LOGI("core-parser> method -s 0000786c528044a8 --dex-dump --inst 0000786c528044a8\n");
+    LOGI("[0x6fe055e8]\n");
+    LOGI("public static void android.os.Looper.loop() [dex_method_idx=9185]\n");
+    LOGI("DEX CODE:\n");
+    LOGI("  0x786c528044a8: 4071 23e2 3210           | invoke-static {v0, v1, v2, v3}, boolean android.os.Looper.loopOnce(android.os.Looper, long, int) // method@9186\n");
 }

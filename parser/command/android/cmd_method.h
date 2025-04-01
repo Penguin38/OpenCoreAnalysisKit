@@ -43,6 +43,7 @@ private:
     api::MemoryRef instref = 0x0;
     bool verbose;
     uint64_t pc = 0x0;
+    uint64_t dexpc = 0x0;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_METHOD_H_
