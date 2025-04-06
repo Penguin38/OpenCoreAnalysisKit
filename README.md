@@ -99,11 +99,12 @@ Option:
     -p, --pid <PID>          load core-parser from target process
     -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64
         --sdk <SDK>          sdk support 26 ~ 36
-        --non-quick          load core-parser no filter non-read vma.
+        --no-filter-any      load core-parser no filter any vma
     -t, --tomb <TOMBSTONE>   load core-parser form tombstone file
         --sysroot <DIR:DIR>  set sysroot path
         --va_bits <BITS>     set virtual valid addr bits
         --page_size <SIZE>   set target core page size
+        --no-load            no auto load corefile
 Exp:
     core-parser -c /tmp/tmp.core
     core-parser -p 1 -m arm64

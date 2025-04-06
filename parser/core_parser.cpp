@@ -82,11 +82,12 @@ void show_parser_usage() {
 #endif
     LOGI("    -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64\n");
     LOGI("        --sdk <SDK>          sdk support 26 ~ 36\n");
-    LOGI("        --non-quick          load core-parser no filter non-read vma.\n");
+    LOGI("        --no-filter-any      load core-parser no filter any vma\n");
     LOGI("    -t, --tomb <TOMBSTONE>   load core-parser form tombstone file\n");
     LOGI("        --sysroot <DIR:DIR>  set sysroot path\n");
     LOGI("        --va_bits <BITS>     set virtual valid addr bits\n");
     LOGI("        --page_size <SIZE>   set target core page size\n");
+    LOGI("        --no-load            no auto load corefile\n");
     LOGI("Exp:\n");
     LOGI("    core-parser -c /tmp/tmp.core\n");
 #if !defined(__MACOS__)
@@ -113,18 +114,19 @@ int command_preload(int argc, char* const argv[]) {
     int opt;
     int option_index = 0;
     static struct option long_options[] = {
-        {"core",  required_argument,       0, 'c'},
-        {"sdk",   required_argument,       0,  1 },
+        {"core",      required_argument,   0, 'c'},
+        {"sdk",       required_argument,   0,  1 },
 #if !defined(__MACOS__)
-        {"pid",   required_argument,       0, 'p'},
+        {"pid",       required_argument,   0, 'p'},
 #endif
-        {"tomb",  required_argument,       0, 't'},
-        {"sysroot", required_argument,     0,  3 },
-        {"va_bits", required_argument,     0,  4 },
+        {"tomb",      required_argument,   0, 't'},
+        {"sysroot",   required_argument,   0,  3 },
+        {"va_bits",   required_argument,   0,  4 },
         {"page_size", required_argument,   0,  5 },
-        {"machine", required_argument,     0, 'm'},
-        {"non-quick", no_argument,         0,  2 },
-        {"help",  no_argument,             0, 'h'},
+        {"machine",   required_argument,   0, 'm'},
+        {"no-filter-any", no_argument,     0,  2 },
+        {"no-load",  no_argument,          0,  6 },
+        {"help",      no_argument,         0, 'h'},
     };
 
     char* corefile = nullptr;
@@ -136,11 +138,13 @@ int command_preload(int argc, char* const argv[]) {
     int current_sdk = 0;
     int pid = 0;
     bool remote = false;
+    bool need_load = true;
     while ((opt = getopt_long(argc, argv, "c:1:p:m:t:h",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
                 corefile = optarg;
+                need_load = true;
                 break;
             case 1:
                 current_sdk = std::atoi(optarg);
@@ -166,6 +170,9 @@ int command_preload(int argc, char* const argv[]) {
                 break;
             case 5:
                 page_size = Utils::atol(optarg);
+                break;
+            case 6:
+                if (!corefile) need_load = false;
                 break;
             case 'h':
                 show_parser_usage();
@@ -215,7 +222,7 @@ int command_preload(int argc, char* const argv[]) {
         corefile = output.data();
     }
 
-    if (corefile) {
+    if (corefile && need_load) {
         if (CoreCommand::Load(corefile, remote)) {
 #if defined(__AOSP_PARSER__)
             if (current_sdk) Android::OnSdkChanged(current_sdk);
@@ -226,7 +233,7 @@ int command_preload(int argc, char* const argv[]) {
 
     // reset
     optind = 0;
-    return 0;
+    return need_load? 0 : -1;
 }
 
 int main(int argc, char* const argv[]) {

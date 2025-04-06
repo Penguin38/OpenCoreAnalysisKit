@@ -322,6 +322,7 @@ void FakeCore::CreateFakePhdr(uint64_t fake_phdr, uint64_t fake_dynamic) {
     CoreApi::ForeachAuxv(fake_phdr_callback);
 
     Elf64_Ehdr ehdr;
+    memset(&ehdr, 0x0, sizeof(Elf64_Ehdr));
     snprintf((char *)ehdr.e_ident, 5, ELFMAG);
     ehdr.e_ident[EI_CLASS] = ELFCLASS64;
     ehdr.e_ident[EI_DATA] = ELFDATA2LSB;
