@@ -105,6 +105,7 @@ Option:
         --va_bits <BITS>     set virtual valid addr bits
         --page_size <SIZE>   set target core page size
         --no-load            no auto load corefile
+        --no-fake-phdr [EXE] rebuild fakecore phdr
 Exp:
     core-parser -c /tmp/tmp.core
     core-parser -p 1 -m arm64
@@ -976,7 +977,7 @@ Usage: remote setprop <NAME> <VALUE>
 core-parser> help fake
 Usage: fake <COMMAND> [OPTION...]
 Command:
-    core    map    load    stack
+    core    map    exec    load    stack
 ```
 
 ## Rebuild Core File
@@ -987,6 +988,7 @@ Option:
         --sysroot <DIR:DIR>   set sysroot path
         --va_bits <BITS>      set virtual invalid addr bits
         --page_size <SIZE>    set target core page size
+        --no-fake-phdr [EXE]  rebuild fakecore phdr
     -r, --rebuild             rebuild current environment core
     -m, --map                 overlay linkmap's name on rebuild
     -o, --output <COREFILE>   set current fakecore path
@@ -1070,6 +1072,12 @@ core-parser> fake map --ld
 calibrate /apex/com.android.art/lib64/libart.so l_ld(7d5f20e8f8)
 calibrate /apex/com.android.art/lib64/libunwindstack.so l_ld(7d619fcb38)
 calibrate /apex/com.android.runtime/lib64/bionic/libc.so l_ld(7e0c7762e8)
+```
+
+## Rebuild Fake AT_PHDR
+```
+Usage: fake exec <EXEC_PATH>
+core-parser> fake exec /system/bin/app_process64
 ```
 
 ## Allocate a Virtual Memory Segment

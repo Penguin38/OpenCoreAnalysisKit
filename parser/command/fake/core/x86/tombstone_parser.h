@@ -28,6 +28,7 @@ class TombstoneParser : public android::TombstoneParser {
 public:
     TombstoneParser(const char* path) : android::TombstoneParser(path) {}
     bool parse();
+    bool parseCmdline();
     bool parseTid();
     bool parseRegister();
     bool parseBacktrace();

@@ -30,6 +30,8 @@ public:
 	std::string ABI() { return abi; }
     bool Parse();
     int Tid() { return mParser->Tid(); }
+    std::string Executable() { return mParser->Executable(); }
+    void SetExecutable(const char* path) { mParser->SetExecutable(path); }
     std::set<std::string>& Libs() { return mParser->Libs(); }
     std::map<uint64_t, uint64_t>& Memorys() { return mParser->Memorys(); }
     std::vector<Opencore::VirtualMemoryArea>& Maps() { return mParser->Maps(); }

@@ -373,6 +373,9 @@ set(CORE_PARSER_SOURCES
     parser/command/fake/map/fake_map.cpp
     parser/command/fake/map/fake_map_64.cpp
     parser/command/fake/map/fake_map_32.cpp
+    parser/command/fake/exec/fake_executable.cpp
+    parser/command/fake/exec/fake_executable_64.cpp
+    parser/command/fake/exec/fake_executable_32.cpp
     parser/command/fake/load/fake_load_block.cpp
     parser/command/fake/stack/fake_java_stack.cpp)
 

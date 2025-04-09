@@ -30,6 +30,7 @@ class TombstoneParser {
 public:
     TombstoneParser(const char* path) {
         mFp = fopen(path, "r");
+        mForce = false;
     }
     ~TombstoneParser() { if (mFp) fclose(mFp); }
     virtual bool parse() { return false; }
@@ -38,12 +39,22 @@ public:
     virtual uint64_t PacEnabledKeys() { return 0; }
 
     int Tid() { return mCrashTid; }
+    bool IsForce() { return mForce; }
+    void SetExecutable(const char* path) {
+        if (path) {
+            mExecutable = path;
+            mForce = true;
+        }
+    }
+    std::string Executable() { return mExecutable; }
     std::set<std::string>& Libs() { return mLibs; }
     std::map<uint64_t, uint64_t>& Memorys() { return mMemorys; }
     std::vector<Opencore::VirtualMemoryArea>& Maps() { return mMaps; }
 protected:
     FILE *mFp;
     int mCrashTid;
+    bool mForce;
+    std::string mExecutable;
     std::set<std::string> mLibs;
     std::map<uint64_t, uint64_t> mMemorys;
     std::vector<Opencore::VirtualMemoryArea> mMaps;

@@ -40,6 +40,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         {"sysroot",     required_argument, 0,  1 },
         {"va_bits",     required_argument, 0,  2 },
         {"page_size",   required_argument, 0,  3 },
+        {"no-fake-phdr",no_argument,       0,  4 },
         {"output",      required_argument, 0, 'o'},
         {"map",         no_argument,       0, 'm'},
     };
@@ -52,6 +53,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
     char* sysroot_dir = nullptr;
     uint64_t page_size = ELF_PAGE_SIZE;
     uint64_t va_bits = 0;
+    uint32_t fake_mask = 0;
 
     while ((opt = getopt_long(argc, argv, "t:ro:m",
                 long_options, &option_index)) != -1) {
@@ -79,6 +81,9 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
                 break;
             case 3:
                 page_size = Utils::atol(optarg);
+                break;
+            case 4:
+                fake_mask |= NO_FAKE_PHDR;
                 break;
         }
     }
@@ -109,6 +114,11 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
             impl->InitSysRoot(sysroot_dir);
             impl->InitVaBits(va_bits);
             impl->InitPageSize(page_size);
+            impl->InitMask(fake_mask);
+            if (optind < argc) {
+                impl->InitExecutable(argv[optind]);
+                impl->GetInputStream()->SetExecutable(argv[optind]);
+            }
         }
     }
 
@@ -210,6 +220,7 @@ void FakeCore::Usage() {
     LOGI("        --sysroot <DIR:DIR>   set sysroot path\n");
     LOGI("        --va_bits <BITS>      set virtual invalid addr bits\n");
     LOGI("        --page_size <SIZE>    set target core page size\n");
+    LOGI("        --no-fake-phdr [EXE]  rebuild fakecore phdr\n");
     LOGI("    -r, --rebuild             rebuild current environment core\n");
     LOGI("    -m, --map                 overlay linkmap's name on rebuild\n");
     LOGI("    -o, --output <COREFILE>   set current fakecore path\n");

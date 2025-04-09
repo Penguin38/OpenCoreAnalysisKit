@@ -43,17 +43,21 @@ public:
     bool newOverlay();
     void setOverlay(uint64_t addr, void *buf, uint64_t size);
     void removeOverlay();
+    void setAuxvMaxCount(int max);
     void addAuxvItem(uint64_t addr, uint64_t type, uint64_t value);
     void addFileItem(uint64_t begin, uint64_t end, uint64_t offset, uint64_t pos);
     void addThreadItem(void *thread);
     std::vector<std::unique_ptr<Auxv>>& getAuxv() { return mAuxv; }
     std::vector<std::unique_ptr<File>>& getFile() { return mFile; }
     std::vector<std::unique_ptr<ThreadApi>>& getThread() { return mThread; }
+    int getAuxvMaxCount() { return mAuxvMax; }
+    void appendAuxvItem(uint64_t type, uint64_t value);
     ~NoteBlock();
 private:
     std::vector<std::unique_ptr<ThreadApi>> mThread;
     std::vector<std::unique_ptr<Auxv>> mAuxv;
     std::vector<std::unique_ptr<File>> mFile;
+    int mAuxvMax = 0;
 };
 
 #endif  // CORE_COMMON_NOTE_BLOCK_H_

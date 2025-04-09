@@ -29,3 +29,19 @@ void Auxv::setValue(uint64_t value) {
         mValue = value;
     }
 }
+
+void Auxv::setType(uint64_t type) {
+    if (mBlock) {
+        mBlock->setOverlay(mAuxv, (void *)&type, CoreApi::GetPointSize());
+        mType = type;
+    }
+}
+
+void Auxv::setTypeAndValue(uint64_t type, uint64_t value) {
+    if (mBlock) {
+        mBlock->setOverlay(mAuxv, (void *)&type, CoreApi::GetPointSize());
+        mBlock->setOverlay(mAuxv + CoreApi::GetPointSize(), (void *)&value, CoreApi::GetPointSize());
+        mType = type;
+        mValue = value;
+    }
+}

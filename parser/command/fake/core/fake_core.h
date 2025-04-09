@@ -81,12 +81,17 @@ public:
     static constexpr int FKAE_DYNAMIC_PAGES = 1;
     static constexpr int FAKE_LINK_MAP_PAGES = 1;
     static constexpr int FAKE_STRTAB_PAGES = 1;
+
+    static constexpr int NO_FAKE_PHDR = 1 << 0;
+    static constexpr int NO_FAKE_REBUILD = 1 << 1;
     class Stream {
     public:
         virtual ~Stream() {}
         virtual std::string ABI() { return "none"; }
         virtual bool Parse() { return false; }
         virtual int Tid() = 0;
+        virtual std::string Executable() = 0;
+        virtual void SetExecutable(const char*) = 0;
         virtual std::set<std::string>& Libs() = 0;
         virtual std::map<uint64_t, uint64_t>& Memorys() = 0;
         virtual std::vector<Opencore::VirtualMemoryArea>& Maps() = 0;
@@ -100,14 +105,17 @@ public:
         align_size = ELF_PAGE_SIZE;
         page_size = ELF_PAGE_SIZE;
         va_bits = 0;
-        need_rebuild = true;
+        fake_mask = 0;
     }
     void InitStream(std::unique_ptr<FakeCore::Stream>& in) { stream = std::move(in); }
     void InitSysRoot(const char* root) { if (root) sysroot = root; }
     void InitVaBits(int va) { if (va) va_bits = va; }
     void InitPageSize(uint64_t size) { if (IS_ALIGNED(size, ELF_PAGE_SIZE)) page_size = size; }
-    void InitRebuild(bool rebuild) { need_rebuild = rebuild; }
-    bool NeedRebuild() { return need_rebuild; }
+    void InitMask(uint32_t mask) { fake_mask = mask; }
+    void InitExecutable(const char* path) { if (path) executable = path; }
+    bool NeedRebuild() { return !NoFakeRebuild(); }
+    bool NoFakeRebuild() { return (fake_mask & NO_FAKE_REBUILD) != 0x0; }
+    bool NoFakePhdr() { return (fake_mask & NO_FAKE_PHDR) != 0x0; }
 
     virtual ~FakeCore() {}
     virtual int execute(const char* output) { return 0; }
@@ -121,16 +129,18 @@ public:
 
     std::unique_ptr<FakeCore::Stream>& GetInputStream() { return stream; }
     std::string& GetSysRootDir() { return sysroot; }
+    std::string& GetExecutable() { return executable; }
 protected:
     uint64_t current_offset;
     int extra_note_filesz;
     uint32_t align_size;
     uint32_t page_size;
     int va_bits;
+    uint32_t fake_mask;
 private:
     std::unique_ptr<FakeCore::Stream> stream;
     std::string sysroot;
-    bool need_rebuild;
+    std::string executable;
 };
 
 #endif // PARSER_COMMAND_FAKE_CORE_FAKECORE_H_

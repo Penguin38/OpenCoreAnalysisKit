@@ -443,11 +443,11 @@ void Opencore::ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps) {
     snprintf(filename, sizeof(filename), "/proc/%d/maps", pid);
     FILE *fp = fopen(filename, "r");
     if (fp) {
+        bool compat32 = !IsBit64(pid);
         while (fgets(line, sizeof(line), fp)) {
             int m;
             VirtualMemoryArea vma;
             char filename[256] = {'\0'};
-
 
             sscanf(line, "%" PRIx64 "-%" PRIx64 " %c%c%c%c %x %x:%x  %" PRIu64 "  %[^\n] %n",
                    &vma.begin, &vma.end,
@@ -455,6 +455,10 @@ void Opencore::ParseMaps(int pid, std::vector<VirtualMemoryArea>& maps) {
                    &vma.offset, &vma.major, &vma.minor, &vma.inode, filename, &m);
 
             vma.file = filename;
+
+            // avoid compat32 bit application dump64
+            if (compat32 && vma.begin > 0xFFFFFFFF)
+                break;
             maps.push_back(vma);
         }
         fclose(fp);

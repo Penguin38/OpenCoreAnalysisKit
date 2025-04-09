@@ -68,6 +68,7 @@ bool lp64::Core::load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                         break;
                     case NT_AUXV: {
                         int numauxv = nhdr->n_descsz / sizeof(lp64::Auxv);
+                        block->setAuxvMaxCount(numauxv);
                         lp64::Auxv* auxv = reinterpret_cast<lp64::Auxv *>(item_pos);
                         for (int index = 0; index < numauxv; ++index) {
                             block->addAuxvItem((uint64_t)&auxv[index], auxv[index].type, auxv[index].value);

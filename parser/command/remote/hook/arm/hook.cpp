@@ -37,7 +37,7 @@ bool Hook::InjectLibrary(const char* library) {
             return false;
 
         impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
-        impl->InitRebuild(false);
+        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
         impl->execute(nullptr);
     }
 

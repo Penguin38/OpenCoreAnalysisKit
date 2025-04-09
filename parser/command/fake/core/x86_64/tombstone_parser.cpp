@@ -27,12 +27,14 @@ bool TombstoneParser::parse() {
     mCrashTid = 0;
     memset(&regs, 0x0, sizeof(regs));
 
-    bool ret = parseTid() &&
+    bool ret = parseCmdline() &&
+               parseTid() &&
                parseRegister() &&
                parseBacktrace() &&
                parseMemory() &&
                parseMaps();
 
+    LOGI("Cmdline: %s %s\n", mExecutable.c_str(), IsForce()? "(force)":"");
     LOGI("Tid: %d\n", mCrashTid);
     LOGI("rax 0x%016" PRIx64 "  rbx 0x%016" PRIx64 "  rcx 0x%016" PRIx64 "  rdx 0x%016" PRIx64 "  \n", regs.rax, regs.rbx, regs.rcx, regs.rdx);
     LOGI("r8  0x%016" PRIx64 "  r9  0x%016" PRIx64 "  r10 0x%016" PRIx64 "  r11 0x%016" PRIx64 "  \n", regs.r8, regs.r9, regs.r10, regs.r11);
@@ -47,6 +49,27 @@ bool TombstoneParser::parse() {
         LOGD("[%" PRIx64 ", %" PRIx64 ") %s\n", vma.begin, vma.end, vma.file.c_str());
 
     return ret;
+}
+
+bool TombstoneParser::parseCmdline() {
+    if (IsForce())
+        return true;
+
+    LOGD("%s ...\n", __func__);
+    char value[256] = {'\0'};
+    while (fgets(kLine, sizeof(kLine), mFp)) {
+        if (sscanf(kLine, "Cmdline: %s", value)) {
+            mExecutable = value;
+            return true;
+        }
+
+        int pid, tid;
+        if (sscanf(kLine, "pid: %d, tid: %d", &pid, &tid)) {
+            rewind(mFp);
+            return true;
+        }
+    }
+    return false;
 }
 
 bool TombstoneParser::parseTid() {
@@ -198,6 +221,19 @@ bool TombstoneParser::parseMaps() {
             }
 
             mMaps.push_back(vma);
+
+            if (!IsForce()) {
+                l_pos = vma.file.find("app_process");
+                if (l_pos != std::string::npos)
+                    mExecutable = vma.file;
+            }
+
+            if (vma.file == mExecutable) {
+                std::string libname_append_buildid = vma.file;
+                libname_append_buildid.append(":");
+                libname_append_buildid.append(vma.buildid);
+                mLibs.insert(libname_append_buildid);
+            }
         }
     }
     return true;

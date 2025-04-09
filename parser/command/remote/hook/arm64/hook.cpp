@@ -47,7 +47,7 @@ bool Hook::InjectLibrary(const char* library) {
 
         impl->InitVaBits(39);
         impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
-        impl->InitRebuild(false);
+        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
         impl->execute(nullptr);
     }
 
@@ -108,7 +108,7 @@ bool Hook::CallMethod(const char* method, int argc, char* const argv[]) {
 
         impl->InitVaBits(39);
         impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
-        impl->InitRebuild(false);
+        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
         impl->execute(nullptr);
     }
 

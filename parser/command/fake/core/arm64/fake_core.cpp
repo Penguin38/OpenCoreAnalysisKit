@@ -19,6 +19,7 @@
 #include "common/bit.h"
 #include "command/env.h"
 #include "command/fake/map/fake_map.h"
+#include "command/fake/exec/fake_executable.h"
 #include "command/fake/core/arm64/fake_core.h"
 #include "base/memory_map.h"
 #include <linux/elf.h>
@@ -115,6 +116,21 @@ int FakeCore::execute(const char* output) {
     } else {
         FakeLinkMap::SysRoot(GetSysRootDir().c_str());
         CoreApi::SysRoot(GetSysRootDir().c_str());
+    }
+
+    /** LLDB NEED AT_PHDR */
+    if (NoFakePhdr()) {
+        std::string executable = stream->Executable();
+        if (GetExecutable().length())
+            executable = GetExecutable();
+
+        if (executable.length()) {
+            LinkMap* handle = CoreApi::FindLinkMap(executable.c_str());
+            if (handle)
+                FakeExecutable::RebuildExecDynamic(handle);
+            else
+                LOGE("No found link_map %s!\n", executable.c_str());
+        }
     }
 
     /** ORIGIN MEMORY CONTENT */

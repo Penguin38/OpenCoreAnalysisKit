@@ -88,6 +88,7 @@ void show_parser_usage() {
     LOGI("        --va_bits <BITS>     set virtual valid addr bits\n");
     LOGI("        --page_size <SIZE>   set target core page size\n");
     LOGI("        --no-load            no auto load corefile\n");
+    LOGI("        --no-fake-phdr [EXE] rebuild fakecore phdr\n");
     LOGI("Exp:\n");
     LOGI("    core-parser -c /tmp/tmp.core\n");
 #if !defined(__MACOS__)
@@ -125,7 +126,8 @@ int command_preload(int argc, char* const argv[]) {
         {"page_size", required_argument,   0,  5 },
         {"machine",   required_argument,   0, 'm'},
         {"no-filter-any", no_argument,     0,  2 },
-        {"no-load",  no_argument,          0,  6 },
+        {"no-load",   no_argument,         0,  6 },
+        {"no-fake-phdr",no_argument,       0,  7 },
         {"help",      no_argument,         0, 'h'},
     };
 
@@ -139,6 +141,7 @@ int command_preload(int argc, char* const argv[]) {
     int pid = 0;
     bool remote = false;
     bool need_load = true;
+    bool no_fake_phdr = false;
     while ((opt = getopt_long(argc, argv, "c:1:p:m:t:h",
                 long_options, &option_index)) != -1) {
         switch (opt) {
@@ -173,6 +176,9 @@ int command_preload(int argc, char* const argv[]) {
                 break;
             case 6:
                 if (!corefile) need_load = false;
+                break;
+            case 7:
+                no_fake_phdr = true;
                 break;
             case 'h':
                 show_parser_usage();
@@ -214,6 +220,10 @@ int command_preload(int argc, char* const argv[]) {
         if (va_bits) {
             cmdline.append(" --va_bits ");
             cmdline.append(std::to_string(va_bits));
+        }
+        if (no_fake_phdr) {
+            cmdline.append(" --no-fake-phdr ");
+            if (optind < argc) cmdline.append(argv[optind]);
         }
         output = tombstone;
         output.append(FakeCore::FILE_EXTENSIONS);

@@ -17,11 +17,31 @@
 #include "logger/log.h"
 #include "common/note_block.h"
 #include "base/utils.h"
+#include "api/core.h"
+
+void NoteBlock::setAuxvMaxCount(int max) {
+    mAuxvMax = max;
+}
 
 void NoteBlock::addAuxvItem(uint64_t addr, uint64_t type, uint64_t value) {
     std::unique_ptr<Auxv> auxv = std::make_unique<Auxv>(type, value);
     auxv->bind(this, addr);
     mAuxv.push_back(std::move(auxv));
+}
+
+void NoteBlock::appendAuxvItem(uint64_t type, uint64_t value) {
+    if (mAuxv.size() < mAuxvMax) {
+        for (const auto& auxv : mAuxv) {
+            if (auxv->type() != AT_NULL)
+                continue;
+
+            auxv->setTypeAndValue(type, value);
+            addAuxvItem(auxv->address() + 2 * CoreApi::GetPointSize(), AT_NULL, 0);
+            break;
+        }
+    } else {
+        LOGE("Can not append auxv item!\n");
+    }
 }
 
 void NoteBlock::addFileItem(uint64_t begin, uint64_t end, uint64_t offset, uint64_t pos) {

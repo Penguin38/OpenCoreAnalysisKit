@@ -38,11 +38,13 @@ public:
     virtual uint64_t PacEnabledKeys() { return 0; }
 
     int Tid() { return mProcessTid; }
+    std::string Executable() { return mExecutable; }
     std::set<std::string>& Libs() { return mLibs; }
     std::map<uint64_t, uint64_t>& Memorys() { return mMemorys; }
     std::vector<Opencore::VirtualMemoryArea>& Maps() { return mMaps; }
 protected:
     int mProcessTid;
+    std::string mExecutable;
     std::set<std::string> mLibs;
     std::map<uint64_t, uint64_t> mMemorys;
     std::vector<Opencore::VirtualMemoryArea> mMaps;

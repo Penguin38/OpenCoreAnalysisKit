@@ -109,6 +109,9 @@ public:
     Auxv(uint64_t t, uint64_t v) : mType(t), mValue(v) {}
     void bind(NoteBlock* block, uint64_t addr);
     void setValue(uint64_t value);
+    void setType(uint64_t type);
+    void setTypeAndValue(uint64_t type, uint64_t value);
+    uint64_t address() { return mAuxv; }
     ~Auxv() {}
 private:
     //  auxv member
