@@ -66,6 +66,9 @@ struct Class_OffsetTable {
     uint32_t num_instance_fields_;
     uint32_t num_static_fields_;
     uint32_t num_virtual_methods_;
+
+    // 36 merge sfields and ifields
+    uint32_t fields_;
 };
 
 struct Class_SizeTable {
@@ -110,6 +113,7 @@ public:
     static void Init23();
     static void Init24();
     static void Init26();
+    static void Init36();
     inline uint32_t class_loader() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, class_loader_)); }
     inline uint32_t component_type() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, component_type_)); }
     inline uint32_t dex_cache() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(Class, dex_cache_)); }
@@ -144,6 +148,8 @@ public:
     inline uint32_t num_instance_fields() { return value32Of(OFFSET(Class, num_instance_fields_)); }
     inline uint32_t num_static_fields() { return value32Of(OFFSET(Class, num_static_fields_)); }
     inline uint32_t num_virtual_methods() { return value32Of(OFFSET(Class, num_virtual_methods_)); }
+    // SDK36
+    inline uint64_t fields() { return value64Of(OFFSET(Class, fields_)); }
 
     bool IsArrayClass();
     bool IsStringClass();
@@ -225,6 +231,9 @@ public:
     uint64_t GetDirectMethods();
     uint32_t NumVirtualMethods();
     uint64_t GetVirtualMethods();
+    // SDK 36
+    uint64_t GetFields();
+    uint32_t NumFields();
 
 private:
     // quick memoryref cache

@@ -307,13 +307,61 @@ void DexFile::Init29() {
 void DexFile::Init34() {
     // 34 ~ x
     if (CoreApi::Bits() == 64) {
-        __DexFile_offset__.is_compact_dex_ = 192;
+        __DexFile_offset__ = {
+            .begin_ = 8,
+            .size_ = 16,
+            .data_begin_ = 24,
+            .data_size_ = 32,
+            .location_ = 40,
+            .location_checksum_ = 64,
+            .header_ = 72,
+            .string_ids_ = 80,
+            .type_ids_ = 88,
+            .field_ids_ = 96,
+            .method_ids_ = 104,
+            .proto_ids_ = 112,
+            .class_defs_ = 120,
+            .method_handles_ = 128,
+            .num_method_handles_ = 136,
+            .call_site_ids_ = 144,
+            .num_call_site_ids_ = 152,
+            .hiddenapi_class_data_ = 160,
+            .oat_dex_file_ = 168,
+            .container_ = 176,
+            .is_compact_dex_ = 192,
+        };
 
-        __DexFile_size__.THIS = 200;
+         __DexFile_size__ = {
+            .THIS = 200,
+        };
     } else {
-        __DexFile_offset__.is_compact_dex_ = 96;
+        __DexFile_offset__ = {
+            .begin_ = 4,
+            .size_ = 8,
+            .data_begin_ = 12,
+            .data_size_ = 16,
+            .location_ = 20,
+            .location_checksum_ = 32,
+            .header_ = 36,
+            .string_ids_ = 40,
+            .type_ids_ = 44,
+            .field_ids_ = 48,
+            .method_ids_ = 52,
+            .proto_ids_ = 56,
+            .class_defs_ = 60,
+            .method_handles_ = 64,
+            .num_method_handles_ = 68,
+            .call_site_ids_ = 72,
+            .num_call_site_ids_ = 76,
+            .hiddenapi_class_data_ = 80,
+            .oat_dex_file_ = 84,
+            .container_ = 88,
+            .is_compact_dex_ = 96,
+        };
 
-        __DexFile_size__.THIS = 100;
+        __DexFile_size__ = {
+            .THIS = 100,
+        };
     }
 }
 

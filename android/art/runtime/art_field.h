@@ -23,6 +23,7 @@
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/dex_cache.h"
 #include "dex/dex_file.h"
+#include "dex/modifiers.h"
 
 struct ArtField_OffsetTable {
     uint32_t declaring_class_;
@@ -57,6 +58,7 @@ public:
     inline uint32_t field_dex_idx() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(ArtField, field_dex_idx_)); }
     inline uint32_t offset() { return *reinterpret_cast<uint32_t*>(Real() + OFFSET(ArtField, offset_)); }
 
+    inline bool IsStatic() { return (GetAccessFlags() & kAccStatic) != 0; }
     inline bool IsProxyField() { return GetDeclaringClass().IsProxyClass(); }
     inline const char* GetTypeDescriptor() { return GetTypeDescriptor("B"); }
     const char* GetTypeDescriptor(const char* def);

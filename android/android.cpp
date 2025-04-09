@@ -275,27 +275,53 @@ void Android::onOatChanged(int current_oat) {
  *  only declaring_class cache and it's same.
  */
 void Android::ForeachInstanceField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
-    uint32_t size = clazz.NumInstanceFields();
-    if (!size) return;
-    art::ArtField field(clazz.GetIFields(), clazz);
-    int i = 0;
-    do {
-        if (fn(field)) break;
-        field.MovePtr(SIZEOF(ArtField));
-        i++;
-    } while(i < size);
+    if (LIKELY(Sdk() >= W)) {
+        uint32_t size = clazz.NumFields();
+        if (!size) return;
+        art::ArtField field(clazz.GetFields(), clazz);
+        int i = 0;
+        do {
+            if (!field.IsStatic())
+                if (fn(field)) break;
+            field.MovePtr(SIZEOF(ArtField));
+            i++;
+        } while(i < size);
+    } else {
+        uint32_t size = clazz.NumInstanceFields();
+        if (!size) return;
+        art::ArtField field(clazz.GetIFields(), clazz);
+        int i = 0;
+        do {
+            if (fn(field)) break;
+            field.MovePtr(SIZEOF(ArtField));
+            i++;
+        } while(i < size);
+    }
 }
 
 void Android::ForeachStaticField(art::mirror::Class& clazz, std::function<bool (art::ArtField& field)> fn) {
-    uint32_t size = clazz.NumStaticFields();
-    if (!size) return;
-    art::ArtField field(clazz.GetSFields(), clazz);
-    int i = 0;
-    do {
-        if (fn(field)) break;
-        field.MovePtr(SIZEOF(ArtField));
-        i++;
-    } while(i < size);
+    if (LIKELY(Sdk() >= W)) {
+        uint32_t size = clazz.NumFields();
+        if (!size) return;
+        art::ArtField field(clazz.GetFields(), clazz);
+        int i = 0;
+        do {
+            if (field.IsStatic())
+                if (fn(field)) break;
+            field.MovePtr(SIZEOF(ArtField));
+            i++;
+        } while(i < size);
+    } else {
+        uint32_t size = clazz.NumStaticFields();
+        if (!size) return;
+        art::ArtField field(clazz.GetSFields(), clazz);
+        int i = 0;
+        do {
+            if (fn(field)) break;
+            field.MovePtr(SIZEOF(ArtField));
+            i++;
+        } while(i < size);
+    }
 }
 
 void Android::ForeachArtMethods(art::mirror::Class& clazz, std::function<bool (art::ArtMethod& method)> fn) {
