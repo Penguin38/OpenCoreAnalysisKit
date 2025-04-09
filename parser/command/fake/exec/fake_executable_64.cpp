@@ -126,6 +126,7 @@ bool FakeExecutable::RebuildExecDynamic64(LinkMap* executable) {
                 if (!note->getAuxvMaxCount())
                     continue;
                 note->appendAuxvItem(AT_ENTRY, executable->l_addr() + text_addr);
+                break;
             }
         }
         return true;
