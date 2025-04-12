@@ -48,7 +48,7 @@ private:
 
     std::unique_ptr<std::thread> work;
     std::string cmdline;
-    std::unique_ptr<char> newline;
+    char* newline = nullptr;
 };
 
 #endif  // PARSER_WORK_THREAD_H_

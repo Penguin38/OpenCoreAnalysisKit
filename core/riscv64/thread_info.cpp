@@ -65,7 +65,7 @@ struct ThreadApi::RegsMap kMap[] = {
 };
 
 void ThreadInfo::RegisterSet(const char* command) {
-    std::unique_ptr<char> newcommand(strdup(command));
+    std::unique_ptr<char[], void(*)(void*)> newcommand(strdup(command), free);
     char *regs = strtok(newcommand.get(), "=");
     if (!regs) return;
 

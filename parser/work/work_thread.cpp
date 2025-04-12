@@ -31,8 +31,8 @@ void WorkThread::prepare() {
 #else
     prctl(PR_SET_NAME, "parser:worker");
 #endif
-    std::unique_ptr<char> line(strdup(cmdline.c_str()));
-    char* token = strtok(line.get(), SPLIT_TOKEN);
+    char* line = strdup(cmdline.c_str());
+    char* token = strtok(line, SPLIT_TOKEN);
     while (token != nullptr) {
         if (!argc) {
             cmd = token;
@@ -44,7 +44,7 @@ void WorkThread::prepare() {
             break;
         token = strtok(nullptr, SPLIT_TOKEN);
     }
-    newline = std::move(line);
+    newline = line;
 }
 
 void WorkThread::run() {
@@ -52,6 +52,7 @@ void WorkThread::run() {
     int optind_backup = optind;
     optind = 0; // reset
     CommandManager::Execute(cmd, argc, argv);
+    if (newline) free(newline);
     optind = optind_backup;
 }
 

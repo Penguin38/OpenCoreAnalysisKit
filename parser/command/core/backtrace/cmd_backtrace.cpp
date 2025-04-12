@@ -61,7 +61,7 @@ int BacktraceCommand::prepare(int argc, char* const argv[]) {
                 options.dump_detail = true;
                 break;
             case 'f': {
-                std::unique_ptr<char> newpath(strdup(optarg));
+                std::unique_ptr<char[], void(*)(void*)> newpath(strdup(optarg), free);
                 char *token = strtok(newpath.get(), ":");
                 while (token != nullptr) {
                     options.dump_fps.push_back(Utils::atol(token));

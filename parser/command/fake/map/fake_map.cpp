@@ -151,7 +151,7 @@ uint64_t FakeLinkMap::FindModuleFromLoadBlock(const char* name) {
 
 void FakeLinkMap::SysRoot(const char* path) {
     std::vector<char *> dirs;
-    std::unique_ptr<char> newpath(strdup(path));
+    std::unique_ptr<char[], void(*)(void*)> newpath(strdup(path), free);
     char *token = strtok(newpath.get(), ":");
     while (token != nullptr) {
         dirs.push_back(token);
@@ -162,7 +162,7 @@ void FakeLinkMap::SysRoot(const char* path) {
         if (map->l_ld())
             return false;
 
-        std::unique_ptr<char> newname(strdup(map->name()));
+        std::unique_ptr<char[], void(*)(void*)> newname(strdup(map->name()), free);
         char *ori_file = strtok(newname.get(), "!");
         char *sub_file = strtok(NULL, "!");
 

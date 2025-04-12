@@ -489,7 +489,7 @@ void Android::SysRoot(const char* path) {
     if (!runtime.Ptr()) return;
 
     std::vector<char *> dirs;
-    std::unique_ptr<char> newpath(strdup(path));
+    std::unique_ptr<char[], void(*)(void*)> newpath(strdup(path), free);
     char *token = strtok(newpath.get(), ":");
     while (token != nullptr) {
         dirs.push_back(token);
@@ -518,7 +518,7 @@ void Android::SysRoot(const char* path) {
                 }
             }
 
-            std::unique_ptr<char> newname(strdup(name.c_str()));
+            std::unique_ptr<char[], void(*)(void*)> newname(strdup(name.c_str()), free);
             char *ori_dex_file = strtok(newname.get(), "!");
             char *sub_file = strtok(NULL, "!");
 

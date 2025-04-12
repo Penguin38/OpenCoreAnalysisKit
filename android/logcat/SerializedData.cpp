@@ -140,7 +140,7 @@ void SerializedData::DecodeDump(int filter, int id) {
         time.append(value);
 
         std::vector<char *> logs;
-        std::unique_ptr<char> newmsg(strdup(element.msg.c_str()));
+        std::unique_ptr<char[], void(*)(void*)> newmsg(strdup(element.msg.c_str()), free);
         char *token = strtok(newmsg.get(), "\n");
         while (token != nullptr) {
             LOGI("%s %6d %5d %5d %s %s: %s\n", time.c_str(), element.uid, element.pid, element.tid,

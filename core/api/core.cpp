@@ -377,7 +377,7 @@ void CoreApi::ForeachLinkMap(std::function<bool (LinkMap *)> callback) {
 
 void CoreApi::ExecFile(const char* path) {
     std::vector<char *> dirs;
-    std::unique_ptr<char> newpath(strdup(path));
+    std::unique_ptr<char[], void(*)(void*)> newpath(strdup(path), free);
     char *token = strtok(newpath.get(), ":");
     while (token != nullptr) {
         dirs.push_back(token);
@@ -401,7 +401,7 @@ void CoreApi::ExecFile(const char* path) {
 
 void CoreApi::SysRoot(const char* path) {
     std::vector<char *> dirs;
-    std::unique_ptr<char> newpath(strdup(path));
+    std::unique_ptr<char[], void(*)(void*)> newpath(strdup(path), free);
     char *token = strtok(newpath.get(), ":");
     while (token != nullptr) {
         dirs.push_back(token);
@@ -409,7 +409,7 @@ void CoreApi::SysRoot(const char* path) {
     }
 
     auto callback = [dirs](LinkMap* map) -> bool {
-        std::unique_ptr<char> newname(strdup(map->name()));
+        std::unique_ptr<char[], void(*)(void*)> newname(strdup(map->name()), free);
         char *ori_file = strtok(newname.get(), "!");
         char *sub_file = strtok(NULL, "!");
 
