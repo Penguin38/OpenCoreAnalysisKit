@@ -197,7 +197,7 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
         for (const auto& value : GetDexCachesData_v33()) {
             // std::unordered_map<const DexFile*, DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
             api::MemoryRef ref = value;
-            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(CoreApi::GetPointSize() + value);
+            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(value + 0x8);
             data->InitCache(vm.Decode(data->weak_root()), ref.valueOf());
             dex_caches_second_cache.push_back(std::move(data));
         }
