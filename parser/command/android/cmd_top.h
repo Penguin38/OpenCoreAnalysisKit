@@ -29,11 +29,17 @@ public:
 
     TopCommand() : Command("top") {}
     ~TopCommand() {}
+
+    struct Options : Command::Options {
+        int num;
+        int order;
+        bool show;
+        int obj_each_flags;
+        int ref_each_flags;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
 
     class Pair {
@@ -43,11 +49,7 @@ public:
         uint64_t native_size;
     };
 private:
-    int num;
-    int order;
-    bool show;
-    int obj_each_flags;
-    int ref_each_flags;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_TOP_H_

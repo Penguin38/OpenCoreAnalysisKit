@@ -17,7 +17,6 @@
 #ifndef PARSER_COMMAND_ANDROID_CMD_DEX_H_
 #define PARSER_COMMAND_ANDROID_CMD_DEX_H_
 
-#include "android.h"
 #include "command/command.h"
 #include "runtime/mirror/dex_cache.h"
 
@@ -25,11 +24,17 @@ class DexCommand : public Command {
 public:
     DexCommand() : Command("dex") {}
     ~DexCommand() {}
+
+    struct Options : Command::Options {
+        bool dump_ori;
+        int num;
+        bool app;
+        char* dir;
+        bool dump_dex;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
     void DexCachesDump();
     void DexCachesDump_v33();
@@ -37,11 +42,7 @@ public:
     void DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::DexFile& dex_file);
     static std::string DexFileLocation(art::DexFile& dex_file, bool dump_ori);
 private:
-    bool dump_ori = false;
-    int num = 0;
-    bool app = false;
-    char* dir = nullptr;
-    bool dump_dex = false;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_DEX_H_

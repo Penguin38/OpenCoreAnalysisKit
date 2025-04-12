@@ -31,17 +31,17 @@
 #include <map>
 #include <vector>
 
-int TopCommand::main(int argc, char* const argv[]) {
+int TopCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
             || !(argc > 1))
-        return 0;
+        return Command::FINISH;
 
-    num = std::atoi(argv[1]);
-    order = ORDERBY_ALLOC;
-    show = false;
-    obj_each_flags = 0;
-    ref_each_flags = 0;
+    options.num = std::atoi(argv[1]);
+    options.order = ORDERBY_ALLOC;
+    options.show = false;
+    options.obj_each_flags = 0;
+    options.ref_each_flags = 0;
 
     int opt;
     int option_index = 0;
@@ -51,65 +51,73 @@ int TopCommand::main(int argc, char* const argv[]) {
         {"shallow",    no_argument,       0,  's'},
         {"native",     no_argument,       0,  'n'},
         {"display",    no_argument,       0,  'd'},
-        {"app",        no_argument,       0,   0 },
-        {"zygote",     no_argument,       0,   1 },
-        {"image",      no_argument,       0,   2 },
-        {"fake",       no_argument,       0,   3 },
-        {"local",      no_argument,       0,   4 },
-        {"global",     no_argument,       0,   5 },
-        {"weak",       no_argument,       0,   6 },
+        {"app",        no_argument,       0,   1 },
+        {"zygote",     no_argument,       0,   2 },
+        {"image",      no_argument,       0,   3 },
+        {"fake",       no_argument,       0,   4 },
+        {"local",      no_argument,       0,   5 },
+        {"global",     no_argument,       0,   6 },
+        {"weak",       no_argument,       0,   7 },
         {"thread", required_argument,     0,  't'},
+        {0,            0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "asndt:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'a':
-                order = ORDERBY_ALLOC;
+                options.order = ORDERBY_ALLOC;
                 break;
             case 's':
-                order = ORDERBY_SHALLOW;
+                options.order = ORDERBY_SHALLOW;
                 break;
             case 'n':
-                order = ORDERBY_NATIVE;
+                options.order = ORDERBY_NATIVE;
                 break;
             case 'd':
-                show = true;
-                break;
-            case 0:
-                obj_each_flags |= Android::EACH_APP_OBJECTS;
+                options.show = true;
                 break;
             case 1:
-                obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+                options.obj_each_flags |= Android::EACH_APP_OBJECTS;
                 break;
             case 2:
-                obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+                options.obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
                 break;
             case 3:
-                obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+                options.obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
                 break;
             case 4:
-                ref_each_flags |= Android::EACH_LOCAL_REFERENCES;
+                options.obj_each_flags |= Android::EACH_FAKE_OBJECTS;
                 break;
             case 5:
-                ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                options.ref_each_flags |= Android::EACH_LOCAL_REFERENCES;
                 break;
             case 6:
-                ref_each_flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
+                options.ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                break;
+            case 7:
+                options.ref_each_flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
                 break;
             case 't':
                 int tid = std::atoi(optarg);
-                ref_each_flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
+                options.ref_each_flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
                 break;
         }
     }
+    options.optind = optind;
 
-    if (!obj_each_flags) {
-        obj_each_flags |= Android::EACH_APP_OBJECTS;
-        obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
-        obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
-        obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+    if (!options.obj_each_flags) {
+        options.obj_each_flags |= Android::EACH_APP_OBJECTS;
+        options.obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+        options.obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+        options.obj_each_flags |= Android::EACH_FAKE_OBJECTS;
     }
+
+    Android::Prepare();
+    return Command::ONCHLD;
+}
+
+int TopCommand::main(int argc, char* const argv[]) {
     std::map<art::mirror::Class, TopCommand::Pair> classes;
     art::mirror::Class cleaner = 0;
     std::vector<art::mirror::Object> cleaners;
@@ -144,16 +152,16 @@ int TopCommand::main(int argc, char* const argv[]) {
     };
 
     try {
-        if (!ref_each_flags) {
-            Android::ForeachObjects(callback, obj_each_flags, false);
+        if (!options.ref_each_flags) {
+            Android::ForeachObjects(callback, options.obj_each_flags, false);
         } else {
-            Android::ForeachReferences(callback, ref_each_flags);
+            Android::ForeachReferences(callback, options.ref_each_flags);
         }
     } catch(InvalidAddressException& e) {
         LOGW("The statistical process was interrupted!\n");
     }
 
-    LOGI(ANSI_COLOR_LIGHTRED "Address       Allocations      ShallowSize        NativeSize     %s\n" ANSI_COLOR_RESET, show ? "ClassName" : "");
+    LOGI(ANSI_COLOR_LIGHTRED "Address       Allocations      ShallowSize        NativeSize     %s\n" ANSI_COLOR_RESET, options.show ? "ClassName" : "");
     art::mirror::Class cur_max_thiz = 0;
     TopCommand::Pair cur_max_pair = {
         .alloc_count = 0,
@@ -203,12 +211,12 @@ int TopCommand::main(int argc, char* const argv[]) {
          total_count, total_shallow, total_native);
     LOGI("------------------------------------------------------------\n");
 
-    for (int i = 0; i < num; ++i) {
+    for (int i = 0; i < options.num; ++i) {
         for (const auto& value : classes) {
             const art::mirror::Class& thiz = value.first;
             const TopCommand::Pair& pair = value.second;
 
-            switch (order) {
+            switch (options.order) {
                 case ORDERBY_ALLOC: {
                    if (pair.alloc_count >= cur_max_pair.alloc_count) {
                        cur_max_thiz = thiz;
@@ -236,7 +244,7 @@ int TopCommand::main(int argc, char* const argv[]) {
         LOGI(ANSI_COLOR_LIGHTYELLOW "0x%08" PRIx64 "" ANSI_COLOR_RESET "       " "%8" PRId64 "      " "%11" PRId64 "       " "%11" PRId64 "     " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
              cur_max_thiz.Ptr(), cur_max_pair.alloc_count,
              cur_max_pair.shallow_size, cur_max_pair.native_size,
-             show ? cur_max_thiz.PrettyDescriptor().c_str() : "");
+             options.show ? cur_max_thiz.PrettyDescriptor().c_str() : "");
 
         classes.erase(cur_max_thiz);
         cur_max_thiz = 0;

@@ -32,13 +32,17 @@
 #include <iomanip>
 #include <vector>
 
-bool PrintCommand::prepare(int argc, char* const argv[]) {
+int PrintCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
             || !(argc > 1))
-        return false;
+        return Command::FINISH;
 
-    reference = false;
+    options.binary = false;
+    options.reference = false;
+    options.format_dump = false;
+    options.format_hex = false;
+    options.deep = 1;
 
     int opt;
     int option_index = 0;
@@ -48,70 +52,42 @@ bool PrintCommand::prepare(int argc, char* const argv[]) {
         {"ref",     required_argument, 0,  'r'},
         {"format",  no_argument,       0,  'f'},
         {"hex",     no_argument,       0,  'x'},
-        {0,         0,                 0,   0 }
+        {0,         0,                 0,   0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "bfxr:",
-                long_options, &option_index)) != -1) {
-        switch (opt) {
-            case 'r':
-                reference = true;
-                break;
-        }
-    }
-
-    if (reference) Android::Prepare();
-    return true;
-}
-
-int PrintCommand::main(int argc, char* const argv[]) {
-    if (!CoreApi::IsReady()
-            || !Android::IsSdkReady()
-            || !(argc > 1))
-        return 0;
-
-    binary = false;
-    reference = false;
-    format_dump = false;
-    format_hex = false;
-    deep = 1;
-
-    int opt;
-    int option_index = 0;
-    optind = 0; // reset
-    static struct option long_options[] = {
-        {"binary",  no_argument,       0,  'b'},
-        {"ref",     required_argument, 0,  'r'},
-        {"format",  no_argument,       0,  'f'},
-        {"hex",     no_argument,       0,  'x'},
-        {0,         0,                 0,   0 }
-    };
-    
     while ((opt = getopt_long(argc, argv, "bfxr:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'b':
-                binary = true;
+                options.binary = true;
                 break;
             case 'r':
-                reference = true;
-                deep = std::atoi(optarg);
+                options.reference = true;
+                options.deep = std::atoi(optarg);
                 break;
             case 'f':
-                format_dump = true;
+                options.format_dump = true;
                 break;
             case 'x':
-                format_hex = true;
+                options.format_hex = true;
                 break;
         }
     }
+    options.optind = optind;
 
-    if (optind >= argc) {
+    if (options.optind >= argc) {
         usage();
-        return 0;
+        return Command::FINISH;
     }
 
-    art::mirror::Object ref = Utils::atol(argv[optind]);
+    if (options.reference)
+        Android::Prepare();
+
+    return Command::ONCHLD;
+}
+
+int PrintCommand::main(int argc, char* const argv[]) {
+    art::mirror::Object ref = Utils::atol(argv[options.optind]);
     uint64_t size = ref.SizeOf();
     if (UNLIKELY(((int64_t)size < (int64_t)art::kObjectAlignment))) {
         LOGE("Size: 0x%" PRIx64 "\n", size);
@@ -119,12 +95,12 @@ int PrintCommand::main(int argc, char* const argv[]) {
     }
 
     FormatDumpCall format_call = nullptr;
-    if (format_dump) format_call = GetFormatDumpCall(ref);
+    if (options.format_dump) format_call = GetFormatDumpCall(ref);
     if (format_call) {
         format_call("", ref);
     } else {
         DumpObject(ref);
-        if (binary) {
+        if (options.binary) {
             LOGI(ANSI_COLOR_LIGHTRED "Binary:\n" ANSI_COLOR_RESET);
             uint64_t real_size = RoundUp(ref.SizeOf(), art::kObjectAlignment);
             int argc = 4;
@@ -149,10 +125,10 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
         LOGI("Padding: 0x%" PRIx64 "\n", real_size - size);
     }
 
-    PrintCommand::OnlyDumpObject(object, format_hex);
+    PrintCommand::OnlyDumpObject(object, options.format_hex);
 
     try {
-        if (reference) {
+        if (options.reference) {
             LOGI(ANSI_COLOR_LIGHTRED "Reference:\n" ANSI_COLOR_RESET);
             int cur_deep = 0;
             auto callback = [&](art::mirror::Object& reference) -> bool {
@@ -183,7 +159,7 @@ void PrintCommand::OnlyDumpObject(art::mirror::Object& object, bool format_hex) 
 }
 
 bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep) {
-    if (cur_deep >= deep)
+    if (cur_deep >= options.deep)
         return true;
 
     uint64_t real_size = RoundUp(reference.SizeOf(), art::kObjectAlignment);
@@ -203,7 +179,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
             }
             LOGI("%s--> " ANSI_COLOR_LIGHTYELLOW "0x%" PRIx64 " " ANSI_COLOR_LIGHTCYAN "%s\n" ANSI_COLOR_RESET,
                     prefix.c_str(), reference.Ptr(), ref_thiz.PrettyDescriptor().c_str());
-            if (cur_deep + 1 < deep) {
+            if (cur_deep + 1 < options.deep) {
                 auto callback = [&](art::mirror::Object& second) -> bool {
                     return PrintReference(reference, second, cur_deep + 1);
                 };

@@ -30,20 +30,24 @@ public:
 
     MethodCommand() : Command("method") {}
     ~MethodCommand() {}
+
+    struct Options : Command::Options {
+        int dump_opt;
+        int count;
+        bool verbose;
+        uint64_t pc;
+        uint64_t dexpc;
+        uint64_t instpc;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]);
-    void Dexdump();
-    void Oatdump();
-    void Binarydump();
+    int prepare(int argc, char* const argv[]);
+    void Dexdump(art::ArtMethod& method);
+    void Oatdump(art::ArtMethod& method);
+    void Binarydump(art::ArtMethod& method);
     void usage();
 private:
-    art::ArtMethod method = 0x0;
-    int dump_opt = METHOD_DUMP_NAME;
-    int count;
-    api::MemoryRef instref = 0x0;
-    bool verbose;
-    uint64_t pc = 0x0;
-    uint64_t dexpc = 0x0;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_METHOD_H_

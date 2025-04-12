@@ -19,21 +19,21 @@
 
 #include "command/command.h"
 #include "runtime/oat/stack_map.h"
-#include "android.h"
 #include <vector>
 
 class FrameCommand : public Command {
 public:
     FrameCommand() : Command("frame", "f") {}
     ~FrameCommand() {}
+
+    struct Options : Command::Options {
+        bool force;
+        bool java;
+        bool dump_all;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-#if defined(__AOSP_PARSER__)
-        Android::Prepare();
-        Android::OatPrepare();
-#endif
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
     void ShowJavaFrameInfo(int number);
     static void ShowJavaFrameRegister(const char* prefix,
@@ -46,8 +46,7 @@ public:
                                api::MemoryRef& frame);
     void ShowNativeFrameInfo(int number);
 private:
-    bool java;
-    bool dump_all;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_CORE_BACKTRACE_CMD_FRAME_H_

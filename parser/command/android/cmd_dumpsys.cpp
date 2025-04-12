@@ -30,12 +30,17 @@ static DumpsysOption dumpsys_option[] = {
     { "activity", com::android::server::am::ActivityManagerService::Main },
 };
 
-int DumpsysCommand::main(int argc, char* const argv[]) {
-    if (!(argc > 1)) {
+int DumpsysCommand::prepare(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady() || !(argc > 1)) {
         usage();
-        return 0;
+        return Command::FINISH;
     }
 
+    Android::Prepare();
+    return Command::ONCHLD;
+}
+
+int DumpsysCommand::main(int argc, char* const argv[]) {
     int count = sizeof(dumpsys_option)/sizeof(dumpsys_option[0]);
     for (int index = 0; index < count; ++index) {
         if (!strcmp(argv[1], dumpsys_option[index].cmd)) {

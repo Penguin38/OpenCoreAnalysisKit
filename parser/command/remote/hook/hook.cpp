@@ -49,6 +49,7 @@ int Hook::Main(int argc, char* const argv[]) {
         {"inject",  no_argument,       0,  1 },
         {"lib",     required_argument, 0, 'l'},
         {"call",    required_argument, 0, 'c'},
+        {0,         0,                 0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "l:p:c:",

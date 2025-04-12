@@ -27,10 +27,20 @@ public:
 
     Command(const char* c) { command = c; }
     Command(const char* c, const char* s) { command = c; shortcut_cmd = s; }
+
+    struct Options {
+        int optind;
+    };
+
     inline std::string& get() { return command; }
     inline std::string& shortcut() { return shortcut_cmd; }
     virtual ~Command() {}
-    virtual bool prepare(int argc, char* const argv[]) { return false; }
+
+    static constexpr int FINISH = 0;
+    static constexpr int CONTINUE = 1;
+    static constexpr int ONCHLD = 2;
+    virtual int prepare(int argc, char* const argv[]) { return CONTINUE; }
+
     virtual int main(int argc, char* const argv[]) = 0;
     virtual int exitMain(int argc, char* const argv[]) { return 0; }
     virtual void usage() = 0;

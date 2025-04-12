@@ -34,7 +34,7 @@ int WriteCommand::main(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"string",  required_argument, 0, 's'},
         {"value",   required_argument, 0, 'v'},
-        {0,         0,                 0,  0 }
+        {0,         0,                 0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "s:v:",

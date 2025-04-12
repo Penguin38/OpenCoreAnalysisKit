@@ -73,7 +73,7 @@ int EnvCommand::onConfigChanged(int argc, char* const argv[]) {
         {"pid",     required_argument, 0, 'p'},
         {"sdk",     required_argument, 0,  0 },
         {"oat",     required_argument, 0,  1 },
-        {0,         0,                 0,  0 }
+        {0,         0,                 0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "p:0:1:",
@@ -114,6 +114,7 @@ int EnvCommand::onLoggerChanged(int argc, char* const argv[]) {
         {"fatal",   no_argument,       0, Logger::LEVEL_FATAL},
         {"enable-high-light",  no_argument, 0,  11 },
         {"disable-high-light", no_argument, 0,  12 },
+        {0,         0,                 0,  0 },
     };
 
     if (argc < 2) {
@@ -164,6 +165,7 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
         {"clean-cache",   no_argument, 0, 'c'},
         {"entry-points",  no_argument, 0, 'e'},
         {"nterp",         no_argument, 0, 'n'},
+        {0,               0,           0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "cen",
@@ -232,6 +234,7 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
         {"quick-load", no_argument,   0, 4},
         {"note",   no_argument,       0, 5},
         {"clean-cache",   no_argument, 0, 'c'},
+        {0,        0,                 0, 0},
     };
 
     bool crc = false;

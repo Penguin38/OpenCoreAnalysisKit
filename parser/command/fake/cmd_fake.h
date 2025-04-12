@@ -25,7 +25,7 @@ public:
     FakeCommand() : Command("fake") {}
     ~FakeCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]);
+    int prepare(int argc, char* const argv[]);
     void usage();
 };
 

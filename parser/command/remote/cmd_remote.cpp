@@ -51,12 +51,16 @@ static RemoteOption remote_option[] = {
     { "maps",   RemoteCommand::OptionMaps },
 };
 
-int RemoteCommand::main(int argc, char* const argv[]) {
+int RemoteCommand::prepare(int argc, char* const argv[]) {
     if (!(argc > 1)) {
         usage();
-        return 0;
+        return Command::FINISH;
     }
 
+    return Command::ONCHLD;
+}
+
+int RemoteCommand::main(int argc, char* const argv[]) {
     struct sigaction stact;
     memset(&stact, 0, sizeof(stact));
     stact.sa_handler = Opencore::TermStopHandle;
@@ -79,6 +83,7 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"pid",     required_argument, 0, 'p'},
+        {0,         0,                 0,  0 },
     };
 
     int pid = 0;
@@ -132,6 +137,7 @@ int RemoteCommand::OptionWrite(int argc, char* const argv[]) {
         {"pid",     required_argument, 0, 'p'},
         {"string",  required_argument, 0, 's'},
         {"value",   required_argument, 0, 'v'},
+        {0,         0,                 0,  0 },
     };
 
     int pid = 0;
@@ -216,6 +222,7 @@ int RemoteCommand::OptionPause(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"all", no_argument, 0, 'a'},
+        {0,     0,           0,  0 },
     };
 
     bool all = false;
@@ -252,6 +259,7 @@ int RemoteCommand::OptionMaps(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"pid",     required_argument, 0, 'p'},
+        {0,         0,                 0,  0 },
     };
 
     int pid = 0;

@@ -30,13 +30,18 @@ public:
 
     LogcatCommand() : Command("logcat") {}
     ~LogcatCommand() {}
+
+    struct Options : Command::Options {
+        int dump_flag;
+        int filter;
+        int id;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) { return true; }
+    int prepare(int argc, char* const argv[]);
     void usage();
 private:
-    int dump_flag = 0;
-    int filter = 0;
-    int id;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_LOGCAT_H_

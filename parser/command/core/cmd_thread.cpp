@@ -27,26 +27,28 @@
 #include <string>
 #include <vector>
 
-int ThreadCommand::main(int argc, char* const argv[]) {
+int ThreadCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
-        return 0;
+        return Command::FINISH;
 
     if (!(argc > 1)) {
         LOGI("Current thread is %d\n", Env::CurrentPid());
-        return 0;
+        return Command::FINISH;
     }
+
+    options.native = false;
+    options.java = false;
+    options.dump_all = false;
 
     int opt;
     int option_index = 0;
-    bool native = false;
-    bool java = false;
-    bool dump_all = false;
     optind = 0; // reset
     static struct option long_options[] = {
         {"native",    no_argument,       0,  'n'},
 #if defined(__AOSP_PARSER__)
         {"java",      no_argument,       0,  'j'},
         {"all",       no_argument,       0,  'a'},
+        {0,           0,                 0,   0 },
 #endif
     };
 
@@ -54,29 +56,34 @@ int ThreadCommand::main(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'n':
-                native = true;
-                java = false;
+                options.native = true;
+                options.java = false;
                 break;
             case 'j':
-                native = false;
-                java = true;
+                options.native = false;
+                options.java = true;
                 break;
             case 'a':
-                native = false;
-                java = true;
-                dump_all = true;
+                options.native = false;
+                options.java = true;
+                options.dump_all = true;
                 break;
         }
     }
+    options.optind = optind;
 
-    if (!(native ^ java)) {
-        if (optind < argc) {
-            int current_pid = std::atoi(argv[optind]);
+    return !(options.native ^ options.java) ? Command::CONTINUE : Command::ONCHLD;
+}
+
+int ThreadCommand::main(int argc, char* const argv[]) {
+    if (!(options.native ^ options.java)) {
+        if (options.optind < argc) {
+            int current_pid = std::atoi(argv[options.optind]);
             Env::SetCurrentPid(current_pid);
         }
         LOGI("Current thread is %d\n", Env::CurrentPid());
     } else {
-        if (native) {
+        if (options.native) {
             int index = 1;
             int machine = CoreApi::GetMachine();
             LOGI(ANSI_COLOR_LIGHTRED " ID     TARGET TID        FRAME\n" ANSI_COLOR_RESET);
@@ -116,7 +123,7 @@ int ThreadCommand::main(int argc, char* const argv[]) {
                 if (it != threads.end()) threads.erase(it);
             }
 
-            if (dump_all) {
+            if (options.dump_all) {
                 for (int pid : threads) {
                     LOGI("%s---  " ANSI_COLOR_YELLOW "%-6d " ANSI_COLOR_CYAN "NotAttachJVM\n" ANSI_COLOR_RESET , pid == Env::CurrentPid() ? "*" : " ", pid);
                 }

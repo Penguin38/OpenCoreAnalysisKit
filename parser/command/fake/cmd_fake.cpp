@@ -39,27 +39,23 @@ static FakeOption fake_option[] = {
     { "load", FakeLoadBlock::OptionLoad, false },
 };
 
-bool FakeCommand::prepare(int argc, char* const argv[]) {
+int FakeCommand::prepare(int argc, char* const argv[]) {
     if (!(argc > 1)) {
-        return false;
+        usage();
+        return Command::FINISH;
     }
 
     int count = sizeof(fake_option)/sizeof(fake_option[0]);
     for (int index = 0; index < count; ++index) {
         if (!strcmp(argv[1], fake_option[index].cmd)) {
-            return fake_option[index].onbg;
+            return fake_option[index].onbg ? Command::ONCHLD : Command::CONTINUE;
         }
     }
 
-    return false;
+    return Command::FINISH;
 }
 
 int FakeCommand::main(int argc, char* const argv[]) {
-    if (!(argc > 1)) {
-        usage();
-        return 0;
-    }
-
     int count = sizeof(fake_option)/sizeof(fake_option[0]);
     for (int index = 0; index < count; ++index) {
         if (!strcmp(argv[1], fake_option[index].cmd)) {

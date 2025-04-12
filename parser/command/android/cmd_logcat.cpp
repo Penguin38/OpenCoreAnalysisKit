@@ -47,14 +47,18 @@ static void PrintSerializedLogBuf(const char* header, cxx::list& logs, int filte
     }
 }
 
-int LogcatCommand::main(int argc, char* const argv[]) {
+int LogcatCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
-        return 0;
+        return Command::FINISH;
 
     if (CoreApi::Bits() != 64) {
         LOGE("Not support logcat on bit32 system.\n");
-        return 0;
+        return Command::FINISH;
     }
+
+    options.dump_flag = 0;
+    options.filter = 0;
+    options.id = 0;
 
     int opt;
     int option_index = 0;
@@ -64,6 +68,7 @@ int LogcatCommand::main(int argc, char* const argv[]) {
         {"pid",       required_argument,  0,  'p'},
         {"uid",       required_argument,  0,  'u'},
         {"tid",       required_argument,  0,  't'},
+        {0,           0,                  0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "b:p:u:t:",
@@ -71,46 +76,56 @@ int LogcatCommand::main(int argc, char* const argv[]) {
         switch (opt) {
             case 'b':
                 if (!strcmp(optarg, "main"))
-                    dump_flag |= DUMP_MAIN;
+                    options.dump_flag |= DUMP_MAIN;
 
                 if (!strcmp(optarg, "radio"))
-                    dump_flag |= DUMP_RADIO;
+                    options.dump_flag |= DUMP_RADIO;
 
                 if (!strcmp(optarg, "events"))
-                    dump_flag |= DUMP_EVENTS;
+                    options.dump_flag |= DUMP_EVENTS;
 
                 if (!strcmp(optarg, "system"))
-                    dump_flag |= DUMP_SYSTEM;
+                    options.dump_flag |= DUMP_SYSTEM;
 
                 if (!strcmp(optarg, "crash"))
-                    dump_flag |= DUMP_CRASH;
+                    options.dump_flag |= DUMP_CRASH;
 
                 if (!strcmp(optarg, "kernel"))
-                    dump_flag |= DUMP_KERNEL;
+                    options.dump_flag |= DUMP_KERNEL;
 
                 if (!strcmp(optarg, "all")) {
-                    dump_flag = DUMP_MAIN | DUMP_RADIO
-                              | DUMP_EVENTS | DUMP_SYSTEM
-                              | DUMP_CRASH | DUMP_KERNEL;
+                    options.dump_flag = DUMP_MAIN | DUMP_RADIO
+                                      | DUMP_EVENTS | DUMP_SYSTEM
+                                      | DUMP_CRASH | DUMP_KERNEL;
                 }
                 break;
             case 'p':
-                filter = SerializedData::FILTER_PID;
-                id = std::atoi(optarg);
+                options.filter = SerializedData::FILTER_PID;
+                options.id = std::atoi(optarg);
                 break;
             case 'u':
-                filter = SerializedData::FILTER_UID;
-                id = std::atoi(optarg);
+                options.filter = SerializedData::FILTER_UID;
+                options.id = std::atoi(optarg);
                 break;
             case 't':
-                filter = SerializedData::FILTER_TID;
-                id = std::atoi(optarg);
+                options.filter = SerializedData::FILTER_TID;
+                options.id = std::atoi(optarg);
                 break;
         }
     }
+    options.optind = optind;
 
-    if (!dump_flag) dump_flag = DUMP_MAIN | DUMP_SYSTEM | DUMP_CRASH | DUMP_KERNEL;
+    if (!options.dump_flag) {
+        options.dump_flag = DUMP_MAIN
+                          | DUMP_SYSTEM
+                          | DUMP_CRASH
+                          | DUMP_KERNEL;
+    }
 
+    return Command::ONCHLD;
+}
+
+int LogcatCommand::main(int argc, char* const argv[]) {
     if (Android::Sdk() >= Android::S) {
         SerializedLogBuffer log_buffer = Logcat::AnalysisSerializedLogBuffer();
         if (!log_buffer.Ptr()) {
@@ -118,34 +133,34 @@ int LogcatCommand::main(int argc, char* const argv[]) {
             return 0;
         }
 
-        if (dump_flag & DUMP_MAIN) {
+        if (options.dump_flag & DUMP_MAIN) {
             cxx::list main_logs = log_buffer.logs() + LOG_ID_MAIN * SIZEOF(cxx_list);
-            PrintSerializedLogBuf("--------- beginning of main", main_logs, filter, id);
+            PrintSerializedLogBuf("--------- beginning of main", main_logs, options.filter, options.id);
         }
 
-        if (dump_flag & DUMP_RADIO) {
+        if (options.dump_flag & DUMP_RADIO) {
             cxx::list radio_logs = log_buffer.logs() + LOG_ID_RADIO * SIZEOF(cxx_list);
-            PrintSerializedLogBuf("--------- beginning of radio", radio_logs, filter, id);
+            PrintSerializedLogBuf("--------- beginning of radio", radio_logs, options.filter, options.id);
         }
 
-        if (dump_flag & DUMP_EVENTS) {
+        if (options.dump_flag & DUMP_EVENTS) {
             cxx::list events_logs = log_buffer.logs() + LOG_ID_EVENTS * SIZEOF(cxx_list);
-            PrintSerializedLogBuf("--------- beginning of events", events_logs, filter, id);
+            PrintSerializedLogBuf("--------- beginning of events", events_logs, options.filter, options.id);
         }
 
-        if (dump_flag & DUMP_SYSTEM) {
+        if (options.dump_flag & DUMP_SYSTEM) {
             cxx::list system_logs = log_buffer.logs() + LOG_ID_SYSTEM * SIZEOF(cxx_list);
-            PrintSerializedLogBuf("--------- beginning of system", system_logs, filter, id);
+            PrintSerializedLogBuf("--------- beginning of system", system_logs, options.filter, options.id);
         }
 
-        if (dump_flag & DUMP_CRASH) {
+        if (options.dump_flag & DUMP_CRASH) {
             cxx::list crash_logs = log_buffer.logs() + LOG_ID_CRASH * SIZEOF(cxx_list);
-            PrintSerializedLogBuf("--------- beginning of crash", crash_logs, filter, id);
+            PrintSerializedLogBuf("--------- beginning of crash", crash_logs, options.filter, options.id);
         }
 
-        if (dump_flag & DUMP_KERNEL) {
+        if (options.dump_flag & DUMP_KERNEL) {
             cxx::list kernel_logs = log_buffer.logs() + LOG_ID_KERNEL * SIZEOF(cxx_list);
-            PrintSerializedLogBuf("--------- beginning of kernel", kernel_logs, filter, id);
+            PrintSerializedLogBuf("--------- beginning of kernel", kernel_logs, options.filter, options.id);
         }
     } else {
     }

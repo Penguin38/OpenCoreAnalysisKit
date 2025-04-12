@@ -41,16 +41,17 @@ int ReadCommand::main(int argc, char* const argv[]) {
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"origin",  no_argument,       0,  0 },
-        {"mmap",    no_argument,       0,  1 },
-        {"overlay", no_argument,       0,  2 },
+        {"origin",  no_argument,       0,  1 },
+        {"mmap",    no_argument,       0,  2 },
+        {"overlay", no_argument,       0,  3 },
         {"end",     required_argument, 0, 'e'},
         {"file",    required_argument, 0, 'f'},
         {"inst",    no_argument,       0, 'i'},
         {"string",  no_argument,       0, 's'},
+        {0,         0,                 0,  0 },
     };
     
-    while ((opt = getopt_long(argc, argv, "e:f:012is",
+    while ((opt = getopt_long(argc, argv, "e:f:0123is",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'e':
@@ -59,13 +60,13 @@ int ReadCommand::main(int argc, char* const argv[]) {
             case 'f':
                 filepath = optarg;
                 break;
-            case 0:
+            case 1:
                 read_opt = OPT_READ_OR;
                 break;
-            case 1:
+            case 2:
                 read_opt = OPT_READ_MMAP;
                 break;
-            case 2:
+            case 3:
                 read_opt = OPT_READ_OVERLAY;
                 break;
             case 'i':

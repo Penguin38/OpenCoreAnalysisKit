@@ -24,14 +24,20 @@ class LinkMapCommand : public Command {
 public:
     LinkMapCommand() : Command("map") {}
     ~LinkMapCommand() {}
+
+    struct Options : Command::Options {
+        bool dump_ori;
+        bool dump_all;
+        int num;
+    };
+
     int main(int argc, char* const argv[]);
+    int prepare(int argc, char* const argv[]);
     void ShowLinkMap(int pos, LinkMap* map);
     void ShowLinkMapSymbols(LinkMap* map);
     void usage();
 private:
-    bool dump_ori;
-    bool dump_all;
-    int num;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_CORE_CMD_LINKMAP_H_

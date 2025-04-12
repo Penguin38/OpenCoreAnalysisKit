@@ -43,15 +43,19 @@ static CxxOption cxx_option[] = {
     {"deque", CxxCommand::DumpCxxDeque},
 };
 
-int CxxCommand::main(int argc, char* const argv[]) {
+int CxxCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
-        return 0;
+        return Command::FINISH;
 
     if (!(argc > 2)) {
         usage();
-        return 0;
+        return Command::FINISH;
     }
 
+    return Command::ONCHLD;
+}
+
+int CxxCommand::main(int argc, char* const argv[]) {
     int count = sizeof(cxx_option)/sizeof(cxx_option[0]);
     for (int index = 0; index < count; ++index) {
         if (!strcmp(argv[1], cxx_option[index].cmd)) {
@@ -78,6 +82,7 @@ int CxxCommand::DumpCxxVector(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"entry-size",       required_argument, 0,  'e'},
         {"buffer-size",      required_argument, 0,  's'},
+        {0,                  0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "e:s:",
@@ -111,6 +116,7 @@ int CxxCommand::DumpCxxMap(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"buffer-size",      required_argument, 0,  's'},
+        {0,                  0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "s:",
@@ -140,6 +146,7 @@ int CxxCommand::DumpCxxUnOrderedMap(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"buffer-size",      required_argument, 0,  's'},
+        {0,                  0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "s:",
@@ -169,6 +176,7 @@ int CxxCommand::DumpCxxList(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"buffer-size",      required_argument, 0,  's'},
+        {0,                  0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "s:",
@@ -200,6 +208,7 @@ int CxxCommand::DumpCxxDeque(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"block-size",       required_argument, 0,  'b'},
         {"buffer-size",      required_argument, 0,  's'},
+        {0,                  0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "b:s:",

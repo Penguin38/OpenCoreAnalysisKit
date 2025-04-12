@@ -43,6 +43,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         {"no-fake-phdr",no_argument,       0,  4 },
         {"output",      required_argument, 0, 'o'},
         {"map",         no_argument,       0, 'm'},
+        {0,             0,                 0,  0 },
     };
 
     bool tomb = false;

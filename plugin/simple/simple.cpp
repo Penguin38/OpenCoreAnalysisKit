@@ -23,9 +23,7 @@ public:
     SimpleCommand() : Command("simple") {}
     ~SimpleCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
 };
 
@@ -34,6 +32,10 @@ void __attribute__((constructor)) simple_init(void) {
 }
 
 void __attribute__((destructor)) simple_fini(void) {}
+
+int SimpleCommand::prepare(int argc, char* const argv[]) {
+    return Command::ONCHLD;
+}
 
 int SimpleCommand::main(int argc, char* const argv[]) {
     LOGI("command simple!\n");

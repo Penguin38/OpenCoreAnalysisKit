@@ -28,15 +28,15 @@
 #include <getopt.h>
 #include <filesystem>
 
-int DexCommand::main(int argc, char* const argv[]) {
+int DexCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
-        return 0;
+        return Command::FINISH;
 
-    dump_dex = false;
-    dump_ori = false;
-    app = false;
-    num = 0;
-    dir = const_cast<char *>(Env::CurrentDir());
+    options.dump_dex = false;
+    options.dump_ori = false;
+    options.app = false;
+    options.num = 0;
+    options.dir = const_cast<char *>(Env::CurrentDir());
 
     int opt;
     int option_index = 0;
@@ -46,39 +46,45 @@ int DexCommand::main(int argc, char* const argv[]) {
         {"app",     no_argument,       0,   1 },
         {"dir",     required_argument, 0,  'd'},
         {"num",     required_argument, 0,  'n'},
-        {0,         0,                 0,   0 }
+        {0,         0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "od:n:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
-                dump_ori = true;
+                options.dump_ori = true;
                 break;
             case 1:
-                app = true;
-                dump_dex = true;
+                options.app = true;
+                options.dump_dex = true;
                 break;
             case 'd':
-                dir = optarg;
+                options.dir = optarg;
                 break;
             case 'n':
-                num = std::atoi(optarg);
-                dump_dex = true;
+                options.num = std::atoi(optarg);
+                options.dump_dex = true;
                 break;
         }
     }
+    options.optind = optind;
 
+    Android::Prepare();
+    return Command::ONCHLD;
+}
+
+int DexCommand::main(int argc, char* const argv[]) {
     art::Runtime& runtime = art::Runtime::Current();
     art::ClassLinker& linker = runtime.GetClassLinker();
-    if (!dump_dex)
+    if (!options.dump_dex)
         LOGI(ANSI_COLOR_LIGHTRED "NUM DEXCACHE    REGION                   FLAGS NAME\n" ANSI_COLOR_RESET);
     int pos = 0;
     for (const auto& value : linker.GetDexCacheDatas()) {
         pos++;
         art::mirror::DexCache& dex_cache = value->GetDexCache();
         art::DexFile& dex_file = value->GetDexFile();
-        if (!dump_dex) {
+        if (!options.dump_dex) {
             ShowDexCacheRegion(pos, dex_cache, dex_file);
         } else {
             DumpDexFile(pos, dex_cache, dex_file);
@@ -116,7 +122,7 @@ void DexCommand::ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, a
     }
     LoadBlock* block = CoreApi::FindLoadBlock(dex_file.data_begin(), false);
     if (block) {
-        if (!dump_ori && block->isMmapBlock()) {
+        if (!options.dump_ori && block->isMmapBlock()) {
             name = block->name();
         } else {
             art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
@@ -138,7 +144,7 @@ void DexCommand::ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, a
 }
 
 void DexCommand::DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::DexFile& dex_file) {
-    if (num > 0 && num != pos)
+    if (options.num > 0 && options.num != pos)
         return;
 
     std::string name;
@@ -157,7 +163,7 @@ void DexCommand::DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::Dex
             }
         }
 
-        if (app) {
+        if (options.app) {
             if (name[0] == '/'
                     && name.substr(0, 9) != "/data/app"
                     && name.substr(0, 10) != "/data/user"
@@ -168,7 +174,7 @@ void DexCommand::DumpDexFile(int pos, art::mirror::DexCache& dex_cache, art::Dex
         std::filesystem::path file(name);
         std::string fileName = file.filename().string();
         fileName.append("_").append(Utils::ToHex(dex_file.location_checksum()));
-        std::string output = dir;
+        std::string output = options.dir;
         output.append("/").append(fileName);
 
         int argc = 6;

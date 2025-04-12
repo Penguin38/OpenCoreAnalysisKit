@@ -29,8 +29,17 @@ class PrintCommand : public Command {
 public:
     PrintCommand() : Command("print", "p") {}
     ~PrintCommand() {}
+
+    struct Options : Command::Options {
+        bool binary;
+        bool reference;
+        bool format_dump;
+        bool format_hex;
+        int deep;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]);
+    int prepare(int argc, char* const argv[]);
     void usage();
     void DumpObject(art::mirror::Object& object);
     static void DumpClass(art::mirror::Class& clazz, bool format_hex);
@@ -43,11 +52,7 @@ public:
     static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref, bool format_hex);
     static void OnlyDumpObject(art::mirror::Object& object, bool format_hex);
 private:
-    bool binary;
-    bool reference;
-    bool format_dump;
-    bool format_hex;
-    int deep;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_PRINT_H_

@@ -17,7 +17,6 @@
 #ifndef PARSER_COMMAND_ANDROID_CMD_REFERENCE_H_
 #define PARSER_COMMAND_ANDROID_CMD_REFERENCE_H_
 
-#include "android.h"
 #include "command/command.h"
 #include "runtime/mirror/object.h"
 
@@ -25,12 +24,19 @@ class ReferenceCommand : public Command {
 public:
     ReferenceCommand() : Command("reference", "ref") {}
     ~ReferenceCommand() {}
+
+    struct Options : Command::Options {
+        int flags;
+        int tid;
+        bool format_hex;
+        bool dump_refs;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
+private:
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_REFERENCE_H_

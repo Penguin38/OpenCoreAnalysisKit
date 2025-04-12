@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "android.h"
 #include "api/core.h"
 #include "api/unwind.h"
 #include "base/utils.h"
@@ -31,9 +32,13 @@
 #include <unistd.h>
 #include <getopt.h>
 
-int FrameCommand::main(int argc, char* const argv[]) {
+int FrameCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
-        return 0;
+        return Command::FINISH;
+
+    options.force = false;
+    options.java = false;
+    options.dump_all = false;
 
     int opt;
     int option_index = 0;
@@ -42,40 +47,52 @@ int FrameCommand::main(int argc, char* const argv[]) {
         {"java",    no_argument,       0,  'j'},
         {"native",  no_argument,       0,  'n'},
         {"all",     no_argument,       0,  'a'},
+        {0,         0,                 0,   0 },
     };
-
-    java = false;
-    dump_all = false;
-    if (Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
-        art::Thread* current = art::Runtime::Current().GetThreadList().FindThreadByTid(Env::CurrentPid());
-        if (current && !current->StackEmpty())
-            java = true;
-    }
 
     while ((opt = getopt_long(argc, (char* const*)argv, "jna",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'j':
-                java = true;
+                options.force = true;
+                options.java = true;
                 break;
             case 'n':
-                java = false;
+                options.force = true;
+                options.java = false;
                 break;
             case 'a':
-                dump_all = true;
+                options.dump_all = true;
                 break;
         }
     }
-
-    int number = 0;
-    if (optind < argc) number = std::atoi(argv[optind]);
+    options.optind = optind;
 
 #if defined(__AOSP_PARSER__)
-    if (dump_all) {
+    Android::Prepare();
+    Android::OatPrepare();
+#endif
+
+    return Command::ONCHLD;
+}
+
+int FrameCommand::main(int argc, char* const argv[]) {
+    if (!options.force && Android::IsSdkReady() && art::Runtime::Current().Ptr()) {
+        art::Thread* current = art::Runtime::Current().GetThreadList().FindThreadByTid(Env::CurrentPid());
+        if (current && !current->StackEmpty())
+            options.java = true;
+    }
+
+    int number = 0;
+    if (options.optind < argc)
+        number = std::atoi(argv[options.optind]);
+
+#if defined(__AOSP_PARSER__)
+    if (options.dump_all) {
         ShowNativeFrameInfo(number);
         ShowJavaFrameInfo(number);
     } else {
-        if (java) {
+        if (options.java) {
             ShowJavaFrameInfo(number);
         } else {
             ShowNativeFrameInfo(number);
@@ -133,13 +150,13 @@ void FrameCommand::ShowJavaFrameInfo(int number) {
     art::StackVisitor visitor(current, art::StackVisitor::StackWalkKind::kSkipInlinedFrames);
     visitor.WalkStack();
 
-    if (number > visitor.GetJavaFrames().size() - 1 && !dump_all)
+    if (number > visitor.GetJavaFrames().size() - 1 && !options.dump_all)
         return;
 
     std::string format = BacktraceCommand::FormatJavaFrame("  ", visitor.GetJavaFrames().size());
     uint32_t frameid = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
-        if (dump_all || number == frameid) {
+        if (options.dump_all || number == frameid) {
             art::ArtMethod& method = java_frame->GetMethod();
             art::ShadowFrame& shadow_frame = java_frame->GetShadowFrame();
             art::QuickFrame& quick_frame = java_frame->GetQuickFrame();
@@ -276,7 +293,7 @@ void FrameCommand::ShowNativeFrameInfo(int number) {
         std::string format = BacktraceCommand::FormatNativeFrame("  ", unwind_stack->GetNativeFrames().size());
         uint32_t frameid = 0;
         for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
-            if (dump_all || frameid == number) {
+            if (options.dump_all || frameid == number) {
                 std::string method_desc = native_frame->GetMethodName();
                 uint64_t cloc_pc = native_frame->GetFramePc() & CoreApi::GetVabitsMask();
                 uint64_t offset = cloc_pc - native_frame->GetMethodOffset();

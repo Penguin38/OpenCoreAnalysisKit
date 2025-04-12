@@ -20,7 +20,6 @@
 #include "command/command.h"
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/class.h"
-#include "android.h"
 #include <string>
 
 class ClassCommand : public Command {
@@ -34,21 +33,23 @@ public:
 
     ClassCommand() : Command("class") {}
     ~ClassCommand() {}
+
+    struct Options : Command::Options {
+        uint64_t total_classes;
+        bool dump_all;
+        bool format_hex;
+        int show_flag;
+        int obj_each_flags;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
+
     bool PrintClass(art::mirror::Object& object, const char* classname);
     void PrintPrettyClassContent(art::mirror::Class& clazz);
-    void PrintField(const char* format, art::mirror::Class& clazz, art::ArtField& field);
 private:
-    uint64_t total_classes;
-    bool dump_all;
-    bool format_hex;
-    int show_flag;
-    int obj_each_flags;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_CLASS_H_

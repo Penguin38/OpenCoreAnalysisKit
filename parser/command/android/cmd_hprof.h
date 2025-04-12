@@ -18,18 +18,22 @@
 #define PARSER_COMMAND_ANDROID_CMD_HPROF_H_
 
 #include "command/command.h"
-#include "android.h"
 
 class HprofCommand : public Command {
 public:
     HprofCommand() : Command("hprof") {}
     ~HprofCommand() {}
+
+    struct Options : Command::Options {
+        bool visible;
+        bool quick;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
+private:
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_HPROF_H_

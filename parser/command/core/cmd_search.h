@@ -23,11 +23,19 @@ class CoreSearchCommand : public Command {
 public:
     CoreSearchCommand() : Command("cs") {}
     ~CoreSearchCommand() {}
+
+    struct Options : Command::Options {
+        int flags;
+        bool in_stack;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) { return true; }
+    int prepare(int argc, char* const argv[]);
     void usage();
     static void WalkStack(const char* value);
     static void WalkLoadBlock(const char* value, int flags);
+private:
+    Options options;
 };
 
 #endif // PARSER_COMMAND_CORE_CMD_CS_H_

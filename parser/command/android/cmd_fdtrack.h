@@ -27,8 +27,14 @@ class FdtrackCommand : public Command {
 public:
     FdtrackCommand() : Command("fdtrack") {}
     ~FdtrackCommand() {}
+
+    struct Options : Command::Options {
+        bool dump_top;
+        int top;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) { return true; }
+    int prepare(int argc, char* const argv[]);
     void usage();
 
     struct NativeFrame {
@@ -46,8 +52,7 @@ public:
     static void ShowStack(std::vector<NativeFrame>& nfv);
     static void ShowTopStack(std::array<std::vector<NativeFrame>, android::FdTrack::kFdTableSize> fdv, uint32_t num);
 private:
-    bool dump_top;
-    int top;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_FDTRACK_H_

@@ -27,43 +27,50 @@
 #include <getopt.h>
 #include <cxxabi.h>
 
-int DisassembleCommand::main(int argc, char* const argv[]) {
+int DisassembleCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || argc < 2)
-        return 0;
+        return Command::FINISH;
 
-    int read_opt = OPT_READ_ALL;
+    options.read_opt = OPT_READ_ALL;
+
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"origin",  no_argument,       0,  0 },
-        {"mmap",    no_argument,       0,  1 },
-        {"overlay", no_argument,       0,  2 },
+        {"origin",  no_argument,       0,  1 },
+        {"mmap",    no_argument,       0,  2 },
+        {"overlay", no_argument,       0,  3 },
+        {0,         0,                 0,  0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "012",
+    while ((opt = getopt_long(argc, argv, "0123",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 0:
-                read_opt = OPT_READ_OR;
-                break;
             case 1:
-                read_opt = OPT_READ_MMAP;
+                options.read_opt = OPT_READ_OR;
                 break;
             case 2:
-                read_opt = OPT_READ_OVERLAY;
+                options.read_opt = OPT_READ_MMAP;
+                break;
+            case 3:
+                options.read_opt = OPT_READ_OVERLAY;
                 break;
         }
     }
+    options.optind = optind;
 
-    if (optind >= argc)
-        return 0;
+    if (options.optind >= argc)
+        return Command::FINISH;
 
-    char* symbol = argv[optind];
+    return Command::ONCHLD;
+}
+
+int DisassembleCommand::main(int argc, char* const argv[]) {
+    char* symbol = argv[options.optind];
     uint64_t addr = Utils::atol(symbol);
     uint32_t num = -1;
-    if (optind + 1 < argc)
-        num = std::atoi(argv[optind + 1]);
+    if (options.optind + 1 < argc)
+        num = std::atoi(argv[options.optind + 1]);
 
     auto callback = [&](LinkMap* map) -> bool {
         bool argv_addr = false;
@@ -107,7 +114,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
                         capstone::Disassember::Option::MODE_THUMB : capstone::Disassember::Option::MODE_ARM);
             }
 
-            uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(vaddr, read_opt));
+            uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(vaddr, options.read_opt));
             if (data) {
                 LOGI(ANSI_COLOR_YELLOW "%s" ANSI_COLOR_RESET ": [%" PRIx64 ", %" PRIx64 "]\n",
                         d_symbol.c_str(), vaddr, vaddr + entry.size);

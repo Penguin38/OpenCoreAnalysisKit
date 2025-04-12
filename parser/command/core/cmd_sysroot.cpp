@@ -32,7 +32,7 @@ int SysRootCommand::main(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"map",  no_argument,       0,  0 },
         {"dex",  no_argument,       0,  1 },
-        {0,      0,                 0,  0 }
+        {0,      0,                 0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "01",

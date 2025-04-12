@@ -33,116 +33,83 @@
 #include <iomanip>
 #include <stdlib.h>
 
-bool MethodCommand::prepare(int argc, char* const argv[]) {
+int MethodCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
             || !(argc > 1))
-        return false;
+        return Command::FINISH;
 
-    dump_opt = METHOD_DUMP_NAME;
-    dexpc = 0x0;
+    options.instpc = 0x0;
+    options.dump_opt = METHOD_DUMP_NAME;
+    options.verbose = false;
+    options.count = 0;
+    options.pc = 0x0;
+    options.dexpc = 0x0;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"dex-dump",    no_argument,       0,  0 },
-        {"oat-dump",    no_argument,       0,  1 },
-        {"pc",          required_argument, 0,  2 },
+        {"dex-dump",    no_argument,       0,  1 },
+        {"oat-dump",    no_argument,       0,  2 },
+        {"pc",          required_argument, 0,  3 },
         {"inst",        required_argument, 0, 'i'},
         {"num",         required_argument, 0, 'n'},
         {"verbose",     no_argument,       0, 'v'},
         {"binary",      no_argument,       0, 'b'},
         {"search",      required_argument, 0, 's'},
-    };
-
-    while ((opt = getopt_long(argc, argv, "i:n:01bvs:",
-                long_options, &option_index)) != -1) {
-        switch (opt) {
-            case 0:
-                dump_opt |= METHOD_DUMP_DEXCODE;
-                break;
-            case 1:
-                dump_opt |= METHOD_DUMP_OATCODE;
-                break;
-            case 's':
-                dexpc = Utils::atol(optarg);
-                break;
-        }
-    }
-
-    if (dump_opt & METHOD_DUMP_OATCODE) {
-        Android::OatPrepare();
-    }
-
-    if (dexpc) Android::Prepare();
-    return true;
-}
-
-int MethodCommand::main(int argc, char* const argv[]) {
-    if (!CoreApi::IsReady()
-            || !Android::IsSdkReady()
-            || !(argc > 1))
-        return 0;
-
-    int opt;
-    method = 0x0;
-    dump_opt = METHOD_DUMP_NAME;
-    verbose = false;
-    count = 0;
-    pc = 0x0;
-    dexpc = 0x0;
-
-    int option_index = 0;
-    optind = 0; // reset
-    static struct option long_options[] = {
-        {"dex-dump",    no_argument,       0,  0 },
-        {"oat-dump",    no_argument,       0,  1 },
-        {"pc",          required_argument, 0,  2 },
-        {"inst",        required_argument, 0, 'i'},
-        {"num",         required_argument, 0, 'n'},
-        {"verbose",     no_argument,       0, 'v'},
-        {"binary",      no_argument,       0, 'b'},
-        {"search",      required_argument, 0, 's'},
+        {0,             0,                 0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "i:n:012bvs:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'i':
-                instref = Utils::atol(optarg);
+                options.instpc = Utils::atol(optarg);
                 break;
             case 'n':
-                count = std::atoi(optarg);
-                break;
-            case 0:
-                dump_opt |= METHOD_DUMP_DEXCODE;
+                options.count = std::atoi(optarg);
                 break;
             case 1:
-                dump_opt |= METHOD_DUMP_OATCODE;
+                options.dump_opt |= METHOD_DUMP_DEXCODE;
                 break;
             case 2:
-                pc = Utils::atol(optarg);
+                options.dump_opt |= METHOD_DUMP_OATCODE;
+                break;
+            case 3:
+                options.pc = Utils::atol(optarg);
                 break;
             case 'v':
-                verbose = true;
+                options.verbose = true;
                 break;
             case 'b':
-                dump_opt |= METHOD_DUMP_BINARY;
+                options.dump_opt |= METHOD_DUMP_BINARY;
                 break;
             case 's':
-                dexpc = Utils::atol(optarg);
+                options.dexpc = Utils::atol(optarg);
                 break;
         }
     }
+    options.optind = optind;
 
-    if (optind >= argc && !dexpc) {
+    if (options.optind >= argc && !options.dexpc) {
         usage();
-        return 0;
+        return Command::FINISH;
     }
 
-    if (!dexpc) {
-        method = Utils::atol(argv[optind]) & CoreApi::GetVabitsMask();
+    if (options.dump_opt & METHOD_DUMP_OATCODE)
+        Android::OatPrepare();
+
+    if (options.dexpc)
+        Android::Prepare();
+
+    return Command::ONCHLD;
+}
+
+int MethodCommand::main(int argc, char* const argv[]) {
+    art::ArtMethod method = 0x0;
+    if (!options.dexpc) {
+        method = Utils::atol(argv[options.optind]) & CoreApi::GetVabitsMask();
     } else {
         bool found = false;
         auto search_method = [&](art::ArtMethod& tmp) -> bool {
@@ -151,7 +118,7 @@ int MethodCommand::main(int argc, char* const argv[]) {
             if (item.Ptr()) {
                 uint64_t start = item.Ptr() + item.code_offset_;
                 uint64_t end = start + (item.insns_count_ << 1);
-                if (dexpc >= start && dexpc < end) {
+                if (options.dexpc >= start && options.dexpc < end) {
                     found = true;
                     method = tmp;
                     LOGI(ANSI_COLOR_LIGHTYELLOW "[0x%" PRIx64 "]\n" ANSI_COLOR_RESET, method.Ptr());
@@ -170,7 +137,7 @@ int MethodCommand::main(int argc, char* const argv[]) {
         };
         Android::ForeachObjects(callback);
         if (!found) {
-            LOGE("Not found ArtMethod include dexpc 0x%" PRIx64 "\n", dexpc);
+            LOGE("Not found ArtMethod include dexpc 0x%" PRIx64 "\n", options.dexpc);
             return 0;
         }
     }
@@ -179,26 +146,26 @@ int MethodCommand::main(int argc, char* const argv[]) {
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
         LOGI(ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
                        method.ColorPrettyMethod().c_str(), dex_method_idx);
-        if (dump_opt & METHOD_DUMP_DEXCODE)
-            Dexdump();
+        if (options.dump_opt & METHOD_DUMP_DEXCODE)
+            Dexdump(method);
     } else {
         LOGI(ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET "\n", method.GetRuntimeMethodName());
     }
 
-    if (dump_opt & METHOD_DUMP_OATCODE)
-        Oatdump();
+    if (options.dump_opt & METHOD_DUMP_OATCODE)
+        Oatdump(method);
 
-    if (dump_opt & METHOD_DUMP_BINARY)
-        Binarydump();
+    if (options.dump_opt & METHOD_DUMP_BINARY)
+        Binarydump(method);
 
     return 0;
 }
 
-void MethodCommand::Dexdump() {
+void MethodCommand::Dexdump(art::ArtMethod& method) {
     art::dex::CodeItem item = method.GetCodeItem();
     art::DexFile& dex_file = method.GetDexFile();
     if (item.Ptr()) {
-        if (verbose) {
+        if (options.verbose) {
             LOGI("Location      : %s\n", dex_file.GetLocation().c_str());
             LOGI("CodeItem      : 0x%" PRIx64 "\n", item.Ptr());
             LOGI("Registers     : %d\n", item.num_regs_);
@@ -211,14 +178,13 @@ void MethodCommand::Dexdump() {
         api::MemoryRef coderef = item.Ptr() + item.code_offset_;
         api::MemoryRef endref = coderef.Ptr() + (item.insns_count_ << 1);
 
-        if (instref >= coderef && instref < endref) {
-            coderef = instref;
-            endref = instref.Ptr() + art::Dexdump::GetDexInstSize(coderef);
+        if (options.instpc >= coderef.Ptr() && options.instpc < endref.Ptr()) {
+            coderef = options.instpc;
+            endref = options.instpc + art::Dexdump::GetDexInstSize(coderef);
         }
 
-        if (count > 0) {
+        if (options.count > 0)
             endref = item.Ptr() + item.code_offset_ + (item.insns_count_ << 1);
-        }
 
         coderef.copyRef(item);
 
@@ -226,7 +192,7 @@ void MethodCommand::Dexdump() {
         while (coderef < endref) {
             LOGI("  %s\n", art::Dexdump::PrettyDexInst(coderef, dex_file).c_str());
             current++;
-            if (count && current == count)
+            if (options.count && current == options.count)
                 break;
             coderef.MovePtr(art::Dexdump::GetDexInstSize(coderef));
         }
@@ -235,13 +201,13 @@ void MethodCommand::Dexdump() {
     }
 }
 
-void MethodCommand::Oatdump() {
+void MethodCommand::Oatdump(art::ArtMethod& method) {
     uint32_t dex_method_idx = method.GetDexMethodIndex();
-    if (!pc && LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
+    if (!options.pc && LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
         std::string method_pretty_desc = method.GetDeclaringClass().PrettyDescriptor();
         method_pretty_desc.append(".");
         method_pretty_desc.append(method.GetName());
-        pc = CoreApi::DlSym(method_pretty_desc.c_str());
+        options.pc = CoreApi::DlSym(method_pretty_desc.c_str());
     }
     art::OatQuickMethodHeader method_header = 0x0;
     if (method.IsNative()) {
@@ -253,10 +219,10 @@ void MethodCommand::Oatdump() {
             method_header = art::OatQuickMethodHeader::FromEntryPoint(existing_entry_point);
         }
     } else {
-        method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ pc);
+        method_header = method.GetOatQuickMethodHeader(/*method.GetEntryPointFromQuickCompiledCode()*/ options.pc);
     }
 
-    if (verbose) {
+    if (options.verbose) {
         if (method_header.Ptr())
             method_header.Dump("");
         if (method_header.Ptr() && method_header.IsOptimized()) {
@@ -269,7 +235,7 @@ void MethodCommand::Oatdump() {
         art::QuickFrame quick = 0x0;
         quick.GetMethodHeader() = method_header.Ptr();
         quick.DirectGetMethod() = method.Ptr();
-        quick.SetFramePc(pc);
+        quick.SetFramePc(options.pc);
         frame = quick.GetFrameInfo();
         if (method_header.Ptr()) {
             if (!method_header.IsNterpMethodHeader())
@@ -315,7 +281,7 @@ void MethodCommand::Oatdump() {
     }
 }
 
-void MethodCommand::Binarydump() {
+void MethodCommand::Binarydump(art::ArtMethod& method) {
     LOGI("Binary:\n");
     int argc = 4;
     std::string bs = Utils::ToHex(method.Ptr());

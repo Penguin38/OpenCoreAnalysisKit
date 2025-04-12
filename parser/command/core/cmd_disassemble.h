@@ -23,11 +23,16 @@ class DisassembleCommand : public Command {
 public:
     DisassembleCommand() : Command("disassemble", "disas") {}
     ~DisassembleCommand() {}
+
+    struct Options : Command::Options {
+        int read_opt;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
+private:
+    Options options;
 };
 
 #endif // PARSER_COMMAND_CORE_CMD_DISASSEMBLE_H_

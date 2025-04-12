@@ -36,6 +36,7 @@ int MmapCommand::main(int argc, char* const argv[]) {
         {"offset",  required_argument,  0,  'o'},
         {"remove-mmap",  no_argument,   0,   1 },
         {"remove-overlay", no_argument, 0,   2 },
+        {0, 0,                          0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "o:012",

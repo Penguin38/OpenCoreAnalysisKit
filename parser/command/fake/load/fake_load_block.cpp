@@ -35,6 +35,7 @@ int FakeLoadBlock::OptionLoad(int argc, char* const argv[]) {
         {"write",   no_argument,       0,  'w' },
         {"exec",    no_argument,       0,  'x' },
         {"none",    no_argument,       0,  'n' },
+        {0,         0,                 0,   0  },
     };
 
     uint64_t vaddr = 0x0;

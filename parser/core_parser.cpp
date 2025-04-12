@@ -129,6 +129,7 @@ int command_preload(int argc, char* const argv[]) {
         {"no-load",   no_argument,         0,  6 },
         {"no-fake-phdr",no_argument,       0,  7 },
         {"help",      no_argument,         0, 'h'},
+        {0,           0,                   0,  0 },
     };
 
     char* corefile = nullptr;

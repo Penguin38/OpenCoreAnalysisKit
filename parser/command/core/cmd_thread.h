@@ -24,8 +24,18 @@ class ThreadCommand : public Command {
 public:
     ThreadCommand() : Command("thread", "t") {}
     ~ThreadCommand() {}
+
+    struct Options : Command::Options {
+        bool native;
+        bool java;
+        bool dump_all;
+    };
+
     int main(int argc, char* const argv[]);
+    int prepare(int argc, char* const argv[]);
     void usage();
+private:
+    Options options;
 };
 
 #endif // PARSER_COMMAND_CORE_CMD_THREAD_H_

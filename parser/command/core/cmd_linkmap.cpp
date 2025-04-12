@@ -22,13 +22,13 @@
 #include <unistd.h>
 #include <getopt.h>
 
-int LinkMapCommand::main(int argc, char* const argv[]) {
+int LinkMapCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
-        return 0;
+        return Command::FINISH;
 
-    dump_ori = false;
-    dump_all = false;
-    num = 0;
+    options.dump_ori = false;
+    options.dump_all = false;
+    options.num = 0;
 
     int opt;
     int option_index = 0;
@@ -37,36 +37,44 @@ int LinkMapCommand::main(int argc, char* const argv[]) {
         {"origin",  no_argument,       0,  'o'},
         {"sym",     required_argument, 0,  's'},
         {"all",     no_argument,       0,  'a'},
+        {0,         0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "aos:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'a':
-                dump_all = true;
+                options.dump_all = true;
                 break;
             case 'o':
-                dump_ori = true;
+                options.dump_ori = true;
                 break;
             case 's':
-                num = std::atoi(optarg);
+                options.num = std::atoi(optarg);
                 break;
         }
     }
+    options.optind = optind;
 
-    if (!num) LOGI(ANSI_COLOR_LIGHTRED "NUM LINKMAP       REGION                   FLAGS  L_ADDR         NAME\n" ANSI_COLOR_RESET);
+    return Command::ONCHLD;
+}
+
+int LinkMapCommand::main(int argc, char* const argv[]) {
+    if (!options.num)
+        LOGI(ANSI_COLOR_LIGHTRED "NUM LINKMAP       REGION                   FLAGS  L_ADDR         NAME\n" ANSI_COLOR_RESET);
+
     int pos = 0;
     auto callback = [&](LinkMap* map) -> bool {
         pos++;
-        if (!num && !dump_all) {
+        if (!options.num && !options.dump_all) {
             ShowLinkMap(pos, map);
         } else {
-            if (num == pos || dump_all) {
+            if (options.num == pos || options.dump_all) {
                 LOGI(ANSI_COLOR_LIGHTRED "VADDR             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
-                if (dump_all)
+                if (options.dump_all)
                     LOGI("LIB: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, map->name());
                 ShowLinkMapSymbols(map);
-                return true && !dump_all;
+                return true && !options.dump_all;
             }
         }
         return false;
@@ -79,7 +87,7 @@ void LinkMapCommand::ShowLinkMap(int pos, LinkMap* map) {
     LoadBlock* block = map->block();
     if (block) {
         std::string name;
-        if (!dump_ori && block->isMmapBlock()) {
+        if (!options.dump_ori && block->isMmapBlock()) {
             name = block->name();
         } else {
             name = map->name();

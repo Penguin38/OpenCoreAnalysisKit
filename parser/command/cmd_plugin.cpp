@@ -30,6 +30,7 @@ int PluginCommand::main(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"unload",  no_argument,       0, 'u'},
         {"reload",  no_argument,       0, 'r'},
+        {0,         0,                 0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "ur",

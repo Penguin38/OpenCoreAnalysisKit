@@ -24,9 +24,7 @@ public:
     CxxCommand() : Command("cxx") {}
     ~CxxCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
 
     static int DumpCxxString(int argc, char* const argv[]);

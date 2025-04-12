@@ -22,12 +22,12 @@
 #include <unistd.h>
 #include <getopt.h>
 
-int HprofCommand::main(int argc, char* const argv[]) {
+int HprofCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
-        return 0;
+        return Command::FINISH;
 
-    bool visible = false;
-    bool quick = false;
+    options.visible = false;
+    options.quick = false;
 
     int opt;
     int option_index = 0;
@@ -42,23 +42,28 @@ int HprofCommand::main(int argc, char* const argv[]) {
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'v':
-                visible = true;
+                options.visible = true;
                 break;
             case 'q':
-                quick = true;
+                options.quick = true;
                 break;
         }
     }
+    options.optind = optind;
 
+    Android::Prepare();
+    return Command::ONCHLD;
+}
+
+int HprofCommand::main(int argc, char* const argv[]) {
     std::string filename;
-    if (!(optind < argc)) {
+    if (!(options.optind < argc)) {
         filename = CoreApi::GetName();
         filename.append(".hprof");
     } else {
-        filename = argv[optind];
+        filename = argv[options.optind];
     }
-
-    art::hprof::DumpHeap(filename.c_str(), visible, quick);
+    art::hprof::DumpHeap(filename.c_str(), options.visible, options.quick);
     return 0;
 }
 

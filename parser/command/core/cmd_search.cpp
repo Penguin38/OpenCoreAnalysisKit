@@ -24,13 +24,13 @@
 #include <iostream>
 #include <sstream>
 
-int CoreSearchCommand::main(int argc, char* const argv[]) {
+int CoreSearchCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !(argc > 1))
-        return 0;
+        return Command::FINISH;
 
-    int flags = 0x0;
-    bool in_stack = false;
+    options.flags = 0x0;
+    options.in_stack = false;
 
     int opt;
     int option_index = 0;
@@ -40,41 +40,47 @@ int CoreSearchCommand::main(int argc, char* const argv[]) {
         {"read",   no_argument,       0,  'r'},
         {"write",  no_argument,       0,  'w'},
         {"exec",   no_argument,       0,  'x'},
+        {0,        0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "srwx",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 's':
-                in_stack = true;
+                options.in_stack = true;
                 break;
             case 'r':
-                flags |= Block::FLAG_R;
+                options.flags |= Block::FLAG_R;
                 break;
             case 'w':
-                flags |= Block::FLAG_W;
+                options.flags |= Block::FLAG_W;
                 break;
             case 'x':
-                flags |= Block::FLAG_X;
+                options.flags |= Block::FLAG_X;
                 break;
         }
     }
+    options.optind = optind;
 
-    if (optind >= argc) {
+    if (!options.flags) {
+        options.flags |= Block::FLAG_R;
+        options.flags |= Block::FLAG_W;
+        options.flags |= Block::FLAG_X;
+    }
+
+    if (options.optind >= argc) {
         usage();
-        return 0;
+        return Command::FINISH;
     }
 
-    if (!flags) {
-        flags |= Block::FLAG_R;
-        flags |= Block::FLAG_W;
-        flags |= Block::FLAG_X;
-    }
+    return Command::ONCHLD;
+}
 
-    if (in_stack)
-        CoreSearchCommand::WalkStack(argv[optind]);
+int CoreSearchCommand::main(int argc, char* const argv[]) {
+    if (options.in_stack)
+        CoreSearchCommand::WalkStack(argv[options.optind]);
     else
-        CoreSearchCommand::WalkLoadBlock(argv[optind], flags);
+        CoreSearchCommand::WalkLoadBlock(argv[options.optind], options.flags);
     return 0;
 }
 

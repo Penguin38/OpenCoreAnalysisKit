@@ -38,6 +38,7 @@ int FakeLinkMap::OptionMap(int argc, char* const argv[]) {
         {"auto",       no_argument,       0, 2},
         {"append",     no_argument,       0, 3},
         {"sysroot", required_argument,    0, 4},
+        {0,            0,                 0, 0},
     };
 
     int option = 0;

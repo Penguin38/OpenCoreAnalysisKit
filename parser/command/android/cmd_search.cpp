@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "android.h"
 #include "command/command_manager.h"
 #include "command/android/cmd_print.h"
 #include "command/android/cmd_search.h"
@@ -28,113 +29,123 @@
 #include <sstream>
 #include <regex>
 
-int SearchCommand::main(int argc, char* const argv[]) {
+int SearchCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady()
             || !Android::IsSdkReady()
             || !(argc > 1))
-        return 0;
+        return Command::FINISH;
+
+    options.type_flag = 0;
+    options.obj_each_flags = 0;
+    options.ref_each_flags = 0;
+    options.regex = false;
+    options.show = false;
+    options.format_hex = false;
+    options.total_objects = 0;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"object",   no_argument,       0,  'o'},
-        {"class",    no_argument,       0,  'c'},
-        {"regex",    no_argument,       0,  'r'},
-        {"print",     no_argument,      0,  'p'},
-        {"show",      no_argument,      0,  's'},
-        {"instanceof",  no_argument,    0,  'i'},
-        {"app",        no_argument,     0,   0 },
-        {"zygote",     no_argument,     0,   1 },
-        {"image",      no_argument,     0,   2 },
-        {"fake",       no_argument,     0,   3 },
+        {"object",     no_argument,     0,  'o'},
+        {"class",      no_argument,     0,  'c'},
+        {"regex",      no_argument,     0,  'r'},
+        {"print",      no_argument,     0,  'p'},
+        {"show",       no_argument,     0,  's'},
+        {"instanceof", no_argument,     0,  'i'},
+        {"app",        no_argument,     0,   1 },
+        {"zygote",     no_argument,     0,   2 },
+        {"image",      no_argument,     0,   3 },
+        {"fake",       no_argument,     0,   4 },
         {"hex",        no_argument,     0,  'x'},
-        {"local",      no_argument,     0,   4 },
-        {"global",     no_argument,     0,   5 },
-        {"weak",       no_argument,     0,   6 },
+        {"local",      no_argument,     0,   5 },
+        {"global",     no_argument,     0,   6 },
+        {"weak",       no_argument,     0,   7 },
         {"thread", required_argument,   0,  't'},
-
+        {0,            0,               0,   0 },
     };
 
-    type_flag = 0;
-    obj_each_flags = 0;
-    ref_each_flags = 0;
-    regex = false;
-    show = false;
-    format_hex = false;
     while ((opt = getopt_long(argc, argv, "ocrpixs",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
-                type_flag |= SEARCH_OBJECT;
+                options.type_flag |= SEARCH_OBJECT;
                 break;
             case 'c':
-                type_flag |= SEARCH_CLASS;
+                options.type_flag |= SEARCH_CLASS;
                 break;
             case 'r':
-                regex = true;
-                instof = false;
+                options.regex = true;
+                options.instof = false;
                 break;
             case 's':
-                show = true;
+                options.show = true;
                 break;
             case 'p':
-                show = true;
+                options.show = true;
                 break;
             case 'i':
-                regex = false;
-                instof = true;
+                options.regex = false;
+                options.instof = true;
                 break;
             case 'x':
-                format_hex = true;
-                break;
-            case 0:
-                obj_each_flags |= Android::EACH_APP_OBJECTS;
+                options.format_hex = true;
                 break;
             case 1:
-                obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+                options.obj_each_flags |= Android::EACH_APP_OBJECTS;
                 break;
             case 2:
-                obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+                options.obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
                 break;
             case 3:
-                obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+                options.obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
                 break;
             case 4:
-                ref_each_flags |= Android::EACH_LOCAL_REFERENCES;
+                options.obj_each_flags |= Android::EACH_FAKE_OBJECTS;
                 break;
             case 5:
-                ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                options.ref_each_flags |= Android::EACH_LOCAL_REFERENCES;
                 break;
             case 6:
-                ref_each_flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
+                options.ref_each_flags |= Android::EACH_GLOBAL_REFERENCES;
+                break;
+            case 7:
+                options.ref_each_flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
                 break;
             case 't':
                 int tid = std::atoi(optarg);
-                ref_each_flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
+                options.ref_each_flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
                 break;
         }
     }
+    options.optind = optind;
 
-    total_objects = 0;
-    const char* classname = argv[optind];
-    if (!type_flag) type_flag = SEARCH_OBJECT | SEARCH_CLASS;
+    if (!options.type_flag)
+        options.type_flag = SEARCH_OBJECT | SEARCH_CLASS;
 
-    if (!obj_each_flags) {
-        obj_each_flags |= Android::EACH_APP_OBJECTS;
-        obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
-        obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
-        obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+    if (!options.obj_each_flags) {
+        options.obj_each_flags |= Android::EACH_APP_OBJECTS;
+        options.obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
+        options.obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
+        options.obj_each_flags |= Android::EACH_FAKE_OBJECTS;
     }
+
+    Android::Prepare();
+    return Command::ONCHLD;
+}
+
+int SearchCommand::main(int argc, char* const argv[]) {
+    const char* classname = argv[options.optind];
+
     auto callback = [&](art::mirror::Object& object) -> bool {
         return SearchObjects(classname, object);
     };
 
     try {
-        if (!ref_each_flags) {
-            Android::ForeachObjects(callback, obj_each_flags, false);
+        if (!options.ref_each_flags) {
+            Android::ForeachObjects(callback, options.obj_each_flags, false);
         } else {
-            Android::ForeachReferences(callback, ref_each_flags);
+            Android::ForeachReferences(callback, options.ref_each_flags);
         }
     } catch(InvalidAddressException& e) {
         LOGW("The statistical process was interrupted!\n");
@@ -144,7 +155,7 @@ int SearchCommand::main(int argc, char* const argv[]) {
 
 bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& object) {
     int mask = object.IsClass() ? SEARCH_CLASS : SEARCH_OBJECT;
-    if (!(type_flag & mask))
+    if (!(options.type_flag & mask))
         return false;
 
     std::string descriptor;
@@ -157,13 +168,13 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
     descriptor = thiz.PrettyDescriptor();
 
     java::lang::Object java = object;
-    if (regex && std::regex_search(descriptor, std::regex(classsname))
+    if (options.regex && std::regex_search(descriptor, std::regex(classsname))
             || descriptor == classsname
-            || (instof && java.instanceof(classsname))) {
-        total_objects++;
+            || (options.instof && java.instanceof(classsname))) {
+        options.total_objects++;
         LOGI("[%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
-                total_objects, object.Ptr(), descriptor.c_str());
-        if (show) PrintCommand::OnlyDumpObject(object, format_hex);
+                options.total_objects, object.Ptr(), descriptor.c_str());
+        if (options.show) PrintCommand::OnlyDumpObject(object, options.format_hex);
     }
 
     return false;

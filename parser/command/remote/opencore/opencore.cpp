@@ -45,6 +45,7 @@ int Opencore::Dump(int argc, char* const argv[]) {
         {"dir",     required_argument, 0, 'd'},
         {"output",  required_argument, 0, 'o'},
         {"machine", required_argument, 0, 'm'},
+        {0,         0,                 0,  0 },
     };
 
     int pid = 0;

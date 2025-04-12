@@ -19,7 +19,6 @@
 
 #include "command/command.h"
 #include "runtime/mirror/object.h"
-#include "android.h"
 
 class SearchCommand : public Command {
 public:
@@ -28,22 +27,24 @@ public:
 
     SearchCommand() : Command("search") {}
     ~SearchCommand() {}
+
+    struct Options : Command::Options {
+        uint64_t total_objects;
+        int type_flag;
+        int obj_each_flags;
+        int ref_each_flags;
+        bool regex;
+        bool instof;
+        bool show;
+        bool format_hex;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
     bool SearchObjects(const char* classsname, art::mirror::Object& object);
 private:
-    uint64_t total_objects;
-    int type_flag;
-    int obj_each_flags;
-    int ref_each_flags;
-    bool regex;
-    bool instof;
-    bool show;
-    bool format_hex;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_SEARCH_H_

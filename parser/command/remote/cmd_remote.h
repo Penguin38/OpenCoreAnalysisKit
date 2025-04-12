@@ -25,7 +25,7 @@ public:
     RemoteCommand() : Command("remote") {}
     ~RemoteCommand() {}
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) { return true; }
+    int prepare(int argc, char* const argv[]);
     void usage();
     static int OptionRead(int argc, char* const argv[]);
     static int OptionWrite(int argc, char* const argv[]);

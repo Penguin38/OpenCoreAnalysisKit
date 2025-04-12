@@ -27,57 +27,65 @@
 #include <unistd.h>
 #include <getopt.h>
 
-int ReferenceCommand::main(int argc, char* const argv[]) {
+int ReferenceCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
-        return 0;
+        return Command::FINISH;
 
-    bool dump_refs = true;
-    int flags = 0;
-    bool format_hex = false;
-    art::mirror::Object reference = 0x0;
-    int tid = 0;
+    options.flags = 0;
+    options.tid = 0;
+    options.format_hex = false;
+    options.dump_refs = true;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"local",        no_argument,       0,  0 },
-        {"global",       no_argument,       0,  1 },
-        {"weak",         no_argument,       0,  2 },
+        {"local",        no_argument,       0,  1 },
+        {"global",       no_argument,       0,  2 },
+        {"weak",         no_argument,       0,  3 },
         {"hex",          no_argument,       0, 'x'},
         {"thread", required_argument,       0, 't'},
+        {0,              0,                 0,  0 },
     };
 
     while ((opt = getopt_long(argc, argv, "xt:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 0:
-                dump_refs = true;
-                flags |= Android::EACH_LOCAL_REFERENCES;
-                break;
             case 1:
-                dump_refs = true;
-                flags |= Android::EACH_GLOBAL_REFERENCES;
+                options.dump_refs = true;
+                options.flags |= Android::EACH_LOCAL_REFERENCES;
                 break;
             case 2:
-                dump_refs = true;
-                flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
+                options.dump_refs = true;
+                options.flags |= Android::EACH_GLOBAL_REFERENCES;
+                break;
+            case 3:
+                options.dump_refs = true;
+                options.flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
                 break;
             case 'x':
-                format_hex = true;
+                options.format_hex = true;
                 break;
             case 't':
-                tid = std::atoi(optarg);
-                flags |= (tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
+                options.tid = std::atoi(optarg);
+                options.flags |= (options.tid << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT);
                 break;
         }
     }
+    options.optind = optind;
 
-    if (!(flags & ((1 << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT) - 1))) {
-        flags |= Android::EACH_LOCAL_REFERENCES;
-        flags |= Android::EACH_GLOBAL_REFERENCES;
-        flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
+    if (!(options.flags & ((1 << Android::EACH_LOCAL_REFERENCES_BY_TID_SHIFT) - 1))) {
+        options.flags |= Android::EACH_LOCAL_REFERENCES;
+        options.flags |= Android::EACH_GLOBAL_REFERENCES;
+        options.flags |= Android::EACH_WEAK_GLOBAL_REFERENCES;
     }
+
+    Android::Prepare();
+    return Command::ONCHLD;
+}
+
+int ReferenceCommand::main(int argc, char* const argv[]) {
+    art::mirror::Object reference = 0x0;
 
     auto callback = [&](art::mirror::Object& object, int type, uint64_t iref) -> bool {
         std::string descriptor;
@@ -98,17 +106,17 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         return false;
     };
 
-    if (optind < argc) {
+    if (options.optind < argc) {
         art::Runtime& runtime = art::Runtime::Current();
         art::JavaVMExt& jvm = runtime.GetJavaVM();
-        uint64_t uref = Utils::atol(argv[optind]);
+        uint64_t uref = Utils::atol(argv[options.optind]);
         reference = jvm.Decode(uref);
         art::IndirectRefKind kind = art::IndirectReferenceTable::DecodeIndirectRefKind(uref);
         if (kind && kind != art::IndirectRefKind::kLocal) {
             reference = jvm.Decode(uref);
             LOGI("[%s][0x%04" PRIx64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
                     art::IndirectReferenceTable::GetDescriptor(kind).c_str(), uref, reference.Ptr());
-            PrintCommand::OnlyDumpObject(reference, format_hex);
+            PrintCommand::OnlyDumpObject(reference, options.format_hex);
         } else if (kind == art::IndirectRefKind::kLocal) {
             art::ThreadList& thread_list = runtime.GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
@@ -117,18 +125,18 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
                 if (!reference.Ptr())
                     continue;
 
-                if (tid && tid != thread->GetTid())
+                if (options.tid && options.tid != thread->GetTid())
                     continue;
 
                 LOGI("[%d]\n", thread->GetTid());
                 LOGI("[%s][0x%04" PRIx64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
                         art::IndirectReferenceTable::GetDescriptor(kind).c_str(), uref, reference.Ptr());
-                PrintCommand::OnlyDumpObject(reference, format_hex);
+                PrintCommand::OnlyDumpObject(reference, options.format_hex);
             }
         }
     } else {
         try {
-            Android::ForeachReferences(callback, flags);
+            Android::ForeachReferences(callback, options.flags);
         } catch(InvalidAddressException& e) {
             LOGW("The statistical process was interrupted!\n");
         }

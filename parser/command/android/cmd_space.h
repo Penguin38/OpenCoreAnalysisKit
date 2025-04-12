@@ -18,21 +18,22 @@
 #define PARSER_COMMAND_ANDROID_CMD_SPACE_H_
 
 #include "command/command.h"
-#include "android.h"
 
 class SpaceCommand : public Command {
 public:
     SpaceCommand() : Command("space") {}
     ~SpaceCommand() {}
+
+    struct Options : Command::Options {
+        int flag;
+        bool check;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-        Android::Prepare();
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
 private:
-    int flag;
-    bool check;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_ANDROID_CMD_SPACE_H_

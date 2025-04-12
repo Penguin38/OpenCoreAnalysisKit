@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "android.h"
 #include "command/android/cmd_space.h"
 #include "api/core.h"
 #include "runtime/runtime.h"
@@ -24,58 +25,65 @@
 #include <unistd.h>
 #include <getopt.h>
 
-int SpaceCommand::main(int argc, char* const argv[]) {
+int SpaceCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !Android::IsSdkReady())
-        return 0;
+        return Command::FINISH;
 
-    check = false;
-    flag = 0;
+    options.check = false;
+    options.flag = 0;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
         {"check",    no_argument,       0,  'c'},
-        {"app",      no_argument,       0,   0 },
-        {"zygote",   no_argument,       0,   1 },
-        {"image",    no_argument,       0,   2 },
-        {"fake",     no_argument,       0,   3 },
+        {"app",      no_argument,       0,   1 },
+        {"zygote",   no_argument,       0,   2 },
+        {"image",    no_argument,       0,   3 },
+        {"fake",     no_argument,       0,   4 },
+        {0,          0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "c",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
-                check = true;
-                break;
-            case 0:
-                flag |= Android::EACH_APP_OBJECTS;
+                options.check = true;
                 break;
             case 1:
-                flag |= Android::EACH_ZYGOTE_OBJECTS;
+                options.flag |= Android::EACH_APP_OBJECTS;
                 break;
             case 2:
-                flag |= Android::EACH_IMAGE_OBJECTS;
+                options.flag |= Android::EACH_ZYGOTE_OBJECTS;
                 break;
             case 3:
-                flag |= Android::EACH_FAKE_OBJECTS;
+                options.flag |= Android::EACH_IMAGE_OBJECTS;
+                break;
+            case 4:
+                options.flag |= Android::EACH_FAKE_OBJECTS;
                 break;
         }
     }
+    options.optind = optind;
 
-    if (!flag) {
-        flag |= Android::EACH_APP_OBJECTS;
-        flag |= Android::EACH_ZYGOTE_OBJECTS;
-        flag |= Android::EACH_IMAGE_OBJECTS;
-        flag |= Android::EACH_FAKE_OBJECTS;
+    if (!options.flag) {
+        options.flag |= Android::EACH_APP_OBJECTS;
+        options.flag |= Android::EACH_ZYGOTE_OBJECTS;
+        options.flag |= Android::EACH_IMAGE_OBJECTS;
+        options.flag |= Android::EACH_FAKE_OBJECTS;
     }
 
-    if (check) {
+    Android::Prepare();
+    return Command::ONCHLD;
+}
+
+int SpaceCommand::main(int argc, char* const argv[]) {
+    if (options.check) {
         auto callback = [&](art::mirror::Object& object) -> bool {
             // do nothing
             return false;
         };
-        Android::ForeachObjects(callback, flag, true);
+        Android::ForeachObjects(callback, options.flag, true);
     } else {
         art::Runtime& runtime = art::Runtime::Current();
         art::gc::Heap& heap = runtime.GetHeap();

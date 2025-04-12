@@ -23,7 +23,8 @@
 #include <string.h>
 
 int Command::execute(int argc, char* const argv[]) {
-    if (prepare(argc, argv)) {
+    int state = prepare(argc, argv);
+    if (state == ONCHLD) {
         pid_t pid = fork();
         int status;
         if (pid == 0) {
@@ -45,6 +46,8 @@ int Command::execute(int argc, char* const argv[]) {
             }
         }
         return 0;
+    } else if (state == CONTINUE) {
+        return main(argc, argv);
     }
-    return main(argc, argv);
+    return FINISH;
 }

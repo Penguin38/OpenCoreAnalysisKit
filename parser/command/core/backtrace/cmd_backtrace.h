@@ -23,23 +23,22 @@
 #include <memory>
 #include <vector>
 
-#if defined(__AOSP_PARSER__)
-#include "android.h"
-#include "runtime/thread.h"
-#endif
-
 class BacktraceCommand : public Command {
 public:
     BacktraceCommand() : Command("backtrace", "bt") {}
     ~BacktraceCommand() {}
+
+    class ThreadRecord;
+
+    struct Options : Command::Options {
+        bool dump_all;
+        bool dump_detail;
+        std::vector<uint64_t> dump_fps;
+        std::vector<std::unique_ptr<ThreadRecord>> threads;
+    };
+
     int main(int argc, char* const argv[]);
-    bool prepare(int argc, char* const argv[]) {
-#if defined(__AOSP_PARSER__)
-        Android::Prepare();
-        Android::OatPrepare();
-#endif
-        return true;
-    }
+    int prepare(int argc, char* const argv[]);
     void usage();
     void addThread(int pid);
     void addThread(int pid, int type);
@@ -87,10 +86,7 @@ public:
     static std::string FormatJNINativeFrame(const char* prefix, uint64_t size);
     static std::string FormatNativeFrame(const char* prefix, uint64_t size);
 private:
-    bool dump_all = false;
-    bool dump_detail = false;
-    std::vector<uint64_t> dump_fps;
-    std::vector<std::unique_ptr<ThreadRecord>> threads;
+    Options options;
 };
 
 #endif // PARSER_COMMAND_CORE_BACKTRACE_CMD_BACKTRACE_H_

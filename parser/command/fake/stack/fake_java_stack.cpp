@@ -32,9 +32,10 @@ int FakeJavaStack::OptionJavaStack(int argc, char* const argv[]) {
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"pc",    required_argument, 0,  0 },
-        {"sp",    required_argument, 0,  1 },
+        {"pc",    required_argument, 0,  1 },
+        {"sp",    required_argument, 0,  2 },
         {"clean", no_argument,       0, 'c'},
+        {0,       0,                 0,  0 },
     };
 
     uint64_t pc = 0x0;
@@ -43,10 +44,10 @@ int FakeJavaStack::OptionJavaStack(int argc, char* const argv[]) {
     while ((opt = getopt_long(argc, argv, "0:1:c",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 0:
+            case 1:
                 pc = Utils::atol(optarg) & CoreApi::GetVabitsMask();
                 break;
-            case 1:
+            case 2:
                 sp = Utils::atol(optarg) & CoreApi::GetVabitsMask();
                 break;
             case 'c':

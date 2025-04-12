@@ -26,19 +26,20 @@
 #include "runtime/thread_list.h"
 #include "runtime/stack.h"
 #include "runtime/monitor.h"
+#include "runtime/thread.h"
 #include "android.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <memory>
 
-int BacktraceCommand::main(int argc, char* const argv[]) {
+int BacktraceCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
-        return 0;
+        return Command::FINISH;
 
-    int pid = Env::CurrentPid();
-    dump_all = false;
-    dump_detail = false;
-    dump_fps.clear();
+    options.dump_all = false;
+    options.dump_detail = false;
+    options.dump_fps.clear();
+    options.threads.clear();
 
     int opt;
     int option_index = 0;
@@ -47,32 +48,43 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
         {"all",    no_argument,       0,  'a'},
         {"detail", no_argument,       0,  'd'},
         {"fp",     required_argument, 0,  'f'},
+        {0,        0,                 0,   0 },
     };
 
     while ((opt = getopt_long(argc, (char* const*)argv, "adf:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'a':
-                dump_all = true;
+                options.dump_all = true;
                 break;
             case 'd':
-                dump_detail = true;
+                options.dump_detail = true;
                 break;
             case 'f': {
                 std::unique_ptr<char> newpath(strdup(optarg));
                 char *token = strtok(newpath.get(), ":");
                 while (token != nullptr) {
-                    dump_fps.push_back(Utils::atol(token));
+                    options.dump_fps.push_back(Utils::atol(token));
                     token = strtok(nullptr, ":");
                 }
             } break;
         }
     }
+    options.optind = optind;
 
-    if (dump_all) {
+#if defined(__AOSP_PARSER__)
+    Android::Prepare();
+    Android::OatPrepare();
+#endif
+    return Command::ONCHLD;
+}
+
+int BacktraceCommand::main(int argc, char* const argv[]) {
+    int pid = Env::CurrentPid();
+    if (options.dump_all) {
         auto callback = [&](ThreadApi *api) -> bool {
             std::unique_ptr<BacktraceCommand::ThreadRecord> thread = std::make_unique<BacktraceCommand::ThreadRecord>(api);
-            threads.push_back(std::move(thread));
+            options.threads.push_back(std::move(thread));
             return false;
         };
         CoreApi::ForeachThread(callback);
@@ -86,8 +98,8 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
         }
 #endif
     } else {
-        if (optind < argc) {
-            for (int i = optind; i < argc; ++i) {
+        if (options.optind < argc) {
+            for (int i = options.optind; i < argc; ++i) {
                 addThread(std::atoi(argv[i]));
             }
         } else {
@@ -109,7 +121,6 @@ int BacktraceCommand::main(int argc, char* const argv[]) {
     }
 
     DumpTrace();
-    threads.clear();
     return 0;
 }
 
@@ -128,11 +139,11 @@ void BacktraceCommand::addThread(int pid, int type, void* at) {
         if (api) {
             std::unique_ptr<BacktraceCommand::ThreadRecord> thread = std::make_unique<BacktraceCommand::ThreadRecord>(api, type);
             thread->thread = at;
-            threads.push_back(std::move(thread));
+            options.threads.push_back(std::move(thread));
         } else {
             std::unique_ptr<BacktraceCommand::ThreadRecord> thread = std::make_unique<BacktraceCommand::ThreadRecord>(pid, type);
             thread->thread = at;
-            threads.push_back(std::move(thread));
+            options.threads.push_back(std::move(thread));
         }
     } else {
         record->type = type;
@@ -141,7 +152,7 @@ void BacktraceCommand::addThread(int pid, int type, void* at) {
 }
 
 BacktraceCommand::ThreadRecord* BacktraceCommand::findRecord(int pid) {
-    for (const auto& record : threads) {
+    for (const auto& record : options.threads) {
         if (pid == record->pid)
             return record.get();
     }
@@ -150,7 +161,7 @@ BacktraceCommand::ThreadRecord* BacktraceCommand::findRecord(int pid) {
 
 void BacktraceCommand::DumpTrace() {
     bool needEnd = false;
-    for (const auto& record : threads) {
+    for (const auto& record : options.threads) {
         if (needEnd) ENTER();
 #if defined(__AOSP_PARSER__)
         if (record->thread) {
@@ -304,13 +315,13 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
     uint32_t subjni = 0;
     for (const auto& java_frame : visitor.GetJavaFrames()) {
         art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
-        if (dump_detail && (prev_quick_frame.Ptr() && prev_quick_frame.GetMethod().IsRuntimeMethod()
+        if (options.dump_detail && (prev_quick_frame.Ptr() && prev_quick_frame.GetMethod().IsRuntimeMethod()
                 || java_frame->GetMethod().IsNative())) {
             if (frameid) {
                 LOGI(ANSI_COLOR_LIGHTRED "    <<JNI INTERFACE CALL JAVA METHOD>>\n" ANSI_COLOR_RESET);
-                if (CoreApi::GetMachine() == EM_AARCH64 && dump_fps.size() > subjni) {
+                if (CoreApi::GetMachine() == EM_AARCH64 && options.dump_fps.size() > subjni) {
                     std::unique_ptr<arm64::UnwindStack> unwind_stack = std::make_unique<arm64::UnwindStack>(api);
-                    unwind_stack->OnlyFpBackStack(dump_fps[subjni]);
+                    unwind_stack->OnlyFpBackStack(options.dump_fps[subjni]);
                     std::string sub_format = FormatJNINativeFrame("      ", unwind_stack->GetNativeFrames().size());
                     uint32_t sub_frameid = 0;
                     for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
@@ -341,7 +352,7 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
         }
 
         LOGI(format.c_str(), frameid, java_frame->GetDexPcPtr(),
-             dump_detail ? java_frame->GetMethod().ColorPrettyMethodOnlyNP().c_str()
+             options.dump_detail ? java_frame->GetMethod().ColorPrettyMethodOnlyNP().c_str()
                          : java_frame->GetMethod().ColorPrettyMethodSimple().c_str());
         if (!frameid) {
             try {

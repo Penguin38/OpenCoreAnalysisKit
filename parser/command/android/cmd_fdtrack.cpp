@@ -27,30 +27,36 @@
 #include <getopt.h>
 #include <unordered_map>
 
-int FdtrackCommand::main(int argc, char* const argv[]) {
+int FdtrackCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady())
-        return 0;
+        return Command::FINISH;
 
-    dump_top = false;
-    top = 5;
+    options.dump_top = false;
+    options.top = 5;
 
     int opt;
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
         {"top",    required_argument,  0,  't'},
+        {0,        0,                  0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "t:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 't':
-                dump_top = true;
-                top = std::atoi(optarg);
+                options.dump_top = true;
+                options.top = std::atoi(optarg);
                 break;
         }
     }
+    options.optind = optind;
 
+    return Command::ONCHLD;
+}
+
+int FdtrackCommand::main(int argc, char* const argv[]) {
     api::MemoryRef stack_traces = android::FdTrack::GetStackTraces();
     if (!stack_traces.Ptr()) {
         LOGE("Can not found \"_ZL12stack_traces\", Please sysroot libfdtrack.so!!\n");
@@ -79,8 +85,8 @@ int FdtrackCommand::main(int argc, char* const argv[]) {
         fdv[fd] = nfv;
     }
 
-    if (optind < argc) {
-        int fd = std::atoi(argv[optind]);
+    if (options.optind < argc) {
+        int fd = std::atoi(argv[options.optind]);
         if (fd < 0 || fd >= android::FdTrack::kFdTableSize) {
             LOGE("unknown fd\n");
             return 0;
@@ -89,7 +95,7 @@ int FdtrackCommand::main(int argc, char* const argv[]) {
         std::vector<NativeFrame>& nfv = fdv[fd];
         FdtrackCommand::ShowStack(nfv);
     } else {
-        if (!dump_top) {
+        if (!options.dump_top) {
             for (int fd = 0; fd < android::FdTrack::kFdTableSize; ++fd) {
                 if (!fdv[fd].size())
                     continue;
@@ -99,7 +105,7 @@ int FdtrackCommand::main(int argc, char* const argv[]) {
                 FdtrackCommand::ShowStack(nfv);
             }
         } else {
-            FdtrackCommand::ShowTopStack(fdv, top);
+            FdtrackCommand::ShowTopStack(fdv, options.top);
         }
     }
     return 0;

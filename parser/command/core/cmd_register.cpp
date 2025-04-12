@@ -35,6 +35,7 @@ int RegisterCommand::main(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"set",    required_argument,  0,  's'},
         {"get",    required_argument,  0,  'g'},
+        {0,        0,                  0,   0 },
     };
 
     while ((opt = getopt_long(argc, argv, "s:g:",
