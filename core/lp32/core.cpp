@@ -310,6 +310,9 @@ static void ReadSymbol32(std::unique_ptr<MemoryMap>& map,
         if (addr < map->data() || addr >= (map->data() + map->size()))
             continue;
 
+        if (shdr[i].sh_type == SHT_NOBITS)
+            continue;
+
         if (!strcmp(shstr + shdr[i].sh_name, ".dynsym")) {
             dynsymndx = i;
             continue;
@@ -365,6 +368,9 @@ void lp32::Core::readsym32(::LinkMap* handle) {
             if (addr < map->data() || addr >= (map->data() + map->size()))
                 continue;
 
+            if (shdr[i].sh_type == SHT_NOBITS)
+                continue;
+
             if (!strcmp(shstr + shdr[i].sh_name, ".gnu_debugdata")) {
                 gnu_debugdatandx = i;
                 break;
@@ -386,7 +392,14 @@ void lp32::Core::readsym32(::LinkMap* handle) {
                 return;
 
             std::unique_ptr<MemoryMap> debug_map(codec->Decode2Map());
-            ReadSymbol32(debug_map, symbols);
+            if (debug_map) {
+                ElfHeader* header = reinterpret_cast<ElfHeader*>(debug_map->data());
+                std::string anon_name = "anon:gnu_debugdata_";
+                anon_name.append(map->getName());
+                if (!header->CheckLibrary(anon_name.c_str()))
+                    return;
+                ReadSymbol32(debug_map, symbols);
+            }
         }
     }
 }
