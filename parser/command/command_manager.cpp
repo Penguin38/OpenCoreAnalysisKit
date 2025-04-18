@@ -57,7 +57,7 @@
 #include "base/utils.h"
 #include <string.h>
 
-#define __PREVIEW_DEV__
+// #define __PREVIEW_DEV__
 
 std::unique_ptr<CommandManager> CommandManager::INSTANCE;
 
