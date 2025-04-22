@@ -396,7 +396,7 @@ std::string Opencore::DecodeMachine(int pid) {
                 || !strcmp(buf.machine, V8L_MACHINE)
                 || !strcmp(buf.machine, ARMV7L_MACHINE)
                 || !strcmp(buf.machine, ARMV8L_MACHINE)) {
-            if (IsBit64(pid))
+            if (!IsBit64(pid))
                 return ARM_MACHINE;
             else
                 LOGW("Not support target process 64 bits\n");
