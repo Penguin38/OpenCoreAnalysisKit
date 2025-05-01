@@ -35,6 +35,8 @@ static Hook::MethodTable kArm64MethodTable[] = {
     { "mprotect", "PII",   3},
     { "malloc",   "I",     1},
     { "free",     "P",     1},
+    { "mmap",     "PIIIII",5},
+    { "munmap",   "PI",    2},
 };
 
 bool Hook::InjectLibrary(const char* library) {
