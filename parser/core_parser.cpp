@@ -175,6 +175,7 @@ int command_preload(int argc, char* const argv[]) {
                 break;
             case 4:
                 va_bits = std::atoi(optarg);
+                CoreApi::VA_BITS = va_bits;
                 break;
             case 5:
                 page_size = Utils::atol(optarg);

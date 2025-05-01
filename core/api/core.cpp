@@ -35,6 +35,7 @@
 
 std::unique_ptr<CoreApi> CoreApi::INSTANCE = nullptr;
 bool CoreApi::QUICK_LOAD_ENABLED = true;
+uint64_t CoreApi::VA_BITS = 0;
 
 void CoreApi::Init() {
     api::Elf::Init();

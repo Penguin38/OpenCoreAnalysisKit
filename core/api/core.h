@@ -250,6 +250,7 @@ public:
     }
     bool isRemote() { return mRemote; }
     static bool QUICK_LOAD_ENABLED;
+    static uint64_t VA_BITS;
 protected:
     uint64_t pointer_mask;
     uint64_t vabits_mask;

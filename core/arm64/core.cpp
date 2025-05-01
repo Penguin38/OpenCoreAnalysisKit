@@ -30,7 +30,7 @@ struct user_pac_mask {
 
 bool Core::load() {
     pointer_mask = ((1ULL << (bits() - 1)) - 1) | (1ULL << (bits() - 1));
-    vabits_mask = (1ULL << DEF_VA_BITS) - 1;
+    vabits_mask = (1ULL << (VA_BITS ? VA_BITS : DEF_VA_BITS)) - 1;
 
     auto callback = [this](uint64_t type, uint64_t pos) -> void * {
         switch(type) {
