@@ -89,6 +89,7 @@ void show_parser_usage() {
     LOGI("        --page_size <SIZE>   set target core page size\n");
     LOGI("        --no-load            no auto load corefile\n");
     LOGI("        --no-fake-phdr [EXE] rebuild fakecore phdr\n");
+    LOGI("    -d, --debug <LEVEL>      set logger debug level\n");
     LOGI("Exp:\n");
     LOGI("    core-parser -c /tmp/tmp.core\n");
 #if !defined(__MACOS__)
@@ -128,6 +129,7 @@ int command_preload(int argc, char* const argv[]) {
         {"no-filter-any", no_argument,     0,  2 },
         {"no-load",   no_argument,         0,  6 },
         {"no-fake-phdr",no_argument,       0,  7 },
+        {"debug",     required_argument,   0, 'd'},
         {"help",      no_argument,         0, 'h'},
         {0,           0,                   0,  0 },
     };
@@ -143,7 +145,9 @@ int command_preload(int argc, char* const argv[]) {
     bool remote = false;
     bool need_load = true;
     bool no_fake_phdr = false;
-    while ((opt = getopt_long(argc, argv, "c:1:p:m:t:h",
+    int lv = 0;
+
+    while ((opt = getopt_long(argc, argv, "c:1:p:m:t:d:h",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
@@ -180,6 +184,13 @@ int command_preload(int argc, char* const argv[]) {
                 break;
             case 7:
                 no_fake_phdr = true;
+                break;
+            case 'd':
+                lv = std::atoi(optarg);
+                if (lv >= Logger::LEVEL_NONE && lv <= Logger::LEVEL_DEBUG_2) {
+                    LOGI("Switch logger debug level: %d\n", lv);
+                    Logger::SetDebugLevel(lv);
+                }
                 break;
             case 'h':
                 show_parser_usage();
