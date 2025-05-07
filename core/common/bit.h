@@ -19,6 +19,8 @@
 
 #include <type_traits>
 
+#define GENMASK_UL(h, l) (((~0ULL) << (l)) & (~0ULL >> (64 - 1 - (h))))
+
 template<typename T>
 constexpr T RoundDown(T x, std::remove_reference_t<T> n) {
   return (x & -n);

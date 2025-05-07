@@ -43,8 +43,6 @@
 #define ELFLINUXMAGIC "LINUX"
 #define NOTE_LINUX_NAME_SZ 6
 
-#define GENMASK_UL(h, l) (((~0ULL) << (l)) & (~0ULL >> (64 - 1 - (h))))
-
 class Opencore {
 public:
     static constexpr int FLAG_CORE = 1 << 0;

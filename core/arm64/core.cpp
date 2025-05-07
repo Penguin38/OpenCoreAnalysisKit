@@ -17,6 +17,7 @@
 #include "arm64/core.h"
 #include "arm64/thread_info.h"
 #include "common/prstatus.h"
+#include "common/bit.h"
 #include "common/elf.h"
 #include <string.h>
 #include <linux/elf.h>
@@ -29,8 +30,8 @@ struct user_pac_mask {
 };
 
 bool Core::load() {
-    pointer_mask = ((1ULL << (bits() - 1)) - 1) | (1ULL << (bits() - 1));
-    vabits_mask = (1ULL << (VA_BITS ? VA_BITS : DEF_VA_BITS)) - 1;
+    pointer_mask = GENMASK_UL(bits() - 1, 0);
+    vabits_mask = GENMASK_UL((VA_BITS ? VA_BITS : DEF_VA_BITS) - 1, 0);
 
     auto callback = [this](uint64_t type, uint64_t pos) -> void * {
         switch(type) {
@@ -45,7 +46,7 @@ bool Core::load() {
                 data_mask = uregs->data_mask;
                 insn_mask = uregs->insn_mask;
                 // pointer_mask = (1ULL << (63 - __builtin_clzll(data_mask))) - 1;
-                vabits_mask = (1ULL << __builtin_ctzll(data_mask)) - 1;
+                vabits_mask = GENMASK_UL(__builtin_ctzll(data_mask) - 1, 0);
             } break;
             case NT_ARM_TAGGED_ADDR_CTRL: {
                 tagged_addr_ctrl = *reinterpret_cast<uint64_t *>(pos);

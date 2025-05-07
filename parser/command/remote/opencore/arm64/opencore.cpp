@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "common/bit.h"
 #include "command/remote/opencore/arm64/opencore.h"
 #include <sys/ptrace.h>
 #include <sys/uio.h>

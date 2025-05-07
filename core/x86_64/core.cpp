@@ -17,13 +17,14 @@
 #include "x86_64/core.h"
 #include "x86_64/thread_info.h"
 #include "common/prstatus.h"
+#include "common/bit.h"
 #include <string.h>
 #include <linux/elf.h>
 
 namespace x86_64 {
 
 bool Core::load() {
-    pointer_mask = ((1ULL << (bits() - 1)) - 1) | (1ULL << (bits() - 1));
+    pointer_mask = GENMASK_UL(bits() - 1, 0);
     vabits_mask = pointer_mask;
 
     auto callback = [](uint64_t type, uint64_t pos) -> void * {
