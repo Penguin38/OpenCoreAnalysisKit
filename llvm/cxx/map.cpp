@@ -54,7 +54,7 @@ void map::pair::Init() {
 
 map::iterator map::begin() {
     map::iterator it(this, 0);
-    if (!cache.size()) {
+    if (!cache.size() && size()) {
         map::pair __pair1_ = __pair1();
         it.traversal(__pair1_);
     }
