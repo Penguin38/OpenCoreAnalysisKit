@@ -442,6 +442,32 @@ Runtime& Runtime::Current() {
         } catch(InvalidAddressException& e) {
             runtime = AnalysisInstance();
         }
+
+#if defined(__ART_RUNTIME_MAIN_PROP_PARSER__)
+        if (Android::Sdk() >= Android::V && runtime.Ptr()) {
+            uint32_t offset = OFFSET(Runtime, heap_);
+            uint64_t point_size = CoreApi::GetPointSize();
+            int32_t counter = -1;
+            LoadBlock* block = nullptr;
+            do {
+                counter++;
+                offset += (counter * point_size);
+                // maybe filter finalizer_timeout_ms_
+                if (runtime.valueOf(offset) & 0xFFFFFFFFFFF00000ULL)
+                    block = CoreApi::FindLoadBlock(runtime.valueOf(offset) , false);
+            } while (!block && counter < 100);
+
+            if (counter && counter < 100 && block) {
+                uint32_t cloc_off = offset - OFFSET(Runtime, heap_);
+                __Runtime_offset__.heap_ += cloc_off;
+                __Runtime_offset__.monitor_pool_ += cloc_off;
+                __Runtime_offset__.thread_list_ += cloc_off;
+                __Runtime_offset__.class_linker_ += cloc_off;
+                __Runtime_offset__.java_vm_ += cloc_off;
+                __Runtime_offset__.jit_ += cloc_off;
+            }
+        }
+#endif // __ART_RUNTIME_MAIN_PROP_PARSER__
     }
     return runtime;
 }
