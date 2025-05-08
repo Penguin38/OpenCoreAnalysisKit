@@ -232,9 +232,14 @@ void Android::RegisterOatListener(int minioat, std::function<void ()> fn) {
 }
 
 void Android::OnSdkChanged(int sdk) {
-    if (sdk < M) {
+    if (sdk >= M) {
+        // do nothing
+    } else if (sdk >= 1) {
         LOGE("Invaild sdk(%d)\n", sdk);
         return;
+    } else {
+        sdk = 0;
+        LOGI("remove android-sdk env\n");
     }
     INSTANCE->onSdkChanged(sdk);
 }
