@@ -65,6 +65,8 @@
 #include "base/length_prefixed_array.h"
 #include "base/mem_map.h"
 #include "logcat/log.h"
+#include "native/android_BpBinder.h"
+#include "native/android_os_BinderProxy.h"
 #include <stdio.h>
 
 std::unique_ptr<Android> Android::INSTANCE = nullptr;
@@ -134,6 +136,8 @@ void Android::preLoad() {
     android::Logcat::Init();
     android::FdTrack::Init();
     android::UnwindStack::Init();
+    android::BpBinder::Init();
+    android::BinderProxyNativeData::Init();
 
     art::ArtField::Init();
     art::LengthPrefixedArray::Init();

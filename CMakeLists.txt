@@ -292,6 +292,8 @@ add_library(android STATIC
             # sdk
             android/sdk/android/app/ContextImpl.cpp
             android/sdk/android/util/ArrayMap.cpp
+            android/sdk/native/android_BpBinder.cpp
+            android/sdk/native/android_os_BinderProxy.cpp
 
             # services
             android/services/com/android/server/am/ActivityManagerService.cpp
