@@ -24,6 +24,11 @@ struct ShadowFrame_SizeTable __ShadowFrame_size__;
 namespace art {
 
 void ShadowFrame::Init() {
+    Android::RegisterSdkListener(Android::M, art::ShadowFrame::Init23);
+    Android::RegisterSdkListener(Android::W, art::ShadowFrame::Init36);
+}
+
+void ShadowFrame::Init23() {
     if (CoreApi::Bits() == 64) {
         __ShadowFrame_offset__ = {
             .link_ = 0,
@@ -65,8 +70,50 @@ void ShadowFrame::Init() {
     }
 }
 
+void ShadowFrame::Init36() {
+    if (CoreApi::Bits() == 64) {
+        __ShadowFrame_offset__ = {
+            .link_ = 0,
+            .method_ = 8,
+            .result_register_ = 0,
+            .dex_pc_ptr_ = 28,
+            .dex_instructions_ = 0,
+            .lock_count_data_ = 16,
+            .number_of_vregs_ = 24,
+            .dex_pc_ = 28,
+            .cached_hotness_countdown_ = 0,
+            .hotness_countdown_ = 0,
+            .frame_flags_ = 32,
+            .vregs_ = 36,
+        };
+
+        __ShadowFrame_size__ = {
+            .THIS = 40,
+        };
+    } else {
+        __ShadowFrame_offset__ = {
+            .link_ = 0,
+            .method_ = 4,
+            .result_register_ = 0,
+            .dex_pc_ptr_ = 16,
+            .dex_instructions_ = 0,
+            .lock_count_data_ = 8,
+            .number_of_vregs_ = 12,
+            .dex_pc_ = 16,
+            .cached_hotness_countdown_ = 0,
+            .hotness_countdown_ = 0,
+            .frame_flags_ = 20,
+            .vregs_ = 24,
+        };
+
+        __ShadowFrame_size__ = {
+            .THIS = 24,
+        };
+    }
+}
+
 uint64_t ShadowFrame::GetDexPcPtr() {
-    if (!dex_pc_ptr()) {
+    if (!dex_pc_ptr() || Android::Sdk() >= Android::W) {
         ArtMethod method = GetMethod();
         art::dex::CodeItem item = method.GetCodeItem();
         if (item.Ptr()) return (item.Ptr() + item.code_offset_ + 0x2 * dex_pc());

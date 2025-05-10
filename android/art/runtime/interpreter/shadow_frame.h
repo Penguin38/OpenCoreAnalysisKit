@@ -53,6 +53,8 @@ public:
     ShadowFrame(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
+    static void Init23();
+    static void Init36();
     inline uint64_t link() { return VALUEOF(ShadowFrame, link_); }
     inline uint64_t method() { return VALUEOF(ShadowFrame, method_); }
     inline uint64_t dex_pc_ptr() { return VALUEOF(ShadowFrame, dex_pc_ptr_); }
