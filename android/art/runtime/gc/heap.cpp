@@ -36,7 +36,6 @@ namespace gc {
 
 void Heap::Init() {
     Android::RegisterSdkListener(Android::M, art::gc::Heap::Init23);
-    Android::RegisterSdkListener(Android::W, art::gc::Heap::Init36);
 }
 
 void Heap::Init23() {
@@ -49,20 +48,6 @@ void Heap::Init23() {
         __Heap_offset__ = {
             .continuous_spaces_ = 0,
             .discontinuous_spaces_ = 12,
-        };
-    }
-}
-
-void Heap::Init36() {
-    if (CoreApi::Bits() == 64) {
-        __Heap_offset__ = {
-            .continuous_spaces_ = 8,
-            .discontinuous_spaces_ = 32,
-        };
-    } else {
-        __Heap_offset__ = {
-            .continuous_spaces_ = 4,
-            .discontinuous_spaces_ = 16,
         };
     }
 }
