@@ -147,7 +147,10 @@ VdexFile& OatFile::GetVdexFile() {
 }
 
 uint64_t OatFile::GetVdexBegin() {
-    return GetVdexFile().Begin();
+    VdexFile& vdex = GetVdexFile();
+    if (vdex.Ptr())
+        return vdex.Begin();
+    return 0;
 }
 
 OatFile::OatClass OatFile::FindOatClass(DexFile& dex_file, uint16_t class_def_idx, bool* found) {
