@@ -1220,11 +1220,12 @@ sdk_gphone_x86_64-userdebug 11 RSR1.210722.013.A2 10067904 dev-keys
 core-parser> help cxx
 Usage: cxx <TYPE> <ADDR> [OPTION]
 Type:
-    string          vector    map
-    unordered_map   list      deque
+    string     vector    map     unordered_map
+    list       deque     set     unordered_set
 Option:
     -e, --entry-size    only vector set entry-size
-    -b, block-size      only deque set block-size
+    -b, --block-size    only deque set block-size
+    -s, --buffer-size   show target pointer near memory
 
 core-parser> cxx string 0x79191ce66ed8
 /apex/com.android.art/javalib/x86_64/boot-okhttp.art

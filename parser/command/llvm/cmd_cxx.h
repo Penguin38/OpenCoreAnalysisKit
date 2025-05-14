@@ -30,7 +30,9 @@ public:
     static int DumpCxxString(int argc, char* const argv[]);
     static int DumpCxxVector(int argc, char* const argv[]);
     static int DumpCxxMap(int argc, char* const argv[]);
+    static int DumpCxxSet(int argc, char* const argv[]);
     static int DumpCxxUnOrderedMap(int argc, char* const argv[]);
+    static int DumpCxxUnOrderedSet(int argc, char* const argv[]);
     static int DumpCxxList(int argc, char* const argv[]);
     static int DumpCxxDeque(int argc, char* const argv[]);
 };

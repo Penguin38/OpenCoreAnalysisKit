@@ -173,8 +173,10 @@ add_library(llvm STATIC
             llvm/cxx/string.cpp
             llvm/cxx/vector.cpp
             llvm/cxx/map.cpp
+            llvm/cxx/set.cpp
             llvm/cxx/list.cpp
             llvm/cxx/unordered_map.cpp
+            llvm/cxx/unordered_set.cpp
             llvm/cxx/deque.cpp
             llvm/cxx/split_buffer.cpp
             llvm/cxx/mutex.cpp)

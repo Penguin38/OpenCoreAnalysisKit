@@ -18,8 +18,10 @@
 #include "cxx/string.h"
 #include "cxx/vector.h"
 #include "cxx/map.h"
+#include "cxx/set.h"
 #include "cxx/list.h"
 #include "cxx/unordered_map.h"
+#include "cxx/unordered_set.h"
 #include "cxx/deque.h"
 #include "cxx/split_buffer.h"
 #include "cxx/mutex.h"
@@ -29,8 +31,11 @@ void LLVM::Init() {
     cxx::vector::Init();
     cxx::map::Init();
     cxx::map::pair::Init();
+    cxx::set::Init();
+    cxx::set::pair::Init();
     cxx::list::Init();
     cxx::unordered_map::Init();
+    cxx::unordered_set::Init();
     cxx::deque::Init();
     cxx::split_buffer::Init();
     cxx::mutex::Init();
