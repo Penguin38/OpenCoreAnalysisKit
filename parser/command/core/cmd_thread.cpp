@@ -72,6 +72,11 @@ int ThreadCommand::prepare(int argc, char* const argv[]) {
     }
     options.optind = optind;
 
+#if defined(__AOSP_PARSER__)
+    if (options.java)
+        Android::Prepare();
+#endif
+
     return !(options.native ^ options.java) ? Command::CONTINUE : Command::ONCHLD;
 }
 
