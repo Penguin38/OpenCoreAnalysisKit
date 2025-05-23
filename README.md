@@ -367,7 +367,7 @@ Option:
     -i, --instanceof   search by instance of class
     -o, --object       only search object
     -c, --class        only search class
-    -p, --print        object print detail
+    -p, --print [DEEP] object print detail
     -x, --hex          basic type hex print
 Type: {--app, --zygote, --image, --fake}
 Ref: {--local, --global, --weak, --thread <TID>}

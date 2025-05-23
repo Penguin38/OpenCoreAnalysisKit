@@ -188,8 +188,13 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     if ((options.show_flag & SHOW_STATIC)) {
         Android::ForeachStaticField(current, print_static_field);
         std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
+
+        PrintCommand::Options print_options = {
+            .format_hex = options.format_hex,
+        };
+
         for (auto& field : fields) {
-            PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field, options.format_hex);
+            PrintCommand::PrintField(format_nonenter.c_str(), current, clazz, field, print_options);
         }
         fields.clear();
     }

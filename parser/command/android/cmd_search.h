@@ -29,14 +29,16 @@ public:
     ~SearchCommand() {}
 
     struct Options : Command::Options {
-        uint64_t total_objects;
-        int type_flag;
-        int obj_each_flags;
-        int ref_each_flags;
-        bool regex;
-        bool instof;
-        bool show;
-        bool format_hex;
+        uint64_t total_objects  = 0;
+        int type_flag           = 0;
+        int obj_each_flags      = 0;
+        int ref_each_flags      = 0;
+        bool regex              = false;
+        bool instof             = false;
+        bool show               = false;
+        bool format_hex         = false;
+        bool reference          = false;
+        int deep                = 0;
     };
 
     int main(int argc, char* const argv[]);

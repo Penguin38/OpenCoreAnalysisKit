@@ -31,26 +31,26 @@ public:
     ~PrintCommand() {}
 
     struct Options : Command::Options {
-        bool binary;
-        bool reference;
-        bool format_dump;
-        bool format_hex;
-        int deep;
+        bool binary       = false;
+        bool reference    = false;
+        bool format_dump  = false;
+        bool format_hex   = false;
+        int deep          = 0;
     };
 
     int main(int argc, char* const argv[]);
     int prepare(int argc, char* const argv[]);
     void usage();
     void DumpObject(art::mirror::Object& object);
-    static void DumpClass(art::mirror::Class& clazz, bool format_hex);
-    static void DumpArray(art::mirror::Array& array, bool format_hex);
-    static void DumpInstance(art::mirror::Object& object, bool format_hex);
-    bool PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep);
+    static void DumpClass(art::mirror::Class& clazz, PrintCommand::Options& options);
+    static void DumpArray(art::mirror::Array& array, PrintCommand::Options& options);
+    static void DumpInstance(art::mirror::Object& object, PrintCommand::Options& options);
+    static bool PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep, PrintCommand::Options& options);
     static void PrintField(const char* format, art::mirror::Class& clazz,
-                    art::mirror::Object& object, art::ArtField& field, bool format_hex);
+                    art::mirror::Object& object, art::ArtField& field, PrintCommand::Options& options);
     static std::string FormatSize(uint64_t size);
-    static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref, bool format_hex);
-    static void OnlyDumpObject(art::mirror::Object& object, bool format_hex);
+    static void PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref, PrintCommand::Options& options);
+    static void OnlyDumpObject(art::mirror::Object& object, PrintCommand::Options& options);
 private:
     Options options;
 };

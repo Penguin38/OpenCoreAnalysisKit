@@ -112,11 +112,16 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
         uint64_t uref = Utils::atol(argv[options.optind]);
         reference = jvm.Decode(uref);
         art::IndirectRefKind kind = art::IndirectReferenceTable::DecodeIndirectRefKind(uref);
+
+        PrintCommand::Options print_options = {
+            .format_hex = options.format_hex,
+        };
+
         if (kind && kind != art::IndirectRefKind::kLocal) {
             reference = jvm.Decode(uref);
             LOGI("[%s][0x%04" PRIx64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
                     art::IndirectReferenceTable::GetDescriptor(kind).c_str(), uref, reference.Ptr());
-            PrintCommand::OnlyDumpObject(reference, options.format_hex);
+            PrintCommand::OnlyDumpObject(reference, print_options);
         } else if (kind == art::IndirectRefKind::kLocal) {
             art::ThreadList& thread_list = runtime.GetThreadList();
             for (const auto& thread : thread_list.GetList()) {
@@ -131,7 +136,7 @@ int ReferenceCommand::main(int argc, char* const argv[]) {
                 LOGI("[%d]\n", thread->GetTid());
                 LOGI("[%s][0x%04" PRIx64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_RESET "\n",
                         art::IndirectReferenceTable::GetDescriptor(kind).c_str(), uref, reference.Ptr());
-                PrintCommand::OnlyDumpObject(reference, options.format_hex);
+                PrintCommand::OnlyDumpObject(reference, print_options);
             }
         }
     } else {

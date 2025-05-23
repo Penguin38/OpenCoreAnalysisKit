@@ -42,7 +42,7 @@ int PrintCommand::prepare(int argc, char* const argv[]) {
     options.reference = false;
     options.format_dump = false;
     options.format_hex = false;
-    options.deep = 1;
+    options.deep = 0;
 
     int opt;
     int option_index = 0;
@@ -125,14 +125,31 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
         LOGI("Padding: 0x%" PRIx64 "\n", real_size - size);
     }
 
-    PrintCommand::OnlyDumpObject(object, options.format_hex);
+    PrintCommand::OnlyDumpObject(object, options);
+}
+
+void PrintCommand::OnlyDumpObject(art::mirror::Object& object, PrintCommand::Options& options) {
+    art::mirror::Class clazz = object.GetClass();
+    try {
+        if (object.IsClass()) {
+            art::mirror::Class thiz = object;
+            PrintCommand::DumpClass(thiz, options);
+        } else if (clazz.IsArrayClass()) {
+            art::mirror::Array thiz = object;
+            PrintCommand::DumpArray(thiz, options);
+        } else {
+            PrintCommand::DumpInstance(object, options);
+        }
+    } catch(InvalidAddressException& e) {
+        LOGE("%s\n", e.what());
+    }
 
     try {
         if (options.reference) {
             LOGI(ANSI_COLOR_LIGHTRED "Reference:\n" ANSI_COLOR_RESET);
             int cur_deep = 0;
             auto callback = [&](art::mirror::Object& reference) -> bool {
-                return PrintReference(object, reference, cur_deep);
+                return PrintReference(object, reference, cur_deep, options);
             };
             Android::ForeachObjects(callback);
         }
@@ -141,24 +158,7 @@ void PrintCommand::DumpObject(art::mirror::Object& object) {
     }
 }
 
-void PrintCommand::OnlyDumpObject(art::mirror::Object& object, bool format_hex) {
-    art::mirror::Class clazz = object.GetClass();
-    try {
-        if (object.IsClass()) {
-            art::mirror::Class thiz = object;
-            PrintCommand::DumpClass(thiz, format_hex);
-        } else if (clazz.IsArrayClass()) {
-            art::mirror::Array thiz = object;
-            PrintCommand::DumpArray(thiz, format_hex);
-        } else {
-            PrintCommand::DumpInstance(object, format_hex);
-        }
-    } catch(InvalidAddressException& e) {
-        LOGE("%s\n", e.what());
-    }
-}
-
-bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep) {
+bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Object& reference, int cur_deep, PrintCommand::Options& options) {
     if (cur_deep >= options.deep)
         return true;
 
@@ -181,7 +181,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
                     prefix.c_str(), reference.Ptr(), ref_thiz.PrettyDescriptor().c_str());
             if (cur_deep + 1 < options.deep) {
                 auto callback = [&](art::mirror::Object& second) -> bool {
-                    return PrintReference(reference, second, cur_deep + 1);
+                    return PrintReference(reference, second, cur_deep + 1, options);
                 };
                 Android::ForeachObjects(callback);
             }
@@ -191,7 +191,7 @@ bool PrintCommand::PrintReference(art::mirror::Object& object, art::mirror::Obje
     return false;;
 }
 
-void PrintCommand::DumpClass(art::mirror::Class& clazz, bool format_hex) {
+void PrintCommand::DumpClass(art::mirror::Class& clazz, PrintCommand::Options& options) {
     LOGI("Class Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
     std::string format = FormatSize(clazz.SizeOf());
@@ -208,7 +208,7 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz, bool format_hex) {
         LOGI(ANSI_COLOR_LIGHTCYAN "  // info %s\n" ANSI_COLOR_RESET, current.PrettyDescriptor().c_str());
         std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
         for (auto& field : fields) {
-            PrintCommand::PrintField(format.c_str(), current, clazz, field, format_hex);
+            PrintCommand::PrintField(format.c_str(), current, clazz, field, options);
         }
     }
     fields.clear();
@@ -218,7 +218,7 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz, bool format_hex) {
     Android::ForeachInstanceField(current, callback);
     std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
     for (auto& field : fields) {
-        PrintCommand::PrintField(format.c_str(), current, clazz, field, format_hex);
+        PrintCommand::PrintField(format.c_str(), current, clazz, field, options);
     }
     fields.clear();
 
@@ -227,11 +227,11 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz, bool format_hex) {
     Android::ForeachInstanceField(current, callback);
     std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
     for (auto& field : fields) {
-        PrintCommand::PrintField(format.c_str(), current, clazz, field, format_hex);
+        PrintCommand::PrintField(format.c_str(), current, clazz, field, options);
     }
 }
 
-void PrintCommand::DumpArray(art::mirror::Array& array, bool format_hex) {
+void PrintCommand::DumpArray(art::mirror::Array& array, PrintCommand::Options& options) {
     art::mirror::Class clazz = array.GetClass();
     LOGI("Array Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
@@ -255,26 +255,26 @@ void PrintCommand::DumpArray(art::mirror::Array& array, bool format_hex) {
             switch (size) {
                 case 1: {
                     api::MemoryRef ref(array.GetRawData(sizeof(uint8_t), i), array);
-                    PrintArrayElement(i, type, ref, format_hex);
+                    PrintArrayElement(i, type, ref, options);
                 } break;
                 case 2: {
                     api::MemoryRef ref(array.GetRawData(sizeof(uint16_t), i), array);
-                    PrintArrayElement(i, type, ref, format_hex);
+                    PrintArrayElement(i, type, ref, options);
                 } break;
                 case 4: {
                     api::MemoryRef ref(array.GetRawData(sizeof(uint32_t), i), array);
-                    PrintArrayElement(i, type, ref, format_hex);
+                    PrintArrayElement(i, type, ref, options);
                 } break;
                 case 8: {
                     api::MemoryRef ref(array.GetRawData(sizeof(uint64_t), i), array);
-                    PrintArrayElement(i, type, ref, format_hex);
+                    PrintArrayElement(i, type, ref, options);
                 } break;
             }
         }
     }
 }
 
-void PrintCommand::DumpInstance(art::mirror::Object& object, bool format_hex) {
+void PrintCommand::DumpInstance(art::mirror::Object& object, PrintCommand::Options& options) {
     art::mirror::Class clazz = object.GetClass();
     LOGI("Object Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, clazz.PrettyDescriptor().c_str());
 
@@ -302,7 +302,7 @@ void PrintCommand::DumpInstance(art::mirror::Object& object, bool format_hex) {
         std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
 
         for (auto& field : fields) {
-            PrintCommand::PrintField(format.c_str(), super, object, field, format_hex);
+            PrintCommand::PrintField(format.c_str(), super, object, field, options);
         }
 
         super = super.GetSuperClass();
@@ -310,7 +310,7 @@ void PrintCommand::DumpInstance(art::mirror::Object& object, bool format_hex) {
 }
 
 void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
-        art::mirror::Object& object, art::ArtField& field, bool format_hex) {
+        art::mirror::Object& object, art::ArtField& field, PrintCommand::Options& options) {
     uint64_t size;
     const char* sig = field.GetTypeDescriptor();
     Android::BasicType type = Android::SignatureToBasicTypeAndSize(sig, &size, "B");
@@ -326,7 +326,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
             LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, field.GetChar(object));
             break;
         case Android::basic_short:
-            if (format_hex) {
+            if (options.format_hex) {
                 LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, field.GetShort(object));
             } else {
                 LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, field.GetShort(object));
@@ -341,7 +341,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
             } else {
                 value = field.GetInt(object);
             }
-            if (format_hex) {
+            if (options.format_hex) {
                 LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, value);
             } else {
                 LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, value);
@@ -363,7 +363,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
             LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "%lf\n" ANSI_COLOR_RESET, field.GetDouble(object));
             break;
         case Android::basic_long:
-            if (format_hex) {
+            if (options.format_hex) {
                 LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, field.GetLong(object));
             } else {
                 LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "%" PRId64 "\n" ANSI_COLOR_RESET, field.GetLong(object));
@@ -392,7 +392,7 @@ std::string PrintCommand::FormatSize(uint64_t size) {
     return format;
 }
 
-void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref, bool format_hex) {
+void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::MemoryRef& ref, PrintCommand::Options& options) {
     switch (static_cast<uint32_t>(type)) {
         case Android::basic_byte:
             LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint8_t *>(ref.Real()));
@@ -404,14 +404,14 @@ void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::M
             LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint16_t *>(ref.Real()));
             break;
         case Android::basic_short:
-            if (format_hex) {
+            if (options.format_hex) {
                 LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint16_t *>(ref.Real()));
             } else {
                 LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, i, *reinterpret_cast<int16_t *>(ref.Real()));
             }
             break;
         case Android::basic_int:
-            if (format_hex) {
+            if (options.format_hex) {
                 LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint32_t *>(ref.Real()));
             } else {
                 LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%d\n" ANSI_COLOR_RESET, i, *reinterpret_cast<int32_t *>(ref.Real()));
@@ -424,7 +424,7 @@ void PrintCommand::PrintArrayElement(uint32_t i, Android::BasicType type, api::M
             LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%lf\n" ANSI_COLOR_RESET, i, (double)*reinterpret_cast<uint64_t *>(ref.Real()));
             break;
         case Android::basic_long:
-            if (format_hex) {
+            if (options.format_hex) {
                 LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, i, *reinterpret_cast<uint64_t *>(ref.Real()));
             } else {
                 LOGI("    [%d] " ANSI_COLOR_LIGHTMAGENTA "%" PRId64 "\n" ANSI_COLOR_RESET, i, *reinterpret_cast<int64_t *>(ref.Real()));

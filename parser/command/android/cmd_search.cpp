@@ -42,6 +42,8 @@ int SearchCommand::prepare(int argc, char* const argv[]) {
     options.show = false;
     options.format_hex = false;
     options.total_objects = 0;
+    options.reference = false;
+    options.deep = 0;
 
     int opt;
     int option_index = 0;
@@ -120,6 +122,9 @@ int SearchCommand::prepare(int argc, char* const argv[]) {
     }
     options.optind = optind;
 
+    if (options.optind >= argc)
+        return Command::FINISH;
+
     if (!options.type_flag)
         options.type_flag = SEARCH_OBJECT | SEARCH_CLASS;
 
@@ -128,6 +133,11 @@ int SearchCommand::prepare(int argc, char* const argv[]) {
         options.obj_each_flags |= Android::EACH_ZYGOTE_OBJECTS;
         options.obj_each_flags |= Android::EACH_IMAGE_OBJECTS;
         options.obj_each_flags |= Android::EACH_FAKE_OBJECTS;
+    }
+
+    if (options.optind + 1 < argc) {
+        options.reference = true;
+        options.deep = std::atoi(argv[options.optind + 1]);
     }
 
     Android::Prepare();
@@ -174,7 +184,14 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
         options.total_objects++;
         LOGI("[%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 options.total_objects, object.Ptr(), descriptor.c_str());
-        if (options.show) PrintCommand::OnlyDumpObject(object, options.format_hex);
+        if (options.show) {
+            PrintCommand::Options print_options = {
+                .reference = options.reference,
+                .format_hex = options.format_hex,
+                .deep = options.deep,
+            };
+            PrintCommand::OnlyDumpObject(object, print_options);
+        }
     }
 
     return false;
@@ -187,7 +204,7 @@ void SearchCommand::usage() {
     LOGI("    -i, --instanceof   search by instance of class\n");
     LOGI("    -o, --object       only search object\n");
     LOGI("    -c, --class        only search class\n");
-    LOGI("    -p, --print        object print detail\n");
+    LOGI("    -p, --print [DEEP] object print detail\n");
     LOGI("    -x, --hex          basic type hex print\n");
     LOGI("Type: {--app, --zygote, --image, --fake}\n");
     LOGI("Ref: {--local, --global, --weak, --thread <TID>}\n");
