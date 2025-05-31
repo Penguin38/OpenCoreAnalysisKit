@@ -79,6 +79,17 @@ void show_parser_usage() {
     LOGI("    -c, --core <COREFILE>    load core-parser from corefile\n");
 #if !defined(__MACOS__)
     LOGI("    -p, --pid <PID>          load core-parser from target process\n");
+    LOGI("    -f, --filter <Filter>    set coredump ignore filter\n");
+    LOGI("Filter: (0x19 default)\n");
+    LOGI("     0x001: filter-special-vma (default)\n");
+    LOGI("     0x002: filter-file-vma\n");
+    LOGI("     0x004: filter-shared-vma\n");
+    LOGI("     0x008: filter-sanitizer-shadow-vma (default)\n");
+    LOGI("     0x010: filter-non-read-vma (default)\n");
+    LOGI("     0x020: filter-signal-context (unused)\n");
+    LOGI("     0x040: filter-minidump\n");
+    LOGI("     0x080: filter-javaheap-vma\n");
+    LOGI("     0x100: filter-jit-cache-vma\n");
 #endif
     LOGI("    -m, --machine <ARCH>     arch support arm64, arm, x86_64, x86, riscv64\n");
     LOGI("        --sdk <SDK>          sdk support 26 ~ 36\n");
@@ -117,6 +128,7 @@ int command_preload(int argc, char* const argv[]) {
     int option_index = 0;
     static struct option long_options[] = {
         {"core",      required_argument,   0, 'c'},
+        {"filter",    required_argument,   0, 'f'},
         {"sdk",       required_argument,   0,  1 },
 #if !defined(__MACOS__)
         {"pid",       required_argument,   0, 'p'},
@@ -146,13 +158,19 @@ int command_preload(int argc, char* const argv[]) {
     bool need_load = true;
     bool no_fake_phdr = false;
     int lv = 0;
+    int filter = Opencore::FILTER_SPECIAL_VMA
+               | Opencore::FILTER_SANITIZER_SHADOW_VMA
+               | Opencore::FILTER_NON_READ_VMA;
 
-    while ((opt = getopt_long(argc, argv, "c:1:p:m:t:d:h",
+    while ((opt = getopt_long(argc, argv, "c:f:1:p:m:t:d:h",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
                 corefile = optarg;
                 need_load = true;
+                break;
+            case 'f':
+                filter = Utils::atol(optarg);
                 break;
             case 1:
                 current_sdk = std::atoi(optarg);
@@ -205,6 +223,8 @@ int command_preload(int argc, char* const argv[]) {
         std::string cmdline;
         cmdline.append("remote core -p ");
         cmdline.append(std::to_string(pid));
+        cmdline.append(" -f ");
+        cmdline.append(Utils::ToHex(filter));
         if (strcmp(machine, NONE_MACHINE)) {
             cmdline.append(" -m ");
             cmdline.append(machine);

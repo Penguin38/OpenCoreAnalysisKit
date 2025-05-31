@@ -272,6 +272,16 @@ int Opencore::IsFilterSegment(Opencore::VirtualMemoryArea& vma) {
         if (vma.flags[0] == '-' && vma.flags[1] == '-' && vma.flags[2] == '-')
             return VMA_NULL;
     }
+
+    if (filter & FILTER_JAVAHEAP_VMA) {
+        if (vma.file.compare(0, 12, "[anon:dalvik") == 0)
+            return VMA_NULL;
+    }
+
+    if (filter & FILTER_JIT_CACHE_VMA) {
+        if (vma.file.compare(0, 10, "/memfd:jit") == 0)
+            return VMA_NULL;
+    }
     return VMA_NORMAL;
 }
 
@@ -477,11 +487,15 @@ void Opencore::Usage() {
     LOGI("    -o, --output <COREFILE>   set coredump filename\n");
     LOGI("    -f, --filter <Filter>     set coredump ignore filter\n");
     LOGI("Filter: (0x19 default)\n");
-    LOGI("     0x01: filter-special-vma (default)\n");
-    LOGI("     0x02: filter-file-vma\n");
-    LOGI("     0x04: filter-shared-vma\n");
-    LOGI("     0x08: filter-sanitizer-shadow-vma (default)\n");
-    LOGI("     0x10: filter-non-read-vma (default)\n");
+    LOGI("     0x001: filter-special-vma (default)\n");
+    LOGI("     0x002: filter-file-vma\n");
+    LOGI("     0x004: filter-shared-vma\n");
+    LOGI("     0x008: filter-sanitizer-shadow-vma (default)\n");
+    LOGI("     0x010: filter-non-read-vma (default)\n");
+    LOGI("     0x020: filter-signal-context (unused)\n");
+    LOGI("     0x040: filter-minidump\n");
+    LOGI("     0x080: filter-javaheap-vma\n");
+    LOGI("     0x100: filter-jit-cache-vma\n");
     ENTER();
     LOGI("core-parser> remote core -p 1 -m x86_64 -d /data -f 0x18\n");
     LOGI("Coredump /data/core.init_1_1718900269 ...\n");

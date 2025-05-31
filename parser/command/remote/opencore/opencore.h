@@ -64,6 +64,8 @@ public:
     static constexpr int FILTER_NON_READ_VMA = 1 << 4;
     static constexpr int FILTER_SIGNAL_CONTEXT = 1 << 5;
     static constexpr int FILTER_MINIDUMP = 1 << 6;
+    static constexpr int FILTER_JAVAHEAP_VMA = 1 << 7;
+    static constexpr int FILTER_JIT_CACHE_VMA = 1 << 8;
 
     static constexpr int VMA_NORMAL = 0;
     static constexpr int VMA_NULL = 1 << 0;
