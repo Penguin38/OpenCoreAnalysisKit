@@ -37,6 +37,7 @@
 int Hook::Main(int argc, char* const argv[]) {
     bool inject = false;
     bool call_method = false;
+    bool inlinehk = false;
     char* method = nullptr;
     char* library = nullptr;
     int pid = 0;
@@ -49,10 +50,11 @@ int Hook::Main(int argc, char* const argv[]) {
         {"inject",  no_argument,       0,  1 },
         {"lib",     required_argument, 0, 'l'},
         {"call",    required_argument, 0, 'c'},
+        {"inline",  no_argument,       0, 'i'},
         {0,         0,                 0,  0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "l:p:c:",
+    while ((opt = getopt_long(argc, argv, "l:p:c:i",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1:
@@ -68,6 +70,9 @@ int Hook::Main(int argc, char* const argv[]) {
                 call_method = true;
                 method = optarg;
                 break;
+            case 'i':
+                inlinehk = true;
+                break;
         }
     }
 
@@ -80,6 +85,8 @@ int Hook::Main(int argc, char* const argv[]) {
             impl->InjectLibrary(library);
         } else if (call_method) {
             impl->CallMethod(method, argc - optind, &argv[optind]);
+        } else if (inlinehk) {
+            impl->InlineMethod(argc - optind, &argv[optind]);
         }
     }
     return 1;

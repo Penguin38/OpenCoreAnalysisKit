@@ -30,6 +30,8 @@ public:
     bool CallMethod(const char* method, int argc, char* const argv[]);
     bool MethodContext(const char* method, pt_regs* call_regs,
                        int argc, char* const argv[]);
+    uint64_t CallMethodInner(const char* method, int argc, char* const argv[], bool* error);
+    bool InlineMethod(int argc, char* const argv[]);
 private:
     pt_regs ori_regs;
 };

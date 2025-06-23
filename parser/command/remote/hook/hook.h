@@ -26,6 +26,7 @@ public:
     virtual uint64_t RegsSize() { return 0x0; }
     virtual bool InjectLibrary(const char* library) { return false; }
     virtual bool CallMethod(const char* method, int argc, char* const argv[]) { return false; }
+    virtual bool InlineMethod(int argc, char* const argv[]) { return false; }
 
     inline int Pid() { return pid; }
     bool Continue();
