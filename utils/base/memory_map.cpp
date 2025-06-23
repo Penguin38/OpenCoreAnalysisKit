@@ -74,7 +74,7 @@ MemoryMap* MemoryMap::MmapMem(uint64_t addr, uint64_t size) {
 
 MemoryMap* MemoryMap::MmapMem(uint64_t addr, uint64_t size, uint64_t realSize) {
     MemoryMap *map = nullptr;
-    void* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, 0, 0);
+    void* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (mem != MAP_FAILED) {
         map = new MemoryMap(mem, size, 0, size);
         memcpy(mem, reinterpret_cast<void *>(addr), realSize);
@@ -84,7 +84,7 @@ MemoryMap* MemoryMap::MmapMem(uint64_t addr, uint64_t size, uint64_t realSize) {
 
 MemoryMap* MemoryMap::MmapZeroMem(uint64_t size) {
     MemoryMap *map = nullptr;
-    void* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, 0, 0);
+    void* mem = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (mem != MAP_FAILED) {
         map = new MemoryMap(mem, size, 0, size);
         memset(mem, 0x0, size);
