@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#define CALLSTACK_MODULE_PATH "/system/lib64/libutilscallstack.so"
+#define CALLSTACK_MODULE_PATH "libutilscallstack.so"
 #define CALLSTACK_DEFAULT_SYMB "_ZN7android9CallStackC2Ev"
 #define CALLSTACK_CONSTRUCTOR_CI_SYMB "_ZN7android9CallStackC1EPKci"
 #define CALLSTACK_UPDATE_SYMB "_ZN7android9CallStack6updateEii"
