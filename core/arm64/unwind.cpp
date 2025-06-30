@@ -91,8 +91,17 @@ void UnwindStack::FpBacktrace(Register& regs) {
         api::MemoryRef fp = cur_frame_fp_;
         fp.Prepare(false);
         LoadBlock* block = fp.Block();
-        if (!block || (regs.lr != fp.value64Of(8)))
+        if (!block || (regs.lr != fp.value64Of(8))) {
             VisitFrame();
+
+            // skip lr frame
+            std::unique_ptr<NativeFrame>& lr_frame = native_frames_[native_frames_.size() - 1];
+            std::unique_ptr<NativeFrame>& pc_frame = native_frames_[native_frames_.size() - 2];
+            std::string& lr_symbol = lr_frame->GetMethodSymbol();
+            if ((lr_symbol.length() && lr_symbol == pc_frame->GetMethodSymbol())
+                    || lr_frame->GetFramePc() == pc_frame->GetFramePc())
+                native_frames_.pop_back();
+        }
 
     } catch(InvalidAddressException& e) {
         // do nothing
