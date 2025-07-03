@@ -70,7 +70,12 @@ public:
 
 class Core : public api::Elf {
 public:
-    bool load64(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
+    struct OptionArgs {
+        uint64_t type;
+        uint64_t pos;
+        void *context;
+    };
+    bool load64(CoreApi* api, std::function<void* (OptionArgs& args)> callback);
     void loadLinkMap64(CoreApi* api);
     bool exec64(CoreApi* api, uint64_t phdr, const char* file);
     bool dlopen64(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile);

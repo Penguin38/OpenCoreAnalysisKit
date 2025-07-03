@@ -70,7 +70,12 @@ public:
 
 class Core : public api::Elf {
 public:
-    bool load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback);
+    struct OptionArgs {
+        uint64_t type;
+        uint64_t pos;
+        void *context;
+    };
+    bool load32(CoreApi* api, std::function<void* (OptionArgs& args)> callback);
     void loadLinkMap32(CoreApi* api);
     bool exec32(CoreApi* api, uint32_t phdr, const char* file);
     bool dlopen32(CoreApi* api, ::LinkMap* handle, const char* file, const char* subfile);

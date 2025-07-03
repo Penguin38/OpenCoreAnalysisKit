@@ -16,6 +16,8 @@
 
 #include "logger/log.h"
 #include "common/bit.h"
+#include "common/tls.h"
+#include "common/fpregset.h"
 #include "command/remote/opencore/arm64/opencore.h"
 #include <sys/ptrace.h>
 #include <sys/uio.h>
@@ -60,7 +62,9 @@ void Opencore::CreateCorePrStatus(int pid) {
         }
     }
 
-    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prnum;
+    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_PRSTATUS
+    extra_note_filesz += (sizeof(Elf64_fpregset) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_FPREGSET
+    extra_note_filesz += (sizeof(Elf64_tls) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_ARM_TLS
     extra_note_filesz += ((sizeof(struct user_pac_mask) + sizeof(Elf64_Nhdr) + 8)  // NT_ARM_PAC_MASK
                       + (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8)       // NT_ARM_PAC_ENABLED_KEYS
                       ) * prnum;
@@ -81,6 +85,8 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
         fwrite(&elf_nhdr, sizeof(Elf64_Nhdr), 1, fp);
         fwrite(magic, sizeof(magic), 1, fp);
         fwrite(&prstatus[index], sizeof(Elf64_prstatus), 1, fp);
+        WriteCoreFpRegs(prstatus[index].pr_pid ,fp);
+        WriteCoreTLS(prstatus[index].pr_pid, fp);
         WriteCorePAC(prstatus[index].pr_pid ,fp);
         WriteCoreMTE(prstatus[index].pr_pid ,fp);
     }
@@ -132,6 +138,61 @@ int Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) {
         return VMA_NULL;
     }
     return VMA_NORMAL;
+}
+
+void Opencore::WriteCoreFpRegs(int tid, FILE* fp) {
+    // NT_FPREGSET
+    Elf64_Nhdr elf_nhdr;
+    elf_nhdr.n_namesz = NOTE_CORE_NAME_SZ;
+    elf_nhdr.n_descsz = sizeof(Elf64_fpregset);
+    elf_nhdr.n_type = NT_FPREGSET;
+
+    char magic[8];
+    memset(magic, 0, sizeof(magic));
+    snprintf(magic, NOTE_CORE_NAME_SZ, ELFCOREMAGIC);
+
+    fwrite(&elf_nhdr, sizeof(Elf64_Nhdr), 1, fp);
+    fwrite(magic, sizeof(magic), 1, fp);
+
+    Elf64_fpregset fpregset;
+    memset(&fpregset, 0x0, sizeof(fpregset));
+    struct iovec fpregset_iov = {
+        &fpregset,
+        sizeof(fpregset),
+    };
+
+    if (ptrace(PTRACE_GETREGSET, tid, NT_FPREGSET,
+                reinterpret_cast<void*>(&fpregset_iov)) == -1) {
+        memset(&fpregset, 0x0, sizeof(fpregset));
+    }
+
+    fwrite(&fpregset, sizeof(Elf64_fpregset), 1, fp);
+}
+
+void Opencore::WriteCoreTLS(int tid, FILE* fp) {
+    // NT_ARM_TLS
+    Elf64_Nhdr elf_nhdr;
+    elf_nhdr.n_namesz = NOTE_LINUX_NAME_SZ;
+    elf_nhdr.n_descsz = sizeof(user_pac_mask);
+    elf_nhdr.n_type = NT_ARM_TLS;
+
+    char magic[8];
+    memset(magic, 0, sizeof(magic));
+    snprintf(magic, NOTE_LINUX_NAME_SZ, ELFLINUXMAGIC);
+
+    fwrite(&elf_nhdr, sizeof(Elf64_Nhdr), 1, fp);
+    fwrite(magic, sizeof(magic), 1, fp);
+
+    Elf64_tls tls;
+    struct iovec tls_iov = {
+        &tls.regs,
+        sizeof(tls.regs),
+    };
+    if (ptrace(PTRACE_GETREGSET, tid, NT_ARM_TLS,
+                reinterpret_cast<void*>(&tls_iov)) == -1) {
+        memset(&tls.regs, 0x0, sizeof(tls.regs));
+    }
+    fwrite(&tls, sizeof(tls), 1, fp);
 }
 
 void Opencore::WriteCorePAC(int tid, FILE* fp) {

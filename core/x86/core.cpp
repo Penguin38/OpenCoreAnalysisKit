@@ -27,11 +27,11 @@ bool Core::load() {
     pointer_mask = GENMASK_UL(bits() - 1, 0);
     vabits_mask = pointer_mask;
 
-    auto callback = [](uint64_t type, uint64_t pos) -> void * {
-        switch(type) {
+    auto callback = [](OptionArgs& args) -> void * {
+        switch(args.type) {
             case NT_PRSTATUS:
-                Elf32_prstatus* prs = reinterpret_cast<Elf32_prstatus *>(pos);
-                ThreadInfo* thread = new ThreadInfo(prs->pr_pid, pos);
+                Elf32_prstatus* prs = reinterpret_cast<Elf32_prstatus *>(args.pos);
+                ThreadInfo* thread = new ThreadInfo(prs->pr_pid, args.pos);
                 memcpy(&thread->reg, &prs->pr_reg, sizeof(Register));
                 return thread;
         }

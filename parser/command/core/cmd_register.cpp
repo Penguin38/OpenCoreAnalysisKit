@@ -65,6 +65,8 @@ int RegisterCommand::main(int argc, char* const argv[]) {
     switch(regs_opt) {
         case REGS_DUMP:
             thread->RegisterDump("    ");
+            thread->FpRegisterDump("    ");
+            thread->TlsDump("    ");
             break;
         case REGS_SET:
             thread->RegisterSet(command);

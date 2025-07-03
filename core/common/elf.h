@@ -29,6 +29,9 @@
 #define EM_RISCV    243
 
 #define DEF_VA_BITS 39
+#ifndef NT_FPREGSET
+#define NT_FPREGSET 0x2
+#endif
 #ifndef NT_ARM_PAC_MASK
 #define NT_ARM_PAC_MASK 0x406
 #endif

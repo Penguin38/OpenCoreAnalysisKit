@@ -19,6 +19,7 @@
 
 #include "logger/log.h"
 #include "api/thread.h"
+#include <string.h>
 
 namespace arm64 {
 
@@ -72,19 +73,130 @@ public:
     }
 };
 
+class FpRegister {
+public:
+    uint64_t v0_lo;
+    uint64_t v0_hi;
+    uint64_t v1_lo;
+    uint64_t v1_hi;
+    uint64_t v2_lo;
+    uint64_t v2_hi;
+    uint64_t v3_lo;
+    uint64_t v3_hi;
+    uint64_t v4_lo;
+    uint64_t v4_hi;
+    uint64_t v5_lo;
+    uint64_t v5_hi;
+    uint64_t v6_lo;
+    uint64_t v6_hi;
+    uint64_t v7_lo;
+    uint64_t v7_hi;
+    uint64_t v8_lo;
+    uint64_t v8_hi;
+    uint64_t v9_lo;
+    uint64_t v9_hi;
+    uint64_t v10_lo;
+    uint64_t v10_hi;
+    uint64_t v11_lo;
+    uint64_t v11_hi;
+    uint64_t v12_lo;
+    uint64_t v12_hi;
+    uint64_t v13_lo;
+    uint64_t v13_hi;
+    uint64_t v14_lo;
+    uint64_t v14_hi;
+    uint64_t v15_lo;
+    uint64_t v15_hi;
+    uint64_t v16_lo;
+    uint64_t v16_hi;
+    uint64_t v17_lo;
+    uint64_t v17_hi;
+    uint64_t v18_lo;
+    uint64_t v18_hi;
+    uint64_t v19_lo;
+    uint64_t v19_hi;
+    uint64_t v20_lo;
+    uint64_t v20_hi;
+    uint64_t v21_lo;
+    uint64_t v21_hi;
+    uint64_t v22_lo;
+    uint64_t v22_hi;
+    uint64_t v23_lo;
+    uint64_t v23_hi;
+    uint64_t v24_lo;
+    uint64_t v24_hi;
+    uint64_t v25_lo;
+    uint64_t v25_hi;
+    uint64_t v26_lo;
+    uint64_t v26_hi;
+    uint64_t v27_lo;
+    uint64_t v27_hi;
+    uint64_t v28_lo;
+    uint64_t v28_hi;
+    uint64_t v29_lo;
+    uint64_t v29_hi;
+    uint64_t v30_lo;
+    uint64_t v30_hi;
+    uint64_t v31_lo;
+    uint64_t v31_hi;
+    uint32_t fpsr;
+    uint32_t fpcr;
+    uint32_t __reserved[2];
+
+    void Dump(const char* prefix) {
+        LOGI("%sv0  0x%016" PRIx64 "%016" PRIx64 "  v1  0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v0_hi, v0_lo, v1_hi, v1_lo);
+        LOGI("%sv2  0x%016" PRIx64 "%016" PRIx64 "  v3  0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v2_hi, v2_lo, v3_hi, v3_lo);
+        LOGI("%sv4  0x%016" PRIx64 "%016" PRIx64 "  v5  0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v4_hi, v4_lo, v5_hi, v5_lo);
+        LOGI("%sv6  0x%016" PRIx64 "%016" PRIx64 "  v7  0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v6_hi, v6_lo, v7_hi, v7_lo);
+        LOGI("%sv8  0x%016" PRIx64 "%016" PRIx64 "  v9  0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v8_hi, v8_lo, v9_hi, v9_lo);
+        LOGI("%sv10 0x%016" PRIx64 "%016" PRIx64 "  v11 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v10_hi, v10_lo, v11_hi, v11_lo);
+        LOGI("%sv12 0x%016" PRIx64 "%016" PRIx64 "  v13 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v12_hi, v12_lo, v13_hi, v13_lo);
+        LOGI("%sv14 0x%016" PRIx64 "%016" PRIx64 "  v15 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v14_hi, v14_lo, v15_hi, v15_lo);
+        LOGI("%sv16 0x%016" PRIx64 "%016" PRIx64 "  v17 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v16_hi, v16_lo, v17_hi, v17_lo);
+        LOGI("%sv18 0x%016" PRIx64 "%016" PRIx64 "  v19 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v18_hi, v18_lo, v19_hi, v19_lo);
+        LOGI("%sv20 0x%016" PRIx64 "%016" PRIx64 "  v21 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v20_hi, v20_lo, v21_hi, v21_lo);
+        LOGI("%sv22 0x%016" PRIx64 "%016" PRIx64 "  v23 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v22_hi, v22_lo, v23_hi, v23_lo);
+        LOGI("%sv24 0x%016" PRIx64 "%016" PRIx64 "  v25 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v24_hi, v24_lo, v25_hi, v25_lo);
+        LOGI("%sv26 0x%016" PRIx64 "%016" PRIx64 "  v27 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v26_hi, v26_lo, v27_hi, v27_lo);
+        LOGI("%sv28 0x%016" PRIx64 "%016" PRIx64 "  v29 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v28_hi, v28_lo, v29_hi, v29_lo);
+        LOGI("%sv30 0x%016" PRIx64 "%016" PRIx64 "  v31 0x%016" PRIx64 "%016" PRIx64 "  \n", prefix, v30_hi, v30_lo, v31_hi, v31_lo);
+        LOGI("%sfpsr 0x%08x  \n", prefix, fpsr);
+        LOGI("%sfpcr 0x%08x  \n", prefix, fpcr);
+    }
+};
+
+class Tls {
+public:
+    uint64_t tpidr_el0;
+    uint64_t tpidr2_el0;
+
+    void Dump(const char* prefix) {
+        LOGI("%stpidr_el0 0x%016" PRIx64 "  \n", prefix, tpidr_el0);
+    }
+};
+
 class ThreadInfo : public ThreadApi {
 public:
-    ThreadInfo(int tid) : ThreadApi(tid) {}
-    ThreadInfo(int tid, uint64_t prs) : ThreadApi(tid, prs) {}
+    ThreadInfo(int tid) : ThreadApi(tid) { clear(); }
+    ThreadInfo(int tid, uint64_t prs) : ThreadApi(tid, prs) { clear(); }
     ~ThreadInfo() {}
+    inline void clear() {
+        memset(&reg, 0x0, sizeof(Register));
+        memset(&fpr, 0x0, sizeof(FpRegister));
+        memset(&tls, 0x0, sizeof(Tls));
+    }
     void RegisterDump(const char* prefix) { return reg.Dump(prefix); }
+    void FpRegisterDump(const char* prefix) { return fpr.Dump(prefix); }
+    void TlsDump(const char* prefix) { return tls.Dump(prefix); }
     void RegisterSet(const char* command);
     uint64_t RegisterGet(const char* regs);
     Register& GetRegs() { return reg; }
     uint64_t GetFramePC() { return GetRegs().pc; }
     uint64_t GetFrameSP() { return GetRegs().sp; }
 
-    Register  reg;
+    Register reg;
+    FpRegister fpr;
+    Tls tls;
 };
 
 } // namespace arm64

@@ -40,6 +40,8 @@ public:
 
     virtual ~ThreadApi() {}
     virtual void RegisterDump(const char* prefix) = 0;
+    virtual void FpRegisterDump(const char* prefix) = 0;
+    virtual void TlsDump(const char* prefix) = 0;
     virtual void RegisterSet(const char* command) = 0;
     virtual uint64_t RegisterGet(const char* regs) = 0;
     virtual uint64_t GetFramePC() = 0;

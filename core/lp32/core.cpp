@@ -26,7 +26,7 @@
 #include <string.h>
 #include <linux/elf.h>
 
-bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> callback) {
+bool lp32::Core::load32(CoreApi* api, std::function<void* (OptionArgs&)> callback) {
     Elf32_Ehdr *ehdr = reinterpret_cast<Elf32_Ehdr *>(api->begin());
     Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(api->begin() + ehdr->e_phoff);
 
@@ -59,13 +59,20 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
             block->setOriAddr(api->begin() + block->offset());
             uint64_t pos = block->oraddr();
             uint64_t end = block->oraddr() + block->realSize();
+            void *last_context = nullptr;
             while (pos < end) {
                 Elf32_Nhdr *nhdr = reinterpret_cast<Elf32_Nhdr *>(pos);
                 uint64_t item_pos = nhdr->n_descsz == 0 ? 0 : pos + sizeof(Elf32_Nhdr) + RoundUp(nhdr->n_namesz, 0x4);
+                OptionArgs args = {
+                    .type = nhdr->n_type,
+                    .pos = item_pos,
+                    .context = last_context,
+                };
                 switch(nhdr->n_type) {
-                    case NT_PRSTATUS:
-                        block->addThreadItem(callback(NT_PRSTATUS, item_pos));
-                        break;
+                    case NT_PRSTATUS: {
+                        last_context = callback(args);
+                        block->addThreadItem(last_context);
+                    } break;
                     case NT_AUXV: {
                         int numauxv = nhdr->n_descsz / sizeof(lp32::Auxv);
                         block->setAuxvMaxCount(numauxv);
@@ -90,7 +97,7 @@ bool lp32::Core::load32(CoreApi* api, std::function<void* (uint64_t, uint64_t)> 
                         }
                     } break;
                     default:
-                        callback(nhdr->n_type, item_pos);
+                        callback(args);
                         break;
                 }
 
