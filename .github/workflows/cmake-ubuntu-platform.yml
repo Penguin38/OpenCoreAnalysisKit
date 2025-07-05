@@ -21,10 +21,10 @@ jobs:
     - name: Build
       run: |
         bash ./script/build.sh
-        tar -czvf core-parser_1.0.8.tar.gz output/aosp/debug/linux/bin/core-parser
+        tar -czvf core-parser_1.0.9.tar.gz output/aosp/debug/linux/bin/core-parser
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: core-parser_1.0.8_for_ubuntu.tar.gz
-        path: core-parser_1.0.8.tar.gz
+        name: core-parser_1.0.9_for_ubuntu.tar.gz
+        path: core-parser_1.0.9.tar.gz
