@@ -477,7 +477,8 @@ OatQuickMethodHeader ArtMethod::GetOatQuickMethodHeader(uint64_t pc) {
             return 0x0;
     }
 
-    if (existing_entry_point == GetQuickProxyInvokeHandler())
+    if (existing_entry_point == GetQuickProxyInvokeHandler()
+            || IsProxyMethod())
         return 0x0;
 
     if (!class_linker.IsQuickGenericJniStub(existing_entry_point) &&
