@@ -180,7 +180,8 @@ bool SearchCommand::SearchObjects(const char* classsname, art::mirror::Object& o
     java::lang::Object java = object;
     if (options.regex && std::regex_search(descriptor, std::regex(classsname))
             || descriptor == classsname
-            || (options.instof && java.instanceof(classsname))) {
+            || (options.instof && (java.instanceof(classsname)
+                                || java.mirror_instanceof(classsname)))) {
         options.total_objects++;
         LOGI("[%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW  "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 options.total_objects, object.Ptr(), descriptor.c_str());

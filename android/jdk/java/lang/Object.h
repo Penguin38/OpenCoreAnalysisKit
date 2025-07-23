@@ -30,6 +30,7 @@ public:
     Object(art::mirror::Object& obj) { thiz_cache = obj; }
 
     bool instanceof(const char* classname);
+    bool mirror_instanceof(const char* classname);
 
     inline bool isNull() { return !thiz_cache.Ptr(); }
     inline uint32_t Ptr() { return thiz_cache.Ptr(); }

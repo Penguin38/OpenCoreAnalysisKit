@@ -49,6 +49,39 @@ bool Object::instanceof(const char* classname) {
     return false;
 }
 
+bool Object::mirror_instanceof(const char* classname) {
+    if (!thiz_cache.Ptr())
+        return false;
+
+    art::mirror::Class current = Ptr();
+    art::mirror::Class super = current;
+    if (!thiz_cache.IsClass())
+        super = klass();
+
+    do {
+        if (super.PrettyDescriptor() == classname)
+            return true;
+
+        super = super.GetSuperClass();
+    } while (super.Ptr());
+
+    art::mirror::IfTable iftable = current.GetIfTable();
+    if (!thiz_cache.IsClass())
+        iftable = klass().GetIfTable();
+
+    if (!iftable.Ptr())
+        return false;
+
+    int32_t ifcount = iftable.Count();
+    for (int i = 0; i < ifcount; ++i) {
+        art::mirror::Class interface = iftable.GetInterface(i);
+        if (interface.PrettyDescriptor() == classname)
+            return true;
+    }
+
+    return false;
+}
+
 std::string Object::toString() {
     std::string sb;
     if (isNull()) {
