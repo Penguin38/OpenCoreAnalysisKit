@@ -151,11 +151,11 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     bool needEnd = false;
     if (super.Ptr()) {
         LOGI(ANSI_COLOR_LIGHTGREEN "%s" "class " ANSI_COLOR_RESET "%s" ANSI_COLOR_LIGHTGREEN " extends " ANSI_COLOR_RESET "%s" " {\n",
-                art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
+                art::PrettyClassAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str(), super.PrettyDescriptor().c_str());
     } else {
         LOGI(ANSI_COLOR_LIGHTGREEN "%s" "class " ANSI_COLOR_RESET "%s" " {\n",
-                art::PrettyJavaAccessFlags(clazz.GetAccessFlags()).c_str(),
+                art::PrettyClassAccessFlags(clazz.GetAccessFlags()).c_str(),
                 clazz.PrettyDescriptor().c_str());
     }
     if (ifcount > 0 && (options.show_flag & SHOW_IMPL)) {
@@ -237,7 +237,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
     }
     auto print_method = [](art::ArtMethod& method) -> bool {
         LOGI("    [0x%" PRIx64 "] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
-                method.Ptr(), art::PrettyJavaAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
+                method.Ptr(), art::PrettyMethodAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
         return false;
     };
     if ((options.show_flag & SHOW_METHOD)) Android::ForeachArtMethods(current, print_method);

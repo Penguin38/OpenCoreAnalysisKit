@@ -52,8 +52,27 @@ std::string PrettyJavaAccessFlags(uint32_t access_flags) {
   if ((access_flags & kAccSynchronized) != 0) {
     result += "synchronized ";
   }
+  return result;
+}
+
+std::string PrettyClassAccessFlags(uint32_t access_flags) {
+  std::string result = PrettyJavaAccessFlags(access_flags);
+  if ((access_flags & kAccClassIsProxy) != 0) {
+    result += "proxy ";
+  }
+  return result;
+}
+
+std::string PrettyMethodAccessFlags(uint32_t access_flags) {
+  std::string result = PrettyJavaAccessFlags(access_flags);
   if ((access_flags & kAccNative) != 0) {
     result += "native ";
+  }
+  // IsDefaultConflicting
+  static constexpr uint32_t kMask = kAccIntrinsic | kAccCopied | kAccAbstract | kAccDefault;
+  static constexpr uint32_t kValue = kAccCopied | kAccAbstract | kAccDefault;
+  if ((access_flags & kMask) == kValue) {
+    result += "conflicting ";
   }
   return result;
 }

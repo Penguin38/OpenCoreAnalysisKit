@@ -144,7 +144,7 @@ int MethodCommand::main(int argc, char* const argv[]) {
 
     uint32_t dex_method_idx = method.GetDexMethodIndex();
     if (LIKELY(dex_method_idx != art::dex::kDexNoIndex)) {
-        LOGI(ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyJavaAccessFlags(method.access_flags()).c_str(),
+        LOGI(ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_LIGHTRED "%s" ANSI_COLOR_RESET " [dex_method_idx=%d]\n", art::PrettyMethodAccessFlags(method.access_flags()).c_str(),
                        method.ColorPrettyMethod().c_str(), dex_method_idx);
         if (options.dump_opt & METHOD_DUMP_DEXCODE)
             Dexdump(method);
