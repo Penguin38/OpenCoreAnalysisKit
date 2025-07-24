@@ -24,12 +24,20 @@ int VtorCommand::main(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || !(argc > 1))
         return 0;
 
-    uint64_t vaddr = Utils::atol(argv[1]);
+    options.vaddr = Utils::atol(argv[1]);
+    VirtualToRealVma(options);
+    return 0;
+}
+
+int VtorCommand::VirtualToRealVma(VtorCommand::Options& options) {
+    uint64_t vaddr = options.vaddr & CoreApi::GetVabitsMask();
     LoadBlock* block = CoreApi::FindLoadBlock(vaddr, false, false);
     if (!block)
         return 0;
 
     try {
+        LOGI("  * VIRTUAL: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, vaddr);
+        LOGI("  * OFFSET: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, vaddr - block->vaddr());
         LOGI("  * OR: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, CoreApi::GetReal(vaddr, OPT_READ_OR));
         LOGI("  * MMAP: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, CoreApi::GetReal(vaddr, OPT_READ_MMAP));
         LOGI("  * OVERLAY: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, CoreApi::GetReal(vaddr, OPT_READ_OVERLAY));
@@ -53,6 +61,8 @@ void VtorCommand::usage() {
     LOGI("Usage: vtor <VADDR>\n");
     ENTER();
     LOGI("core-parser> vtor 0x14000000\n");
+    LOGI("  * VIRTUAL: 0x14000000\n");
+    LOGI("  * OFFSET: 0x0\n");
     LOGI("  * OR: 0x73072868d000\n");
     LOGI("  * MMAP: 0x0\n");
     LOGI("  * OVERLAY: 0x0\n");

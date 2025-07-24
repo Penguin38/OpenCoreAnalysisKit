@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "base/macros.h"
 #include "command/android/cmd_method.h"
+#include "command/core/cmd_vtor.h"
 #include "command/core/backtrace/cmd_frame.h"
 #include "command/command_manager.h"
 #include "base/utils.h"
@@ -155,8 +156,17 @@ int MethodCommand::main(int argc, char* const argv[]) {
     if (options.dump_opt & METHOD_DUMP_OATCODE)
         Oatdump(method);
 
-    if (options.dump_opt & METHOD_DUMP_BINARY)
+    if (options.dump_opt & METHOD_DUMP_BINARY) {
         Binarydump(method);
+
+        if (method.IsNative()) {
+            art::ArtMethod::PtrSizedFields ptr_sized_fields_(method.ptr_sized_fields(), method);
+            VtorCommand::Options opt = {
+                .vaddr = ptr_sized_fields_.data(),
+            };
+            VtorCommand::VirtualToRealVma(opt);
+        }
+    }
 
     return 0;
 }

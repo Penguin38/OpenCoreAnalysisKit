@@ -23,8 +23,16 @@ class VtorCommand : public Command {
 public:
     VtorCommand() : Command("vtor") {}
     ~VtorCommand() {}
+
+    struct Options : Command::Options {
+        uint64_t vaddr = 0x0;
+    };
+
     int main(int argc, char* const argv[]);
     void usage();
+    static int VirtualToRealVma(VtorCommand::Options& options);
+private:
+    Options options;
 };
 
 #endif // PARSER_COMMAND_CORE_CMD_VTOR_H_
