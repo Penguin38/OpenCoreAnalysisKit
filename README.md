@@ -1185,6 +1185,15 @@ core-parser> env core
   * mLinkMap: 271
 ```
 
+## Settings Ini Variables
+```
+core-parser> help ini
+Usage: ini [OPTION] ...
+Option:
+    -l, --load <current.ini>       set current ini
+    -s, --set  <KEY>=<VALUE>       set entry value
+```
+
 ## Logcat Parser Module
 ```
 core-parser> help logcat

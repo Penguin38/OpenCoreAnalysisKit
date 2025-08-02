@@ -119,15 +119,12 @@ endif()
 
 set(INI_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/../3rd-party/simpleini)
 set(INI_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/3rd-party/simpleini/)
-add_library(simpleini STATIC IMPORTED)
-set_target_properties(simpleini PROPERTIES IMPORTED_LOCATION ${INI_LIB_DIR}/libgmock_main.a)
 include_directories(${INI_INCLUDE_DIR})
 
-if (NOT EXISTS "${INI_LIB_DIR}/libgmock_main.a")
-message(STATUS "Not found ${INI_LIB_DIR}/libgmock_main.a")
+if (NOT EXISTS "${INI_LIB_DIR}/lib/libgmock.a")
+message(STATUS "Not found ${INI_LIB_DIR}/lib/libgmock.a")
 else()
 add_definitions(-D__SIMPLEINI__)
-set(INI_LIB simpleini)
 endif()
 
 include_directories(utils)
