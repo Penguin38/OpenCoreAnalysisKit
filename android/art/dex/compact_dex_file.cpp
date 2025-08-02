@@ -34,9 +34,6 @@ void CompactDexFile::CodeItem::Init() {
 
     __CompactDexFile_CodeItem_size__ = {
         .THIS = 8,
-        .fields_ = 2,
-        .insns_count_and_flags_ = 2,
-        .insns_ = 2,
     };
 }
 

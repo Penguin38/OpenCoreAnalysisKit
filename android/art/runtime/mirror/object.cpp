@@ -40,8 +40,6 @@ void Object::Init() {
 
     __Object_size__ = {
         .THIS = 8,
-        .klass_ = 4,
-        .monitor_ = 4,
     };
 }
 

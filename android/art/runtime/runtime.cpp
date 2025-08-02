@@ -22,7 +22,6 @@
 #include <string.h>
 
 struct Runtime_OffsetTable __Runtime_offset__;
-struct Runtime_SizeTable __Runtime_size__;
 
 namespace art {
 

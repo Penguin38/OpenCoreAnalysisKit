@@ -18,7 +18,6 @@
 #include "common/exception.h"
 
 struct ThreadList_OffsetTable __ThreadList_offset__;
-struct ThreadList_SizeTable __ThreadList_size__;
 
 namespace art {
 

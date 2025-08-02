@@ -29,12 +29,7 @@ struct Heap_OffsetTable {
     uint32_t discontinuous_spaces_;
 };
 
-struct Heap_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Heap_OffsetTable __Heap_offset__;
-extern struct Heap_SizeTable __Heap_size__;
 
 namespace art {
 namespace gc {

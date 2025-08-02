@@ -28,12 +28,7 @@ struct RegionSpace_OffsetTable {
     uint32_t mark_bitmap_;
 };
 
-struct RegionSpace_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct RegionSpace_OffsetTable __RegionSpace_offset__;
-extern struct RegionSpace_SizeTable __RegionSpace_size__;
 
 struct Region_OffsetTable {
     uint32_t idx_;

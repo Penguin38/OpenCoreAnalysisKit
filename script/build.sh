@@ -55,6 +55,16 @@ cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
 
 make -C $INSTALL_OUTPUT/linux/3rd-party/xz-utils -j8
 
+# build simpleini
+cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
+      -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      3rd-party/simpleini/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/linux/3rd-party/simpleini
+
+make -C $INSTALL_OUTPUT/linux/3rd-party/simpleini -j8
+
 # build core-parser
 cmake -DCMAKE_C_COMPILER=$BUILD_HOST_C_COMPILER \
       -DCMAKE_CXX_COMPILER=$BUILD_HOST_CXX_COMPILER \

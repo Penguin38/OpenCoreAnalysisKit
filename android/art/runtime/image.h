@@ -71,7 +71,6 @@ public:
     inline uint64_t image_methods() { return Real() + OFFSET(ImageHeader, image_methods_); }
 
     inline uint32_t GetImageMethodsCount() { return kNumImageMethodsCount; }
-private:
     static uint32_t kNumImageMethodsCount;
 };
 

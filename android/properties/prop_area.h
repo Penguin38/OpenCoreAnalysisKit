@@ -30,11 +30,6 @@ struct PropArea_OffsetTable {
 
 struct PropArea_SizeTable {
     uint32_t THIS;
-    uint32_t bytes_used_;
-    uint32_t serial_;
-    uint32_t magic_;
-    uint32_t version_;
-    uint32_t data_;
 };
 
 extern struct PropArea_OffsetTable __PropArea_offset__;
@@ -51,12 +46,6 @@ struct Propbt_OffsetTable {
 
 struct Propbt_SizeTable {
     uint32_t THIS;
-    uint32_t namelen;
-    uint32_t prop;
-    uint32_t left;
-    uint32_t right;
-    uint32_t children;
-    uint32_t name;
 };
 
 extern struct Propbt_OffsetTable __Propbt_offset__;

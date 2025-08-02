@@ -25,12 +25,7 @@ struct JavaVMExt_OffsetTable {
     uint32_t weak_globals_;
 };
 
-struct JavaVMExt_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct JavaVMExt_OffsetTable __JavaVMExt_offset__;
-extern struct JavaVMExt_SizeTable __JavaVMExt_size__;
 
 namespace art {
 

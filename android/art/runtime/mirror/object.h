@@ -26,8 +26,6 @@ struct Object_OffsetTable {
 
 struct Object_SizeTable {
     uint32_t THIS;
-    uint32_t klass_;
-    uint32_t monitor_;
 };
 
 extern struct Object_OffsetTable __Object_offset__;

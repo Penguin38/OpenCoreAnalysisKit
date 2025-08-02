@@ -24,7 +24,6 @@
 #include "runtime/runtime_globals.h"
 
 struct RegionSpace_OffsetTable __RegionSpace_offset__;
-struct RegionSpace_SizeTable __RegionSpace_size__;
 struct Region_OffsetTable __Region_offset__;
 struct Region_SizeTable __Region_size__;
 

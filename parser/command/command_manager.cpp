@@ -19,6 +19,7 @@
 #include "command/help.h"
 #include "command/cmd_time.h"
 #include "command/cmd_env.h"
+#include "command/cmd_ini.h"
 #include "command/cmd_shell.h"
 #include "command/core/cmd_core.h"
 #include "command/core/cmd_exec.h"
@@ -133,6 +134,7 @@ void CommandManager::Init() {
 
     // other
     CommandManager::PushInlineCommand(new EnvCommand());
+    CommandManager::PushInlineCommand(new IniCommand());
     CommandManager::PushInlineCommand(new ShellCommand());
     INSTANCE->plugin = new PluginCommand();
     CommandManager::PushInlineCommand(INSTANCE->plugin);

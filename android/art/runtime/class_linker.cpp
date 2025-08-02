@@ -20,9 +20,7 @@
 #include "android.h"
 
 struct ClassLinker_OffsetTable __ClassLinker_offset__;
-struct ClassLinker_SizeTable __ClassLinker_size__;
 struct DexCacheData_OffsetTable __DexCacheData_offset__;
-struct DexCacheData_SizeTable __DexCacheData_size__;
 
 namespace art {
 

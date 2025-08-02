@@ -43,12 +43,7 @@ struct Runtime_OffsetTable {
     uint32_t jit_;
 };
 
-struct Runtime_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Runtime_OffsetTable __Runtime_offset__;
-extern struct Runtime_SizeTable __Runtime_size__;
 
 namespace art {
 

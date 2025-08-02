@@ -67,7 +67,7 @@ void LrtEntry::Init() {
     __LrtEntry_offset__.root_ = 0;
     __LrtEntry_size__.THIS = 4;
 
-    kInitialLrtBytes = kInitialLrtBytes / SIZEOF(LrtEntry);
+    kSmallLrtEntries = kInitialLrtBytes / SIZEOF(LrtEntry);
 }
 
 mirror::Object LocalReferenceTable::DecodeReference(uint64_t iref) {

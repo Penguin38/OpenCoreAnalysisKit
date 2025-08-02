@@ -27,11 +27,8 @@
 #include <string>
 
 struct Thread_OffsetTable __Thread_offset__;
-struct Thread_SizeTable __Thread_size__;
 struct Thread_tls_32bit_sized_values_OffsetTable __Thread_tls_32bit_sized_values_offset__;
-struct Thread_tls_32bit_sized_values_SizeTable __Thread_tls_32bit_sized_values_size__;
 struct Thread_tls_ptr_sized_values_OffsetTable __Thread_tls_ptr_sized_values_offset__;
-struct Thread_tls_ptr_sized_values_SizeTable __Thread_tls_ptr_sized_values_size__;
 
 namespace art {
 
@@ -847,7 +844,7 @@ void Thread::DumpState() {
             GetTlsPtr().stack_begin(), GetTlsPtr().stack_end(),
             GetTlsPtr().stack_size(), GetTlsPtr().pthread_self());
     std::string mutexes;
-    for (uint8_t i = 0; i < LockLevel::kLockLevelCount; ++i) {
+    for (uint32_t i = 0; i < LockLevel::kLockLevelCount; ++i) {
         if (i == LockLevel::kMonitorLock)
             continue;
         BaseMutex mutex = GetHeldMutex(i);

@@ -28,8 +28,5 @@ void android::PropInfo::Init() {
 
     __PropInfo_size__ = {
         .THIS = 96,
-        .serial = 4,
-        .value = 92,
-        .name = 0,
     };
 }

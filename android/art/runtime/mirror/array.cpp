@@ -32,7 +32,6 @@ void Array::Init() {
 
     __Array_size__ = {
         .THIS = 12,
-        .length_ = 4,
     };
 }
 

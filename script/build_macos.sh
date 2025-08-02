@@ -51,6 +51,15 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
 
 make -C $INSTALL_OUTPUT/macos/3rd-party/xz-utils -j8
 
+# build simpleini
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      -DXZ_NLS=OFF \
+      3rd-party/simpleini/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/macos/3rd-party/simpleini
+
+make -C $INSTALL_OUTPUT/macos/3rd-party/simpleini -j8
+
 # build core-parser
 cmake -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \

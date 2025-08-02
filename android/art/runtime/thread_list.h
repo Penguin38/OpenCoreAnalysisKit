@@ -27,12 +27,7 @@ struct ThreadList_OffsetTable {
     uint32_t list_;
 };
 
-struct ThreadList_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct ThreadList_OffsetTable __ThreadList_offset__;
-extern struct ThreadList_SizeTable __ThreadList_size__;
 
 namespace art {
 

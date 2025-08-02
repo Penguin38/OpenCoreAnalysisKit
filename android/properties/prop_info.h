@@ -30,9 +30,6 @@ struct PropInfo_OffsetTable {
 
 struct PropInfo_SizeTable {
     uint32_t THIS;
-    uint32_t serial;
-    uint32_t value;
-    uint32_t name;
 };
 
 extern struct PropInfo_OffsetTable __PropInfo_offset__;

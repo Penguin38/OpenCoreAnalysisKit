@@ -25,11 +25,8 @@
 #include "common/bit.h"
 
 struct Space_OffsetTable __Space_offset__;
-struct Space_SizeTable __Space_size__;
 struct ContinuousSpace_OffsetTable __ContinuousSpace_offset__;
-struct ContinuousSpace_SizeTable __ContinuousSpace_size__;
 struct ContinuousMemMapAllocSpace_OffsetTable __ContinuousMemMapAllocSpace_offset__;
-struct ContinuousMemMapAllocSpace_SizeTable __ContinuousMemMapAllocSpace_size__;
 
 namespace art {
 namespace gc {

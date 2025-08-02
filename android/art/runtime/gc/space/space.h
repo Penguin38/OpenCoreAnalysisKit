@@ -30,12 +30,7 @@ struct Space_OffsetTable {
     uint32_t name_;
 };
 
-struct Space_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Space_OffsetTable __Space_offset__;
-extern struct Space_SizeTable __Space_size__;
 
 struct ContinuousSpace_OffsetTable {
     uint32_t begin_;
@@ -43,12 +38,7 @@ struct ContinuousSpace_OffsetTable {
     uint32_t limit_;
 };
 
-struct ContinuousSpace_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct ContinuousSpace_OffsetTable __ContinuousSpace_offset__;
-extern struct ContinuousSpace_SizeTable __ContinuousSpace_size__;
 
 struct ContinuousMemMapAllocSpace_OffsetTable {
     uint32_t live_bitmap_;
@@ -56,12 +46,7 @@ struct ContinuousMemMapAllocSpace_OffsetTable {
     uint32_t temp_bitmap_;
 };
 
-struct ContinuousMemMapAllocSpace_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct ContinuousMemMapAllocSpace_OffsetTable __ContinuousMemMapAllocSpace_offset__;
-extern struct ContinuousMemMapAllocSpace_SizeTable __ContinuousMemMapAllocSpace_size__;
 
 namespace art {
 namespace gc {

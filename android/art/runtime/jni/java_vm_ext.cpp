@@ -23,7 +23,6 @@
 #include <string.h>
 
 struct JavaVMExt_OffsetTable __JavaVMExt_offset__;
-struct JavaVMExt_SizeTable __JavaVMExt_size__;
 
 namespace art {
 

@@ -31,13 +31,6 @@ struct StandardDexFile_CodeItem_OffsetTable {
 
 struct StandardDexFile_CodeItem_SizeTable {
     uint32_t THIS;
-    uint32_t registers_size_;
-    uint32_t ins_size_;
-    uint32_t outs_size_;
-    uint32_t tries_size_;
-    uint32_t debug_info_off_;
-    uint32_t insns_size_in_code_units_;
-    uint32_t insns_;
 };
 
 extern struct StandardDexFile_CodeItem_OffsetTable __StandardDexFile_CodeItem_offset__;

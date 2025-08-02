@@ -117,6 +117,19 @@ add_definitions(-D__LZMA__)
 set(LZMA_LIB lzma)
 endif()
 
+set(INI_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/../3rd-party/simpleini)
+set(INI_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/3rd-party/simpleini/)
+add_library(simpleini STATIC IMPORTED)
+set_target_properties(simpleini PROPERTIES IMPORTED_LOCATION ${INI_LIB_DIR}/libgmock_main.a)
+include_directories(${INI_INCLUDE_DIR})
+
+if (NOT EXISTS "${INI_LIB_DIR}/libgmock_main.a")
+message(STATUS "Not found ${INI_LIB_DIR}/libgmock_main.a")
+else()
+add_definitions(-D__SIMPLEINI__)
+set(INI_LIB simpleini)
+endif()
+
 include_directories(utils)
 add_library(utils STATIC
             utils/base/utils.cpp
@@ -327,6 +340,7 @@ set(CORE_PARSER_SOURCES
     parser/command/help.cpp
     parser/command/cmd_time.cpp
     parser/command/cmd_env.cpp
+    parser/command/cmd_ini.cpp
     parser/command/cmd_shell.cpp
     parser/command/cmd_plugin.cpp
     parser/command/core/cmd_core.cpp

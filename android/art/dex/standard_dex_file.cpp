@@ -38,13 +38,6 @@ void StandardDexFile::CodeItem::Init() {
 
     __StandardDexFile_CodeItem_size__ = {
         .THIS = 20,
-        .registers_size_ = 2,
-        .ins_size_ = 2,
-        .outs_size_ = 2,
-        .tries_size_ = 2,
-        .debug_info_off_ = 4,
-        .insns_size_in_code_units_ = 4,
-        .insns_ = 2,
     };
 }
 

@@ -29,12 +29,7 @@ struct ClassLinker_OffsetTable {
     uint32_t dex_caches_;
 };
 
-struct ClassLinker_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct ClassLinker_OffsetTable __ClassLinker_offset__;
-extern struct ClassLinker_SizeTable __ClassLinker_size__;
 
 struct DexCacheData_OffsetTable {
     uint32_t weak_root;
@@ -43,12 +38,7 @@ struct DexCacheData_OffsetTable {
     uint32_t registration_index;
 };
 
-struct DexCacheData_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct DexCacheData_OffsetTable __DexCacheData_offset__;
-extern struct DexCacheData_SizeTable __DexCacheData_size__;
 
 namespace art {
 

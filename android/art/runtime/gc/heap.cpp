@@ -29,7 +29,6 @@
 #include "runtime/gc/space/dlmalloc_space.h"
 
 struct Heap_OffsetTable __Heap_offset__;
-struct Heap_SizeTable __Heap_size__;
 
 namespace art {
 namespace gc {

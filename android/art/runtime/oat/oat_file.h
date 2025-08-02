@@ -39,10 +39,10 @@ namespace art {
 class DexFile;
 
 enum class OatClassType : uint8_t {
-  kAllCompiled = 0,   // OatClass is followed by an OatMethodOffsets for each method.
-  kSomeCompiled = 1,  // A bitmap of OatMethodOffsets that are present follows the OatClass.
-  kNoneCompiled = 2,  // All methods are interpreted so no OatMethodOffsets are necessary.
-  kLast = kNoneCompiled
+    kAllCompiled = 0,   // OatClass is followed by an OatMethodOffsets for each method.
+    kSomeCompiled = 1,  // A bitmap of OatMethodOffsets that are present follows the OatClass.
+    kNoneCompiled = 2,  // All methods are interpreted so no OatMethodOffsets are necessary.
+    kLast = kNoneCompiled
 };
 
 class OatFile : public api::MemoryRef {

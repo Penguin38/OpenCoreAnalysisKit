@@ -27,8 +27,6 @@ struct Array_OffsetTable {
 
 struct Array_SizeTable {
     uint32_t THIS;
-    uint32_t length_;
-    uint32_t first_element_;
 };
 
 extern struct Array_OffsetTable __Array_offset__;

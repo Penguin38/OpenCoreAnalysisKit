@@ -32,11 +32,6 @@ void android::PropArea::Init() {
 
     __PropArea_size__ = {
         .THIS = 128,
-        .bytes_used_ = 4,
-        .serial_ = 4,
-        .magic_ = 4,
-        .version_ = 4,
-        .data_ = 0,
     };
 }
 
@@ -55,12 +50,6 @@ void android::Propbt::Init() {
 
     __Propbt_size__ = {
         .THIS = 20,
-        .namelen = 4,
-        .prop = 4,
-        .left = 4,
-        .right = 4,
-        .children = 4,
-        .name = 0,
     };
 }
 

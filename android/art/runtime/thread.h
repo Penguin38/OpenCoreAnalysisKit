@@ -32,12 +32,7 @@ struct Thread_OffsetTable {
     uint32_t wait_monitor_;
 };
 
-struct Thread_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Thread_OffsetTable __Thread_offset__;
-extern struct Thread_SizeTable __Thread_size__;
 
 struct Thread_tls_32bit_sized_values_OffsetTable {
     uint32_t state_and_flags;
@@ -46,12 +41,7 @@ struct Thread_tls_32bit_sized_values_OffsetTable {
     uint32_t tid;
 };
 
-struct Thread_tls_32bit_sized_values_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Thread_tls_32bit_sized_values_OffsetTable __Thread_tls_32bit_sized_values_offset__;
-extern struct Thread_tls_32bit_sized_values_SizeTable __Thread_tls_32bit_sized_values_size__;
 
 struct Thread_tls_ptr_sized_values_OffsetTable {
     uint32_t stack_end;
@@ -67,12 +57,7 @@ struct Thread_tls_ptr_sized_values_OffsetTable {
     uint32_t held_mutexes;
 };
 
-struct Thread_tls_ptr_sized_values_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Thread_tls_ptr_sized_values_OffsetTable __Thread_tls_ptr_sized_values_offset__;
-extern struct Thread_tls_ptr_sized_values_SizeTable __Thread_tls_ptr_sized_values_size__;
 
 namespace art {
 

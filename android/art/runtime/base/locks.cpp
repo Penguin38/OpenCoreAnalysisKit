@@ -19,8 +19,8 @@
 
 namespace art {
 
-uint8_t LockLevel::kMonitorLock = 56;
-uint8_t LockLevel::kLockLevelCount = 78;
+uint32_t LockLevel::kMonitorLock = 56;
+uint32_t LockLevel::kLockLevelCount = 78;
 
 void LockLevel::Init() {
     Android::RegisterSdkListener(Android::M, art::LockLevel::Init23);

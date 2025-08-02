@@ -28,9 +28,6 @@ struct CompactDexFile_CodeItem_OffsetTable {
 
 struct CompactDexFile_CodeItem_SizeTable {
     uint32_t THIS;
-    uint32_t fields_;
-    uint32_t insns_count_and_flags_;
-    uint32_t insns_;
 };
 
 extern struct CompactDexFile_CodeItem_OffsetTable __CompactDexFile_CodeItem_offset__;
