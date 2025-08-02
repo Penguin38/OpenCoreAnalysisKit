@@ -71,6 +71,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cma
       -DANDROID_PLATFORM=$BUILD_ANDROID_PLATFORM \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      -DSIMPLEINI_USE_SYSTEM_GTEST=OFF \
       3rd-party/simpleini/CMakeLists.txt \
       -B $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/simpleini
 
