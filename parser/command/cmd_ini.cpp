@@ -72,9 +72,9 @@
 #include <getopt.h>
 #include <string>
 
-#if defined(__SIMPLEINI__)
+#if defined(__PARSE_INI__)
 #include "SimpleIni.h"
-#endif // __SIMPLEINI__
+#endif // __PARSE_INI__
 
 #define INI_ENTRY(NAME) {#NAME, &NAME}
 
@@ -575,7 +575,7 @@ int IniCommand::main(int argc, char* const argv[]) {
         if (options.optind >= argc)
             return 0;
 
-#if defined(__SIMPLEINI__)
+#if defined(__PARSE_INI__)
         CSimpleIniA ini;
         ini.SetUnicode();
 
@@ -604,7 +604,9 @@ int IniCommand::main(int argc, char* const argv[]) {
                 }
             }
         }
-#endif // __SIMPLEINI__
+#else
+        LOGE("Not support parse ini.\n");
+#endif
     } else if (options.store) {
         if (options.optind >= argc)
             return 0;

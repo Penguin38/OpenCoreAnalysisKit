@@ -124,7 +124,7 @@ include_directories(${INI_INCLUDE_DIR})
 if (NOT EXISTS "${INI_LIB_DIR}/lib/libgmock.a")
 message(STATUS "Not found ${INI_LIB_DIR}/lib/libgmock.a")
 else()
-add_definitions(-D__SIMPLEINI__)
+add_definitions(-D__PARSE_INI__)
 endif()
 
 include_directories(utils)
