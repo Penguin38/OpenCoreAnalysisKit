@@ -15,6 +15,7 @@
  */
 
 #include "logger/log.h"
+#include "ini.h"
 #include "api/core.h"
 #include "command/cmd_ini.h"
 #include "properties/prop_info.h"
@@ -71,10 +72,6 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string>
-
-#if defined(__PARSE_INI__)
-#include "SimpleIni.h"
-#endif // __PARSE_INI__
 
 #define INI_ENTRY(NAME) {#NAME, &NAME}
 
@@ -575,18 +572,14 @@ int IniCommand::main(int argc, char* const argv[]) {
         if (options.optind >= argc)
             return 0;
 
-#if defined(__PARSE_INI__)
-        CSimpleIniA ini;
-        ini.SetUnicode();
-
-        SI_Error rc = ini.LoadFile(argv[options.optind]);
-        if (rc < 0) {
+        Ini ini;
+        if (!ini.LoadFile(argv[options.optind])) {
             LOGE("Error loading %s file.\n", argv[options.optind]);
             return 0;
         }
 
         for (auto& section : android_sections) {
-            if (ini.GetSectionSize(section.first.c_str()) <= 0)
+            if (!ini.HasSection(section.first.c_str()))
                 continue;
 
             std::unordered_map<std::string, void *>* android_section = section.second;
@@ -594,7 +587,7 @@ int IniCommand::main(int argc, char* const argv[]) {
 
             for (auto& entry : *android_section) {
                 const char* key_name = entry.first.c_str();
-                const char* value = ini.GetValue(section_name, key_name, nullptr, nullptr);
+                const char* value = ini.GetValue(section_name, key_name, nullptr);
                 if (value) {
                     uint32_t v = std::atoi(value);
                     if (v != OffsetValue(entry.second)) {
@@ -604,9 +597,6 @@ int IniCommand::main(int argc, char* const argv[]) {
                 }
             }
         }
-#else
-        LOGE("Not support parse ini.\n");
-#endif
     } else if (options.store) {
         if (options.optind >= argc)
             return 0;

@@ -117,16 +117,6 @@ add_definitions(-D__LZMA__)
 set(LZMA_LIB lzma)
 endif()
 
-set(INI_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/../3rd-party/simpleini)
-set(INI_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/3rd-party/simpleini/)
-include_directories(${INI_INCLUDE_DIR})
-
-if (NOT EXISTS "${INI_LIB_DIR}/lib/libgmock.a")
-message(STATUS "Not found ${INI_LIB_DIR}/lib/libgmock.a")
-else()
-add_definitions(-D__PARSE_INI__)
-endif()
-
 include_directories(utils)
 add_library(utils STATIC
             utils/base/utils.cpp
@@ -329,8 +319,10 @@ set(LINKER_PTHREAD "-lpthread")
 endif()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl ${LINKER_PTHREAD}")
 
+include_directories(ini)
 include_directories(parser)
 set(CORE_PARSER_SOURCES
+    ini/ini.cpp
     parser/command/env.cpp
     parser/command/command.cpp
     parser/command/command_manager.cpp
