@@ -69,8 +69,8 @@ bool CoreApi::Load(std::unique_ptr<MemoryMap>& map, bool remote, std::function<v
         }
 
         switch(header->machine) {
-            case EM_AARCH64:
 #if defined(__LP64__)
+            case EM_AARCH64:
                 INSTANCE = std::make_unique<arm64::Core>(map);
                 break;
             case EM_RISCV:
