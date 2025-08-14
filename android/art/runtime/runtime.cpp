@@ -450,8 +450,10 @@ Runtime& Runtime::Current() {
             do {
                 counter++;
                 uint32_t offset = OFFSET(Runtime, heap_) + (counter * point_size);
+                uint32_t finalizer_timeout_ms_ = runtime.value32Of(offset - point_size);
                 // maybe filter finalizer_timeout_ms_
-                if (runtime.valueOf(offset) & 0xFFFFFFFFFFF00000ULL)
+                if ((runtime.valueOf(offset) & 0xFFFFFFFFFFF00000ULL)
+                        && finalizer_timeout_ms_ >= 10000 && finalizer_timeout_ms_ < 1048576)
                     block = CoreApi::FindLoadBlock(runtime.valueOf(offset) , false);
             } while (!block && counter < 100);
 
