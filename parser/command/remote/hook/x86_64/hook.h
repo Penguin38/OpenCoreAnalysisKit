@@ -25,6 +25,7 @@ namespace x86_64 {
 class Hook : public lp64::HookImpl {
 public:
     Hook(int pid) : lp64::HookImpl(pid) {}
+    int GetMachine() { return EM_X86_64; }
     bool InjectLibrary(const char* library);
     uint64_t RegsSize() { return sizeof(pt_regs); }
 private:

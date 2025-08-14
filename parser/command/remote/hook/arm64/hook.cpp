@@ -21,7 +21,6 @@
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/arm64/hook.h"
 #include "command/remote/cmd_remote.h"
-#include "command/remote/fakecore/process.h"
 #include <sys/mman.h>
 #include <unistd.h>
 #include <dlfcn.h>
@@ -41,20 +40,10 @@ static Hook::MethodTable kArm64MethodTable[] = {
 };
 
 bool Hook::InjectLibrary(const char* library) {
-    if (!CoreApi::IsRemote() || Env::CurrentRemotePid() != Pid()) {
-        std::unique_ptr<FakeCore::Stream> process =
-                std::make_unique<fakecore::Process>(Pid());
-        std::unique_ptr<FakeCore> impl = FakeCore::Make(process);
-        if (!impl)
-            return false;
-
-        impl->InitVaBits(39);
-        impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
-        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
-        impl->execute(nullptr);
-    }
-
     if (!library || !strlen(library))
+        return false;
+
+    if (!InitEnv())
         return false;
 
     LOGI("arm64: hook inject \"%s\"\n", library);
@@ -102,19 +91,8 @@ bool Hook::InjectLibrary(const char* library) {
 }
 
 bool Hook::CallMethod(const char* method, int argc, char* const argv[]) {
-    if (!CoreApi::IsRemote() || Env::CurrentRemotePid() != Pid()) {
-        std::unique_ptr<FakeCore::Stream> process =
-                std::make_unique<fakecore::Process>(Pid());
-        std::unique_ptr<FakeCore> impl = FakeCore::Make(process);
-        if (!impl)
-            return false;
-
-        impl->InitVaBits(39);
-        impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
-        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
-        impl->execute(nullptr);
-    }
-
+    if (!InitEnv())
+        return false;
     bool no_error;
     CallMethodInner(method, argc, argv, &no_error);
     return no_error;
@@ -277,20 +255,10 @@ static void CreateBlrCode(uint32_t* code, uint64_t addr) {
 }
 
 bool Hook::InlineMethod(int argc, char* const argv[]) {
-    if (!CoreApi::IsRemote() || Env::CurrentRemotePid() != Pid()) {
-        std::unique_ptr<FakeCore::Stream> process =
-                std::make_unique<fakecore::Process>(Pid());
-        std::unique_ptr<FakeCore> impl = FakeCore::Make(process);
-        if (!impl)
-            return false;
-
-        impl->InitVaBits(39);
-        impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
-        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
-        impl->execute(nullptr);
-    }
-
     if (argc < 2)
+        return false;
+
+    if (!InitEnv())
         return false;
 
     uint64_t inline_addr = Utils::atol(argv[0]);

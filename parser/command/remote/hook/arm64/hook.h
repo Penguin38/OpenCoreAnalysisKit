@@ -25,6 +25,7 @@ namespace arm64 {
 class Hook : public lp64::HookImpl {
 public:
     Hook(int pid) : lp64::HookImpl(pid) {}
+    int GetMachine() { return EM_AARCH64; }
     uint64_t RegsSize() { return sizeof(pt_regs); }
     bool InjectLibrary(const char* library);
     bool CallMethod(const char* method, int argc, char* const argv[]);

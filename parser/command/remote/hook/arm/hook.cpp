@@ -21,7 +21,6 @@
 #include "command/remote/opencore/opencore.h"
 #include "command/remote/hook/arm/hook.h"
 #include "command/remote/cmd_remote.h"
-#include "command/remote/fakecore/process.h"
 #include <unistd.h>
 #include <dlfcn.h>
 #include <string.h>
@@ -29,19 +28,10 @@
 namespace arm {
 
 bool Hook::InjectLibrary(const char* library) {
-    if (!CoreApi::IsRemote() || Env::CurrentRemotePid() != Pid()) {
-        std::unique_ptr<FakeCore::Stream> process =
-                std::make_unique<fakecore::Process>(Pid());
-        std::unique_ptr<FakeCore> impl = FakeCore::Make(process);
-        if (!impl)
-            return false;
-
-        impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
-        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
-        impl->execute(nullptr);
-    }
-
     if (!library || !strlen(library))
+        return false;
+
+    if (!InitEnv())
         return false;
 
     LOGI("arm: hook inject \"%s\"\n", library);

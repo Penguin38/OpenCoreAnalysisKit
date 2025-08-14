@@ -16,7 +16,9 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "android.h"
 #include "base/utils.h"
+#include "common/elf.h"
 #include "command/env.h"
 #include "command/remote/hook/hook.h"
 #include "command/remote/hook/arm64/hook.h"
@@ -25,6 +27,7 @@
 #include "command/remote/hook/x86/hook.h"
 #include "command/remote/hook/riscv64/hook.h"
 #include "command/remote/opencore/opencore.h"
+#include "command/remote/fakecore/process.h"
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/ptrace.h>
@@ -33,6 +36,9 @@
 #include <linux/elf.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#if defined(__ANDROID__)
+#include <sys/system_properties.h>
+#endif
 
 int Hook::Main(int argc, char* const argv[]) {
     bool inject = false;
@@ -138,6 +144,43 @@ bool Hook::StoreContext(void *regs) {
     if (ptrace(PTRACE_SETREGSET, Pid(), NT_PRSTATUS, &ioVec) < 0) {
         LOGI("%s %d: %s\n", __func__ , Pid(), strerror(errno));
         return false;
+    }
+    return true;
+}
+
+bool Hook::InitEnv() {
+    if (!CoreApi::IsRemote() || Env::CurrentRemotePid() != Pid()) {
+        std::unique_ptr<FakeCore::Stream> process =
+                std::make_unique<fakecore::Process>(Pid());
+        std::unique_ptr<FakeCore> impl = FakeCore::Make(process);
+        if (!impl)
+            return false;
+
+        int machine = GetMachine();
+        if (machine == EM_AARCH64)
+            impl->InitVaBits(39);
+
+        impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
+        impl->InitMask(FakeCore::NO_FAKE_REBUILD);
+
+        // only set libc topath
+#if defined(__ANDROID__)
+        int api_level = -1;
+        char value[92] = { 0 };
+        if (!(__system_property_get("ro.build.version.sdk", value) < 1)) {
+            api_level = atoi(value);
+            api_level = (api_level > 0) ? api_level : -1;
+        }
+        if (api_level >= Android::Q && Pid() != 1) {
+            impl->InitSysRoot("/apex/com.android.runtime");
+        } else {
+            impl->InitSysRoot("/system");
+        }
+#elif defined(__LINUX__)
+        impl->InitSysRoot("/lib");
+#endif
+
+        impl->execute(nullptr);
     }
     return true;
 }

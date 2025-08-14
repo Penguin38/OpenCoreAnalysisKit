@@ -25,6 +25,7 @@ namespace arm {
 class Hook : public lp32::HookImpl {
 public:
     Hook(int pid) : lp32::HookImpl(pid) {}
+    int GetMachine() { return EM_ARM; }
     bool InjectLibrary(const char* library);
     uint64_t RegsSize() { return sizeof(pt_regs); }
 private:
