@@ -104,16 +104,7 @@ int FakeCore::execute(const char* output) {
     }
 
     /** LINKER LD */
-    if (GetSysRootDir().length() == 0) {
-#if defined(__ANDROID__)
-        auto callback = [&](LinkMap* map) -> bool {
-            FakeLinkMap::SysRoot(map->name());
-            CoreApi::SysRoot(map->name());
-            return false;
-        };
-        CoreApi::ForeachLinkMap(callback);
-#endif
-    } else {
+    if (GetSysRootDir().length() > 0) {
         FakeLinkMap::SysRoot(GetSysRootDir().c_str());
         CoreApi::SysRoot(GetSysRootDir().c_str());
     }
