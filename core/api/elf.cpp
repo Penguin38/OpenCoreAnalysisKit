@@ -241,7 +241,7 @@ Elfx_Dynamic Elf::FindDynamic(LinkMap* handle) {
             return dynamic;
         }
 
-        Elfx_Phdr phdr(ehdr.Ptr() + ehdr.e_phoff(), ehdr);
+        Elfx_Phdr phdr(ehdr.Ptr() + SIZEOF(Elfx_Ehdr), ehdr);
         int phnum = ehdr.e_phnum();
 
         Elfx_Phdr tmp = phdr;

@@ -28,7 +28,7 @@
 
 bool lp64::Core::load64(CoreApi* api, std::function<void* (OptionArgs&)> callback) {
     Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(api->begin());
-    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(api->begin() + ehdr->e_phoff);
+    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(api->begin() + sizeof(Elf64_Ehdr));
 
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (phdr[num].p_type == PT_LOAD) {
@@ -139,7 +139,7 @@ bool lp64::Core::exec64(CoreApi* api, uint64_t phdr, const char* file) {
             return false;
 
         Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
-        Elf64_Phdr* pt = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
+        Elf64_Phdr* pt = reinterpret_cast<Elf64_Phdr*>(map->data() + sizeof(Elf64_Ehdr));
 
         if (pt[0].p_type != PT_PHDR) {
             LOGE("Exec file PHDR segment non-first\n");
@@ -199,7 +199,7 @@ bool lp64::Core::loader_dlopen64(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
     bool status = false;
     Elf64_Ehdr* ehdr = reinterpret_cast<Elf64_Ehdr*>(map->data());
-    Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + ehdr->e_phoff);
+    Elf64_Phdr* phdr = reinterpret_cast<Elf64_Phdr*>(map->data() + sizeof(Elf64_Ehdr));
 
     int idx = 0;
     for (int index = 0; index < ehdr->e_phnum; ++index) {

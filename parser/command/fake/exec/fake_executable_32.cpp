@@ -41,7 +41,7 @@ bool FakeExecutable::RebuildExecDynamic32(LinkMap* executable) {
             return false;
 
         Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
-        Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
+        Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + sizeof(Elf32_Ehdr));
 
         if (phdr[0].p_type != PT_PHDR) {
             LOGE("Exec file PHDR segment non-first\n");

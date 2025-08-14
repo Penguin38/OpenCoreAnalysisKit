@@ -309,7 +309,7 @@ int OpencoreImpl::NeedFilterFile(Opencore::VirtualMemoryArea& vma) {
         return VMA_NULL;
 
     int ret = VMA_NULL;
-    Elf64_Phdr* phdr = (Elf64_Phdr *)(mem + ehdr->e_phoff);
+    Elf64_Phdr* phdr = (Elf64_Phdr *)(mem + sizeof(Elf64_Ehdr));
     for (int index = 0; index < ehdr->e_phnum; index++) {
         if (phdr[index].p_type != PT_LOAD)
             continue;

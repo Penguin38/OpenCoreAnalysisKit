@@ -28,7 +28,7 @@
 
 bool lp32::Core::load32(CoreApi* api, std::function<void* (OptionArgs&)> callback) {
     Elf32_Ehdr *ehdr = reinterpret_cast<Elf32_Ehdr *>(api->begin());
-    Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(api->begin() + ehdr->e_phoff);
+    Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(api->begin() + sizeof(Elf32_Ehdr));
 
     for (int num = 0; num < ehdr->e_phnum; ++num) {
         if (phdr[num].p_type == PT_LOAD) {
@@ -139,7 +139,7 @@ bool lp32::Core::exec32(CoreApi* api, uint32_t phdr, const char* file) {
             return false;
 
         Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
-        Elf32_Phdr* pt = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
+        Elf32_Phdr* pt = reinterpret_cast<Elf32_Phdr*>(map->data() + sizeof(Elf32_Ehdr));
 
         if (pt[0].p_type != PT_PHDR) {
             LOGE("Exec file PHDR segment non-first\n");
@@ -199,7 +199,7 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
 
     bool status = false;
     Elf32_Ehdr* ehdr = reinterpret_cast<Elf32_Ehdr*>(map->data());
-    Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + ehdr->e_phoff);
+    Elf32_Phdr* phdr = reinterpret_cast<Elf32_Phdr*>(map->data() + sizeof(Elf32_Ehdr));
 
     int idx = 0;
     for (int index = 0; index < ehdr->e_phnum; ++index) {

@@ -191,7 +191,7 @@ bool FakeLinkMap::FakeLD32(LinkMap* map) {
         return false;
 
     Elf32_Ehdr *ehdr = reinterpret_cast<Elf32_Ehdr *>(block->begin());
-    Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(block->begin() + ehdr->e_phoff);
+    Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(block->begin() + sizeof(Elf32_Ehdr));
 
     bool need_calibrate = false;
     for (int num = 0; num < ehdr->e_phnum; ++num) {

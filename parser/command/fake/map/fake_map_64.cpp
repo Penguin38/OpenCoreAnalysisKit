@@ -190,7 +190,7 @@ bool FakeLinkMap::FakeLD64(LinkMap* map) {
         return false;
 
     Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(block->begin());
-    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(block->begin() + ehdr->e_phoff);
+    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(block->begin() + sizeof(Elf64_Ehdr));
 
     bool need_calibrate = false;
     for (int num = 0; num < ehdr->e_phnum; ++num) {
