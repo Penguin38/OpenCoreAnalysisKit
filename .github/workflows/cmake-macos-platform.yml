@@ -21,10 +21,10 @@ jobs:
     - name: Build
       run: |
         bash ./script/build_macos.sh
-        tar -czvf core-parser_1.0.9.tar.gz output/aosp/debug/macos/bin/core-parser
+        tar -czvf core-parser_1.1.0.tar.gz output/aosp/debug/macos/bin/core-parser
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: core-parser_1.0.9_for_macos.tar.gz
-        path: core-parser_1.0.9.tar.gz
+        name: core-parser_1.1.0_for_macos.tar.gz
+        path: core-parser_1.1.0.tar.gz
