@@ -234,8 +234,10 @@ bool lp32::Core::loader_dlopen32(CoreApi* api, MemoryMap* map, ::LinkMap* handle
         }
 
         uint32_t mem_size = RoundUp(phdr[index].p_offset + map->offset()
-                                  + phdr[index].p_memsz, phdr[index].p_align)
-                                  - page_offset;
+                                  + phdr[index].p_memsz, phdr[index].p_align);
+        if (mem_size < page_offset)
+            return status;
+        mem_size -= page_offset;
         if (mem_size >= block->memsz()) {
             block->setMmapFile(file, page_offset);
             if (handle) block->bind(handle);
