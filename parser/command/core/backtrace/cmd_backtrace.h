@@ -81,6 +81,7 @@ public:
     ThreadRecord* findRecord(int pid);
     void DumpTrace();
     void DumpJavaStack(void *thread, ThreadApi* api);
+    void DumpJavaJniStack(uint32_t *subjni, ThreadApi* api);
     void DumpNativeStack(void *thread, ThreadApi* api);
     static std::string FormatJavaFrame(const char* prefix, uint64_t size);
     static std::string FormatJNINativeFrame(const char* prefix, uint64_t size);

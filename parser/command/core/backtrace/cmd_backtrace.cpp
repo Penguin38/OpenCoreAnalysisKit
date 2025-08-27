@@ -303,6 +303,31 @@ static void DumpJavaFrameState(const char* prefix, art::Thread* thread, art::Jav
     }
 }
 
+void BacktraceCommand::DumpJavaJniStack(uint32_t *subjni, ThreadApi* api) {
+    LOGI(ANSI_COLOR_LIGHTRED "    <<JNI INTERFACE CALL JAVA METHOD>>\n" ANSI_COLOR_RESET);
+    if (CoreApi::GetMachine() == EM_AARCH64 && options.dump_fps.size() > *subjni) {
+        std::unique_ptr<arm64::UnwindStack> unwind_stack = std::make_unique<arm64::UnwindStack>(api);
+        unwind_stack->OnlyFpBackStack(options.dump_fps[*subjni]);
+        std::string sub_format = FormatJNINativeFrame("      ", unwind_stack->GetNativeFrames().size());
+        uint32_t sub_frameid = 0;
+        for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
+            std::string method_desc = native_frame->GetMethodName();
+            uint64_t offset = (native_frame->GetFramePc() & CoreApi::GetVabitsMask()) - native_frame->GetMethodOffset();
+            if (offset && native_frame->GetMethodOffset())
+                method_desc.append("+").append(Utils::ToHex(offset));
+
+            if (!method_desc.length() && native_frame->GetLinkMap()
+                    && native_frame->GetLinkMap()->begin()) {
+                method_desc.append(native_frame->GetLibrary());
+                method_desc.append("+").append(Utils::ToHex(offset-native_frame->GetLinkMap()->begin()));
+            }
+            LOGI(sub_format.c_str(), sub_frameid, native_frame->GetFramePc(), method_desc.c_str());
+            ++sub_frameid;
+        }
+    }
+    (*subjni)++;
+}
+
 void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
     if (!th) return;
 
@@ -317,30 +342,8 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
         art::QuickFrame& prev_quick_frame = java_frame->GetPrevQuickFrame();
         if (options.dump_detail && (prev_quick_frame.Ptr() && prev_quick_frame.GetMethod().IsRuntimeMethod()
                 || java_frame->GetMethod().IsNative())) {
-            if (frameid) {
-                LOGI(ANSI_COLOR_LIGHTRED "    <<JNI INTERFACE CALL JAVA METHOD>>\n" ANSI_COLOR_RESET);
-                if (CoreApi::GetMachine() == EM_AARCH64 && options.dump_fps.size() > subjni) {
-                    std::unique_ptr<arm64::UnwindStack> unwind_stack = std::make_unique<arm64::UnwindStack>(api);
-                    unwind_stack->OnlyFpBackStack(options.dump_fps[subjni]);
-                    std::string sub_format = FormatJNINativeFrame("      ", unwind_stack->GetNativeFrames().size());
-                    uint32_t sub_frameid = 0;
-                    for (const auto& native_frame : unwind_stack->GetNativeFrames()) {
-                        std::string method_desc = native_frame->GetMethodName();
-                        uint64_t offset = (native_frame->GetFramePc() & CoreApi::GetVabitsMask()) - native_frame->GetMethodOffset();
-                        if (offset && native_frame->GetMethodOffset())
-                            method_desc.append("+").append(Utils::ToHex(offset));
-
-                        if (!method_desc.length() && native_frame->GetLinkMap()
-                                && native_frame->GetLinkMap()->begin()) {
-                            method_desc.append(native_frame->GetLibrary());
-                            method_desc.append("+").append(Utils::ToHex(offset-native_frame->GetLinkMap()->begin()));
-                        }
-                        LOGI(sub_format.c_str(), sub_frameid, native_frame->GetFramePc(), method_desc.c_str());
-                        ++sub_frameid;
-                    }
-                }
-                subjni++;
-            }
+            if (frameid)
+                DumpJavaJniStack(&subjni, api);
 
             if (java_frame->GetMethod().IsNative()) {
                 LOGI(ANSI_COLOR_LIGHTRED "    <<%s.%s>>\n" ANSI_COLOR_RESET,
@@ -360,6 +363,9 @@ void BacktraceCommand::DumpJavaStack(void *th, ThreadApi* api) {
             } catch(InvalidAddressException& e) {}
         }
         ++frameid;
+
+        if (options.dump_detail && frameid == visitor.GetJavaFrames().size())
+            DumpJavaJniStack(&subjni, api);
     }
 }
 
