@@ -28,7 +28,7 @@ jobs:
     - name: Build
       run: |
         bash ./script/build_android.sh
-        tar -czvf core-parser_1.1.0.tar.gz output/aosp/debug/android/arm64-v8a/bin/core-parser \
+        tar -czvf core-parser_25.8.28.tar.gz output/aosp/debug/android/arm64-v8a/bin/core-parser \
                                            output/aosp/debug/android/x86_64/bin/core-parser \
                                            output/aosp/debug/android/armeabi-v7a/bin/core-parser \
                                            output/aosp/debug/android/x86/bin/core-parser
@@ -36,5 +36,5 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: core-parser_1.1.0_for_android.tar.gz
-        path: core-parser_1.1.0.tar.gz
+        name: core-parser_25.8.28_for_android.tar.gz
+        path: core-parser_25.8.28.tar.gz
