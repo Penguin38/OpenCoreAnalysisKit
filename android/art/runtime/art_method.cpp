@@ -364,7 +364,7 @@ bool ArtMethod::HasCodeItem() {
                        !IsRuntimeMethod() &&
                        !IsProxyMethod();
     if (Android::Sdk() > Android::U)
-        status_flag &= !IsDefaultConflicting(access_flags);
+        status_flag = status_flag && !IsDefaultConflicting(access_flags);
     return status_flag;
 }
 
