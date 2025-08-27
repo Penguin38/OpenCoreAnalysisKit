@@ -294,6 +294,9 @@ static void ReadSymbolEntry32(std::unique_ptr<MemoryMap>& map, int symndx, int s
         if (symtab[i].st_value && symtab[i].st_size) {
             SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info, symtab[i].st_size,
                     const_cast<const char*>(strtab + symtab[i].st_name));
+            // skip code section tag
+            if (entry.symbol == "$x")
+                continue;
             symbols.insert(entry);
         }
     }
