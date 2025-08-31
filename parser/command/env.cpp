@@ -50,6 +50,12 @@ void Env::init() {
     Android::Init();
     Android::Dump();
 #endif
+
+    std::vector<std::shared_ptr<LoadBlock>>& loads = CoreApi::GetLoads(false);
+    if (loads.size() > 0) {
+        auto& block = loads[loads.size() - 1];
+        if (block->isTruncated()) LOGW("the core was truncated!\n");
+    }
 }
 
 void Env::Init() {
