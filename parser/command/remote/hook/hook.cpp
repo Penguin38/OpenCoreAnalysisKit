@@ -156,10 +156,6 @@ bool Hook::InitEnv() {
         if (!impl)
             return false;
 
-        int machine = GetMachine();
-        if (machine == EM_AARCH64)
-            impl->InitVaBits(39);
-
         impl->InitPageSize(sysconf(_SC_PAGE_SIZE));
         impl->InitMask(FakeCore::NO_FAKE_REBUILD);
 

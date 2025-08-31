@@ -53,6 +53,18 @@ int FakeCore::execute(const char* output) {
     if (has_pac || has_taggle_addr) {
         auxv[use_auxv_num++].init(AT_HWCAP, 0xFFFFFFFF);
         auxv[use_auxv_num++].init(AT_HWCAP2, 0xFFFFFFFF);
+        if (!va_bits && maps.size()) {
+            int bits;
+            uint64_t last_addr = maps[maps.size() - 1].end;
+            for (bits = 32; bits < 64; bits++) {
+                if (last_addr <= GENMASK_UL(bits - 1, 0))
+                    break;
+            }
+            if (bits <= 54) {
+                va_bits = bits;
+                LOGI("vabits %d\n", va_bits);
+            }
+        }
     }
 
     ClocNoteFileSize();
