@@ -44,9 +44,10 @@ int FakeCore::execute(const char* output) {
     CreateCoreAUXV();
     ClocNoteFileSize();
 
-    std::unique_ptr<MemoryMap> map(MemoryMap::MmapZeroMem(note.p_offset + note.p_filesz));
+    uint64_t core_size = RoundUp(note.p_offset + note.p_filesz, align_size);
+    std::unique_ptr<MemoryMap> map(MemoryMap::MmapZeroMem(core_size));
     if (!map) {
-        LOGE("alloc size(0x%x) fail, no vma!!\n", note.p_offset + note.p_filesz);
+        LOGE("alloc size(0x%x) fail, no vma!!\n", core_size);
         return 0;
     }
 
