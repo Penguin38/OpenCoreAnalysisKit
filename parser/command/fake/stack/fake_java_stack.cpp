@@ -34,6 +34,7 @@ int FakeJavaStack::OptionJavaStack(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"pc",    required_argument, 0,  1 },
         {"sp",    required_argument, 0,  2 },
+        {"auto",  no_argument,       0, 'a'},
         {"clean", no_argument,       0, 'c'},
         {0,       0,                 0,  0 },
     };
@@ -41,7 +42,8 @@ int FakeJavaStack::OptionJavaStack(int argc, char* const argv[]) {
     uint64_t pc = 0x0;
     uint64_t sp = 0x0;
     bool clean_fake = false;
-    while ((opt = getopt_long(argc, argv, "0:1:c",
+    bool auto_fake = false;
+    while ((opt = getopt_long(argc, argv, "0:1:ac",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 1:
@@ -52,6 +54,9 @@ int FakeJavaStack::OptionJavaStack(int argc, char* const argv[]) {
                 break;
             case 'c':
                 clean_fake = true;
+                break;
+            case 'a':
+                auto_fake = true;
                 break;
         }
     }
@@ -70,6 +75,12 @@ int FakeJavaStack::OptionJavaStack(int argc, char* const argv[]) {
     } else {
         if (strcmp(current->GetStateDescriptor(), "Runnable"))
             return 0;
+
+        if (auto_fake) {
+            ThreadApi* api = CoreApi::FindThread(pid);
+            pc = api->GetFramePC();
+            sp = api->GetFrameSP();
+        }
 
         if (pc != 0x0 && sp != 0x0) {
             current->GetFakeFrame().FillFake(pc, sp);
