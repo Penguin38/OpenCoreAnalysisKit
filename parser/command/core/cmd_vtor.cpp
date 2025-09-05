@@ -37,6 +37,7 @@ int VtorCommand::VirtualToRealVma(VtorCommand::Options& options) {
 
     try {
         LOGI("  * VIRTUAL: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, vaddr);
+        LOGI("  * PHYSICAL: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, block->offset() + (vaddr - block->vaddr()));
         LOGI("  * OFFSET: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, vaddr - block->vaddr());
         LOGI("  * OR: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, CoreApi::GetReal(vaddr, OPT_READ_OR));
         LOGI("  * MMAP: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, CoreApi::GetReal(vaddr, OPT_READ_MMAP));
