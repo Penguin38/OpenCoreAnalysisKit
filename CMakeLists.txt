@@ -362,6 +362,7 @@ set(CORE_PARSER_SOURCES
     parser/command/android/cmd_logcat.cpp
     parser/command/android/cmd_dumpsys.cpp
     parser/command/android/cmd_fdtrack.cpp
+    parser/command/android/verify.cpp
     parser/command/llvm/cmd_cxx.cpp
     parser/command/llvm/cmd_scudo.cpp
     parser/command/fake/cmd_fake.cpp

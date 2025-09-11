@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.
+ * Copyright (C) 2025-present, Guanyou.Chen. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_ANDROID_CMD_SPACE_H_
-#define PARSER_COMMAND_ANDROID_CMD_SPACE_H_
+#ifndef PARSER_COMMAND_ANDROID_VERIFY_H_
+#define PARSER_COMMAND_ANDROID_VERIFY_H_
 
-#include "command/command.h"
+#include "runtime/mirror/object.h"
+#include "runtime/mirror/class.h"
+#include "runtime/mirror/array.h"
 
-class SpaceCommand : public Command {
+class JavaVerify {
 public:
-    SpaceCommand() : Command("space") {}
-    ~SpaceCommand() {}
-
     constexpr static int CHECK_FULL_BAD_OBJECT = 1 << 0;
     constexpr static int CHECK_FULL_CONFLICT_METHOD = 1 << 1;
     constexpr static int CHECK_FULL_REUSE_DEX_PC_PTR = 1 << 2;
-    struct Options : Command::Options {
-        int flag;
-        bool check;
-        int verify;
-    };
 
-    int main(int argc, char* const argv[]);
-    int prepare(int argc, char* const argv[]);
-    void usage();
+    void init(int options);
+    bool isEnabled() { return (options > 0); }
+    void verify(art::mirror::Object& thiz);
+    static void VerifyClassObject(art::mirror::Class& clazz);
+    static void VerifyArrayObject(art::mirror::Array& array);
+    static void VerifyInstanceObject(art::mirror::Object& object);
 private:
-    Options options;
+    int options;
 };
 
-#endif // PARSER_COMMAND_ANDROID_CMD_SPACE_H_
+#endif // PARSER_COMMAND_ANDROID_VERIFY_H_

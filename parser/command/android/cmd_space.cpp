@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "android.h"
 #include "command/android/cmd_space.h"
+#include "command/android/verify.h"
 #include "api/core.h"
 #include "runtime/runtime.h"
 #include "runtime/gc/heap.h"
@@ -36,19 +37,26 @@ int SpaceCommand::prepare(int argc, char* const argv[]) {
     int option_index = 0;
     optind = 0; // reset
     static struct option long_options[] = {
-        {"check",    no_argument,       0,  'c'},
-        {"app",      no_argument,       0,   1 },
-        {"zygote",   no_argument,       0,   2 },
-        {"image",    no_argument,       0,   3 },
-        {"fake",     no_argument,       0,   4 },
-        {0,          0,                 0,   0 },
+        {"check",      no_argument,       0,  'c'},
+        {"full-check", no_argument,       0,  'f'},
+        {"app",        no_argument,       0,   1 },
+        {"zygote",     no_argument,       0,   2 },
+        {"image",      no_argument,       0,   3 },
+        {"fake",       no_argument,       0,   4 },
+        {0,            0,                 0,   0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "c",
+    while ((opt = getopt_long(argc, argv, "cf",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'c':
                 options.check = true;
+                break;
+            case 'f':
+                options.check = true;
+                options.verify = JavaVerify::CHECK_FULL_BAD_OBJECT
+                              | JavaVerify::CHECK_FULL_CONFLICT_METHOD
+                              | JavaVerify::CHECK_FULL_REUSE_DEX_PC_PTR;
                 break;
             case 1:
                 options.flag |= Android::EACH_APP_OBJECTS;
@@ -79,8 +87,10 @@ int SpaceCommand::prepare(int argc, char* const argv[]) {
 
 int SpaceCommand::main(int argc, char* const argv[]) {
     if (options.check) {
+        JavaVerify verify;
+        verify.init(options.verify);
         auto callback = [&](art::mirror::Object& object) -> bool {
-            // do nothing
+            if (verify.isEnabled()) verify.verify(object);
             return false;
         };
         Android::ForeachObjects(callback, options.flag, true);
@@ -112,7 +122,8 @@ int SpaceCommand::main(int argc, char* const argv[]) {
 void SpaceCommand::usage() {
     LOGI("Usage: space [OPTION] [TYPE]\n");
     LOGI("Option:\n");
-    LOGI("    -c, --check   check space bad object.\n");
+    LOGI("    -c, --check        check java space bad object.\n");
+    LOGI("    -f, --full-check   check java space moreinfo.\n");
     LOGI("Type: {--app, --zygote, --image, --fake}\n");
     ENTER();
     LOGI("core-parser> space\n");
