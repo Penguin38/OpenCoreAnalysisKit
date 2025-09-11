@@ -82,8 +82,14 @@ public:
     inline int16_t GetShort(mirror::Object& obj) { return *reinterpret_cast<uint16_t *>(obj.Real() + offset()); }
     inline int32_t GetInt(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
     inline int64_t GetLong(mirror::Object& obj) { return *reinterpret_cast<uint64_t *>(obj.Real() + offset()); }
-    inline float GetFloat(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
-    inline double GetDouble(mirror::Object& obj) { return *reinterpret_cast<uint64_t *>(obj.Real() + offset()); }
+    inline float GetFloat(mirror::Object& obj) {
+        uint32_t value = *reinterpret_cast<uint32_t *>(obj.Real() + offset());
+        return *(float *)&value;
+    }
+    inline double GetDouble(mirror::Object& obj) {
+        uint64_t value = *reinterpret_cast<uint64_t *>(obj.Real() + offset());
+        return *(double *)&value;
+    }
     inline uint32_t Get32(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
     inline uint64_t Get64(mirror::Object& obj) { return *reinterpret_cast<uint64_t *>(obj.Real() + offset()); }
     inline uint32_t GetObj(mirror::Object& obj) { return *reinterpret_cast<uint32_t *>(obj.Real() + offset()); }
