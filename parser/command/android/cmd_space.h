@@ -28,9 +28,9 @@ public:
     constexpr static int CHECK_FULL_CONFLICT_METHOD = 1 << 1;
     constexpr static int CHECK_FULL_REUSE_DEX_PC_PTR = 1 << 2;
     struct Options : Command::Options {
-        int flag;
-        bool check;
-        int verify;
+        int flag    = 0;
+        bool check  = false;
+        int verify  = 0;
     };
 
     int main(int argc, char* const argv[]);

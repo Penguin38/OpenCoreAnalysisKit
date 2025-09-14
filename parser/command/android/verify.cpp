@@ -18,10 +18,15 @@
 #include "android.h"
 #include "command/android/verify.h"
 #include "command/android/cmd_print.h"
+#include "command/android/cmd_class.h"
+#include "runtime/art_method.h"
+#include "dexdump/dexdump.h"
+#include "dalvik_vm_bytecode.h"
 #include <vector>
 
-void JavaVerify::init(int opt) {
+void JavaVerify::init(int opt, int flag) {
     options = opt;
+    flags = flag;
 }
 
 void JavaVerify::verify(art::mirror::Object& object) {
@@ -41,13 +46,15 @@ void JavaVerify::verify(art::mirror::Object& object) {
 
     if (options & CHECK_FULL_CONFLICT_METHOD) {
         if (object.IsClass()) {
-
+            art::mirror::Class thiz = object;
+            VerifyConflictMethod(thiz);
         }
     }
 
     if (options & CHECK_FULL_REUSE_DEX_PC_PTR) {
         if (object.IsClass()) {
-
+            art::mirror::Class thiz = object;
+            VerifyReuseDexPcMethod(thiz);
         }
     }
 }
@@ -153,4 +160,165 @@ void JavaVerify::VerifyInstanceObject(art::mirror::Object& object) {
         super = super.GetSuperClass();
     } while (super.Ptr());
     if (!need_header) ENTER();
+}
+
+void JavaVerify::VerifyConflictMethod(art::mirror::Class& clazz) {
+    ClassCommand::Options options = {
+        .show_flag = ClassCommand::SHOW_IMPL,
+    };
+    bool need_header = true;
+    auto print_method = [&](art::ArtMethod& method) -> bool {
+        if (!method.IsDefaultConflicting())
+            return false;
+
+        if (need_header) {
+            LOGE("verify class conflict method\n");
+            ClassCommand::PrintPrettyClassContent(clazz, options);
+            need_header = false;
+        }
+        LOGI("[0x%" PRIx64 "] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
+                method.Ptr(), art::PrettyMethodAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
+        return false;
+    };
+    Android::ForeachArtMethods(clazz, print_method);
+}
+
+void JavaVerify::VerifyReuseDexPcMethod(art::mirror::Class& clazz) {
+    auto has_code_method = [&](art::ArtMethod& method) -> bool {
+        if (!method.HasCodeItem())
+            return false;
+
+        if (method.IsDefaultConflicting())
+            return false;
+
+        art::dex::CodeItem item = method.GetCodeItem();
+        if (!item.Ptr())
+            return false;
+
+        methods.insert(std::pair<uint64_t, uint64_t>(method.Ptr(), item.Ptr() + item.code_offset_));
+        return false;
+    };
+    Android::ForeachArtMethods(clazz, has_code_method);
+}
+
+uint64_t JavaVerify::FindSuperMethodToCall(art::ArtMethod& method, std::string name) {
+    uint64_t result = 0;
+    art::mirror::Class thiz = method.GetDeclaringClass();
+    art::mirror::Class super = thiz.GetSuperClass();
+    do {
+        auto has_super_method = [&](art::ArtMethod& super_method) -> bool {
+            std::string super_method_pretty;
+            super_method_pretty.append(super_method.GetName());
+            super_method_pretty.append(super_method.PrettyParameters());
+            if (super_method_pretty == name) {
+                result = super_method.Ptr();
+                return true;
+            }
+            return false;
+        };
+        Android::ForeachArtMethods(super, has_super_method);
+        if (result) break;
+        super = super.GetSuperClass();
+    } while (super.Ptr());
+    return result;
+}
+
+void JavaVerify::verifyMethods() {
+    if (!(options & CHECK_FULL_REUSE_DEX_PC_PTR))
+        return;
+
+    std::unordered_map<uint64_t, uint64_t> dex_pc_ptrs;
+    std::unordered_map<uint64_t, std::vector<uint64_t>> reuse_dexpc_method;
+    for (auto& value : methods) {
+        uint64_t method = value.first;
+        uint64_t dex_pc_ptr = value.second;
+
+        if (!dex_pc_ptrs.count(dex_pc_ptr)) {
+            dex_pc_ptrs.insert(std::pair<uint64_t, uint64_t>(dex_pc_ptr, method));
+        } else {
+            auto it = reuse_dexpc_method.find(dex_pc_ptr);
+            if (it == reuse_dexpc_method.end()) {
+                std::vector<uint64_t> tmp_methods;
+                tmp_methods.push_back(dex_pc_ptrs[dex_pc_ptr]);
+                tmp_methods.push_back(method);
+                reuse_dexpc_method.insert(std::pair<uint64_t, std::vector<uint64_t>>(dex_pc_ptr, tmp_methods));
+            } else {
+                it->second.push_back(method);
+            }
+        }
+    }
+
+    for (auto& entry : reuse_dexpc_method) {
+        art::ArtMethod tmp = entry.second[0];
+        art::mirror::Class thiz = tmp.GetDeclaringClass();
+        art::DexFile& dex_file = thiz.GetDexFile();
+
+        art::dex::CodeItem item = tmp.GetCodeItem();
+        api::MemoryRef coderef = item.Ptr() + item.code_offset_;
+        api::MemoryRef endref = coderef.Ptr() + (item.insns_count_ << 1);
+
+        bool maybe_warn = false;
+        std::vector<std::string> super_methods;
+        while (coderef < endref) {
+            uint8_t op = art::Dexdump::GetDexOp(coderef);
+            if (op == DEXOP::INVOKE_SUPER || op == DEXOP::INVOKE_SUPER_RANGE) {
+                std::string super;
+                uint16_t code1 = coderef.value16Of(2);
+                art::dex::MethodId mid = dex_file.GetMethodId(code1);
+                super.append(dex_file.GetMethodName(mid));
+                super.append(dex_file.PrettyMethodParameters(mid));
+                super_methods.push_back(super);
+                maybe_warn = true;
+            }
+            coderef.MovePtr(art::Dexdump::GetDexInstSize(coderef));
+        }
+
+        if (maybe_warn) {
+            bool other_extends = false;
+            for (auto& value : entry.second) {
+                if (tmp.Ptr() == value)
+                    continue;
+
+                art::ArtMethod method = value;
+                art::mirror::Class clazz = method.GetDeclaringClass();
+                art::mirror::Class clazz_super = clazz.GetSuperClass();
+                art::mirror::Class thiz_super = thiz.GetSuperClass();
+
+                if (thiz_super.Ptr() != clazz_super.Ptr()) {
+                    other_extends = true;
+                    break;
+                }
+            }
+
+            if (other_extends) {
+                bool other_super = false;
+                for (auto& name : super_methods) {
+                    uint64_t tmp_super = FindSuperMethodToCall(tmp, name);
+                    for (auto& value : entry.second) {
+                        if (tmp.Ptr() == value)
+                            continue;
+
+                        art::ArtMethod method = value;
+                        uint64_t method_super = FindSuperMethodToCall(method, name);
+
+                        if (tmp_super != method_super) {
+                            other_super = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (other_super) {
+                    uint64_t dex_pc_ptr = entry.first;
+                    LOGE("verify class reuse dex_pc_ptr method\n");
+                    for (auto& value : entry.second) {
+                        art::ArtMethod method = value;
+                        LOGI("[0x%" PRIx64 "] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
+                                method.Ptr(), art::PrettyMethodAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
+                    }
+                    ENTER();
+                }
+            }
+        }
+    }
 }

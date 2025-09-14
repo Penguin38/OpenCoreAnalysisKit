@@ -113,7 +113,7 @@ int ClassCommand::main(int argc, char* const argv[]) {
             art::mirror::Object obj = Utils::atol(argv[options.optind]);
             if (obj.Ptr() && obj.IsValid() && obj.IsClass()) {
                 art::mirror::Class thiz = obj;
-                PrintPrettyClassContent(thiz);
+                PrintPrettyClassContent(thiz, options);
             } else {
                 Android::ForeachObjects(callback, options.obj_each_flags, false);
             }
@@ -135,15 +135,15 @@ bool ClassCommand::PrintClass(art::mirror::Object& object, const char* classname
         options.total_classes++;
         LOGI("[%" PRId64 "] " ANSI_COLOR_LIGHTYELLOW "0x%" PRIx64 "" ANSI_COLOR_LIGHTCYAN " %s\n" ANSI_COLOR_RESET,
                 options.total_classes, thiz.Ptr(), thiz.PrettyDescriptor().c_str());
-        if (options.show_flag) PrintPrettyClassContent(thiz);
+        if (options.show_flag) PrintPrettyClassContent(thiz, options);
     } else if (thiz.PrettyDescriptor() == classname) {
-        PrintPrettyClassContent(thiz);
+        PrintPrettyClassContent(thiz, options);
     }
 
     return false;
 }
 
-void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz) {
+void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz, ClassCommand::Options& options) {
     LOGI(ANSI_COLOR_LIGHTYELLOW "[0x%" PRIx64 "]\n" ANSI_COLOR_RESET, clazz.Ptr());
     art::mirror::Class super = clazz.GetSuperClass();
     art::mirror::IfTable& iftable = clazz.GetIfTable();

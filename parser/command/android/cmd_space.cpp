@@ -32,6 +32,7 @@ int SpaceCommand::prepare(int argc, char* const argv[]) {
 
     options.check = false;
     options.flag = 0;
+    options.verify = 0;
 
     int opt;
     int option_index = 0;
@@ -88,12 +89,13 @@ int SpaceCommand::prepare(int argc, char* const argv[]) {
 int SpaceCommand::main(int argc, char* const argv[]) {
     if (options.check) {
         JavaVerify verify;
-        verify.init(options.verify);
+        verify.init(options.verify, options.flag);
         auto callback = [&](art::mirror::Object& object) -> bool {
             if (verify.isEnabled()) verify.verify(object);
             return false;
         };
         Android::ForeachObjects(callback, options.flag, true);
+        verify.verifyMethods();
     } else {
         art::Runtime& runtime = art::Runtime::Current();
         art::gc::Heap& heap = runtime.GetHeap();

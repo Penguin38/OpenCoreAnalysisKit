@@ -20,6 +20,8 @@
 #include "runtime/mirror/object.h"
 #include "runtime/mirror/class.h"
 #include "runtime/mirror/array.h"
+#include "runtime/art_method.h"
+#include <unordered_map>
 
 class JavaVerify {
 public:
@@ -27,14 +29,20 @@ public:
     constexpr static int CHECK_FULL_CONFLICT_METHOD = 1 << 1;
     constexpr static int CHECK_FULL_REUSE_DEX_PC_PTR = 1 << 2;
 
-    void init(int options);
+    void init(int options, int flag);
     bool isEnabled() { return (options > 0); }
     void verify(art::mirror::Object& thiz);
     static void VerifyClassObject(art::mirror::Class& clazz);
     static void VerifyArrayObject(art::mirror::Array& array);
     static void VerifyInstanceObject(art::mirror::Object& object);
+    static void VerifyConflictMethod(art::mirror::Class& clazz);
+    void VerifyReuseDexPcMethod(art::mirror::Class& clazz);
+    void verifyMethods();
+    static uint64_t FindSuperMethodToCall(art::ArtMethod& method, std::string name);
 private:
     int options;
+    int flags;
+    std::unordered_map<uint64_t, uint64_t> methods;
 };
 
 #endif // PARSER_COMMAND_ANDROID_VERIFY_H_

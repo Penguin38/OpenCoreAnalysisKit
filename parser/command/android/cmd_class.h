@@ -35,11 +35,11 @@ public:
     ~ClassCommand() {}
 
     struct Options : Command::Options {
-        uint64_t total_classes;
-        bool dump_all;
-        bool format_hex;
-        int show_flag;
-        int obj_each_flags;
+        uint64_t total_classes = 0;
+        bool dump_all          = false;
+        bool format_hex        = false;
+        int show_flag          = 0;
+        int obj_each_flags     = 0;
     };
 
     int main(int argc, char* const argv[]);
@@ -47,7 +47,7 @@ public:
     void usage();
 
     bool PrintClass(art::mirror::Object& object, const char* classname);
-    void PrintPrettyClassContent(art::mirror::Class& clazz);
+    static void PrintPrettyClassContent(art::mirror::Class& clazz, ClassCommand::Options& options);
 private:
     Options options;
 };
