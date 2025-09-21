@@ -22,6 +22,7 @@
 #include "runtime/art_method.h"
 #include "dexdump/dexdump.h"
 #include "dalvik_vm_bytecode.h"
+#include "java/lang/Object.h"
 #include <vector>
 
 void JavaVerify::init(int opt, int flag) {
@@ -55,6 +56,14 @@ void JavaVerify::verify(art::mirror::Object& object) {
         if (object.IsClass()) {
             art::mirror::Class thiz = object;
             VerifyReuseDexPcMethod(thiz);
+        }
+    }
+
+    if ((options & CHECK_FULL_U_EXTENDS_RECORD)
+            && (Android::Sdk() == Android::U)) {
+        if (object.IsClass()) {
+            art::mirror::Class thiz = object;
+            VerifyRecordClass(thiz);
         }
     }
 }
@@ -319,6 +328,18 @@ void JavaVerify::verifyMethods() {
                     ENTER();
                 }
             }
+        }
+    }
+}
+
+void JavaVerify::VerifyRecordClass(art::mirror::Class& clazz) {
+    java::lang::Object thiz = clazz;
+    if (clazz.IsRecordClass() || thiz.mirror_instanceof("java.lang.Record")) {
+        std::string classname = clazz.PrettyDescriptor();
+        if (classname != "java.lang.Record") {
+            LOGE("verify class [0x%" PRIx64 "] extends java.lang.Record\n", clazz.Ptr());
+            LOGI("Class Name: " ANSI_COLOR_LIGHTMAGENTA "%s\n" ANSI_COLOR_RESET, classname.c_str());
+            ENTER();
         }
     }
 }

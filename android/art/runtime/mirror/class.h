@@ -155,6 +155,7 @@ public:
     bool IsStringClass();
     inline bool IsDexCacheClass() { return (GetClassFlags() & kClassFlagDexCache) != 0x0; }
     inline bool IsClassLoaderClass() { return (GetClassFlags() & kClassFlagClassLoader) != 0x0; }
+    inline bool IsRecordClass() { return (GetClassFlags() & kClassFlagRecord) != 0x0; }
     inline bool IsClassClass() { return GetClass() == *this; }
     bool IsObjectClass();
     bool IsPrimitive();

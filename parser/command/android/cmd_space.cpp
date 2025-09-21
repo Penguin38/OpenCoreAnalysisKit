@@ -57,7 +57,8 @@ int SpaceCommand::prepare(int argc, char* const argv[]) {
                 options.check = true;
                 options.verify = JavaVerify::CHECK_FULL_BAD_OBJECT
                               | JavaVerify::CHECK_FULL_CONFLICT_METHOD
-                              | JavaVerify::CHECK_FULL_REUSE_DEX_PC_PTR;
+                              | JavaVerify::CHECK_FULL_REUSE_DEX_PC_PTR
+                              | JavaVerify::CHECK_FULL_U_EXTENDS_RECORD;
                 break;
             case 1:
                 options.flag |= Android::EACH_APP_OBJECTS;

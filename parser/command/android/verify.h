@@ -28,6 +28,7 @@ public:
     constexpr static int CHECK_FULL_BAD_OBJECT = 1 << 0;
     constexpr static int CHECK_FULL_CONFLICT_METHOD = 1 << 1;
     constexpr static int CHECK_FULL_REUSE_DEX_PC_PTR = 1 << 2;
+    constexpr static int CHECK_FULL_U_EXTENDS_RECORD = 1 << 3;
 
     void init(int options, int flag);
     bool isEnabled() { return (options > 0); }
@@ -39,6 +40,7 @@ public:
     void VerifyReuseDexPcMethod(art::mirror::Class& clazz);
     void verifyMethods();
     static uint64_t FindSuperMethodToCall(art::ArtMethod& method, std::string name);
+    static void VerifyRecordClass(art::mirror::Class& clazz);
 private:
     int options;
     int flags;
