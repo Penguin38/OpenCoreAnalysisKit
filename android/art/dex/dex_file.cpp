@@ -396,21 +396,21 @@ const char* DexFile::GetTypeDescriptor(dex::TypeId& type_id, const char* def) {
         return def;
     }
     dex::StringIndex idx(type_id.descriptor_idx());
-    return StringDataByIdx(idx);
+    return StringDataByIdx(idx, def);
 }
 
-const char* DexFile::StringDataByIdx(dex::StringIndex idx) {
+const char* DexFile::StringDataByIdx(dex::StringIndex idx, const char* def) {
     uint32_t unicode_length;
-    return StringDataAndUtf16LengthByIdx(idx, &unicode_length);
+    return StringDataAndUtf16LengthByIdx(idx, &unicode_length, def);
 }
 
-const char* DexFile::StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_t* utf16_length) {
+const char* DexFile::StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_t* utf16_length, const char* def) {
     if (!idx.IsValid()) {
         *utf16_length = 0;
-        return nullptr;
+        return def;
     }
     dex::StringId string_id = GetStringId(idx);
-    return GetStringDataAndUtf16Length(string_id, utf16_length);
+    return GetStringDataAndUtf16Length(string_id, utf16_length, def);
 }
 
 dex::StringId DexFile::GetStringId(dex::StringIndex idx) {
@@ -418,7 +418,11 @@ dex::StringId DexFile::GetStringId(dex::StringIndex idx) {
     return string_id;
 }
 
-const char* DexFile::GetStringDataAndUtf16Length(dex::StringId& string_id, uint32_t* utf16_length) {
+const char* DexFile::GetStringDataAndUtf16Length(dex::StringId& string_id, uint32_t* utf16_length, const char* def) {
+    if (!string_id.IsValid()) {
+        dumpReason(string_id.Ptr());
+        return def;
+    }
     api::MemoryRef ref(DataBegin().Ptr() + string_id.string_data_off(), string_id);
     const uint8_t* ptr = reinterpret_cast<const uint8_t *>(ref.Real());
     *utf16_length = DecodeUnsignedLeb128(&ptr);
@@ -456,7 +460,7 @@ const char* DexFile::GetFieldName(dex::FieldId& field_id, const char* def) {
         return def;
     }
     dex::StringIndex idx(field_id.name_idx());
-    return StringDataByIdx(idx);
+    return StringDataByIdx(idx, def);
 }
 
 const char* DexFile::GetMethodName(dex::MethodId& method_id) {
@@ -543,7 +547,7 @@ const char* DexFile::GetMethodShorty(dex::MethodId& method_id, uint32_t* length)
     dex::ProtoIndex idx(method_id.proto_idx());
     dex::ProtoId pid = GetProtoId(idx);
     dex::StringIndex sidx(pid.shorty_idx());
-    return StringDataAndUtf16LengthByIdx(sidx, length);
+    return StringDataAndUtf16LengthByIdx(sidx, length, "");
 }
 
 void DexFile::dumpReason(uint64_t vaddr) {

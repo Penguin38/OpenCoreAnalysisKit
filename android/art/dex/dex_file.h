@@ -92,10 +92,11 @@ public:
     dex::ProtoId GetProtoId(dex::ProtoIndex idx);
     inline const char* GetTypeDescriptor(dex::TypeId& type_id) { return GetTypeDescriptor(type_id, "L<invalid-class>;"); }
     const char* GetTypeDescriptor(dex::TypeId& type_id, const char* def);
-    const char* StringDataByIdx(dex::StringIndex idx);
-    const char* StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_t* utf16_length);
+    inline const char* StringDataByIdx(dex::StringIndex idx) { return StringDataByIdx(idx, "<unknown>"); }
+    const char* StringDataByIdx(dex::StringIndex idx, const char* def);
+    const char* StringDataAndUtf16LengthByIdx(dex::StringIndex idx, uint32_t* utf16_length, const char* def);
     dex::StringId GetStringId(dex::StringIndex idx);
-    const char* GetStringDataAndUtf16Length(dex::StringId& string_id, uint32_t* utf16_length);
+    const char* GetStringDataAndUtf16Length(dex::StringId& string_id, uint32_t* utf16_length, const char* def);
     dex::FieldId GetFieldId(uint32_t idx);
     inline const char* GetFieldTypeDescriptor(dex::FieldId& field_id) { return GetFieldTypeDescriptor(field_id, "B"); }
     const char* GetFieldTypeDescriptor(dex::FieldId& field_id, const char* def);
