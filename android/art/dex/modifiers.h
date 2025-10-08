@@ -174,6 +174,7 @@ static constexpr uint32_t kAccVisibilityFlags = kAccPublic | kAccPrivate | kAccP
 // Returns a human-readable version of the Java part of the access flags, e.g., "private static "
 // (note the trailing whitespace).
 std::string PrettyJavaAccessFlags(uint32_t access_flags);
+std::string PrettyFieldAccessFlags(uint32_t access_flags);
 std::string PrettyClassAccessFlags(uint32_t access_flags);
 std::string PrettyMethodAccessFlags(uint32_t access_flags);
 

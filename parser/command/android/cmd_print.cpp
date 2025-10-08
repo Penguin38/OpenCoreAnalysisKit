@@ -314,7 +314,7 @@ void PrintCommand::PrintField(const char* format, art::mirror::Class& clazz,
     uint64_t size;
     const char* sig = field.GetTypeDescriptor();
     Android::BasicType type = Android::SignatureToBasicTypeAndSize(sig, &size, "B");
-    LOGI(format, field.offset(), art::PrettyJavaAccessFlags(field.access_flags()).c_str(), field.PrettyTypeDescriptor().c_str(), field.GetName());
+    LOGI(format, field.offset(), art::PrettyFieldAccessFlags(field.access_flags()).c_str(), field.PrettyTypeDescriptor().c_str(), field.GetName());
     switch (type) {
         case Android::basic_byte:
             LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, field.GetByte(object));

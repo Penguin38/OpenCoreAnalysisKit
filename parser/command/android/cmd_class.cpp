@@ -222,7 +222,7 @@ void ClassCommand::PrintPrettyClassContent(art::mirror::Class& clazz, ClassComma
         Android::ForeachInstanceField(super, callback);
         std::sort(fields.begin(), fields.end(), art::ArtField::Compare);
         for (auto& field : fields) {
-            LOGI(format.c_str(), field.offset(), art::PrettyJavaAccessFlags(field.access_flags()).c_str(),
+            LOGI(format.c_str(), field.offset(), art::PrettyFieldAccessFlags(field.access_flags()).c_str(),
                                  field.PrettyTypeDescriptor().c_str(), field.GetName());
         }
         fields.clear();

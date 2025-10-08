@@ -40,17 +40,19 @@ std::string PrettyJavaAccessFlags(uint32_t access_flags) {
   if ((access_flags & kAccAbstract) != 0) {
     result += "abstract ";
   }
-  if ((access_flags & kAccInterface) != 0) {
-    result += "interface ";
+  if ((access_flags & kAccSynchronized) != 0) {
+    result += "synchronized ";
   }
+  return result;
+}
+
+std::string PrettyFieldAccessFlags(uint32_t access_flags) {
+  std::string result = PrettyJavaAccessFlags(access_flags);
   if ((access_flags & kAccTransient) != 0) {
     result += "transient ";
   }
   if ((access_flags & kAccVolatile) != 0) {
     result += "volatile ";
-  }
-  if ((access_flags & kAccSynchronized) != 0) {
-    result += "synchronized ";
   }
   return result;
 }
@@ -59,6 +61,12 @@ std::string PrettyClassAccessFlags(uint32_t access_flags) {
   std::string result = PrettyJavaAccessFlags(access_flags);
   if ((access_flags & kAccClassIsProxy) != 0) {
     result += "proxy ";
+  }
+  if ((access_flags & kAccInterface) != 0) {
+    result += "interface ";
+  }
+  if ((access_flags & kAccEnum) != 0) {
+    result += "enum ";
   }
   return result;
 }
