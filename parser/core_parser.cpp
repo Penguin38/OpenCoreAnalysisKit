@@ -18,6 +18,7 @@
 #include "api/core.h"
 #include "ui/ui_thread.h"
 #include "work/work_thread.h"
+#include "daemon/server.h"
 #include "android.h"
 #include "common/elf.h"
 #include "command/env.h"
@@ -143,6 +144,7 @@ int command_preload(int argc, char* const argv[]) {
         {"no-fake-phdr",no_argument,       0,  7 },
         {"debug",     required_argument,   0, 'd'},
         {"help",      no_argument,         0, 'h'},
+        {"daemon",    no_argument,         0,  8 },
         {0,           0,                   0,  0 },
     };
 
@@ -157,6 +159,7 @@ int command_preload(int argc, char* const argv[]) {
     bool remote = false;
     bool need_load = true;
     bool no_fake_phdr = false;
+    bool need_daemon = false;
     int lv = 0;
     int filter = Opencore::FILTER_SPECIAL_VMA
                | Opencore::FILTER_SANITIZER_SHADOW_VMA
@@ -204,6 +207,9 @@ int command_preload(int argc, char* const argv[]) {
             case 7:
                 no_fake_phdr = true;
                 break;
+            case 8:
+                need_daemon = true;
+                break;
             case 'd':
                 lv = std::atoi(optarg);
                 if (lv >= Logger::LEVEL_NONE && lv <= Logger::LEVEL_DEBUG_2) {
@@ -215,6 +221,15 @@ int command_preload(int argc, char* const argv[]) {
                 show_parser_usage();
                 return -1;
         }
+    }
+
+    if (need_daemon) {
+        CoreServer server;
+        if (optind < argc)
+            server.start(argv[optind]);
+        else
+            server.start();
+        return -1;
     }
 
     std::string output;

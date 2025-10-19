@@ -418,11 +418,18 @@ endif()
 add_library(parser STATIC ${CORE_PARSER_SOURCES})
 target_link_libraries(parser android llvm core utils)
 
+set(HTTPLIB_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/3rd-party/cpp-httplib)
+include_directories(${HTTPLIB_INCLUDE_DIR})
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+add_definitions(-D__HTTPLIB__)
+endif()
+
 add_executable(${TARGET_CORE_PARSER}
                parser/ui/ui_thread.cpp
                parser/ui/mini_shell.cpp
                parser/work/work_thread.cpp
-               parser/core_parser.cpp)
+               parser/core_parser.cpp
+               parser/daemon/server.cpp)
 target_link_libraries(${TARGET_CORE_PARSER} parser)
 if (TARGET_BUILD_PAGESIZE STREQUAL "16K")
 target_link_options(${TARGET_CORE_PARSER} PRIVATE "-Wl,-z,max-page-size=16384")
