@@ -7,3 +7,6 @@
 [submodule "3rd-party/simpleini"]
 	path = 3rd-party/simpleini
 	url = https://github.com/Penguin38/simpleini.git
+[submodule "3rd-party/cpp-httplib"]
+	path = 3rd-party/cpp-httplib
+	url = https://github.com/Penguin38/cpp-httplib
