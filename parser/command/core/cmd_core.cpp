@@ -18,6 +18,8 @@
 #include "command/env.h"
 #include "command/core/cmd_core.h"
 #include "api/core.h"
+#include <unistd.h>
+#include <getopt.h>
 
 int CoreCommand::Load(const char* path) {
     return Load(path, false);
@@ -28,7 +30,32 @@ int CoreCommand::Load(const char* path, bool remote) {
 }
 
 int CoreCommand::main(int argc, char* const argv[]) {
-    return Load(argv[1]);
+    bool need_clean = false;
+
+    int opt;
+    int option_index = 0;
+    optind = 0; // reset
+    static struct option long_options[] = {
+        {"clean",  no_argument,       0, 'c'},
+        {0,         0,                0,  0 },
+    };
+
+    while ((opt = getopt_long(argc, argv, "c",
+                long_options, &option_index)) != -1) {
+        switch (opt) {
+            case 'c':
+                need_clean = true;
+                break;
+        }
+    }
+
+    if (need_clean) {
+        if (CoreApi::IsReady()) {
+            CoreApi::UnLoad();
+        }
+        return 0;
+    }
+    return Load(argv[optind]);
 }
 
 void CoreCommand::usage() {

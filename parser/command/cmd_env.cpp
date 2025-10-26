@@ -223,6 +223,9 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
 }
 
 int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
+    if (!CoreApi::IsReady())
+        return 0;
+
     int opt;
     int option_index = 0;
     optind = 0; // reset
