@@ -214,21 +214,37 @@ uint64_t JavaVerify::FindSuperMethodToCall(art::ArtMethod& method, std::string n
     uint64_t result = 0;
     art::mirror::Class thiz = method.GetDeclaringClass();
     art::mirror::Class super = thiz.GetSuperClass();
-    do {
-        auto has_super_method = [&](art::ArtMethod& super_method) -> bool {
-            std::string super_method_pretty;
-            super_method_pretty.append(super_method.GetName());
-            super_method_pretty.append(super_method.PrettyParameters());
-            if (super_method_pretty == name) {
-                result = super_method.Ptr();
-                return true;
+
+    auto has_super_method = [&](art::ArtMethod& super_method) -> bool {
+        std::string super_method_pretty;
+        super_method_pretty.append(super_method.GetName());
+        super_method_pretty.append(super_method.PrettyParameters());
+        if (super_method_pretty == name) {
+            result = super_method.Ptr();
+            return true;
+        }
+        return false;
+    };
+
+    if (!result) {
+        art::mirror::IfTable& iftable = thiz.GetIfTable();
+        int32_t ifcount = (iftable.Ptr() && iftable.IsValid()) ? iftable.Count() : 0;
+        if (ifcount) {
+            for (int i = 0; i < ifcount; ++i) {
+                art::mirror::Class interface = iftable.GetInterface(i);
+                Android::ForeachArtMethods(interface, has_super_method);
+                if (result) break;
             }
-            return false;
-        };
-        Android::ForeachArtMethods(super, has_super_method);
-        if (result) break;
-        super = super.GetSuperClass();
-    } while (super.Ptr());
+        }
+    }
+
+    if (!result) {
+        do {
+            Android::ForeachArtMethods(super, has_super_method);
+            if (result) break;
+            super = super.GetSuperClass();
+        } while (super.Ptr());
+    }
     return result;
 }
 
@@ -324,6 +340,10 @@ void JavaVerify::verifyMethods() {
                         art::ArtMethod method = value;
                         LOGI("[0x%" PRIx64 "] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
                                 method.Ptr(), art::PrettyMethodAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
+                        for (auto& name : super_methods) {
+                            art::ArtMethod resolve_method = FindSuperMethodToCall(method, name);
+                            LOGI("    |--> invoke [0x%" PRIx64 "](%s)\n", resolve_method.Ptr(), resolve_method.ColorPrettyMethod().c_str());
+                        }
                     }
                     ENTER();
                 }
