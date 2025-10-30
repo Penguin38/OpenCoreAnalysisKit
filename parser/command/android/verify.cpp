@@ -21,8 +21,10 @@
 #include "command/android/cmd_class.h"
 #include "runtime/art_method.h"
 #include "dexdump/dexdump.h"
+#include "dex/descriptors_names.h"
 #include "dalvik_vm_bytecode.h"
 #include "java/lang/Object.h"
+#include "java/lang/Class.h"
 #include <vector>
 
 void JavaVerify::init(int opt, int flag) {
@@ -210,10 +212,22 @@ void JavaVerify::VerifyReuseDexPcMethod(art::mirror::Class& clazz) {
     Android::ForeachArtMethods(clazz, has_code_method);
 }
 
-uint64_t JavaVerify::FindSuperMethodToCall(art::ArtMethod& method, std::string name) {
+uint64_t JavaVerify::FindSuperMethodToCall(art::ArtMethod& method, uint16_t dex_method_idx) {
     uint64_t result = 0;
     art::mirror::Class thiz = method.GetDeclaringClass();
     art::mirror::Class super = thiz.GetSuperClass();
+
+    art::DexFile& dex_file = thiz.GetDexFile();
+    art::dex::MethodId mid = dex_file.GetMethodId(dex_method_idx);
+
+    std::string name;
+    name.append(dex_file.GetMethodName(mid));
+    name.append(dex_file.PrettyMethodParameters(mid));
+
+    std::string descriptor;
+    art::AppendPrettyDescriptor(dex_file.GetMethodDeclaringClassDescriptor(mid), &descriptor);
+    java::lang::Class resolve = java::lang::Class::forName(descriptor.c_str());
+    art::mirror::Class resolve_class = resolve.thiz();
 
     auto has_super_method = [&](art::ArtMethod& super_method) -> bool {
         std::string super_method_pretty;
@@ -226,7 +240,7 @@ uint64_t JavaVerify::FindSuperMethodToCall(art::ArtMethod& method, std::string n
         return false;
     };
 
-    if (!result) {
+    if (resolve_class.Ptr() && resolve_class.IsInterface()) {
         art::mirror::IfTable& iftable = thiz.GetIfTable();
         int32_t ifcount = (iftable.Ptr() && iftable.IsValid()) ? iftable.Count() : 0;
         if (ifcount) {
@@ -283,16 +297,16 @@ void JavaVerify::verifyMethods() {
         api::MemoryRef endref = coderef.Ptr() + (item.insns_count_ << 1);
 
         bool maybe_warn = false;
-        std::vector<std::string> super_methods;
+        std::vector<uint16_t> super_methods;
         while (coderef < endref) {
             uint8_t op = art::Dexdump::GetDexOp(coderef);
             if (op == DEXOP::INVOKE_SUPER || op == DEXOP::INVOKE_SUPER_RANGE) {
                 std::string super;
                 uint16_t code1 = coderef.value16Of(2);
-                art::dex::MethodId mid = dex_file.GetMethodId(code1);
-                super.append(dex_file.GetMethodName(mid));
-                super.append(dex_file.PrettyMethodParameters(mid));
-                super_methods.push_back(super);
+                // art::dex::MethodId mid = dex_file.GetMethodId(code1);
+                // super.append(dex_file.GetMethodName(mid));
+                // super.append(dex_file.PrettyMethodParameters(mid));
+                super_methods.push_back(code1);
                 maybe_warn = true;
             }
             coderef.MovePtr(art::Dexdump::GetDexInstSize(coderef));
@@ -317,14 +331,14 @@ void JavaVerify::verifyMethods() {
 
             if (other_extends) {
                 bool other_super = false;
-                for (auto& name : super_methods) {
-                    uint64_t tmp_super = FindSuperMethodToCall(tmp, name);
+                for (auto& idx : super_methods) {
+                    uint64_t tmp_super = FindSuperMethodToCall(tmp, idx);
                     for (auto& value : entry.second) {
                         if (tmp.Ptr() == value)
                             continue;
 
                         art::ArtMethod method = value;
-                        uint64_t method_super = FindSuperMethodToCall(method, name);
+                        uint64_t method_super = FindSuperMethodToCall(method, idx);
 
                         if (tmp_super != method_super) {
                             other_super = true;
@@ -340,9 +354,10 @@ void JavaVerify::verifyMethods() {
                         art::ArtMethod method = value;
                         LOGI("[0x%" PRIx64 "] " ANSI_COLOR_LIGHTGREEN "%s" ANSI_COLOR_RESET "%s\n",
                                 method.Ptr(), art::PrettyMethodAccessFlags(method.access_flags()).c_str(), method.ColorPrettyMethod().c_str());
-                        for (auto& name : super_methods) {
-                            art::ArtMethod resolve_method = FindSuperMethodToCall(method, name);
-                            LOGI("    |--> invoke [0x%" PRIx64 "](%s)\n", resolve_method.Ptr(), resolve_method.ColorPrettyMethod().c_str());
+                        for (auto& idx : super_methods) {
+                            art::ArtMethod resolve_method = FindSuperMethodToCall(method, idx);
+                            if (resolve_method.Ptr())
+                                LOGD("    |--> invoke [0x%" PRIx64 "](%s)\n", resolve_method.Ptr(), resolve_method.ColorPrettyMethod().c_str());
                         }
                     }
                     ENTER();

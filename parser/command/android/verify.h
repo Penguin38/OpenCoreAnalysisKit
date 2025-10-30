@@ -39,7 +39,7 @@ public:
     static void VerifyConflictMethod(art::mirror::Class& clazz);
     void VerifyReuseDexPcMethod(art::mirror::Class& clazz);
     void verifyMethods();
-    static uint64_t FindSuperMethodToCall(art::ArtMethod& method, std::string name);
+    static uint64_t FindSuperMethodToCall(art::ArtMethod& method, uint16_t dex_method_idx);
     static void VerifyRecordClass(art::mirror::Class& clazz);
 private:
     int options;
