@@ -30,13 +30,19 @@ namespace arm64 {
 
 //follow android jni sign
 static Hook::MethodTable kArm64MethodTable[] = {
-    { "dlopen",   "AI",    2},
-    { "dlclose",  "P",     1},
-    { "mprotect", "PII",   3},
-    { "malloc",   "I",     1},
-    { "free",     "P",     1},
-    { "mmap",     "PIIIII",5},
-    { "munmap",   "PI",    2},
+    { "dlopen",              "AI",        2},
+    { "dlclose",             "P",         1},
+    { "mprotect",            "PII",       3},
+    { "malloc",              "I",         1},
+    { "calloc",              "II",        2},
+    { "free",                "P",         1},
+    { "mmap",                "PIIIII",    5},
+    { "munmap",              "PI",        2},
+    { "mlock",               "PI",        2},
+    { "mlock2",              "PII",       2},
+    { "munlock",             "PI",        2},
+    { "mlockall",            "I",         1},
+    { "munlockall",          "",          0},
 };
 
 bool Hook::InjectLibrary(const char* library) {
