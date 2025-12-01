@@ -29,6 +29,8 @@ static constexpr size_t kObjectAlignmentShift = 3;
 static constexpr size_t kObjectAlignment = 1u << kObjectAlignmentShift;
 static constexpr size_t kLargeObjectAlignment = kPageSize;
 
+static constexpr size_t kGlobalsMax = 51200;
+static constexpr size_t kWeakGlobalsMax = 51200;
 } // namespace art
 
 #endif  // ANDROID_ART_RUNTIME_RUNTIME_GLOBALS_H_

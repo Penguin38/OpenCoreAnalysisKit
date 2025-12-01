@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "runtime/indirect_reference_table.h"
+#include "runtime/runtime_globals.h"
 #include "android.h"
 
 struct IrtEntry_OffsetTable __IrtEntry_offset__;
@@ -130,6 +131,7 @@ uint32_t IndirectReferenceTable::DecodeIndex(uint64_t uref) {
 mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
     mirror::Object object = 0x0;
     uint64_t top_index_ = 0x0;
+    uint32_t idx_max = 0x0;
 
     if (Android::Sdk() >= Android::T) {
         top_index_ = top_index();
@@ -139,10 +141,18 @@ mirror::Object IndirectReferenceTable::DecodeReference(uint32_t idx) {
         top_index_ = segment_state() & 0xFFFF;
     }
 
-    if (idx < top_index_) {
+    if (kind_ext() == IndirectRefKind::kGlobal)
+        idx_max = kGlobalsMax;
+    else if (kind_ext() == IndirectRefKind::kWeakGlobal)
+        idx_max = kWeakGlobalsMax;
+
+    if (idx < top_index_ && idx < idx_max) {
         IrtEntry entry = table();
         entry.MovePtr(SIZEOF(IrtEntry) * idx);
         api::MemoryRef ref = entry.references();
+        if (!ref.Ptr() || !ref.IsValid())
+            return object;
+
         if (Android::Sdk() < Android::T) {
             object = ref.value32Of(entry.serial() * sizeof(uint32_t));
         } else {
@@ -174,7 +184,7 @@ uint64_t IndirectReferenceTable::EncodeIndirectRefKind(IndirectRefKind kind) {
 }
 
 uint64_t IndirectReferenceTable::EncodeIndirectRef(uint32_t table_index, uint32_t serial) {
-    return EncodeIndex(table_index) | EncodeSerial(serial) | EncodeIndirectRefKind(static_cast<IndirectRefKind>(kind()));
+    return EncodeIndex(table_index) | EncodeSerial(serial) | EncodeIndirectRefKind(static_cast<IndirectRefKind>(kind_ext()));
 }
 
 void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&)> fn) {
@@ -188,6 +198,7 @@ void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&)> fn) {
 void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)> fn) {
     mirror::Object object = 0x0;
     uint32_t top_index_ = 0x0;
+    uint32_t idx_max = 0x0;
 
     if (Android::Sdk() >= Android::T) {
         top_index_ = top_index();
@@ -197,10 +208,18 @@ void IndirectReferenceTable::Walk(std::function<bool (mirror::Object&, uint64_t)
         top_index_ = segment_state() & 0xFFFF;
     }
 
-    for (int idx = 0; idx < top_index_; ++idx) {
+    if (kind_ext() == IndirectRefKind::kGlobal)
+        idx_max = kGlobalsMax;
+    else if (kind_ext() == IndirectRefKind::kWeakGlobal)
+        idx_max = kWeakGlobalsMax;
+
+    for (int idx = 0; idx < top_index_ && idx < idx_max; ++idx) {
         IrtEntry entry = table();
         entry.MovePtr(SIZEOF(IrtEntry) * idx);
         api::MemoryRef ref = entry.references();
+        if (!ref.Ptr() || !ref.IsValid())
+            continue;
+
         if (Android::Sdk() < Android::T) {
             object = ref.value32Of(entry.serial() * sizeof(uint32_t));
         } else {

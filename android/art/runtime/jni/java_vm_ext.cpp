@@ -144,6 +144,7 @@ IndirectReferenceTable& JavaVMExt::GetGlobalsTable() {
         globals_cache = globals();
         globals_cache.copyRef(this);
         globals_cache.Prepare(false);
+        globals_cache.InitKindExt(IndirectRefKind::kGlobal);
     }
     return globals_cache;
 }
@@ -153,6 +154,7 @@ IndirectReferenceTable& JavaVMExt::GetWeakGlobalsTable() {
         weak_globals_cache = weak_globals();
         weak_globals_cache.copyRef(this);
         weak_globals_cache.Prepare(false);
+        weak_globals_cache.InitKindExt(IndirectRefKind::kWeakGlobal);
 #if defined(__ART_JVM_WEAK_GLOBALS_PARSER__)
         if (Android::Sdk() >= Android::P) {
             if (weak_globals_cache.IsValid()) {

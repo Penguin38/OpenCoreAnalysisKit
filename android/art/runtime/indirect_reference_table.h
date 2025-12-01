@@ -89,7 +89,8 @@ public:
     inline uint64_t table_mem_map_lv28() { return VALUEOF(IndirectReferenceTable, table_mem_map_); }
     inline uint64_t table() { return VALUEOF(IndirectReferenceTable, table_); }
     inline uint64_t top_index() { return VALUEOF(IndirectReferenceTable, top_index_); }
-    inline uint32_t kind() { return value32Of(OFFSET(IndirectReferenceTable, kind_)); }
+    // inline uint32_t kind() { return value32Of(OFFSET(IndirectReferenceTable, kind_)); }
+    inline uint32_t kind_ext() { return kind_ext_; }
 
     static inline IndirectRefKind DecodeIndirectRefKind(uint64_t uref) {
         return static_cast<IndirectRefKind>(uref & kKindMask);
@@ -105,6 +106,9 @@ public:
     mirror::Object DecodeReference(uint32_t idx);
     void Walk(std::function<bool (mirror::Object& object)> fn);
     void Walk(std::function<bool (mirror::Object& object, uint64_t iref)> fn);
+    void InitKindExt(uint32_t kind) { kind_ext_ = kind; }
+private:
+    uint32_t kind_ext_;
 };
 
 } // namespace art
