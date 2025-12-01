@@ -80,6 +80,20 @@ bool Ini::HasSection(const char* name) {
     return it != sections.end();
 }
 
+void Ini::Foreach(const char* section, std::function<void (const char*, const char*)> callback) {
+    auto it = sections.find(section);
+    if (it == sections.end())
+        return;
+
+    std::unordered_map<std::string, std::string>& entrys = it->second;
+    for (auto entry : entrys) {
+        std::string key = entry.first;
+        std::string value = entry.second;
+        if (value.length())
+            callback(key.c_str(), value.c_str());
+    }
+}
+
 const char* Ini::GetValue(const char* section, const char* key, const char* default_value) {
     auto it = sections.find(section);
     if (it == sections.end())

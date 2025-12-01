@@ -19,12 +19,14 @@
 
 #include <string>
 #include <unordered_map>
+#include <functional>
 
 class Ini {
 public:
     Ini() {}
     bool LoadFile(const char* path);
     bool HasSection(const char* name);
+    void Foreach(const char* section, std::function<void (const char* key, const char* value)> callback);
     const char* GetValue(const char* section, const char* key, const char* default_value);
 private:
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> sections;
