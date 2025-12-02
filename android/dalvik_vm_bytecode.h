@@ -143,6 +143,8 @@ static constexpr int INVOKE_DIRECT               = 0x70;            // invoke-di
 static constexpr int INVOKE_STATIC               = 0x71;            // invoke-static
 static constexpr int INVOKE_INTERFACE            = 0x72;            // invoke-interface
 
+static constexpr int RETURN_VOID_NO_BARRIER      = 0x73;            // return-void-no-barrier
+
 // invoke-kind/range {vCCCC .. vNNNN}, meth@BBBB
 static constexpr int INVOKE_VIRTUAL_RANGE        = 0x74;            // invoke-virtual/range
 static constexpr int INVOKE_SUPER_RANGE          = 0x75;            // invoke-super/range
@@ -263,6 +265,27 @@ static constexpr int XOR_INT_LIT8                = 0xDF;            // xor-int/l
 static constexpr int SHL_INT_LIT8                = 0xE0;            // shl-int/lit8
 static constexpr int SHR_INT_LIT8                = 0xE1;            // shr-int/lit8
 static constexpr int USHR_INT_LIT8               = 0xE2;            // ushr-int/lit8
+
+// iinstanceop vA, vB, offset@CCCC
+static constexpr int IGET_QUICK                  = 0xE3;            // iget-quick
+static constexpr int IGET_WIDE_QUICK             = 0xE4;            // iget-wide-quick
+static constexpr int IGET_OBJECT_QUICK           = 0xE5;            // iget-object-quick
+static constexpr int IPUT_QUICK                  = 0xE6;            // iput-quick
+static constexpr int IPUT_WIDE_QUICK             = 0xE7;            // iput-wide-quick
+static constexpr int IPUT_OBJECT_QUICK           = 0xE8;            // iput-object-quick
+
+static constexpr int INVOKE_VIRTUAL_QUICK        = 0xE9;            // invoke-virtual-quick {vC, vD, vE, vF, vG}, vtable@BBBB
+static constexpr int INVOKE_VIRTUAL_QUICK_RANGE  = 0xEA;            // invoke-virtual-quick/range {vCCCC .. vNNNN}, vtable@BBBB
+
+// iinstanceop vA, vB, thing@CCCC
+static constexpr int IPUT_BOOLEAN_QUICK          = 0xEB;            // iput-boolean-quick
+static constexpr int IPUT_BYTE_QUICK             = 0xEC;            // iput-byte-quick
+static constexpr int IPUT_CHAR_QUICK             = 0xED;            // iput-char-quick
+static constexpr int IPUT_SHORT_QUICK            = 0xEE;            // iput-short-quick
+static constexpr int IGET_BOOLEAN_QUICK          = 0xEF;            // iget-boolean-quick
+static constexpr int IGET_BYTE_QUICK             = 0xF0;            // iget-byte-quick
+static constexpr int IGET_CHAR_QUICK             = 0xF1;            // iget-char-quick
+static constexpr int IGET_SHORT_QUICK            = 0xF2;            // iget-short-quick
 
 static constexpr int INVOKE_POLYMORPHIC          = 0xFA;            // invoke-polymorphic {vC, vD, vE, vF, vG}, meth@BBBB, proto@HHHH
 static constexpr int INVOKE_POLYMORPHIC_RANGE    = 0xFB;            // invoke-polymorphic/range {vCCCC .. vNNNN}, meth@BBBB, proto@HHHH

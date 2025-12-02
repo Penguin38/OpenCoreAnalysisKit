@@ -26,9 +26,8 @@ public:
     inline static uint8_t GetDexOp(api::MemoryRef& ref) { return ref.value8Of(); }
     inline static bool IsVaildDexOp(uint8_t op) {
         if ((op >= 0x3E && op <= 0x43)
-                || op == 0x73
                 || (op >= 0x79 && op <= 0x7A)
-                || (op >= 0xE3 && op <= 0xF9)) {
+                || (op >= 0xF3 && op <= 0xF9)) {
             return false;
         }
         return true;
@@ -74,6 +73,7 @@ public:
     static void AppendCodecReturn(api::MemoryRef& ref, std::string& sb);
     static void AppendCodecReturnWide(api::MemoryRef& ref, std::string& sb);
     static void AppendCodecReturnObject(api::MemoryRef& ref, std::string& sb);
+    static void AppendCodecReturnVoidNoBarrier(api::MemoryRef& ref, std::string& sb);
     static void AppendCodecConst4(api::MemoryRef& ref, std::string& sb);
     static void AppendCodecConst16(api::MemoryRef& ref, std::string& sb);
     static void AppendCodecConst(api::MemoryRef& ref, std::string& sb);
@@ -106,6 +106,8 @@ public:
     static void AppendCodecIfTestz(uint8_t op, api::MemoryRef& ref, std::string& sb);
     static void AppendCodecArrayOp(uint8_t op, api::MemoryRef& ref, std::string& sb);
     static void AppendCodecIInstanceOp(uint8_t op, api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
+    static void AppendCodecIInstanceQuickOffsetOp(uint8_t op, api::MemoryRef& ref, std::string& sb);
+    static void AppendCodecIInstanceQuickThingOp(uint8_t op, api::MemoryRef& ref, std::string& sb);
     static void AppendCodecSStaicOp(uint8_t op, api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
     static void AppendCodecInvokeKind(uint8_t op, api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
     static void AppendCodecInvokeKindRange(uint8_t op, api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
@@ -116,6 +118,8 @@ public:
     static void AppendCodecBinOpLit8(uint8_t op, api::MemoryRef& ref, std::string& sb);
     static void AppendCodecInvokePolymorphic(api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
     static void AppendCodecInvokePolymorphicRange(api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
+    static void AppendCodecInvokeVirtualQuick(api::MemoryRef& ref, std::string& sb);
+    static void AppendCodecInvokeVirtualQuickRange(api::MemoryRef& ref, std::string& sb);
     static void AppendCodecInvokeCustom(api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
     static void AppendCodecInvokeCustomRange(api::MemoryRef& ref, std::string& sb, DexFile& dex_file);
     static void AppendCodecConstMethodHandle(api::MemoryRef& ref, std::string& sb, DexFile& dex_file);

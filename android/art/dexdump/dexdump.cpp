@@ -152,6 +152,8 @@ uint32_t Dexdump::GetDexInstSize(api::MemoryRef& ref) {
         case DEXOP::INVOKE_STATIC:
         case DEXOP::INVOKE_INTERFACE: return 0x6;
 
+        case DEXOP::RETURN_VOID_NO_BARRIER: return 0x2;
+
         case DEXOP::INVOKE_VIRTUAL_RANGE:
         case DEXOP::INVOKE_SUPER_RANGE:
         case DEXOP::INVOKE_DIRECT_RANGE:
@@ -266,6 +268,25 @@ uint32_t Dexdump::GetDexInstSize(api::MemoryRef& ref) {
         case DEXOP::SHL_INT_LIT8:
         case DEXOP::SHR_INT_LIT8:
         case DEXOP::USHR_INT_LIT8: return 0x4;
+
+        case DEXOP::IGET_QUICK:
+        case DEXOP::IGET_WIDE_QUICK:
+        case DEXOP::IGET_OBJECT_QUICK:
+        case DEXOP::IPUT_QUICK:
+        case DEXOP::IPUT_WIDE_QUICK:
+        case DEXOP::IPUT_OBJECT_QUICK: return 0x4;
+
+        case DEXOP::INVOKE_VIRTUAL_QUICK:
+        case DEXOP::INVOKE_VIRTUAL_QUICK_RANGE: return 0x6;
+
+        case DEXOP::IPUT_BOOLEAN_QUICK:
+        case DEXOP::IPUT_BYTE_QUICK:
+        case DEXOP::IPUT_CHAR_QUICK:
+        case DEXOP::IPUT_SHORT_QUICK:
+        case DEXOP::IGET_BOOLEAN_QUICK:
+        case DEXOP::IGET_BYTE_QUICK:
+        case DEXOP::IGET_CHAR_QUICK:
+        case DEXOP::IGET_SHORT_QUICK: return 0x4;
 
         case DEXOP::INVOKE_POLYMORPHIC: return 0x8;
         case DEXOP::INVOKE_POLYMORPHIC_RANGE: return 0x8;
@@ -884,6 +905,10 @@ void Dexdump::AppendCodecReturnObject(api::MemoryRef& ref, std::string& sb) {
     AppendCodecArgsvAA("return-object", ref, sb);
 }
 
+void Dexdump::AppendCodecReturnVoidNoBarrier(api::MemoryRef& ref, std::string& sb) {
+    AppendCodecNoArgs("return-void-no-barrier", ref, sb);
+}
+
 void Dexdump::AppendCodecConst4(api::MemoryRef& ref, std::string& sb) {
     AppendCodecArgsvAB("const/4", ref, sb);
 }
@@ -1280,6 +1305,78 @@ void Dexdump::AppendCodecIInstanceOp(uint8_t op, api::MemoryRef& ref, std::strin
     sb.append(std::to_string(idx));
 }
 
+static const char* kIInstanceQuickOffsetOp[] {
+    "iget-quick",
+    "iget-wide-quick",
+    "iget-object-quick",
+    "iput-quick",
+    "iput-wide-quick",
+    "iput-object-quick",
+};
+
+void Dexdump::AppendCodecIInstanceQuickOffsetOp(uint8_t op, api::MemoryRef& ref, std::string& sb) {
+    char codec[128];
+    uint16_t code0 = ref.value16Of();
+    uint16_t code1 = ref.value16Of(2);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
+    sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
+    sb.append(kIInstanceQuickOffsetOp[op-DEXOP::IGET_QUICK]);
+    sb.append(" ");
+    uint8_t reg = (code0 & 0xFF00) >> 8;
+    uint8_t va = reg & 0x0F;
+    uint8_t vb = (reg & 0xF0) >> 4;
+    sb.append("v");
+    sb.append(std::to_string(va));
+    sb.append(", ");
+    sb.append("v");
+    sb.append(std::to_string(vb));
+    sb.append(", ");
+    uint16_t idx = code1;
+    sb.append(" // offset@");
+    sb.append(std::to_string(idx));
+}
+
+static const char* kIInstanceQuickThingOp[] {
+    "iput-boolean-quick",
+    "iput-byte-quick",
+    "iput-char-quick",
+    "iput-short-quick",
+    "iget-boolean-quick",
+    "iget-byte-quick",
+    "iget-char-quick",
+    "iget-short-quick",
+};
+
+void Dexdump::AppendCodecIInstanceQuickThingOp(uint8_t op, api::MemoryRef& ref, std::string& sb) {
+    char codec[128];
+    uint16_t code0 = ref.value16Of();
+    uint16_t code1 = ref.value16Of(2);
+    snprintf(codec, sizeof(codec), "%04x %04x                ", code0, code1);
+    sb.append(Logger::LightYellow());
+    sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
+    sb.append(kIInstanceQuickThingOp[op-DEXOP::IPUT_BOOLEAN_QUICK]);
+    sb.append(" ");
+    uint8_t reg = (code0 & 0xFF00) >> 8;
+    uint8_t va = reg & 0x0F;
+    uint8_t vb = (reg & 0xF0) >> 4;
+    sb.append("v");
+    sb.append(std::to_string(va));
+    sb.append(", ");
+    sb.append("v");
+    sb.append(std::to_string(vb));
+    sb.append(", ");
+    uint16_t idx = code1;
+    sb.append(" // thing@");
+    sb.append(std::to_string(idx));
+}
+
 static const char* kSStaticOp[] {
     "sget",
     "sget-wide",
@@ -1659,6 +1756,63 @@ void Dexdump::AppendCodecInvokePolymorphicRange(api::MemoryRef& ref, std::string
     sb.append(std::to_string(proto_idx.Index()));
 }
 
+void Dexdump::AppendCodecInvokeVirtualQuick(api::MemoryRef& ref, std::string& sb) {
+    char codec[128];
+    uint16_t code0 = ref.value16Of();
+    uint16_t code1 = ref.value16Of(2);
+    uint16_t code2 = ref.value16Of(4);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
+    sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
+    sb.append("invoke-virtual-quick");
+    sb.append(" ");
+    int num = (((code0 & 0xFF00) >> 8) & 0xF0) >> 4;
+    sb.append("{");
+    for (int i = 0; i < num; i++) {
+        sb.append("v");
+        if (i < 4) {
+            sb.append(std::to_string((code2 & (0xF << (i * 4))) >> (i * 4)));
+        } else {
+            int vreg = (code0 & 0x0F00) >> 8;
+            sb.append(std::to_string(vreg));
+        }
+        if (i != num - 1)
+            sb.append(", ");
+    }
+    sb.append("}, ");
+    uint32_t idx = code1;
+    sb.append(" // vtable@");
+    sb.append(std::to_string(idx));
+}
+
+void Dexdump::AppendCodecInvokeVirtualQuickRange(api::MemoryRef& ref, std::string& sb) {
+    char codec[128];
+    uint16_t code0 = ref.value16Of();
+    uint16_t code1 = ref.value16Of(2);
+    uint16_t code2 = ref.value16Of(4);
+    snprintf(codec, sizeof(codec), "%04x %04x %04x           ", code0, code1, code2);
+    sb.append(Logger::LightYellow());
+    sb.append(codec);
+    sb.append(Logger::End());
+    sb.append("| ");
+    sb.append(Logger::LightGreen());
+    sb.append("invoke-virtual-quick/range");
+    sb.append(" ");
+    int num = (code0 & 0xFF00) >> 8;
+    uint16_t vaaaa = code2;
+    sb.append("{v");
+    sb.append(std::to_string(vaaaa));
+    sb.append(" .. v");
+    sb.append(std::to_string(vaaaa + num - 1));
+    sb.append("}, ");
+    uint32_t idx = code1;
+    sb.append(" // vtable@");
+    sb.append(std::to_string(idx));
+}
+
 void Dexdump::AppendCodecInvokeCustom(api::MemoryRef& ref, std::string& sb, DexFile& dex_file) {
     char codec[128];
     uint16_t code0 = ref.value16Of();
@@ -1911,6 +2065,8 @@ std::string Dexdump::PrettyDexInst(api::MemoryRef& ref, DexFile& dex_file) {
         case DEXOP::INVOKE_STATIC:
         case DEXOP::INVOKE_INTERFACE: AppendCodecInvokeKind(op, ref, sb, dex_file); break;
 
+        case DEXOP::RETURN_VOID_NO_BARRIER: AppendCodecReturnVoidNoBarrier(ref, sb); break;
+
         case DEXOP::INVOKE_VIRTUAL_RANGE:
         case DEXOP::INVOKE_SUPER_RANGE:
         case DEXOP::INVOKE_DIRECT_RANGE:
@@ -2025,6 +2181,25 @@ std::string Dexdump::PrettyDexInst(api::MemoryRef& ref, DexFile& dex_file) {
         case DEXOP::SHL_INT_LIT8:
         case DEXOP::SHR_INT_LIT8:
         case DEXOP::USHR_INT_LIT8: AppendCodecBinOpLit8(op, ref, sb); break;
+
+        case DEXOP::IGET_QUICK:
+        case DEXOP::IGET_WIDE_QUICK:
+        case DEXOP::IGET_OBJECT_QUICK:
+        case DEXOP::IPUT_QUICK:
+        case DEXOP::IPUT_WIDE_QUICK:
+        case DEXOP::IPUT_OBJECT_QUICK: AppendCodecIInstanceQuickOffsetOp(op, ref, sb); break;
+
+        case DEXOP::INVOKE_VIRTUAL_QUICK: AppendCodecInvokeVirtualQuick(ref, sb); break;
+        case DEXOP::INVOKE_VIRTUAL_QUICK_RANGE: AppendCodecInvokeVirtualQuickRange(ref, sb); break;
+
+        case DEXOP::IPUT_BOOLEAN_QUICK:
+        case DEXOP::IPUT_BYTE_QUICK:
+        case DEXOP::IPUT_CHAR_QUICK:
+        case DEXOP::IPUT_SHORT_QUICK:
+        case DEXOP::IGET_BOOLEAN_QUICK:
+        case DEXOP::IGET_BYTE_QUICK:
+        case DEXOP::IGET_CHAR_QUICK:
+        case DEXOP::IGET_SHORT_QUICK: AppendCodecIInstanceQuickThingOp(op, ref, sb); break;
 
         case DEXOP::INVOKE_POLYMORPHIC: AppendCodecInvokePolymorphic(ref, sb, dex_file); break;
         case DEXOP::INVOKE_POLYMORPHIC_RANGE: AppendCodecInvokePolymorphicRange(ref, sb, dex_file); break;
