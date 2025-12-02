@@ -42,6 +42,7 @@ int PrintCommand::prepare(int argc, char* const argv[]) {
     options.reference = false;
     options.format_dump = false;
     options.format_hex = false;
+    options.vtable = false;
     options.deep = 0;
 
     int opt;
@@ -52,10 +53,11 @@ int PrintCommand::prepare(int argc, char* const argv[]) {
         {"ref",     required_argument, 0,  'r'},
         {"format",  no_argument,       0,  'f'},
         {"hex",     no_argument,       0,  'x'},
+        {"vtable",  no_argument,       0,  'v'},
         {0,         0,                 0,   0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "bfxr:",
+    while ((opt = getopt_long(argc, argv, "bfxvr:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'b':
@@ -70,6 +72,9 @@ int PrintCommand::prepare(int argc, char* const argv[]) {
                 break;
             case 'x':
                 options.format_hex = true;
+                break;
+            case 'v':
+                options.vtable = true;
                 break;
         }
     }
@@ -212,6 +217,25 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz, PrintCommand::Options& o
         }
     }
     fields.clear();
+
+    if (options.vtable && current.ShouldHaveEmbeddedVTable()) {
+        LOGI(ANSI_COLOR_LIGHTCYAN "  // info embedded vtable\n" ANSI_COLOR_RESET);
+        uint32_t embedded_vtable_length = current.embedded_vtable_length();
+        api::MemoryRef embedded_vtable = current.embedded_vtable();
+        for (int i = embedded_vtable_length - 1; i >= 0; i--) {
+            art::ArtMethod method = embedded_vtable.valueOf(i * CoreApi::GetPointSize());
+            LOGI(format.c_str(), OFFSET(Class, embedded_vtable_) + i * CoreApi::GetPointSize(),
+                 art::PrettyMethodAccessFlags(method.access_flags()).c_str(),
+                 method.PrettyReturnTypeDescriptor().c_str(), method.ColorPrettyMethodOnlyNP().c_str());
+            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, method.Ptr());
+        }
+        // LOGI(format.c_str(), OFFSET(Class, embedded_vtable_), "virutal ", "long", "embeddedVtable");
+        // LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, current.embedded_vtable());
+        LOGI(format.c_str(), OFFSET(Class, imt_ptr_), "virutal ", "long", "imtPtr");
+        LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, current.imt_ptr());
+        LOGI(format.c_str(), OFFSET(Class, embedded_vtable_length_), "virutal ", "int", "embeddedVtableLength");
+        LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%x\n" ANSI_COLOR_RESET, current.embedded_vtable_length());
+    }
 
     current = clazz.GetClass();
     LOGI(ANSI_COLOR_LIGHTCYAN "  // info %s\n" ANSI_COLOR_RESET, current.PrettyDescriptor().c_str());

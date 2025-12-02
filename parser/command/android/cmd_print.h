@@ -35,6 +35,7 @@ public:
         bool reference    = false;
         bool format_dump  = false;
         bool format_hex   = false;
+        bool vtable       = false;
         int deep          = 0;
     };
 

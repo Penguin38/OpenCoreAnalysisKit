@@ -71,6 +71,9 @@ void Class::Init23() {
         .THIS = 136,
     };
 
+    __Class_offset__.embedded_vtable_length_ = SIZEOF(Class);
+    __Class_offset__.imt_ptr_ = RoundUp(__Class_offset__.embedded_vtable_length_ + sizeof(uint32_t), CoreApi::GetPointSize());
+    __Class_offset__.embedded_vtable_ = __Class_offset__.imt_ptr_ + CoreApi::GetPointSize();
 }
 
 void Class::Init24() {
@@ -105,6 +108,10 @@ void Class::Init24() {
     __Class_size__ = {
         .THIS = 130,
     };
+
+    __Class_offset__.embedded_vtable_length_ = SIZEOF(Class);
+    __Class_offset__.imt_ptr_ = RoundUp(__Class_offset__.embedded_vtable_length_ + sizeof(uint32_t), CoreApi::GetPointSize());
+    __Class_offset__.embedded_vtable_ = __Class_offset__.imt_ptr_ + CoreApi::GetPointSize();
 }
 
 void Class::Init26() {
@@ -140,6 +147,10 @@ void Class::Init26() {
     __Class_size__ = {
         .THIS = 120,
     };
+
+    __Class_offset__.embedded_vtable_length_ = SIZEOF(Class);
+    __Class_offset__.imt_ptr_ = RoundUp(__Class_offset__.embedded_vtable_length_ + sizeof(uint32_t), CoreApi::GetPointSize());
+    __Class_offset__.embedded_vtable_ = __Class_offset__.imt_ptr_ + CoreApi::GetPointSize();
 }
 
 void Class::Init36() {
@@ -176,6 +187,10 @@ void Class::Init36() {
     __Class_size__ = {
         .THIS = 112,
     };
+
+    __Class_offset__.embedded_vtable_length_ = SIZEOF(Class);
+    __Class_offset__.imt_ptr_ = RoundUp(__Class_offset__.embedded_vtable_length_ + sizeof(uint32_t), CoreApi::GetPointSize());
+    __Class_offset__.embedded_vtable_ = __Class_offset__.imt_ptr_ + CoreApi::GetPointSize();
 }
 
 bool Class::IsArrayClass() {
@@ -351,6 +366,13 @@ bool Class::WasVerificationAttempted() {
 
 bool Class::IsObsoleteObject() {
     return (GetAccessFlags() & kAccObsoleteObject) != 0;
+}
+
+bool Class::IsInstantiable() {
+    return (!IsPrimitive() &&
+            !IsInterface() &&
+            !IsAbstract()) ||
+            (IsAbstract() && IsArrayClass());
 }
 
 Primitive::Type Class::GetPrimitiveType() {

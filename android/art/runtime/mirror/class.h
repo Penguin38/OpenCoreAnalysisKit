@@ -69,6 +69,11 @@ struct Class_OffsetTable {
 
     // 36 merge sfields and ifields
     uint32_t fields_;
+
+    // vtable
+    uint32_t embedded_vtable_length_;
+    uint32_t imt_ptr_;
+    uint32_t embedded_vtable_;
 };
 
 struct Class_SizeTable {
@@ -150,6 +155,10 @@ public:
     inline uint32_t num_virtual_methods() { return value32Of(OFFSET(Class, num_virtual_methods_)); }
     // SDK36
     inline uint64_t fields() { return value64Of(OFFSET(Class, fields_)); }
+    // VTABLE
+    inline uint32_t embedded_vtable_length() { return value32Of(OFFSET(Class, embedded_vtable_length_)); }
+    inline uint64_t imt_ptr() { return VALUEOF(Class, imt_ptr_); }
+    inline uint64_t embedded_vtable() { return Ptr() + OFFSET(Class, embedded_vtable_); }
 
     bool IsArrayClass();
     bool IsStringClass();
@@ -199,6 +208,9 @@ public:
     bool WasVerificationAttempted();
     bool IsObsoleteObject();
     inline bool IsProxyClass() { return (GetAccessFlags() & kAccClassIsProxy) != 0; }
+    bool IsInstantiable();
+    inline bool ShouldHaveImt() { return ShouldHaveEmbeddedVTable(); }
+    inline bool ShouldHaveEmbeddedVTable() { return IsInstantiable(); }
 
     Primitive::Type GetPrimitiveType();
     Class GetComponentType();
