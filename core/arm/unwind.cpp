@@ -82,8 +82,8 @@ void UnwindStack::Backtrace(Register& regs) {
         VisitFrame();
         cur_state_ = 0x0; // reset
 
-        cur_frame_pc_ = regs.lr;
-        VisitFrame();
+        // cur_frame_pc_ = regs.lr;
+        // VisitFrame();
     } catch(InvalidAddressException& e) {
         // do nothing
     }
