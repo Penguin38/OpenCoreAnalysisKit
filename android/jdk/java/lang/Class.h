@@ -32,8 +32,6 @@ public:
 
     std::string getSimpleName();
     static Class forName(const char* className);
-private:
-    static std::vector<uint32_t> kClassesCache;
 };
 
 } // namespace lang

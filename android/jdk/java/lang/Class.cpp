@@ -21,14 +21,13 @@
 namespace java {
 namespace lang {
 
-std::vector<uint32_t> Class::kClassesCache;
-
 std::string Class::getSimpleName() {
     art::mirror::Class clazz = thiz();
     return clazz.PrettyDescriptor();
 }
 
 Class Class::forName(const char* className) {
+    std::vector<uint32_t>& kClassesCache = Android::GetClassesCache();
     for (const auto& cache : kClassesCache) {
         Class clazz = cache;
         if (clazz.getSimpleName() == className) {

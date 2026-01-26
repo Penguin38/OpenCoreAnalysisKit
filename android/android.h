@@ -164,6 +164,7 @@ public:
     static inline std::string& GetRealLibart() { return INSTANCE->realLibart; }
     static inline art::OatHeader& GetOatHeader() { return INSTANCE->oat_header(); }
     static void OnLibartLoad(LinkMap* map) { if (INSTANCE) INSTANCE->onLibartLoad(map); }
+    static std::vector<uint32_t>& GetClassesCache() { return INSTANCE->mClassesCache; }
 
     static constexpr int EACH_APP_OBJECTS = 1 << 0;
     static constexpr int EACH_ZYGOTE_OBJECTS = 1 << 1;
@@ -231,6 +232,7 @@ private:
 protected:
     std::vector<std::unique_ptr<SdkListener>> mSdkListeners;
     std::vector<std::unique_ptr<OatListener>> mOatListeners;
+    std::vector<uint32_t> mClassesCache;
 };
 
 #endif // ANDROID_ANDROID_H_
