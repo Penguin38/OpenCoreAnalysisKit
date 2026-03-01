@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "ini.h"
 #include "api/core.h"
+#include "android.h"
 #include "command/cmd_ini.h"
 #include "properties/prop_info.h"
 #include "properties/prop_area.h"
@@ -74,8 +75,11 @@
 #include <string>
 
 #define INI_ENTRY(NAME) {#NAME, &NAME}
+IniCommand* IniCommand::INSTANCE = nullptr;
 
 IniCommand::IniCommand() : Command("ini") {
+    INSTANCE = this;
+
     android_sections = {
         {"android_offsets", &android_offsets},
         {"android_sizes", &android_sizes},
@@ -525,6 +529,8 @@ IniCommand::IniCommand() : Command("ini") {
         INI_ENTRY(art::OatQuickMethodHeader::kCodeInfoMask),
         INI_ENTRY(art::OatQuickMethodHeader::kCodeSizeMask),
     };
+
+    Android::RegisterIniListener(IniCommand::ResetIni);
 }
 
 int IniCommand::prepare(int argc, char* const argv[]) {
@@ -533,6 +539,7 @@ int IniCommand::prepare(int argc, char* const argv[]) {
 
     options.load = false;
     options.store = false;
+    options.clear = false;
     options.dump_all = true;
 
     int opt;
@@ -541,20 +548,29 @@ int IniCommand::prepare(int argc, char* const argv[]) {
     static struct option long_options[] = {
         {"load",    no_argument, 0,  'l'},
         {"set",     no_argument, 0,  's'},
+        {"clear",   no_argument, 0,  'c'},
         {0,         0,           0,   0 },
     };
 
-    while ((opt = getopt_long(argc, (char* const*)argv, "ls",
+    while ((opt = getopt_long(argc, (char* const*)argv, "lsc",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'l':
                 options.load = true;
                 options.store = false;
+                options.clear = false;
                 options.dump_all = false;
                 break;
             case 's':
                 options.load = false;
                 options.store = true;
+                options.clear = false;
+                options.dump_all = false;
+                break;
+            case 'c':
+                options.load = false;
+                options.store = false;
+                options.clear = true;
                 options.dump_all = false;
                 break;
         }
@@ -576,6 +592,7 @@ int IniCommand::main(int argc, char* const argv[]) {
             return 0;
 
         Ini ini;
+        bool reset = false;
         if (!ini.LoadFile(argv[options.optind])) {
             LOGE("Error loading %s file.\n", argv[options.optind]);
             return 0;
@@ -594,12 +611,15 @@ int IniCommand::main(int argc, char* const argv[]) {
                 if (value) {
                     uint32_t v = std::atoi(value);
                     if (v != OffsetValue(entry.second)) {
+                        reset = true;
                         SetValue(entry.second, v);
                         LOGI("%s=%d\n", key_name, v);
                     }
                 }
             }
         }
+
+        if (reset) Android::Reset();
     } else if (options.store) {
         if (options.optind >= argc)
             return 0;
@@ -613,9 +633,14 @@ int IniCommand::main(int argc, char* const argv[]) {
         if (token) v = std::atoi(token);
 
         std::string key = entry;
-        SetKeyValue(key, v, android_offsets);
-        SetKeyValue(key, v, android_sizes);
-        SetKeyValue(key, v, android_others);
+        bool reset = false;
+        reset |= SetKeyValue(key, v, android_offsets);
+        reset |= SetKeyValue(key, v, android_sizes);
+        reset |= SetKeyValue(key, v, android_others);
+        if (reset) Android::Reset();
+    } else if (options.clear) {
+        INSTANCE->values.clear();
+        Android::Reset();
     }
     return 0;
 }
@@ -626,15 +651,17 @@ void IniCommand::ShowIniTable(const char* section, std::unordered_map<std::strin
         LOGI("%s=%d\n", entry.first.c_str(), OffsetValue(entry.second));
 }
 
-void IniCommand::SetKeyValue(std::string& key, uint32_t v,
+bool IniCommand::SetKeyValue(std::string& key, uint32_t v,
                              std::unordered_map<std::string, void *>& table) {
     auto it = table.find(key);
     if (it != table.end()) {
         if (v != OffsetValue(it->second)) {
             SetValue(it->second, v);
             LOGI("%s=%d\n", it->first.c_str(), v);
+            return true;
         }
     }
+    return false;
 }
 
 uint32_t IniCommand::OffsetValue(void* offset) {
@@ -642,7 +669,12 @@ uint32_t IniCommand::OffsetValue(void* offset) {
 }
 
 void IniCommand::SetValue(void* offset, uint32_t value) {
-    *reinterpret_cast<uint32_t *>(offset) = value;
+    INSTANCE->values[offset] = value;
+}
+
+void IniCommand::ResetIni() {
+    for (auto& value : INSTANCE->values)
+        *reinterpret_cast<uint32_t *>(value.first) = value.second;
 }
 
 void IniCommand::usage() {
@@ -650,4 +682,5 @@ void IniCommand::usage() {
     LOGI("Option:\n");
     LOGI("    -l, --load <current.ini>       set current ini\n");
     LOGI("    -s, --set  <KEY>=<VALUE>       set entry value\n");
+    LOGI("    -c, --clear                    clear current env ini values\n");
 }

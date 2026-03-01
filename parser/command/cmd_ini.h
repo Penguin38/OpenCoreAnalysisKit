@@ -29,6 +29,7 @@ public:
     struct Options : Command::Options {
         bool load;
         bool store;
+        bool clear;
         bool dump_all;
     };
 
@@ -37,15 +38,18 @@ public:
     void usage();
     static uint32_t OffsetValue(void* offset);
     static void SetValue(void* offset, uint32_t value);
-    static void SetKeyValue(std::string& key, uint32_t value,
+    static bool SetKeyValue(std::string& key, uint32_t value,
                             std::unordered_map<std::string, void *>& table);
     static void ShowIniTable(const char* section, std::unordered_map<std::string, void *>& table);
+    static void ResetIni();
+    static IniCommand* INSTANCE;
 private:
     Options options;
     std::unordered_map<std::string, std::unordered_map<std::string, void *>*> android_sections;
     std::unordered_map<std::string, void *> android_offsets;
     std::unordered_map<std::string, void *> android_sizes;
     std::unordered_map<std::string, void *> android_others;
+    std::unordered_map<void *, uint32_t> values;
 };
 
 #endif // PARSER_COMMAND_CMD_INI_H_

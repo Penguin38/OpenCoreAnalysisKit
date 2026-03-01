@@ -70,6 +70,7 @@
 #include <stdio.h>
 
 std::unique_ptr<Android> Android::INSTANCE = nullptr;
+std::function<void ()> Android::RESETINI = nullptr;
 
 void Android::Init() {
     INSTANCE = std::make_unique<Android>();
@@ -212,6 +213,7 @@ void Android::preLoadLater() {
     for (const auto& listener : mSdkListeners) {
         listener->execute(sdk);
     }
+    if (RESETINI) RESETINI();
 }
 
 void Android::oatPreLoadLater() {
@@ -219,6 +221,7 @@ void Android::oatPreLoadLater() {
     for (const auto& listener : mOatListeners) {
         listener->execute(oat_header_.kOatVersion);
     }
+    if (RESETINI) RESETINI();
 }
 
 void Android::RegisterSdkListener(int minisdk, std::function<void ()> fn) {
@@ -603,6 +606,10 @@ void Android::OatPrepare() {
 
 void Android::onLibartLoad(LinkMap *map) {
     // do nothing
+}
+
+void Android::RegisterIniListener(std::function<void ()> fn) {
+    RESETINI = fn;
 }
 
 void Android::Dump() {

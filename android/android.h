@@ -94,6 +94,7 @@ public:
     Android() : trunk(0), sdk(0), oat(0), patch(0) {}
     ~Android();
     static std::unique_ptr<Android> INSTANCE;
+    static std::function<void ()> RESETINI;
     static bool IsReady() { return INSTANCE != nullptr; }
     static bool IsSdkReady() { return IsReady() && Sdk() >= M; }
     static bool IsOatReady() { return IsReady() && Oat() > 0; }
@@ -164,6 +165,7 @@ public:
     static inline std::string& GetRealLibart() { return INSTANCE->realLibart; }
     static inline art::OatHeader& GetOatHeader() { return INSTANCE->oat_header(); }
     static void OnLibartLoad(LinkMap* map) { if (INSTANCE) INSTANCE->onLibartLoad(map); }
+    static void RegisterIniListener(std::function<void ()> fn);
     static std::vector<uint32_t>& GetClassesCache() { return INSTANCE->mClassesCache; }
 
     static constexpr int EACH_APP_OBJECTS = 1 << 0;
