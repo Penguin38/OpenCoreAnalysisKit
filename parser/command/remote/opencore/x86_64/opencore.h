@@ -25,16 +25,13 @@ namespace x86_64 {
 
 class Opencore : public lp64::OpencoreImpl {
 public:
-    Opencore() : lp64::OpencoreImpl(),
-                 prnum(0), prstatus(nullptr) {}
-    ~Opencore();
+    Opencore() : lp64::OpencoreImpl() {}
     void CreateCorePrStatus(int pid);
     void WriteCorePrStatus(FILE* fp);
     int IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma);
     int getMachine() { return EM_X86_64; }
 private:
-    int prnum;
-    Elf64_prstatus *prstatus;
+    std::vector<Elf64_prstatus> prstatus;
 };
 
 } // namespace x86_64

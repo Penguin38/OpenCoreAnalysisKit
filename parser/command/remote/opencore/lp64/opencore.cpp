@@ -59,11 +59,8 @@ void OpencoreImpl::ParseProcessMapsVma(int pid) {
     if (!maps.size())
         return;
 
-    phnum = maps.size();
-    phdr = (Elf64_Phdr *)malloc(phnum * sizeof(Elf64_Phdr));
-    memset(phdr, 0, phnum * sizeof(Elf64_Phdr));
-    file = (lp64::File *)malloc(phnum * sizeof(lp64::File));
-    memset(file, 0, phnum * sizeof(lp64::File));
+    phdr.assign(maps.size(), {});
+    file.assign(maps.size(), {});
 
     for (int index = 0; index < maps.size(); ++index) {
         Opencore::VirtualMemoryArea& vma = maps[index];
@@ -87,7 +84,7 @@ void OpencoreImpl::CreateCoreHeader() {
     ehdr.e_flags = 0x0;
     ehdr.e_ehsize = sizeof(Elf64_Ehdr);
     ehdr.e_phentsize = sizeof(Elf64_Phdr);
-    ehdr.e_phnum = phnum + 1;
+    ehdr.e_phnum = (int)phdr.size() + 1;
     ehdr.e_shentsize = 0x0;
     ehdr.e_shnum = 0x0;
     ehdr.e_shstrndx = 0x0;
@@ -110,8 +107,7 @@ void OpencoreImpl::CreateCoreAUXV(int pid) {
         }
         fseek(fp, 0, SEEK_SET);
 
-        auxv = (lp64::Auxv *)malloc(auxvnum * sizeof(lp64::Auxv));
-        memset(auxv, 0, auxvnum * sizeof(lp64::Auxv));
+        auxv.assign(auxvnum, {});
 
         int index =0;
         while (fread(&vec, sizeof(vec), 1, fp)) {
@@ -143,14 +139,15 @@ void OpencoreImpl::WriteCoreHeader(FILE* fp) {
 void OpencoreImpl::WriteCoreNoteHeader(FILE* fp) {
     note.p_filesz += sizeof(lp64::Auxv) * auxvnum + sizeof(Elf64_Nhdr) + 8;
     note.p_filesz += extra_note_filesz;
-    note.p_filesz += sizeof(lp64::File) * phnum + sizeof(Elf64_Nhdr) + 8 + 2 * 8 + RoundUp(fileslen, 4);
+    note.p_filesz += sizeof(lp64::File) * phdr.size() + sizeof(Elf64_Nhdr) + 8 + 2 * 8 + RoundUp(fileslen, 4);
     fwrite((void *)&note, sizeof(Elf64_Phdr), 1, fp);
 }
 
 void OpencoreImpl::WriteCoreProgramHeaders(FILE* fp) {
-    if (!phnum)
+    if (phdr.empty())
         return;
 
+    int phnum = (int)phdr.size();
     uint64_t offset = RoundUp(note.p_offset + note.p_filesz, align_size);
     phdr[0].p_offset = offset;
     fwrite(&phdr[0], sizeof(Elf64_Phdr), 1, fp);
@@ -184,9 +181,10 @@ void OpencoreImpl::WriteCoreAUXV(FILE* fp) {
 }
 
 void OpencoreImpl::WriteNtFile(FILE* fp) {
+    int phnum = (int)phdr.size();
     Elf64_Nhdr elf_nhdr;
     elf_nhdr.n_namesz = NOTE_CORE_NAME_SZ;
-    elf_nhdr.n_descsz = sizeof(lp64::File) * phnum + 2 * 8 + RoundUp(fileslen, 4);
+    elf_nhdr.n_descsz = sizeof(lp64::File) * phdr.size() + 2 * 8 + RoundUp(fileslen, 4);
     elf_nhdr.n_type = NT_FILE;
 
     char magic[8];
@@ -196,7 +194,7 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
     fwrite(&elf_nhdr, sizeof(Elf64_Nhdr), 1, fp);
     fwrite(magic, sizeof(magic), 1, fp);
 
-    uint64_t number = phnum;
+    uint64_t number = phdr.size();
     fwrite(&number, 8, 1, fp);
     fwrite(&page_size, 8, 1, fp);
 
@@ -208,18 +206,19 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
 }
 
 void OpencoreImpl::AlignNoteSegment(FILE* fp) {
-    memset(zero, 0x0, align_size);
+    memset(zero.data(), 0x0, align_size);
     uint64_t align_filesz = note.p_filesz - RoundUp(fileslen, 4) + fileslen;
     uint64_t offset = RoundUp(note.p_offset + align_filesz, align_size);
     uint64_t size = offset - (note.p_offset + align_filesz);
-    fwrite(zero, size, 1, fp);
+    fwrite(zero.data(), size, 1, fp);
 }
 
 void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
     char filename[32];
     int fd;
     int index = 0;
-    memset(zero, 0x0, align_size);
+    int phnum = (int)phdr.size();
+    memset(zero.data(), 0x0, align_size);
 
     snprintf(filename, sizeof(filename), "/proc/%d/mem", pid);
     fd = open(filename, O_RDONLY);
@@ -234,9 +233,9 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
             bool need_padd_zero = false;
             int count = phdr[index].p_memsz / align_size;
             for (int i = 0; i < count; i++) {
-                memset(zero, 0x0, align_size);
-                pread64(fd, zero, phdr[index].p_align, phdr[index].p_vaddr + (i * align_size));
-                uint64_t ret = fwrite(zero, align_size, 1, fp);
+                memset(zero.data(), 0x0, align_size);
+                pread64(fd, zero.data(), phdr[index].p_align, phdr[index].p_vaddr + (i * align_size));
+                uint64_t ret = fwrite(zero.data(), align_size, 1, fp);
                 if (ret != 1) {
                     LOGE("[%" PRIx64 "] write load segment fail. %s %s\n",
                             (uint64_t)phdr[index].p_vaddr, strerror(errno), maps[index].file.c_str());
@@ -248,11 +247,11 @@ void OpencoreImpl::WriteCoreLoadSegment(int pid, FILE* fp) {
                 }
             }
             if (need_padd_zero && current_pos > 0) {
-                memset(zero, 0x0, align_size);
+                memset(zero.data(), 0x0, align_size);
                 fseek(fp, current_pos, SEEK_SET);
                 int count = phdr[index].p_memsz / align_size;
                 for (int i = 0; i < count; i++)
-                    fwrite(zero, align_size, 1, fp);
+                    fwrite(zero.data(), align_size, 1, fp);
             }
         }
         index++;
@@ -336,16 +335,12 @@ uint64_t OpencoreImpl::FindAuxv(uint64_t type) {
 
 void OpencoreImpl::Prepare(const char* filename) {
     LOGI("Coredump %s ...\n", filename);
-    zero = (uint8_t*)malloc(align_size);
+    zero.assign(align_size, 0);
     memset(&ehdr, 0, sizeof(Elf64_Ehdr));
     memset(&note, 0, sizeof(Elf64_Phdr));
 }
 
 OpencoreImpl::~OpencoreImpl() {
-    if (auxv) free(auxv);
-    if (phdr) free(phdr);
-    if (file) free(file);
-    if (zero) free(zero);
     LOGI("Finish done.\n");
 }
 

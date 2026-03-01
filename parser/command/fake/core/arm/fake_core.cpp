@@ -133,15 +133,13 @@ int FakeCore::execute(const char* output) {
 void FakeCore::CreateCorePrStatus() {
     std::unique_ptr<FakeCore::Stream>& stream = GetInputStream();
 
-    prnum = DEF_FAKE_PRNUM;
-    prstatus = (Elf32_prstatus *)malloc(prnum * sizeof(Elf32_prstatus));
-    memset(prstatus, 0, prnum * sizeof(Elf32_prstatus));
+    prstatus.assign(DEF_FAKE_PRNUM, {});
 
     pid_t tid = stream->Tid();
     prstatus[0].pr_pid = tid;
     memcpy((void *)&prstatus[0].pr_reg, stream->Regs(), sizeof(struct pt_regs));
 
-    extra_note_filesz += (sizeof(Elf32_prstatus) + sizeof(Elf32_Nhdr) + 8) * prnum;
+    extra_note_filesz += (sizeof(Elf32_prstatus) + sizeof(Elf32_Nhdr) + 8) * prstatus.size();
 }
 
 uint32_t FakeCore::WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint32_t off) {
@@ -156,6 +154,7 @@ uint32_t FakeCore::WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint32_t o
     memset(magic, 0, sizeof(magic));
     snprintf(magic, NOTE_CORE_NAME_SZ, ELFCOREMAGIC);
 
+    int prnum = (int)prstatus.size();
     int index = 0;
     while (index < prnum) {
         memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)&elf_nhdr, sizeof(Elf32_Nhdr));
@@ -168,10 +167,6 @@ uint32_t FakeCore::WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint32_t o
     }
 
     return tmp_off;
-}
-
-FakeCore::~FakeCore() {
-    if (prstatus) free(prstatus);
 }
 
 } // namespace arm

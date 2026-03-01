@@ -25,8 +25,7 @@ namespace arm64 {
 class FakeCore : public lp64::FakeCore {
 public:
     FakeCore() : lp64::FakeCore(),
-                 has_pac(false), has_taggle_addr(false),
-                 prnum(0), prstatus(nullptr) {}
+                 has_pac(false), has_taggle_addr(false) {}
     FakeCore(std::unique_ptr<FakeCore::Stream>& in) {
         FakeCore();
         InitStream(in);
@@ -40,12 +39,10 @@ public:
 
     bool HasPAC() { return has_pac; }
     bool HasTaggleAddr() { return has_taggle_addr; }
-    ~FakeCore();
 private:
     bool has_pac;
     bool has_taggle_addr;
-    int prnum;
-    Elf64_prstatus *prstatus;
+    std::vector<Elf64_prstatus> prstatus;
 };
 
 } // namespace arm64

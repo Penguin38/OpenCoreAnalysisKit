@@ -33,9 +33,8 @@ struct user_pac_mask {
 void Opencore::CreateCorePrStatus(int pid) {
     if (!threads.size()) return;
 
-    prnum = threads.size();
-    prstatus = (Elf64_prstatus *)malloc(prnum * sizeof(Elf64_prstatus));
-    memset(prstatus, 0, prnum * sizeof(Elf64_prstatus));
+    prstatus.assign(threads.size(), {});
+    int prnum = (int)prstatus.size();
 
     int cur = 1;
     for (int index = 0; index < prnum; index++) {
@@ -62,13 +61,13 @@ void Opencore::CreateCorePrStatus(int pid) {
         }
     }
 
-    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_PRSTATUS
-    extra_note_filesz += (sizeof(Elf64_fpregset) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_FPREGSET
-    extra_note_filesz += (sizeof(Elf64_tls) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_ARM_TLS
+    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prstatus.size(); // NT_PRSTATUS
+    extra_note_filesz += (sizeof(Elf64_fpregset) + sizeof(Elf64_Nhdr) + 8) * prstatus.size(); // NT_FPREGSET
+    extra_note_filesz += (sizeof(Elf64_tls) + sizeof(Elf64_Nhdr) + 8) * prstatus.size(); // NT_ARM_TLS
     extra_note_filesz += ((sizeof(struct user_pac_mask) + sizeof(Elf64_Nhdr) + 8)  // NT_ARM_PAC_MASK
                       + (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8)       // NT_ARM_PAC_ENABLED_KEYS
-                      ) * prnum;
-    extra_note_filesz += (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8) * prnum;  // NT_ARM_TAGGED_ADDR_CTRL
+                      ) * prstatus.size();
+    extra_note_filesz += (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8) * prstatus.size();  // NT_ARM_TAGGED_ADDR_CTRL
 }
 
 void Opencore::WriteCorePrStatus(FILE* fp) {
@@ -81,6 +80,7 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
     memset(magic, 0, sizeof(magic));
     snprintf(magic, NOTE_CORE_NAME_SZ, ELFCOREMAGIC);
 
+    int prnum = (int)prstatus.size();
     for (int index = 0; index < prnum; index++) {
         fwrite(&elf_nhdr, sizeof(Elf64_Nhdr), 1, fp);
         fwrite(magic, sizeof(magic), 1, fp);
@@ -95,7 +95,7 @@ void Opencore::WriteCorePrStatus(FILE* fp) {
 int Opencore::IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) {
     int filter = getFilter();
     if (filter & FILTER_MINIDUMP) {
-        if (!prnum)
+        if (prstatus.empty())
             return VMA_NULL;
 
         arm64::pt_regs *regs = &prstatus[0].pr_reg;
@@ -265,10 +265,6 @@ void Opencore::WriteCoreMTE(int tid, FILE* fp) {
         tagged_addr_ctrl = -1;
     }
     fwrite(&tagged_addr_ctrl, sizeof(uint64_t), 1, fp);
-}
-
-Opencore::~Opencore() {
-    if (prstatus) free(prstatus);
 }
 
 } // namespace arm64

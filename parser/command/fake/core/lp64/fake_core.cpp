@@ -47,7 +47,8 @@ int FakeCore::execute(const char* output) {
 
     // Write Program Headers
     uint64_t current_offset = sizeof(Elf64_Ehdr) + ehdr.e_phnum * sizeof(Elf64_Phdr);;
-    Elf64_Phdr *tmp = reinterpret_cast<Elf64_Phdr *>(malloc(sizeof(Elf64_Phdr) * ehdr.e_phnum));
+    std::vector<Elf64_Phdr> tmp;
+    tmp.assign(ehdr.e_phnum, {});
 
     int num = 0;
     // PT_NOTE
@@ -92,8 +93,7 @@ int FakeCore::execute(const char* output) {
 
     uint64_t current_filesz = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) * ehdr.e_phnum;
     // Write Segment
-    uint8_t* zero_buf = (uint8_t*)malloc(ELF_PAGE_SIZE);
-    memset(zero_buf, 0x0, ELF_PAGE_SIZE);
+    std::vector<uint8_t> zero_buf(ELF_PAGE_SIZE, 0);
 
     // reset num
     num = 0;
@@ -102,7 +102,7 @@ int FakeCore::execute(const char* output) {
         current_filesz += tmp[num].p_filesz;
         if (!IS_ALIGNED(current_filesz, ELF_PAGE_SIZE)) {
             uint64_t aliged_size = RoundUp(current_filesz, ELF_PAGE_SIZE) - current_filesz;
-            fwrite(zero_buf, aliged_size, 1, fp);
+            fwrite(zero_buf.data(), aliged_size, 1, fp);
             current_filesz += aliged_size;
         }
         ++num;
@@ -121,8 +121,6 @@ int FakeCore::execute(const char* output) {
         ++num;
     }
 
-    free(zero_buf);
-    free(tmp);
     fclose(fp);
     LOGI("FakeCore: saved [%s]\n", output);
     return 0;
@@ -132,11 +130,8 @@ void FakeCore::ParseProcessMapsVma(std::vector<Opencore::VirtualMemoryArea>& map
     if (!maps.size())
         return;
 
-    phnum = maps.size();
-    phdr = (Elf64_Phdr *)malloc(phnum * sizeof(Elf64_Phdr));
-    memset(phdr, 0, phnum * sizeof(Elf64_Phdr));
-    file = (lp64::File *)malloc(phnum * sizeof(lp64::File));
-    memset(file, 0, phnum * sizeof(lp64::File));
+    phdr.assign(maps.size(), {});
+    file.assign(maps.size(), {});
 
     for (int index = 0; index < maps.size(); ++index) {
         Opencore::VirtualMemoryArea& vma = maps[index];
@@ -187,7 +182,7 @@ void FakeCore::CreateCoreHeader() {
     ehdr.e_flags = 0x0;
     ehdr.e_ehsize = sizeof(Elf64_Ehdr);
     ehdr.e_phentsize = sizeof(Elf64_Phdr);
-    ehdr.e_phnum = phnum + 1;
+    ehdr.e_phnum = (int)phdr.size() + 1;
     ehdr.e_shentsize = 0x0;
     ehdr.e_shnum = 0x0;
     ehdr.e_shstrndx = 0x0;
@@ -200,8 +195,7 @@ void FakeCore::CreateCoreNoteHeader() {
 
 void FakeCore::CreateCoreAUXV() {
     auxvnum = DEF_FAKE_AUXV_NUM;
-    auxv = (lp64::Auxv *)malloc(auxvnum * sizeof(lp64::Auxv));
-    memset(auxv, 0, auxvnum * sizeof(lp64::Auxv));
+    auxv.assign(auxvnum, {});
 
     auxv[use_auxv_num++].init(AT_PHDR, 0x0);
     auxv[use_auxv_num++].init(AT_PHENT, sizeof(Elf64_Phdr));
@@ -212,7 +206,7 @@ void FakeCore::CreateCoreAUXV() {
 void FakeCore::ClocNoteFileSize() {
     note.p_filesz += sizeof(lp64::Auxv) * auxvnum + sizeof(Elf64_Nhdr) + 8;
     note.p_filesz += extra_note_filesz;
-    note.p_filesz += sizeof(lp64::File) * phnum + sizeof(Elf64_Nhdr) + 8 + 2 * 8 + RoundUp(fileslen, 4);
+    note.p_filesz += sizeof(lp64::File) * phdr.size() + sizeof(Elf64_Nhdr) + 8 + 2 * 8 + RoundUp(fileslen, 4);
 }
 
 uint64_t FakeCore::WriteCoreHeader(std::unique_ptr<MemoryMap>& map, uint64_t off) {
@@ -228,8 +222,9 @@ uint64_t FakeCore::WriteCoreNoteHeader(std::unique_ptr<MemoryMap>& map, uint64_t
 }
 
 uint64_t FakeCore::WriteCoreProgramHeaders(std::unique_ptr<MemoryMap>& map, uint64_t off) {
-    if (!phnum) return 0;
+    if (phdr.empty()) return 0;
 
+    int phnum = (int)phdr.size();
     uint64_t tmp_off = 0x0;
     uint64_t offset = RoundUp(note.p_offset + note.p_filesz, align_size);
     phdr[0].p_offset = offset;
@@ -274,11 +269,12 @@ uint64_t FakeCore::WriteCoreAUXV(std::unique_ptr<MemoryMap>& map, uint64_t off) 
 }
 
 uint64_t FakeCore::WriteNtFile(std::unique_ptr<MemoryMap>& map, uint64_t off, std::vector<Opencore::VirtualMemoryArea>& maps) {
+    int phnum = (int)phdr.size();
     uint64_t tmp_off = 0x0;
 
     Elf64_Nhdr elf_nhdr;
     elf_nhdr.n_namesz = NOTE_CORE_NAME_SZ;
-    elf_nhdr.n_descsz = sizeof(lp64::File) * phnum + 2 * 8 + RoundUp(fileslen, 4);
+    elf_nhdr.n_descsz = sizeof(lp64::File) * phdr.size() + 2 * 8 + RoundUp(fileslen, 4);
     elf_nhdr.n_type = NT_FILE;
 
     char magic[8];
@@ -290,7 +286,7 @@ uint64_t FakeCore::WriteNtFile(std::unique_ptr<MemoryMap>& map, uint64_t off, st
     memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)magic, sizeof(magic));
     tmp_off += sizeof(magic);
 
-    uint64_t number = phnum;
+    uint64_t number = phdr.size();
     memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)&number, sizeof(uint64_t));
     tmp_off += sizeof(uint64_t);
     memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)&page_size, sizeof(uint64_t));
@@ -441,12 +437,6 @@ void FakeCore::Prepare(const char* filename) {
     LOGI("Create Fakecore %s ...\n", filename ? filename : "[anon::coredump]");
     memset(&ehdr, 0, sizeof(Elf64_Ehdr));
     memset(&note, 0, sizeof(Elf64_Phdr));
-}
-
-FakeCore::~FakeCore() {
-    if (auxv) free(auxv);
-    if (phdr) free(phdr);
-    if (file) free(file);
 }
 
 } // namespace lp64

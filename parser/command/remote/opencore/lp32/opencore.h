@@ -25,10 +25,7 @@ namespace lp32 {
 
 class OpencoreImpl : public Opencore {
 public:
-    OpencoreImpl() : Opencore(),
-                     phdr(nullptr), phnum(0),
-                     auxv(nullptr), auxvnum(0),
-                     file(nullptr), fileslen(0) {}
+    OpencoreImpl() : Opencore(), auxvnum(0), fileslen(0) {}
     ~OpencoreImpl();
     bool DoCoredump(const char* filename);
     int NeedFilterFile(Opencore::VirtualMemoryArea& vma);
@@ -61,12 +58,11 @@ public:
     virtual int IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) = 0;
 protected:
     Elf32_Ehdr ehdr;
-    Elf32_Phdr *phdr;
-    int phnum;
+    std::vector<Elf32_Phdr> phdr;
     Elf32_Phdr note;
-    lp32::Auxv *auxv;
+    std::vector<lp32::Auxv> auxv;
     int auxvnum;
-    lp32::File *file;
+    std::vector<lp32::File> file;
     int fileslen;
 };
 

@@ -24,8 +24,7 @@ namespace x86_64 {
 
 class FakeCore : public lp64::FakeCore {
 public:
-    FakeCore() : lp64::FakeCore(),
-                 prnum(0), prstatus(nullptr) {}
+    FakeCore() : lp64::FakeCore() {}
     FakeCore(std::unique_ptr<FakeCore::Stream>& in) {
         FakeCore();
         InitStream(in);
@@ -35,10 +34,8 @@ public:
     void CreateCorePrStatus();
     uint64_t WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint64_t off);
 
-    ~FakeCore();
 private:
-    int prnum;
-    Elf64_prstatus *prstatus;
+    std::vector<Elf64_prstatus> prstatus;
 };
 
 } // namespace x86_64

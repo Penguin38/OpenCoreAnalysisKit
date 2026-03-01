@@ -25,10 +25,7 @@ namespace lp32 {
 
 class FakeCore : public ::FakeCore {
 public:
-    FakeCore() : ::FakeCore(),
-                 phdr(nullptr), phnum(0),
-                 auxv(nullptr), auxvnum(0), use_auxv_num(0),
-                 file(nullptr), fileslen(0) {}
+    FakeCore() : ::FakeCore(), auxvnum(0), use_auxv_num(0), fileslen(0) {}
     int execute(const char* output);
 
     void Prepare(const char* filename);
@@ -52,15 +49,13 @@ public:
                            std::set<std::string>& libs, std::vector<Opencore::VirtualMemoryArea>& maps);
     static void CreateFakeStrtab(uint32_t fake_strtab, uint32_t fake_link_map, std::set<std::string>& libs);
 
-    ~FakeCore();
 protected:
     Elf32_Ehdr ehdr;
-    Elf32_Phdr *phdr;
-    int phnum;
+    std::vector<Elf32_Phdr> phdr;
     Elf32_Phdr note;
-    Auxv *auxv;
+    std::vector<Auxv> auxv;
     int auxvnum;
-    File *file;
+    std::vector<File> file;
     int fileslen;
     int use_auxv_num;
 };

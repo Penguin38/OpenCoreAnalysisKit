@@ -166,24 +166,22 @@ int FakeCore::execute(const char* output) {
 void FakeCore::CreateCorePrStatus() {
     std::unique_ptr<FakeCore::Stream>& stream = GetInputStream();
 
-    prnum = DEF_FAKE_PRNUM;
-    prstatus = (Elf64_prstatus *)malloc(prnum * sizeof(Elf64_prstatus));
-    memset(prstatus, 0, prnum * sizeof(Elf64_prstatus));
+    prstatus.assign(DEF_FAKE_PRNUM, {});
 
     pid_t tid = stream->Tid();
     prstatus[0].pr_pid = tid;
     memcpy((void *)&prstatus[0].pr_reg, stream->Regs(), sizeof(struct pt_regs));
 
-    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prnum;
+    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prstatus.size();
 
     if (HasPAC()) {
         extra_note_filesz += ((sizeof(struct user_pac_mask) + sizeof(Elf64_Nhdr) + 8)  // NT_ARM_PAC_MASK
                           + (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8)       // NT_ARM_PAC_ENABLED_KEYS
-                          ) * prnum;
+                          ) * prstatus.size();
     }
 
     if (HasTaggleAddr())
-        extra_note_filesz += (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8) * prnum;  // NT_ARM_TAGGED_ADDR_CTRL
+        extra_note_filesz += (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8) * prstatus.size();  // NT_ARM_TAGGED_ADDR_CTRL
 }
 
 uint64_t FakeCore::WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint64_t off) {
@@ -198,6 +196,7 @@ uint64_t FakeCore::WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint64_t o
     memset(magic, 0, sizeof(magic));
     snprintf(magic, NOTE_CORE_NAME_SZ, ELFCOREMAGIC);
 
+    int prnum = (int)prstatus.size();
     int index = 0;
     while (index < prnum) {
         memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)&elf_nhdr, sizeof(Elf64_Nhdr));
@@ -283,10 +282,6 @@ uint64_t FakeCore::WriteCoreTaggleAddr(int, std::unique_ptr<MemoryMap>& map, uin
     tmp_off += sizeof(uint64_t);
 
     return tmp_off;
-}
-
-FakeCore::~FakeCore() {
-    if (prstatus) free(prstatus);
 }
 
 } // namespace arm64

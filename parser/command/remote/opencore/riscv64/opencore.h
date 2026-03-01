@@ -25,16 +25,13 @@ namespace riscv64 {
 
 class Opencore : public lp64::OpencoreImpl {
 public:
-    Opencore() : lp64::OpencoreImpl(),
-                 prnum(0), prstatus(nullptr) {}
-    ~Opencore();
+    Opencore() : lp64::OpencoreImpl() {}
     void CreateCorePrStatus(int pid);
     void WriteCorePrStatus(FILE* fp);
     int IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma);
     int getMachine() { return EM_RISCV; }
 private:
-    int prnum;
-    Elf64_prstatus *prstatus;
+    std::vector<Elf64_prstatus> prstatus;
 };
 
 } // namespace riscv64

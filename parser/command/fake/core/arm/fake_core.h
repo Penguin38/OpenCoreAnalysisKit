@@ -24,8 +24,7 @@ namespace arm {
 
 class FakeCore : public lp32::FakeCore {
 public:
-    FakeCore() : lp32::FakeCore(),
-                 prnum(0), prstatus(nullptr) {}
+    FakeCore() : lp32::FakeCore() {}
     FakeCore(std::unique_ptr<FakeCore::Stream>& in) {
         FakeCore();
         InitStream(in);
@@ -35,10 +34,8 @@ public:
     void CreateCorePrStatus();
     uint32_t WriteCorePrStatus(std::unique_ptr<MemoryMap>& map, uint32_t off);
 
-    ~FakeCore();
 private:
-    int prnum;
-    Elf32_prstatus *prstatus;
+    std::vector<Elf32_prstatus> prstatus;
 };
 
 } // namespace arm

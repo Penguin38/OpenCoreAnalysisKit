@@ -25,16 +25,13 @@ namespace arm {
 
 class Opencore : public lp32::OpencoreImpl {
 public:
-    Opencore() : lp32::OpencoreImpl(),
-                 prnum(0), prstatus(nullptr) {}
-    ~Opencore();
+    Opencore() : lp32::OpencoreImpl() {}
     void CreateCorePrStatus(int pid);
     void WriteCorePrStatus(FILE* fp);
     int IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma);
     int getMachine() { return EM_ARM; }
 private:
-    int prnum;
-    Elf32_prstatus *prstatus;
+    std::vector<Elf32_prstatus> prstatus;
 };
 
 } // namespace arm
