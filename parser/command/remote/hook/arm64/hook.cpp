@@ -235,29 +235,31 @@ uint32_t kRestoreContext[] = {
     0x910403ff, // add sp, sp, 0x100
 };
 
-uint32_t kReturn[] = {
-    0xd65f03c0, // ret
+uint32_t kTmpBrMethod[] = {
+    0x58000050, // ldr x16, [pc, #8]
+    0xd61f0200, // br x16 (not blr: preserve caller lr in x30)
+    0x00000000, // high address (overlay)
+    0x00000000, // low address  (overlay)
 };
 
-uint32_t kTmpBlrMethod[] = {
-    0xd280001e, // mov x30, #0x0
-    0xf2a0001e, // movk x30, #0x0, lsl #16
-    0xf2c0001e, // movk x30, #0x0, lsl #32
-    // 0xf2e0001e, // movk x30, #0x0, lsl #48
-    0xd63f03c0, // blr x30
-};
+static void CreateBrCode(uint32_t* code, uint64_t addr, bool lr) {
+    memcpy(code, kTmpBrMethod, sizeof(kTmpBrMethod));
+    code[1] = (lr) ? 0xd63f0200 : 0xd61f0200;
+    memcpy(&code[2], &addr, sizeof(addr));
+}
 
-static void CreateBlrCode(uint32_t* code, uint64_t addr) {
-    uint32_t inst1 = addr & 0xFFFF;
-    uint32_t inst2 = (addr >> 16) & 0xFFFF;
-    uint32_t inst3 = (addr >> 32) & 0xFFFF;
-    // uint32_t inst4 = (addr >> 48) & 0xFFFF;
-
-    memcpy(code, kTmpBlrMethod, sizeof(kTmpBlrMethod));
-    code[0] |= (inst1 << 5);
-    code[1] |= (inst2 << 5);
-    code[2] |= (inst3 << 5);
-    // code[3] |= (inst4 << 5);
+static bool IsPCRelativeInstruction(uint32_t inst) {
+    if ((inst & 0x9F000000) == 0x10000000) return true; // adr
+    if ((inst & 0x9F000000) == 0x90000000) return true; // adrp
+    if ((inst & 0xFC000000) == 0x14000000) return true; // b
+    if ((inst & 0xFC000000) == 0x94000000) return true; // bl
+    if ((inst & 0xFF000010) == 0x54000000) return true; // b.cond
+    if ((inst & 0x7F000000) == 0x34000000) return true; // cbz / cbz64
+    if ((inst & 0x7F000000) == 0x35000000) return true; // cbnz / cbnz64
+    if ((inst & 0x7F000000) == 0x36000000) return true; // tbz
+    if ((inst & 0x7F000000) == 0x37000000) return true; // tbnz
+    if ((inst & 0x3B000000) == 0x18000000) return true; // ldr (literal)
+    return false;
 }
 
 bool Hook::InlineMethod(int argc, char* const argv[]) {
@@ -278,6 +280,14 @@ bool Hook::InlineMethod(int argc, char* const argv[]) {
     if (!RemoteCommand::Read(Pid(), inline_addr, sizeof(ori_inst), (uint8_t*)ori_inst)) {
         LOGE("arm64: inline inst read fail!\n");
         return false;
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        if (IsPCRelativeInstruction(ori_inst[i])) {
+            LOGE("arm64: inst[%d]=0x%08x at 0x%lx is PC-relative, cannot inline hook\n",
+                 i, ori_inst[i], inline_addr + i * 4);
+            return false;
+        }
     }
 
     uint64_t test_target;
@@ -309,19 +319,22 @@ bool Hook::InlineMethod(int argc, char* const argv[]) {
     RemoteCommand::Write(Pid(), mem, (void *)kSaveContext, sizeof(kSaveContext));
 
     // target hook method
-    uint32_t blr_code[4];
-    CreateBlrCode(blr_code, target_addr);
+    uint32_t br_code[4];
+    CreateBrCode(br_code, target_addr, true);
     RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext),
-                        (void *)blr_code, sizeof(blr_code));
+                        (void *)br_code, sizeof(br_code));
 
     // return inline method
-    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(blr_code),
+    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(br_code),
                         (void *)kRestoreContext, sizeof(kRestoreContext));
 
-    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(blr_code) + sizeof(kRestoreContext),
+    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(br_code) + sizeof(kRestoreContext),
                         (void *)&ori_inst, sizeof(ori_inst));
-    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(blr_code) + sizeof(kRestoreContext) + sizeof(ori_inst),
-                        (void *)kReturn, sizeof(kReturn));
+
+    uint64_t continuation = inline_addr + sizeof(ori_inst);
+    CreateBrCode(br_code, continuation, false);
+    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(br_code) + sizeof(kRestoreContext) + sizeof(ori_inst),
+                        (void *)br_code, sizeof(br_code));
 
     std::string addr = Utils::ToHex(mem);
     prot = Utils::ToHex(PROT_READ | PROT_EXEC);
@@ -332,11 +345,18 @@ bool Hook::InlineMethod(int argc, char* const argv[]) {
         const_cast<char*>(prot.c_str()),
     };
     if (CallMethodInner("mprotect", mprotect_argc, mprotect_argv, &no_error)
-            || !no_error)
+            || !no_error) {
+        bool dummy;
+        char* munmap_argv[2] = {
+            const_cast<char*>(addr.c_str()),
+            const_cast<char*>(size.c_str()),
+        };
+        CallMethodInner("munmap", 2, munmap_argv, &dummy);
         return false;
+    }
 
-    CreateBlrCode(blr_code, mem);
-    RemoteCommand::Write(Pid(), inline_addr, (void *)blr_code, sizeof(blr_code));
+    CreateBrCode(br_code, mem, false);
+    RemoteCommand::Write(Pid(), inline_addr, (void *)br_code, sizeof(br_code));
 
     return true;
 }
