@@ -53,7 +53,7 @@ void Opencore::CreateCorePrStatus(int pid) {
         }
     }
 
-    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prstatus.size();
+    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prnum;
 }
 
 void Opencore::WriteCorePrStatus(FILE* fp) {

@@ -274,7 +274,7 @@ uint64_t FakeCore::WriteNtFile(std::unique_ptr<MemoryMap>& map, uint64_t off, st
 
     Elf64_Nhdr elf_nhdr;
     elf_nhdr.n_namesz = NOTE_CORE_NAME_SZ;
-    elf_nhdr.n_descsz = sizeof(lp64::File) * phdr.size() + 2 * 8 + RoundUp(fileslen, 4);
+    elf_nhdr.n_descsz = sizeof(lp64::File) * phnum + 2 * 8 + RoundUp(fileslen, 4);
     elf_nhdr.n_type = NT_FILE;
 
     char magic[8];
@@ -286,7 +286,7 @@ uint64_t FakeCore::WriteNtFile(std::unique_ptr<MemoryMap>& map, uint64_t off, st
     memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)magic, sizeof(magic));
     tmp_off += sizeof(magic);
 
-    uint64_t number = phdr.size();
+    uint64_t number = phnum;
     memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)&number, sizeof(uint64_t));
     tmp_off += sizeof(uint64_t);
     memcpy(reinterpret_cast<void *>(map->data() + off + tmp_off), (void *)&page_size, sizeof(uint64_t));

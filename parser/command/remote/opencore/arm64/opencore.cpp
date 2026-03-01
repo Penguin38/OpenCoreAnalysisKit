@@ -61,13 +61,13 @@ void Opencore::CreateCorePrStatus(int pid) {
         }
     }
 
-    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prstatus.size(); // NT_PRSTATUS
-    extra_note_filesz += (sizeof(Elf64_fpregset) + sizeof(Elf64_Nhdr) + 8) * prstatus.size(); // NT_FPREGSET
-    extra_note_filesz += (sizeof(Elf64_tls) + sizeof(Elf64_Nhdr) + 8) * prstatus.size(); // NT_ARM_TLS
+    extra_note_filesz += (sizeof(Elf64_prstatus) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_PRSTATUS
+    extra_note_filesz += (sizeof(Elf64_fpregset) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_FPREGSET
+    extra_note_filesz += (sizeof(Elf64_tls) + sizeof(Elf64_Nhdr) + 8) * prnum; // NT_ARM_TLS
     extra_note_filesz += ((sizeof(struct user_pac_mask) + sizeof(Elf64_Nhdr) + 8)  // NT_ARM_PAC_MASK
                       + (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8)       // NT_ARM_PAC_ENABLED_KEYS
-                      ) * prstatus.size();
-    extra_note_filesz += (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8) * prstatus.size();  // NT_ARM_TAGGED_ADDR_CTRL
+                      ) * prnum;
+    extra_note_filesz += (sizeof(uint64_t) + sizeof(Elf64_Nhdr) + 8) * prnum;  // NT_ARM_TAGGED_ADDR_CTRL
 }
 
 void Opencore::WriteCorePrStatus(FILE* fp) {
