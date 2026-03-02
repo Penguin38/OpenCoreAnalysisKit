@@ -235,16 +235,36 @@ uint32_t kRestoreContext[] = {
     0x910403ff, // add sp, sp, 0x100
 };
 
-uint32_t kTmpBrMethod[] = {
-    0x58000050, // ldr x16, [pc, #8]
-    0xd61f0200, // br x16 (not blr: preserve caller lr in x30)
-    0x00000000, // high address (overlay)
-    0x00000000, // low address  (overlay)
+uint32_t kTmpBlrMethod[] = {
+    0xd2800010, // mov x16, #0x0
+    0xf2a00010, // movk x16, #0x0, lsl #16
+    0xf2c00010, // movk x16, #0x0, lsl #32
+    // 0xf2e00010, // movk x16, #0x0, lsl #48
+    0xd63f0200, // blr x16
 };
 
-static void CreateBrCode(uint32_t* code, uint64_t addr, bool lr) {
-    memcpy(code, kTmpBrMethod, sizeof(kTmpBrMethod));
-    code[1] = (lr) ? 0xd63f0200 : 0xd61f0200;
+static void CreateBlrCode(uint32_t* code, uint64_t addr) {
+    uint32_t inst1 = addr & 0xFFFF;
+    uint32_t inst2 = (addr >> 16) & 0xFFFF;
+    uint32_t inst3 = (addr >> 32) & 0xFFFF;
+    // uint32_t inst4 = (addr >> 48) & 0xFFFF;
+
+    memcpy(code, kTmpBlrMethod, sizeof(kTmpBlrMethod));
+    code[0] |= (inst1 << 5);
+    code[1] |= (inst2 << 5);
+    code[2] |= (inst3 << 5);
+    // code[3] |= (inst4 << 5);
+}
+
+uint32_t kTrampoline[] = {
+    0x58000050, // ldr x16, [pc, #8]
+    0xd61f0200, // br x16 (not blr: preserve caller lr in x30)
+    0x00000000, // low address  (overlay)
+    0x00000000, // high address (overlay)
+};
+
+static void CreateTrampolineCode(uint32_t* code, uint64_t addr) {
+    memcpy(code, kTrampoline, sizeof(kTrampoline));
     memcpy(&code[2], &addr, sizeof(addr));
 }
 
@@ -319,22 +339,23 @@ bool Hook::InlineMethod(int argc, char* const argv[]) {
     RemoteCommand::Write(Pid(), mem, (void *)kSaveContext, sizeof(kSaveContext));
 
     // target hook method
-    uint32_t br_code[4];
-    CreateBrCode(br_code, target_addr, true);
+    uint32_t blr_code[4];
+    CreateBlrCode(blr_code, target_addr);
     RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext),
-                        (void *)br_code, sizeof(br_code));
+                        (void *)blr_code, sizeof(blr_code));
 
     // return inline method
-    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(br_code),
+    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(blr_code),
                         (void *)kRestoreContext, sizeof(kRestoreContext));
 
-    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(br_code) + sizeof(kRestoreContext),
+    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(blr_code) + sizeof(kRestoreContext),
                         (void *)&ori_inst, sizeof(ori_inst));
 
     uint64_t continuation = inline_addr + sizeof(ori_inst);
-    CreateBrCode(br_code, continuation, false);
-    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(br_code) + sizeof(kRestoreContext) + sizeof(ori_inst),
-                        (void *)br_code, sizeof(br_code));
+    uint32_t trampoline_code[4];
+    CreateTrampolineCode(trampoline_code, continuation);
+    RemoteCommand::Write(Pid(), mem + sizeof(kSaveContext) + sizeof(blr_code) + sizeof(kRestoreContext) + sizeof(ori_inst),
+                        (void *)trampoline_code, sizeof(trampoline_code));
 
     std::string addr = Utils::ToHex(mem);
     prot = Utils::ToHex(PROT_READ | PROT_EXEC);
@@ -355,8 +376,8 @@ bool Hook::InlineMethod(int argc, char* const argv[]) {
         return false;
     }
 
-    CreateBrCode(br_code, mem, false);
-    RemoteCommand::Write(Pid(), inline_addr, (void *)br_code, sizeof(br_code));
+    CreateTrampolineCode(trampoline_code, mem);
+    RemoteCommand::Write(Pid(), inline_addr, (void *)trampoline_code, sizeof(trampoline_code));
 
     return true;
 }
