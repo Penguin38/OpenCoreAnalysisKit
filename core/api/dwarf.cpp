@@ -442,7 +442,7 @@ const uint8_t* DwarfLoader::ReadAttrValue(const uint8_t* ptr, const uint8_t* end
     default:
         // Unknown form — we cannot advance safely.
         // Return nullptr to signal parse error to the caller.
-        LOGW("unknown form 0x%x, stopping CU parse\n", form);
+        LOGD("unknown form 0x%x, stopping CU parse\n", form);
         return nullptr;
     }
 
@@ -540,7 +540,7 @@ const uint8_t* DwarfLoader::ParseDIETree(const uint8_t* ptr, const uint8_t* cu_e
         auto it = abbrev_table.find((uint32_t)code);
         if (it == abbrev_table.end()) {
             // Corrupted or unknown abbrev code — stop parsing this CU
-            LOGW("unknown abbrev code %lu, stopping CU parse\n", (unsigned long)code);
+            LOGD("unknown abbrev code %lu, stopping CU parse\n", (unsigned long)code);
             return nullptr;
         }
 
@@ -830,7 +830,7 @@ const uint8_t* DwarfLoader::ParseCompileUnit(const uint8_t* ptr, const uint8_t* 
     // Locate the abbrev table for this CU
     auto it = abbrev_map_.find(abbrev_offset);
     if (it == abbrev_map_.end()) {
-        LOGW("abbrev table not found at offset %lu\n", (unsigned long)abbrev_offset);
+        LOGD("abbrev table not found at offset %lu\n", (unsigned long)abbrev_offset);
         return cu_end;
     }
 
@@ -960,7 +960,7 @@ bool DwarfLoader::DecompressSection(const uint8_t* raw, uint64_t raw_size,
         size_t result = ZSTD_decompress(buf.data(), ch_size, payload, payload_size);
         if (ZSTD_isError(result)) {
             decompressed_sections_.pop_back();
-            LOGW("zstd decompress failed: %s\n", ZSTD_getErrorName(result));
+            LOGD("zstd decompress failed: %s\n", ZSTD_getErrorName(result));
             return false;
         }
         buf.resize(result);
@@ -968,15 +968,15 @@ bool DwarfLoader::DecompressSection(const uint8_t* raw, uint64_t raw_size,
         *out_size = result;
         return true;
 #else
-        LOGW("section is zstd-compressed but zstd support not compiled in\n");
+        LOGD("section is zstd-compressed but zstd support not compiled in\n");
         return false;
 #endif
     } else if (ch_type == ELFCOMPRESS_ZLIB) {
-        LOGW("zlib-compressed sections not supported\n");
+        LOGD("zlib-compressed sections not supported\n");
         return false;
     }
 
-    LOGW("unknown compression type %u\n", ch_type);
+    LOGD("unknown compression type %u\n", ch_type);
     return false;
 }
 
@@ -987,7 +987,7 @@ bool DwarfLoader::LocateSections() {
     uint64_t size = map_->size();
 
     if (size < 5 || memcmp(data, "\x7f""ELF", 4) != 0) {
-        LOGW("not a valid ELF file\n");
+        LOGD("not a valid ELF file\n");
         return false;
     }
 
@@ -1067,7 +1067,7 @@ bool DwarfLoader::LocateSections() {
     }
 
     if (!debug_abbrev_data_ || !debug_info_data_) {
-        LOGW(".debug_abbrev/.debug_info sections not found in ELF\n");
+        LOGD(".debug_abbrev/.debug_info sections not found in ELF\n");
         return false;
     }
     LOGD("elf_bits=%d  .debug_abbrev=%lu  .debug_info=%lu"
@@ -1081,14 +1081,14 @@ bool DwarfLoader::LocateSections() {
 bool DwarfLoader::Init(const char* elf_path) {
     map_.reset(MemoryMap::MmapFile(elf_path));
     if (!map_) {
-        LOGW("cannot open %s\n", elf_path);
+        LOGD("cannot open %s\n", elf_path);
         return false;
     }
     if (!LocateSections()) return false;
     ParseAbbrevSection();
     ParseInfoSection();
     if (structs_.empty()) {
-        LOGW("no struct/class types extracted from %s\n"
+        LOGD("no struct/class types extracted from %s\n"
              "make sure the file is an unstripped debug build\n", elf_path);
         return false;
     }
