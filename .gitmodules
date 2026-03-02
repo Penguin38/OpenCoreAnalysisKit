@@ -7,3 +7,6 @@
 [submodule "3rd-party/cpp-httplib"]
 	path = 3rd-party/cpp-httplib
 	url = https://github.com/Penguin38/cpp-httplib
+[submodule "3rd-party/zstd"]
+	path = 3rd-party/zstd
+	url = https://github.com/Penguin38/zstd.git
