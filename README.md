@@ -166,10 +166,11 @@ core-parser>
 core-parser> help
         core          exec       sysroot          mmap          auxv
         file           map          read         write      register
-      thread     backtrace         frame   disassemble       getprop
-       print     reference         hprof        search         class
-         top         space           dex        method        logcat
-     dumpsys       fdtrack           env           cxx         scudo
+      thread            cs          vtor          ptov         ptype
+   backtrace         frame   disassemble       getprop         print
+   reference         hprof        search         class           top
+       space           dex        method        logcat       dumpsys
+     fdtrack           cxx         scudo           env           ini
        shell        plugin          help        remote          fake
         time       version          quit
 ```
@@ -574,8 +575,8 @@ core-parser> help map
 Usage: map [OPTION]
 Option:
     -o, --ori         show origin link map
-    -s, --sym <NUM>   show link map current symbols
-    -a, --all         show all link map current symbols
+    -s, --sym [NUM]   show link map current symbols
+    -t, --type [NUM]  show link map current structinfos
 
 core-parser> map
 NUM LINKMAP       REGION                   FLAGS NAME
@@ -941,6 +942,7 @@ Usage: remote hook [COMMAND] [OPTION]
 Command:
     --inject      inject library
     -l, --lib     set library path or name
+    -i <TARGET>   inline hook
 
 core-parser> remote hook --inject -l libfdtrack.so
 x86_64: hook inject "libfdtrack.so"
@@ -1194,6 +1196,7 @@ Usage: ini [OPTION] ...
 Option:
     -l, --load <current.ini>       set current ini
     -s, --set  <KEY>=<VALUE>       set entry value
+    -c, --clear                    clear current env ini values
 ```
 
 ## Logcat Parser Module
