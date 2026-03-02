@@ -226,11 +226,9 @@ SpaceType Space::GetType() {
                 type_cache = kSpaceTypeImageSpace;
             } else {
                 inst = inst & 0xFFFFFFFFFFULL;
-                if ((inst & 0xb8) == 0xb8) {
-                    uint8_t type = (inst >> 8) & 0xFF;
-                    if (!((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace))
-                        type_cache = static_cast<SpaceType>(type);
-                }
+                uint8_t type = (inst >> 8) & 0xFF;
+                if (!((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace))
+                    type_cache = static_cast<SpaceType>(type);
             }
 
             if (type_cache != kSpaceTypeInvalidSpace)
@@ -248,12 +246,11 @@ SpaceType Space::GetType() {
                 type_cache = kSpaceTypeImageSpace;
             } else {
                 inst = inst & 0xFFFFFFFFFFULL;
-                if ((inst & 0xb8) == 0xb8) {
-                    uint8_t type = (inst >> 8) & 0xFF;
-                    if ((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace)
-                        break;
-                    type_cache = static_cast<SpaceType>(type);
-                }
+                uint8_t type = (inst >> 8) & 0xFF;
+                if ((inst & 0xFF) != 0xb8 || type > kSpaceTypeRegionSpace)
+                    break;
+
+                type_cache = static_cast<SpaceType>(type);
             }
         } break;
     }
@@ -412,7 +409,7 @@ bool Space::GetXMallocSpaceFlag(uint32_t off) {
             if ((inst & 0xFFFF) == 0xc031) {
             } else {
                 inst = inst & 0xFFFFFFFFFFULL;
-                if ((inst & 0xb8) == 0xb8) {
+                if ((inst & 0xFF) == 0xb8) {
                     uint8_t type = (inst >> 8) & 0xFF;
                     is_xmalloc_space = static_cast<SpaceType>(type) == 0x1;
                 }
@@ -432,7 +429,7 @@ bool Space::GetXMallocSpaceFlag(uint32_t off) {
             if ((inst & 0xFFFF) == 0xc031) {
             } else {
                 inst = inst & 0xFFFFFFFFFFULL;
-                if ((inst & 0xb8) == 0xb8) {
+                if ((inst & 0xFF) == 0xb8) {
                     uint8_t type = (inst >> 8) & 0xFF;
                     is_xmalloc_space = static_cast<SpaceType>(type) == 0x1;
                 }
