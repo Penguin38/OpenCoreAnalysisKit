@@ -18,6 +18,7 @@
 #define CORE_COMMON_LINKMAP_H_
 
 #include "api/memory_ref.h"
+#include "api/dwarf.h"
 #include <string>
 #include <unordered_set>
 
@@ -82,10 +83,12 @@ public:
     api::MemoryRef& GetNameCache();
     inline std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetDynsyms() { return dynsyms; }
     std::unordered_set<SymbolEntry, SymbolEntry::Hash>& GetCurrentSymbols();
+    std::unique_ptr<dwarf::DwarfLoader>& GetDwarfLoader() { return dwarf_loader; }
 private:
     api::MemoryRef addr_cache = 0x0;
     api::MemoryRef name_cache = 0x0;
     std::unordered_set<SymbolEntry, SymbolEntry::Hash> dynsyms;
+    std::unique_ptr<dwarf::DwarfLoader> dwarf_loader;
 };
 
 #endif  // CORE_COMMON_LINKMAP_H_

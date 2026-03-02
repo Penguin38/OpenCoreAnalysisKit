@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.
+ * Copyright (C) 2026-present, Guanyou.Chen. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_COMMAND_CORE_CMD_LINKMAP_H_
-#define PARSER_COMMAND_CORE_CMD_LINKMAP_H_
+#ifndef PARSER_COMMAND_CORE_CMD_PTYPE_H_
+#define PARSER_COMMAND_CORE_CMD_PTYPE_H_
 
 #include "command/command.h"
-#include "common/link_map.h"
 
-class LinkMapCommand : public Command {
+class PtypeCommand : public Command {
 public:
-    LinkMapCommand() : Command("map") {}
-    ~LinkMapCommand() {}
+    PtypeCommand() : Command("ptype") {}
+    ~PtypeCommand() {}
 
     struct Options : Command::Options {
-        bool dump_ori;
-        bool dump_sym;
-        bool dump_type;
-        int num;
     };
 
     int main(int argc, char* const argv[]);
     int prepare(int argc, char* const argv[]);
-    void ShowLinkMap(int pos, LinkMap* map);
-    void ShowLinkMapSymbols(LinkMap* map);
-    void ShowLinkMapTypes(LinkMap* map);
     void usage();
+    static int DumpStructInfo(PtypeCommand::Options& options, const char* name);
 private:
     Options options;
 };
 
-#endif // PARSER_COMMAND_CORE_CMD_LINKMAP_H_
+#endif // PARSER_COMMAND_CORE_CMD_PTYPE_H_

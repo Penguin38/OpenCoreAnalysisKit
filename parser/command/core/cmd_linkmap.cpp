@@ -27,7 +27,8 @@ int LinkMapCommand::prepare(int argc, char* const argv[]) {
         return Command::FINISH;
 
     options.dump_ori = false;
-    options.dump_all = false;
+    options.dump_sym = false;
+    options.dump_type = false;
     options.num = 0;
 
     int opt;
@@ -35,47 +36,59 @@ int LinkMapCommand::prepare(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"origin",  no_argument,       0,  'o'},
-        {"sym",     required_argument, 0,  's'},
-        {"all",     no_argument,       0,  'a'},
+        {"sym",     no_argument,       0,  's'},
+        {"type",    no_argument,       0,  't'},
         {0,         0,                 0,   0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "aos:",
+    while ((opt = getopt_long(argc, argv, "ost",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 'a':
-                options.dump_all = true;
-                break;
             case 'o':
                 options.dump_ori = true;
                 break;
             case 's':
-                options.num = std::atoi(optarg);
+                options.dump_sym = true;
+                break;
+            case 't':
+                options.dump_type = true;
                 break;
         }
     }
     options.optind = optind;
 
+    if (options.optind < argc)
+        options.num = std::atoi(argv[options.optind]);
+
     return Command::ONCHLD;
 }
 
 int LinkMapCommand::main(int argc, char* const argv[]) {
-    if (!options.num)
+    if (!options.dump_sym && !options.dump_type)
         LOGI(ANSI_COLOR_LIGHTRED "NUM LINKMAP       REGION                   FLAGS  L_ADDR         NAME\n" ANSI_COLOR_RESET);
 
     int pos = 0;
     auto callback = [&](LinkMap* map) -> bool {
         pos++;
-        if (!options.num && !options.dump_all) {
+        if (!options.dump_sym && !options.dump_type) {
             ShowLinkMap(pos, map);
         } else {
-            if (options.num == pos || options.dump_all) {
-                LOGI(ANSI_COLOR_LIGHTRED "VADDR             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
-                if (options.dump_all)
-                    LOGI("LIB: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, map->name());
-                ShowLinkMapSymbols(map);
-                return true && !options.dump_all;
+            if (!options.num || options.num == pos)
+                LOGI("LIB: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, map->name());
+
+            if (options.dump_sym) {
+                if (!options.num || options.num == pos) {
+                    LOGI(ANSI_COLOR_LIGHTRED "VADDR             SIZE              INFO              NAME\n" ANSI_COLOR_RESET);
+                    ShowLinkMapSymbols(map);
+                }
             }
+
+            if (options.dump_type) {
+                if (!options.num || options.num == pos)
+                    ShowLinkMapTypes(map);
+            }
+
+            return !!options.num && (options.num == pos);
         }
         return false;
     };
@@ -113,12 +126,39 @@ void LinkMapCommand::ShowLinkMapSymbols(LinkMap* map) {
     }
 }
 
+void LinkMapCommand::ShowLinkMapTypes(LinkMap* map) {
+    std::unique_ptr<dwarf::DwarfLoader>& loader = map->GetDwarfLoader();
+    if (!loader)
+        return;
+
+    loader->ForEachStruct([&](const dwarf::StructInfo& si) {
+        if (si.has_size) {
+            LOGI("[%s]  size=%u\n", si.name.c_str(), si.byte_size);
+
+            for (const auto& bi : si.bases) {
+                if (bi.has_offset)
+                    LOGI("    base: %s @ %u\n", bi.type_name.c_str(), bi.offset);
+                else
+                    LOGI("    base: %s\n", bi.type_name.c_str());
+            }
+            for (const auto& mi : si.members) {
+                if (mi.has_offset)
+                    LOGI("    [%u] %s : %s\n", mi.offset, mi.name.c_str(), mi.type_name.c_str());
+                else
+                    LOGI("    %s : %s\n", mi.name.c_str(), mi.type_name.c_str());
+            }
+            ENTER();
+        }
+        return false;
+    });
+}
+
 void LinkMapCommand::usage() {
     LOGI("Usage: map [OPTION]\n");
     LOGI("Option:\n");
     LOGI("    -o, --ori         show origin link map\n");
-    LOGI("    -s, --sym <NUM>   show link map current symbols\n");
-    LOGI("    -a, --all         show all link map current symbols\n");
+    LOGI("    -s, --sym [NUM]   show link map current symbols\n");
+    LOGI("    -t, --type [NUM]  show link map current structinfos\n");
     ENTER();
     LOGI("core-parser> map\n");
     LOGI("NUM LINKMAP       REGION                   FLAGS NAME\n");

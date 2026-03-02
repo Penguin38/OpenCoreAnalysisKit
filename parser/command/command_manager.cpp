@@ -36,6 +36,7 @@
 #include "command/core/cmd_search.h"
 #include "command/core/cmd_vtor.h"
 #include "command/core/cmd_ptov.h"
+#include "command/core/cmd_ptype.h"
 #include "command/core/backtrace/cmd_backtrace.h"
 #include "command/core/backtrace/cmd_frame.h"
 #include "command/android/cmd_getprop.h"
@@ -109,6 +110,7 @@ void CommandManager::Init() {
     CommandManager::PushInlineCommand(new CoreSearchCommand());
     CommandManager::PushInlineCommand(new VtorCommand());
     CommandManager::PushInlineCommand(new PtovCommand());
+    CommandManager::PushInlineCommand(new PtypeCommand());
     CommandManager::PushInlineCommand(new BacktraceCommand());
     CommandManager::PushInlineCommand(new FrameCommand());
     CommandManager::PushInlineCommand(new DisassembleCommand());

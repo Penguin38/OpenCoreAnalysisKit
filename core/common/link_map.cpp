@@ -167,6 +167,7 @@ void LinkMap::ReadSymbols() {
             lp32::Core::readsym32(this);
         }
         if (symbols.size()) LOGI(ANSI_COLOR_GREEN "Read symbols[%ld] (%s)\n" ANSI_COLOR_RESET, symbols.size(), name());
+        dwarf_loader = dwarf::DwarfLoader::Load(load->name().c_str());
     }
 }
 
