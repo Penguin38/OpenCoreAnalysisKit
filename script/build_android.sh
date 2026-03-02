@@ -64,6 +64,18 @@ cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cma
 
 make -C $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/xz-utils -j8
 
+# build zstd
+cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+      -DANDROID_ABI=$CURRENT_ANDROID_ABI \
+      -DANDROID_NDK=$ANDROID_NDK_HOME \
+      -DANDROID_PLATFORM=$BUILD_ANDROID_PLATFORM \
+      -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      3rd-party/zstd/build/cmake/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/zstd
+
+make -C $INSTALL_OUTPUT/android/$CURRENT_ANDROID_ABI/3rd-party/zstd -j8
+
 # build core-parser
 cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
       -DANDROID_ABI=$CURRENT_ANDROID_ABI \

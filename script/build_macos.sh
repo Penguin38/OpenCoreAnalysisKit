@@ -51,6 +51,14 @@ cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
 
 make -C $INSTALL_OUTPUT/macos/3rd-party/xz-utils -j8
 
+# build zstd
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      3rd-party/zstd/build/cmake/CMakeLists.txt \
+      -B $INSTALL_OUTPUT/macos/3rd-party/zstd
+
+make -C $INSTALL_OUTPUT/macos/3rd-party/zstd -j8
+
 # build core-parser
 cmake -DCMAKE_BUILD_PRODUCT=$BUILD_PRODUCT \
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE \

@@ -117,6 +117,19 @@ add_definitions(-D__LZMA__)
 set(LZMA_LIB lzma)
 endif()
 
+set(ZSTD_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/../3rd-party/zstd)
+set(ZSTD_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/3rd-party/zstd/lib)
+add_library(zstd STATIC IMPORTED)
+set_target_properties(zstd PROPERTIES IMPORTED_LOCATION ${ZSTD_LIB_DIR}/lib/libzstd.a)
+include_directories(${ZSTD_INCLUDE_DIR})
+
+if (NOT EXISTS "${ZSTD_LIB_DIR}/lib/libzstd.a")
+message(STATUS "Not found ${ZSTD_LIB_DIR}/lib/libzstd.a")
+else()
+add_definitions(-D__ZSTD__)
+set(ZSTD_LIB zstd)
+endif()
+
 include_directories(utils)
 add_library(utils STATIC
             utils/base/utils.cpp
@@ -165,7 +178,7 @@ add_library(core STATIC
 if (TARGET_BUILD_PLATFORM STREQUAL "MACOS")
 target_include_directories(core PUBLIC ${CMAKE_CURRENT_LIST_DIR}/macos)
 endif()
-target_link_libraries(core utils ${CAPSTONE_LIB} ${LZMA_LIB})
+target_link_libraries(core utils ${CAPSTONE_LIB} ${LZMA_LIB} ${ZSTD_LIB})
 
 include_directories(llvm)
 add_library(llvm STATIC
