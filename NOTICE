@@ -10,3 +10,11 @@ The following software may be included in this product:
 - XZ (https://github.com/tukaani-project/xz)
   Copyright (C) The XZ Utils authors and contributors
   See https://github.com/tukaani-project/xz/blob/master/COPYING for full license text.
+
+- HttpLib (https://github.com/yhirose/cpp-httplib)
+  Copyright (c) 2017 yhirose
+  See https://github.com/yhirose/cpp-httplib/blob/master/LICENSE for full license text.
+
+- ZSTD (https://github.com/facebook/zstd)
+  Copyright (c) Meta Platforms, Inc. and affiliates
+  See https://github.com/facebook/zstd/blob/dev/LICENSE for full license text.

@@ -214,3 +214,11 @@
    - XZ (https://github.com/tukaani-project/xz)
 
    See https://github.com/tukaani-project/xz/blob/master/COPYING for details.
+
+   - HttpLib (https://github.com/yhirose/cpp-httplib)
+
+   See https://github.com/yhirose/cpp-httplib/blob/master/LICENSE for details.
+
+   - ZSTD (https://github.com/facebook/zstd)
+
+   See https://github.com/facebook/zstd/blob/dev/LICENSE for details.
