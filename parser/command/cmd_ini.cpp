@@ -541,6 +541,7 @@ int IniCommand::prepare(int argc, char* const argv[]) {
     options.store = false;
     options.clear = false;
     options.dump_all = true;
+    options.dwarf = false;
 
     int opt;
     int option_index = 0;
@@ -549,10 +550,11 @@ int IniCommand::prepare(int argc, char* const argv[]) {
         {"load",    no_argument, 0,  'l'},
         {"set",     no_argument, 0,  's'},
         {"clear",   no_argument, 0,  'c'},
+        {"dwarf",   no_argument, 0,  'd'},
         {0,         0,           0,   0 },
     };
 
-    while ((opt = getopt_long(argc, (char* const*)argv, "lsc",
+    while ((opt = getopt_long(argc, (char* const*)argv, "lscd",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'l':
@@ -560,18 +562,28 @@ int IniCommand::prepare(int argc, char* const argv[]) {
                 options.store = false;
                 options.clear = false;
                 options.dump_all = false;
+                options.dwarf = false;
                 break;
             case 's':
                 options.load = false;
                 options.store = true;
                 options.clear = false;
                 options.dump_all = false;
+                options.dwarf = false;
                 break;
             case 'c':
                 options.load = false;
                 options.store = false;
                 options.clear = true;
                 options.dump_all = false;
+                options.dwarf = false;
+                break;
+            case 'd':
+                options.load = false;
+                options.store = false;
+                options.clear = false;
+                options.dump_all = false;
+                options.dwarf = true;
                 break;
         }
     }
@@ -641,7 +653,58 @@ int IniCommand::main(int argc, char* const argv[]) {
     } else if (options.clear) {
         INSTANCE->values.clear();
         Android::Reset();
+    } else if (options.dwarf) {
+        if (options.optind >= argc)
+            return 0;
+        if (ApplyDwarf(argv[options.optind]))
+            Android::Reset();
     }
+    return 0;
+}
+
+bool IniCommand::ApplyDwarf(const char* elf_path) {
+    auto loader = dwarf::DwarfLoader::Load(elf_path);
+    if (!loader) {
+        LOGW("DWARF: failed to load debug info from %s\n", elf_path);
+        return false;
+    }
+    int total = 0;
+    loader->ForEachStruct([&](const dwarf::StructInfo& si) {
+        total += ApplyDwarfStruct(si);
+        return false;
+    });
+    LOGI("DWARF: applied %d INI entries from %s\n", total, elf_path);
+    return total > 0;
+}
+
+int IniCommand::ApplyDwarfStruct(const dwarf::StructInfo& si) {
+// FOR TEST
+#if 0
+    // Use the short class name (part after last "::") for key matching
+    std::string short_name = si.name;
+    auto pos = si.name.rfind("::");
+    if (pos != std::string::npos) short_name = si.name.substr(pos + 2);
+
+    int applied = 0;
+    if (si.has_size && si.byte_size > 0) {
+        std::string key = "__" + short_name + "_size__.THIS";
+        if (SetKeyValue(key, si.byte_size, android_sizes)) ++applied;
+    }
+    for (const auto& bi : si.bases) {
+        if (!bi.has_offset || bi.type_name.empty()) continue;
+        auto bpos = bi.type_name.rfind("::");
+        std::string base_short = (bpos != std::string::npos)
+                                 ? bi.type_name.substr(bpos + 2) : bi.type_name;
+        std::string key = "__" + short_name + "_base__." + base_short;
+        if (SetKeyValue(key, bi.offset, android_offsets)) ++applied;
+    }
+    for (const auto& mi : si.members) {
+        if (!mi.has_offset) continue;
+        std::string key = "__" + short_name + "_offset__." + mi.name;
+        if (SetKeyValue(key, mi.offset, android_offsets)) ++applied;
+    }
+    return applied;
+#endif
     return 0;
 }
 
@@ -680,7 +743,8 @@ void IniCommand::ResetIni() {
 void IniCommand::usage() {
     LOGI("Usage: ini [OPTION] ...\n");
     LOGI("Option:\n");
-    LOGI("    -l, --load <current.ini>       set current ini\n");
-    LOGI("    -s, --set  <KEY>=<VALUE>       set entry value\n");
+    LOGI("    -l, --load  <current.ini>      set current ini\n");
+    LOGI("    -s, --set   <KEY>=<VALUE>      set entry value\n");
     LOGI("    -c, --clear                    clear current env ini values\n");
+    LOGI("    -d, --dwarf <libart.so>        init offsets from DWARF debug info\n");
 }
