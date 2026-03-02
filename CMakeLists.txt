@@ -148,6 +148,7 @@ add_library(core STATIC
             core/api/elf.cpp
             core/api/bridge.cpp
             core/api/unwind.cpp
+            core/api/dwarf.cpp
             core/lp64/core.cpp
             core/lp32/core.cpp
             core/arm64/core.cpp
