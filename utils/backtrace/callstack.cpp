@@ -77,7 +77,7 @@ void CallStack::dump(int fd, int indent, const char* prefix) {
             (CallStackDump(dumpimpl))((void *)this, fd, indent, prefix);
         }
     }
-#else
+#elif defined(__LINUX__) || defined(__MACOS__)
     int layers, i;
     char **symbols = nullptr;
     void *frames[24];
