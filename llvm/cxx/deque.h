@@ -90,8 +90,8 @@ public:
     iterator end();
 private:
     split_buffer __map_cache = 0x0;
-    uint64_t pointer_size;
-    uint64_t block_size;
+    uint64_t pointer_size = 0;
+    uint64_t block_size = 0;
 };
 
 } // namespace cxx

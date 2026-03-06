@@ -48,13 +48,13 @@ split_buffer& deque::Map() {
 }
 
 deque::iterator deque::begin() {
-    api::MemoryRef __mp = Map().__begin() + (__start() / __block_size()) * pointer_size;
+    api::MemoryRef __mp = Map().__begin() + (__start() / __block_size()) * CoreApi::GetPointSize();
     return deque::iterator(__mp, Map().empty() ? 0 : __mp.valueOf() + (__start() % __block_size()) * pointer_size, pointer_size);
 }
 
 deque::iterator deque::end() {
     uint64_t __p = size() + __start();
-    api::MemoryRef __mp = Map().__begin() + (__p / __block_size()) * pointer_size;
+    api::MemoryRef __mp = Map().__begin() + (__p / __block_size()) * CoreApi::GetPointSize();
     return deque::iterator(__mp, Map().empty() ? 0 : __mp.valueOf() + (__p % __block_size()) * pointer_size, pointer_size);
 }
 
