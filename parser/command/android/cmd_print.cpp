@@ -224,10 +224,12 @@ void PrintCommand::DumpClass(art::mirror::Class& clazz, PrintCommand::Options& o
         api::MemoryRef embedded_vtable = current.embedded_vtable();
         for (int i = embedded_vtable_length - 1; i >= 0; i--) {
             art::ArtMethod method = embedded_vtable.valueOf(i * CoreApi::GetPointSize());
-            LOGI(format.c_str(), OFFSET(Class, embedded_vtable_) + i * CoreApi::GetPointSize(),
-                 art::PrettyMethodAccessFlags(method.access_flags()).c_str(),
-                 method.PrettyReturnTypeDescriptor().c_str(), method.ColorPrettyMethodOnlyNP().c_str());
-            LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, method.Ptr());
+            if (!method.IsRuntimeMethod()) {
+                LOGI(format.c_str(), OFFSET(Class, embedded_vtable_) + i * CoreApi::GetPointSize(),
+                     art::PrettyMethodAccessFlags(method.access_flags()).c_str(),
+                     method.PrettyReturnTypeDescriptor().c_str(), method.ColorPrettyMethodOnlyNP().c_str());
+                LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, method.Ptr());
+            }
         }
         // LOGI(format.c_str(), OFFSET(Class, embedded_vtable_), "virutal ", "long", "embeddedVtable");
         // LOGI(" = " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, current.embedded_vtable());
