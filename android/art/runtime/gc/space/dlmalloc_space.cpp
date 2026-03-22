@@ -17,7 +17,6 @@
 #include "logger/log.h"
 #include "runtime/gc/space/dlmalloc_space.h"
 #include "runtime/runtime_globals.h"
-#include "common/bit.h"
 
 namespace art {
 namespace gc {
@@ -29,11 +28,6 @@ void DlMallocSpace::Init() {
 
 void DlMallocSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
     // do nothing
-}
-
-uint64_t DlMallocSpace::GetNextObject(mirror::Object& object) {
-    const uint64_t position = object.Ptr() + object.SizeOf();
-    return RoundUp(position, kObjectAlignment * 2);
 }
 
 } // namespace space

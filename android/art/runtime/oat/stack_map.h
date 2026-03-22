@@ -207,6 +207,36 @@ private:
     uint32_t catalogue_index;
 };
 
+class DexRegisterLocation {
+public:
+    enum class Kind : uint8_t {
+        kNone = 0,                // 0b000
+        kInStack = 1,             // 0b001
+        kInRegister = 2,          // 0b010
+        kInFpuRegister = 3,       // 0b011
+        kConstant = 4,            // 0b100
+        kInStackLargeOffset = 5,  // 0b101
+        kConstantLargeValue = 6,  // 0b110
+        kLastLocationKind = kConstantLargeValue
+    };
+
+    static bool IsShortLocationKind(Kind kind) {
+        switch (kind) {
+            case Kind::kNone:
+            case Kind::kInStack:
+            case Kind::kInRegister:
+            case Kind::kInFpuRegister:
+            case Kind::kConstant:
+                return true;
+
+            case Kind::kInStackLargeOffset:
+            case Kind::kConstantLargeValue:
+                return false;
+        }
+        return true;
+    }
+};
+
 class DexRegisterInfo : public BitTable {
 public:
 
@@ -510,6 +540,73 @@ public:
 
     // 124+
     CodeInfoEncoding& GetEncoding() { return encoding_; }
+
+    // 64+
+    uint32_t GetStackMapsOffset() {
+        return GetDexRegisterLocationCatalogOffset() + GetDexRegisterLocationCatalogSize();
+    }
+    uint32_t GetDexRegisterLocationCatalogOffset() {
+        return kFixedSize;
+    }
+    uint32_t GetDexRegisterLocationCatalogSize() {
+        return ComputeDexRegisterLocationCatalogSize(GetDexRegisterLocationCatalogOffset(),
+                                                     GetNumberOfDexRegisterLocationCatalogEntries());
+    }
+    uint32_t GetNumberOfDexRegisterLocationCatalogEntries() {
+        return region_.LoadUnaligned32(kNumberOfDexRegisterLocationCatalogEntriesOffset);
+    }
+    uint64_t GetStackMapsSize() {
+        return StackMapSize() * GetNumberOfStackMaps();
+    }
+    uint64_t GetNumberOfStackMaps() {
+        return region_.LoadUnaligned32(kNumberOfStackMapsOffset);
+    }
+    uint64_t StackMapSize() {
+        return ComputeStackMapSizeInternal(GetStackMaskSize(),
+                                           NumberOfBytesForInlineInfo(),
+                                           NumberOfBytesForDexRegisterMap(),
+                                           NumberOfBytesForDexPc(),
+                                           NumberOfBytesForNativePc(),
+                                           NumberOfBytesForRegisterMask());
+    }
+    uint32_t GetStackMaskSize() {
+        return region_.LoadUnaligned32(kStackMaskSizeOffset);
+    }
+    uint64_t NumberOfBytesForInlineInfo() {
+        return GetNumberOfBytesForEncoding(kInlineInfoBitOffset);
+    }
+    uint64_t NumberOfBytesForDexRegisterMap() {
+        return GetNumberOfBytesForEncoding(kDexRegisterMapBitOffset);
+    }
+    uint64_t NumberOfBytesForDexPc() {
+        return GetNumberOfBytesForEncoding(kDexPcBitOffset);
+    }
+    uint64_t NumberOfBytesForNativePc() {
+        return GetNumberOfBytesForEncoding(kNativePcBitOffset);
+    }
+    uint64_t NumberOfBytesForRegisterMask() {
+        return GetNumberOfBytesForEncoding(kRegisterMaskBitOffset);
+    }
+    uint64_t GetNumberOfBytesForEncoding(uint64_t bit_offset) {
+        return region_.LoadBit(bit_offset)
+            + (region_.LoadBit(bit_offset + 1) << 1)
+            + (region_.LoadBit(bit_offset + 2) << 2);
+    }
+    uint64_t ComputeStackMapSizeInternal(uint64_t stack_mask_size,
+                                         uint64_t number_of_bytes_for_inline_info,
+                                         uint64_t number_of_bytes_for_dex_map,
+                                         uint64_t number_of_bytes_for_dex_pc,
+                                         uint64_t number_of_bytes_for_native_pc,
+                                         uint64_t number_of_bytes_for_register_mask) {
+        return stack_mask_size
+            + number_of_bytes_for_inline_info
+            + number_of_bytes_for_dex_map
+            + number_of_bytes_for_dex_pc
+            + number_of_bytes_for_native_pc
+            + number_of_bytes_for_register_mask;
+    }
+    uint64_t ComputeDexRegisterLocationCatalogSize(uint32_t origin,
+                                                   uint32_t number_of_dex_locations);
 
     uint32_t NativePc2DexPc(uint32_t native_pc);
     void NativePc2VRegs(uint32_t native_pc, std::map<uint32_t, DexRegisterInfo>& vregs);

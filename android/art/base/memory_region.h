@@ -39,7 +39,12 @@ public:
         return MemoryRegion(begin() + offset, size_in);
     }
 
+    uint8_t LoadUnaligned8(uint64_t offset);
+    uint16_t LoadUnaligned16(uint64_t offset);
     uint32_t LoadUnaligned32(uint64_t offset);
+    uint64_t LoadUnaligned64(uint64_t offset);
+    bool LoadBit(uint64_t offset);
+    uint64_t ComputeBitPointer(uint64_t bit_offset, uint8_t* bit_mask);
 private:
     uint64_t pointer_;
     uint64_t size_;

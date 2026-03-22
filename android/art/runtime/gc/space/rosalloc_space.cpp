@@ -17,7 +17,6 @@
 #include "logger/log.h"
 #include "runtime/gc/space/rosalloc_space.h"
 #include "runtime/runtime_globals.h"
-#include "common/bit.h"
 
 namespace art {
 namespace gc {
@@ -28,12 +27,6 @@ void RosAllocSpace::Init() {
 }
 
 void RosAllocSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
-    // do nothing
-}
-
-uint64_t RosAllocSpace::GetNextObject(mirror::Object& object) {
-    const uint64_t position = object.Ptr() + object.SizeOf();
-    return RoundUp(position, kObjectAlignment * 2);
 }
 
 } // namespace space

@@ -35,7 +35,6 @@ public:
     static void Init();
     bool IsRosAllocSpace() { return false; }
     bool IsDlMallocSpace() { return true; }
-    uint64_t GetNextObject(mirror::Object& object);
     void Walk(std::function<bool (mirror::Object& object)> fn, bool check);
 };
 

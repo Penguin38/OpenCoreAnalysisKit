@@ -479,6 +479,7 @@ CodeInfo CodeInfo::Decode(uint64_t code_info_data) {
         api::MemoryRef sizeref = code_info_data;
         uint32_t size = sizeref.value32Of();
         code_info.region_ = MemoryRegion(code_info_data, size);
+        code_info.number_of_stack_maps_ =  code_info.GetNumberOfStackMaps();
     }
     return code_info;
 }
@@ -601,6 +602,27 @@ uint32_t StackMap::UnpackNativePc(uint32_t packed_native_pc) {
     return packed_native_pc;
 }
 
+static uint32_t LoadAt(MemoryRegion region,
+                       uint64_t number_of_bytes,
+                       size_t offset) {
+    if (number_of_bytes == 0u) {
+        return 0;
+    } else if (number_of_bytes == 1u) {
+        uint8_t value = region.LoadUnaligned8(offset);
+        return value;
+    } else if (number_of_bytes == 2u) {
+        uint16_t value = region.LoadUnaligned16(offset);
+        return value;
+    } else if (number_of_bytes == 3u) {
+        uint16_t low = region.LoadUnaligned16(offset);
+        uint16_t high = region.LoadUnaligned8(offset + sizeof(uint16_t));
+        uint32_t value = (high << 16) + low;
+        return value;
+    } else {
+        return region.LoadUnaligned32(offset);
+    }
+}
+
 void CodeInfo::NativeStackMaps(std::vector<GeneralStackMap>& maps) {
     if (OatHeader::OatVersion() >= 144) {
         StackMap& map = GetStackMap();
@@ -644,7 +666,15 @@ void CodeInfo::NativeStackMaps(std::vector<GeneralStackMap>& maps) {
             maps.push_back(stack);
         }
     } else if (OatHeader::OatVersion() >= 64) {
+#if 0
+        if (region_.size() == 0)
+            return;
 
+        MemoryRegion stack_region = region_.Subregion(GetStackMapsOffset(), GetStackMapsSize());
+        for (int row = 0; row < number_of_stack_maps_; row++) {
+            uint32_t dex_pc = LoadAt(stack_region, NumberOfBytesForDexPc(), GetStackMaskSize() + NumberOfBytesForRegisterMask() * sizeof(uint8_t));
+        }
+#endif
     }
 }
 
@@ -824,6 +854,23 @@ std::string DexRegisterInfo::ConvertKindBit(DexRegisterInfo::KindBit kind) {
     return "";
 }
 
+uint64_t CodeInfo::ComputeDexRegisterLocationCatalogSize(uint32_t origin,
+                                                         uint32_t number_of_dex_locations) {
+    uint64_t offset = origin;
+
+    for (uint16_t i = 0; i < number_of_dex_locations; ++i) {
+        uint8_t first_byte = region_.LoadUnaligned8(offset);
+        DexRegisterLocation::Kind kind = static_cast<DexRegisterLocation::Kind>(first_byte & ((1 << 3) - 1));
+        if (DexRegisterLocation::IsShortLocationKind(kind)) {
+            offset += sizeof(uint8_t);
+        } else {
+            offset += sizeof(DexRegisterLocation::Kind) + sizeof(int32_t);
+        }
+    }
+    uint64_t size = offset - origin;
+    return size;
+}
+
 void CodeInfo::Dump(const char* prefix) {
     std::string sub_prefix(prefix);
     sub_prefix.append("  ");
@@ -870,7 +917,7 @@ void CodeInfo::Dump(const char* prefix) {
         LOGI("%sCodeInfo (number_of_dex_registers=%d, number_of_stack_maps=%d)\n", prefix, number_of_dex_registers_, number_of_stack_maps_);
         GetEncoding().Dump(sub_prefix.c_str());
     } else if (OatHeader::OatVersion() >= 64) {
-        LOGI("%sCodeInfo\n", prefix);
+        LOGI("%sCodeInfo (number_of_dex_registers=%d, number_of_stack_maps_=%d)\n", prefix, number_of_dex_registers_, number_of_stack_maps_);
     }
 }
 
