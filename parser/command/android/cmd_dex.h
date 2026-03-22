@@ -31,6 +31,7 @@ public:
         bool app;
         char* dir;
         bool dump_dex;
+        bool dump_loc;
     };
 
     int main(int argc, char* const argv[]);

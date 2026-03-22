@@ -34,6 +34,7 @@ int DexCommand::prepare(int argc, char* const argv[]) {
 
     options.dump_dex = false;
     options.dump_ori = false;
+    options.dump_loc = false;
     options.app = false;
     options.num = 0;
     options.dir = const_cast<char *>(Env::CurrentDir());
@@ -43,17 +44,21 @@ int DexCommand::prepare(int argc, char* const argv[]) {
     optind = 0; // reset
     static struct option long_options[] = {
         {"origin",  no_argument,       0,  'o'},
+        {"location",no_argument,       0,  'l'},
         {"app",     no_argument,       0,   1 },
         {"dir",     required_argument, 0,  'd'},
         {"num",     required_argument, 0,  'n'},
         {0,         0,                 0,   0 },
     };
 
-    while ((opt = getopt_long(argc, argv, "od:n:",
+    while ((opt = getopt_long(argc, argv, "old:n:",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 'o':
                 options.dump_ori = true;
+                break;
+            case 'l':
+                options.dump_loc = true;
                 break;
             case 1:
                 options.app = true;
@@ -125,11 +130,13 @@ void DexCommand::ShowDexCacheRegion(int pos, art::mirror::DexCache& dex_cache, a
         if (!options.dump_ori && block->isMmapBlock()) {
             name = block->name();
         } else {
-            art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
-            if (Android::Sdk() >= Android::O && oat_dex_file.Ptr()) {
-                art::OatFile& oat_file = oat_dex_file.GetOatFile();
-                if (oat_file.Ptr() && block->virtualContains(oat_file.GetVdexBegin())) {
-                    name = oat_file.GetVdexFile().GetName();
+            if (Android::Sdk() >= Android::O && !options.dump_loc) {
+                art::OatDexFile& oat_dex_file = dex_file.GetOatDexFile();
+                if (oat_dex_file.Ptr()) {
+                    art::OatFile& oat_file = oat_dex_file.GetOatFile();
+                    if (oat_file.Ptr() && block->virtualContains(oat_file.GetVdexBegin())) {
+                        name = oat_file.GetVdexFile().GetName();
+                    }
                 }
             }
         }
