@@ -24,9 +24,14 @@ void android::PropInfo::Init() {
         .serial = 0,
         .value = 4,
         .name = 96,
+        .long_offset = kLongLegacyErrorBufferSize + 4,
     };
 
     __PropInfo_size__ = {
         .THIS = 96,
     };
+}
+
+bool android::PropInfo::is_long() {
+    return (serial() & kLongFlag) != 0;
 }

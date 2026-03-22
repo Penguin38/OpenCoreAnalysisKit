@@ -55,7 +55,7 @@ const char* android::Property::Get(const char *name, const char* def) {
     CoreApi::ForeachLoadBlock(callback, true, true);
 
     if (result.Ptr())
-        return result.value();
+        return result.is_long() ? result.long_value() : result.value();
     return def;
 }
 

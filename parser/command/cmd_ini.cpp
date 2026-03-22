@@ -91,6 +91,7 @@ IniCommand::IniCommand() : Command("ini") {
         INI_ENTRY(__PropInfo_offset__.serial),
         INI_ENTRY(__PropInfo_offset__.value),
         INI_ENTRY(__PropInfo_offset__.name),
+        INI_ENTRY(__PropInfo_offset__.long_offset),
         INI_ENTRY(__PropArea_offset__.bytes_used_),
         INI_ENTRY(__PropArea_offset__.serial_),
         INI_ENTRY(__PropArea_offset__.magic_),
