@@ -93,6 +93,16 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 |Android-15.0(35) |   √   |  -   |   √    |   -  |    ?    |
 |Android-16.0(36) |   √   |  -   |   √    |   -  |    ?    |
 
+# MCP Server
+```
+claude mcp add core-parser --scope user <path_to/core-parser> -- --mcp
+```
+
+# HTTP Server
+```
+core-parser --http [ip:port]
+```
+
 # How To Launch
 ```
 Usage: core-parser [OPTION]
