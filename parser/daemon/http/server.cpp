@@ -16,7 +16,7 @@
 
 #include "logger/log.h"
 #include "base/utils.h"
-#include "daemon/server.h"
+#include "daemon/http/server.h"
 #include "work/work_thread.h"
 #include "command/env.h"
 #include "sys/time.h"
@@ -29,10 +29,37 @@
 #include "httplib.h"
 #endif // __HTTPLIB__
 
-bool CoreServer::start(const char* host) {
+namespace {
+
+static std::string JsonEscape(const std::string& s) {
+    std::string out;
+    out.reserve(s.size() + 16);
+    for (unsigned char c : s) {
+        switch (c) {
+            case '"':  out += "\\\""; break;
+            case '\\': out += "\\\\"; break;
+            case '\n': out += "\\n";  break;
+            case '\r': out += "\\r";  break;
+            case '\t': out += "\\t";  break;
+            default:
+                if (c < 0x20) {
+                    char buf[8];
+                    snprintf(buf, sizeof(buf), "\\u%04x", c);
+                    out += buf;
+                } else {
+                    out += c;
+                }
+        }
+    }
+    return out;
+}
+
+} // namespace
+
+bool HttpServer::start(const char* host) {
 #ifdef __HTTPLIB__
     if (!host) {
-        LOGE("Enter --daemon ip:port\n");
+        LOGE("Enter --http ip:port\n");
         return false;
     }
 
@@ -105,14 +132,15 @@ bool CoreServer::start(const char* host) {
         Utils::CloseWriteout(fd);
 
         std::ifstream file(json);
-        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        std::string output((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         file.close();
         unlink(json.c_str());
 
-        // std::string content;
-        // content.append("{\"result\": \"");
-        // content.append(output);
-        // content.append("\"}");
+        std::string content;
+        content.reserve(output.size() + 16);
+        content += "{\"result\":\"";
+        content += JsonEscape(output);
+        content += "\"}";
         res.set_content(content.c_str(), "application/json");
     });
 

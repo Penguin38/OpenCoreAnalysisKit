@@ -444,7 +444,8 @@ add_executable(${TARGET_CORE_PARSER}
                parser/ui/mini_shell.cpp
                parser/work/work_thread.cpp
                parser/core_parser.cpp
-               parser/daemon/server.cpp)
+               parser/daemon/http/server.cpp
+               parser/daemon/mcp/server.cpp)
 target_link_libraries(${TARGET_CORE_PARSER} parser)
 if (TARGET_BUILD_PAGESIZE STREQUAL "16K")
 target_link_options(${TARGET_CORE_PARSER} PRIVATE "-Wl,-z,max-page-size=16384")

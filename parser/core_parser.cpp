@@ -18,7 +18,8 @@
 #include "api/core.h"
 #include "ui/ui_thread.h"
 #include "work/work_thread.h"
-#include "daemon/server.h"
+#include "daemon/http/server.h"
+#include "daemon/mcp/server.h"
 #include "android.h"
 #include "common/elf.h"
 #include "command/env.h"
@@ -28,6 +29,7 @@
 #include "command/remote/opencore/opencore.h"
 #include "command/fake/core/fake_core.h"
 #include <unistd.h>
+#include <fcntl.h>
 #include <getopt.h>
 #include <signal.h>
 #include <iostream>
@@ -102,6 +104,8 @@ void show_parser_usage() {
     LOGI("        --no-load            no auto load corefile\n");
     LOGI("        --no-fake-phdr [EXE] rebuild fakecore phdr\n");
     LOGI("    -d, --debug <LEVEL>      set logger debug level\n");
+    LOGI("        --http [IP:PORT]     start HTTP server\n");
+    LOGI("        --mcp                start MCP stdio server (for AI assistant integration)\n");
     LOGI("Exp:\n");
     LOGI("    core-parser -c /tmp/tmp.core\n");
 #if !defined(__MACOS__)
@@ -144,7 +148,8 @@ int command_preload(int argc, char* const argv[]) {
         {"no-fake-phdr",no_argument,       0,  7 },
         {"debug",     required_argument,   0, 'd'},
         {"help",      no_argument,         0, 'h'},
-        {"daemon",    no_argument,         0,  8 },
+        {"http",      no_argument,         0,  8 },
+        {"mcp",       no_argument,         0,  9 },
         {0,           0,                   0,  0 },
     };
 
@@ -159,7 +164,7 @@ int command_preload(int argc, char* const argv[]) {
     bool remote = false;
     bool need_load = true;
     bool no_fake_phdr = false;
-    bool need_daemon = false;
+    bool need_http = false;
     int lv = 0;
     int filter = Opencore::FILTER_SPECIAL_VMA
                | Opencore::FILTER_SANITIZER_SHADOW_VMA
@@ -208,7 +213,10 @@ int command_preload(int argc, char* const argv[]) {
                 no_fake_phdr = true;
                 break;
             case 8:
-                need_daemon = true;
+                need_http = true;
+                break;
+            case 9:
+                /* --mcp is handled in main() */
                 break;
             case 'd':
                 lv = std::atoi(optarg);
@@ -223,8 +231,8 @@ int command_preload(int argc, char* const argv[]) {
         }
     }
 
-    if (need_daemon) {
-        CoreServer server;
+    if (need_http) {
+        HttpServer server;
         if (optind < argc)
             server.start(argv[optind]);
         else
@@ -304,11 +312,39 @@ int main(int argc, char* const argv[]) {
     CommandManager::Init();
     CommandManager::PushInlineCommand(new QuitCommand());
 
-    show_copyright();
+    // Pre-scan for --mcp: stdout is the JSON-RPC channel, so suppress all
+    // diagnostic output during startup (copyright, core loading messages).
+    bool is_mcp = false;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--mcp") == 0) { is_mcp = true; break; }
+    }
+
+    int preload_saved_fd = -1;
+    if (is_mcp) {
+        preload_saved_fd = dup(fileno(stdout));
+        int null_fd = open("/dev/null", O_WRONLY);
+        dup2(null_fd, fileno(stdout));
+        close(null_fd);
+    } else {
+        show_copyright();
 #if defined(__AOSP_PARSER__)
-    show_compat_android_version();
+        show_compat_android_version();
 #endif
+    }
+
     if (command_preload(argc, argv) < 0) {
+        if (preload_saved_fd >= 0)
+            close(preload_saved_fd);
+        return 0;
+    }
+
+    // Restore stdout and launch MCP event loop.
+    if (preload_saved_fd >= 0) {
+        fflush(stdout);   // drain stdio buffer → /dev/null before restoring fd
+        dup2(preload_saved_fd, fileno(stdout));
+        close(preload_saved_fd);
+        McpServer mcp;
+        mcp.start();
         return 0;
     }
 

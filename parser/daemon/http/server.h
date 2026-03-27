@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef PARSER_DAEMON_SERVER_H_
-#define PARSER_DAEMON_SERVER_H_
+#ifndef PARSER_DAEMON_HTTP_SERVER_H_
+#define PARSER_DAEMON_HTTP_SERVER_H_
 
-class CoreServer {
+class HttpServer {
 public:
     bool start() { return start("127.0.0.1:1104"); }
     bool start(const char* host);
@@ -26,4 +26,4 @@ private:
     bool running = false;
 };
 
-#endif  // PARSER_DAEMON_SERVER_H_
+#endif  // PARSER_DAEMON_HTTP_SERVER_H_
