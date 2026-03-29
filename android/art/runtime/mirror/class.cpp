@@ -34,6 +34,7 @@ void Class::Init() {
     Android::RegisterSdkListener(Android::N, art::mirror::Class::Init24);
     Android::RegisterSdkListener(Android::O, art::mirror::Class::Init26);
     Android::RegisterSdkListener(Android::W, art::mirror::Class::Init36);
+    Android::RegisterSdkListener(Android::X, art::mirror::Class::Init37);
 }
 
 void Class::Init23() {
@@ -186,6 +187,46 @@ void Class::Init36() {
 
     __Class_size__ = {
         .THIS = 112,
+    };
+
+    __Class_offset__.embedded_vtable_length_ = SIZEOF(Class);
+    __Class_offset__.imt_ptr_ = RoundUp(__Class_offset__.embedded_vtable_length_ + sizeof(uint32_t), CoreApi::GetPointSize());
+    __Class_offset__.embedded_vtable_ = __Class_offset__.imt_ptr_ + CoreApi::GetPointSize();
+}
+
+void Class::Init37() {
+    __Class_offset__ = {
+        .class_loader_ = 8,
+        .component_type_ = 12,
+        .dex_cache_ = 16,
+        .ext_data_ = 20,
+        .iftable_ = 24,
+        .name_ = 28,
+        .super_class_ = 32,
+        .vtable_ = 36,
+        .ifields_ = 40,
+        .methods_ = 48,
+        .sfields_ = 40,
+        .access_flags_ = 56,
+        .class_flags_ = 60,
+        .class_size_ = 64,
+        .clinit_thread_id_ = 68,
+        .dex_class_def_idx_ = 72,
+        .dex_type_idx_ = 76,
+        .num_reference_instance_fields_ = 80,
+        .num_reference_static_fields_ = 84,
+        .object_size_ = 88,
+        .object_size_alloc_fast_path_ = 92,
+        .primitive_type_ = 96,
+        .reference_instance_offsets_ = 100,
+        .status_ = 104,
+        .copied_methods_offset_ = 0,
+        .virtual_methods_offset_ = 0,
+        .fields_ = 40,
+    };
+
+    __Class_size__ = {
+        .THIS = 108,
     };
 
     __Class_offset__.embedded_vtable_length_ = SIZEOF(Class);
