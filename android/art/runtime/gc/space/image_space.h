@@ -20,16 +20,6 @@
 #include "runtime/gc/space/space.h"
 #include <functional>
 
-struct ImageSpace_OffsetTable {
-};
-
-struct ImageSpace_SizeTable {
-    uint32_t THIS;
-};
-
-extern struct ImageSpace_OffsetTable __ImageSpace_offset__;
-extern struct ImageSpace_SizeTable __ImageSpace_size__;
-
 namespace art {
 namespace gc {
 namespace space {

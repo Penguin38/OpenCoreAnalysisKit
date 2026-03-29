@@ -77,7 +77,6 @@ void BumpPointerSpace::Init36() {
     }
 }
 
-
 cxx::deque& BumpPointerSpace::GetBlockSizesCache() {
     if (!block_sizes_cache.Ptr()) {
         block_sizes_cache = block_sizes();

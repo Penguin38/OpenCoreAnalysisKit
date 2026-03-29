@@ -18,9 +18,6 @@
 #include "runtime/gc/space/zygote_space.h"
 #include "runtime/runtime_globals.h"
 
-struct ZygoteSpace_OffsetTable __ZygoteSpace_offset__;
-struct ZygoteSpace_SizeTable __ZygoteSpace_size__;
-
 namespace art {
 namespace gc {
 namespace space {

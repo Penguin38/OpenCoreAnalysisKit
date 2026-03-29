@@ -29,6 +29,7 @@ void IndirectReferenceTable::Init() {
     Android::RegisterSdkListener(Android::M, art::IndirectReferenceTable::Init23);
     Android::RegisterSdkListener(Android::Q, art::IndirectReferenceTable::Init29);
     Android::RegisterSdkListener(Android::U, art::IndirectReferenceTable::Init34);
+    Android::RegisterSdkListener(Android::X, art::IndirectReferenceTable::Init37);
 
     Android::RegisterSdkListener(Android::M, art::IrtEntry::Init23);
     Android::RegisterSdkListener(Android::T, art::IrtEntry::Init33);
@@ -104,6 +105,24 @@ void IndirectReferenceTable::Init34() {
             .table_ = 40,
             .kind_ = 44,
             .top_index_ = 48,
+        };
+    }
+}
+
+void IndirectReferenceTable::Init37() {
+    if (CoreApi::Bits() == 64) {
+        __IndirectReferenceTable_offset__ = {
+            .table_mem_map_ = 0,
+            .table_ = 72,
+            .kind_ = 160,
+            .top_index_ = 168,
+        };
+    } else {
+        __IndirectReferenceTable_offset__ = {
+            .table_mem_map_ = 0,
+            .table_ = 40,
+            .kind_ = 88,
+            .top_index_ = 92,
         };
     }
 }

@@ -92,6 +92,7 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 |Android-14.0(34) |   √   |  √   |   √    |   √  |    ?    |
 |Android-15.0(35) |   √   |  -   |   √    |   -  |    ?    |
 |Android-16.0(36) |   √   |  -   |   √    |   -  |    ?    |
+|Android-17.0(37) |   √   |  -   |   √    |   -  |    ?    |
 
 # MCP Server
 ```

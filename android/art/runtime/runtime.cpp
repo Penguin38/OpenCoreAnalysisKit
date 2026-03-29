@@ -39,6 +39,7 @@ void Runtime::Init() {
     Android::RegisterSdkListener(Android::U, art::Runtime::Init34);
     Android::RegisterSdkListener(Android::V, art::Runtime::Init35);
     Android::RegisterSdkListener(Android::W, art::Runtime::Init36);
+    Android::RegisterSdkListener(Android::X, art::Runtime::Init37);
 }
 
 void Runtime::Init23() {
@@ -387,6 +388,38 @@ void Runtime::Init36() {
             .class_linker_ = 340,
             .java_vm_ = 356,
             .jit_ = 360,
+        };
+    }
+
+    kNumCalleeMethodsCount = 6;
+}
+
+void Runtime::Init37() {
+    if (CoreApi::Bits() == 64) {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 72,
+            .imt_unimplemented_method_ = 80,
+            .heap_ = 536,
+            .monitor_pool_ = 600,
+            .thread_list_ = 608,
+            .class_linker_ = 624,
+            .java_vm_ = 656,
+            .jit_ = 664,
+        };
+    } else {
+        __Runtime_offset__ = {
+            .callee_save_methods_ = 0,
+            .resolution_method_ = 64,
+            .imt_conflict_method_ = 68,
+            .imt_unimplemented_method_ = 72,
+            .heap_ = 308,
+            .monitor_pool_ = 340,
+            .thread_list_ = 344,
+            .class_linker_ = 352,
+            .java_vm_ = 368,
+            .jit_ = 372,
         };
     }
 

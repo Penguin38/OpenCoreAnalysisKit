@@ -112,8 +112,8 @@ public:
     inline const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id) { return GetMethodReturnTypeDescriptor(method_id, "V"); }
     const char* GetMethodReturnTypeDescriptor(dex::MethodId& method_id, const char* def);
     inline OatDexFile& GetOatDexFile() { return QUICK_CACHE(oat_dex_file); }
-    inline bool IsCompactDexFile() { return !!is_compact_dex(); }
-    inline bool IsStandardDexFile() { return !is_compact_dex(); }
+    bool IsCompactDexFile();
+    bool IsStandardDexFile();
     const char* GetMethodShorty(dex::MethodId& method_id, uint32_t* length);
     void dumpReason(uint64_t vaddr);
 private:

@@ -20,16 +20,6 @@
 #include "runtime/gc/space/space.h"
 #include <functional>
 
-struct ZygoteSpace_OffsetTable {
-};
-
-struct ZygoteSpace_SizeTable {
-    uint32_t THIS;
-};
-
-extern struct ZygoteSpace_OffsetTable __ZygoteSpace_offset__;
-extern struct ZygoteSpace_SizeTable __ZygoteSpace_size__;
-
 namespace art {
 namespace gc {
 namespace space {

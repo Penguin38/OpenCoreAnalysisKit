@@ -127,7 +127,6 @@ void DexFile::Init24() {
     }
 }
 
-
 void DexFile::Init26() {
     if (CoreApi::Bits() == 64) {
         __DexFile_offset__ = {
@@ -548,6 +547,18 @@ const char* DexFile::GetMethodShorty(dex::MethodId& method_id, uint32_t* length)
     dex::ProtoId pid = GetProtoId(idx);
     dex::StringIndex sidx(pid.shorty_idx());
     return StringDataAndUtf16LengthByIdx(sidx, length, "");
+}
+
+bool DexFile::IsCompactDexFile() {
+    if (Android::Sdk() >= Android::X)
+        return false;
+    return !!is_compact_dex();
+}
+
+bool DexFile::IsStandardDexFile() {
+    if (Android::Sdk() >= Android::X)
+        return true;
+    return !is_compact_dex();
 }
 
 void DexFile::dumpReason(uint64_t vaddr) {

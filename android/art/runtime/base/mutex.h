@@ -104,6 +104,7 @@ public:
 
     static void Init23();
     static void Init26();
+    static void Init37();
     inline int32_t state() { return value32Of(OFFSET(ReaderWriterMutex, state_)); }
     inline uint32_t exclusive_owner() { return value32Of(OFFSET(ReaderWriterMutex, exclusive_owner_)); }
     bool IsReaderWriterMutex() { return true; }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "android.h"
 #include "runtime/thread_list.h"
 #include "common/exception.h"
 
@@ -22,8 +23,19 @@ struct ThreadList_OffsetTable __ThreadList_offset__;
 namespace art {
 
 void ThreadList::Init() {
+    Android::RegisterSdkListener(Android::M, art::ThreadList::Init23);
+    Android::RegisterSdkListener(Android::X, art::ThreadList::Init37);
+}
+
+void ThreadList::Init23() {
     __ThreadList_offset__ = {
         .list_ = 8192,
+    };
+}
+
+void ThreadList::Init37() {
+    __ThreadList_offset__ = {
+        .list_ = 8232,
     };
 }
 

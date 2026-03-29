@@ -205,6 +205,7 @@ public:
     static void Init26();
     static void Init29();
     static void Init30();
+    static void Init37();
     inline uint64_t free_end() { return VALUEOF(FreeListSpace, free_end_); }
     inline uint64_t allocation_info() { return VALUEOF(FreeListSpace, allocation_info_); }
 

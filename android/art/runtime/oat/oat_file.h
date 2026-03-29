@@ -54,6 +54,7 @@ public:
     static void Init();
     static void Init23();
     static void Init26();
+    static void Init37();
     inline uint64_t vdex() { return VALUEOF(OatFile, vdex_); }
     inline uint64_t begin() { return VALUEOF(OatFile, begin_); }
     inline uint8_t is_executable() { return value8Of(OFFSET(OatFile, is_executable_)); }

@@ -37,6 +37,7 @@ void BaseMutex::Init() {
 
     Android::RegisterSdkListener(Android::M, art::ReaderWriterMutex::Init23);
     Android::RegisterSdkListener(Android::O, art::ReaderWriterMutex::Init26);
+    Android::RegisterSdkListener(Android::X, art::ReaderWriterMutex::Init37);
 
     Android::RegisterSdkListener(Android::M, art::ConditionVariable::Init23);
 }
@@ -129,6 +130,20 @@ void ReaderWriterMutex::Init26() {
         __ReaderWriterMutex_offset__ = {
             .state_ = 12,
             .exclusive_owner_ = 16,
+        };
+    }
+}
+
+void ReaderWriterMutex::Init37() {
+    if (CoreApi::Bits() == 64) {
+        __ReaderWriterMutex_offset__ = {
+            .state_ = 20,
+            .exclusive_owner_ = 28,
+        };
+    } else {
+        __ReaderWriterMutex_offset__ = {
+            .state_ = 12,
+            .exclusive_owner_ = 20,
         };
     }
 }

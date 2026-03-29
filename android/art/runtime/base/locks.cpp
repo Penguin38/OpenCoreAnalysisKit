@@ -29,6 +29,7 @@ void LockLevel::Init() {
     Android::RegisterSdkListener(Android::P, art::LockLevel::Init28);
     Android::RegisterSdkListener(Android::Q, art::LockLevel::Init29);
     Android::RegisterSdkListener(Android::R, art::LockLevel::Init30);
+    Android::RegisterSdkListener(Android::X, art::LockLevel::Init37);
 }
 
 void LockLevel::Init23() {
@@ -58,6 +59,11 @@ void LockLevel::Init29() {
 
 void LockLevel::Init30() {
     kMonitorLock = 56;
+    kLockLevelCount = 78;
+}
+
+void LockLevel::Init37() {
+    kMonitorLock = 70;
     kLockLevelCount = 78;
 }
 

@@ -43,6 +43,8 @@ public:
     ThreadList(uint64_t v, api::MemoryRef* ref) : api::MemoryRef(v, ref) {}
 
     static void Init();
+    static void Init23();
+    static void Init37();
     inline uint64_t list() { return Ptr() + OFFSET(ThreadList, list_); }
 
     cxx::list& GetListCache();

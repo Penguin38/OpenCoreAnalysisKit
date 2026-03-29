@@ -32,6 +32,7 @@ public:
     static void Init28();
     static void Init29();
     static void Init30();
+    static void Init37();
 };
 
 } // namespace art

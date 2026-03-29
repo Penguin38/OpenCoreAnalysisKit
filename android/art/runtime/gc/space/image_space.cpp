@@ -19,9 +19,6 @@
 #include "runtime/runtime_globals.h"
 #include "runtime/image.h"
 
-struct ImageSpace_OffsetTable __ImageSpace_offset__;
-struct ImageSpace_SizeTable __ImageSpace_size__;
-
 namespace art {
 namespace gc {
 namespace space {
