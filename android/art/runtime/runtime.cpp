@@ -401,12 +401,12 @@ void Runtime::Init37() {
             .resolution_method_ = 64,
             .imt_conflict_method_ = 72,
             .imt_unimplemented_method_ = 80,
-            .heap_ = 536,
-            .monitor_pool_ = 600,
-            .thread_list_ = 608,
-            .class_linker_ = 624,
-            .java_vm_ = 656,
-            .jit_ = 664,
+            .heap_ = 512,
+            .monitor_pool_ = 576,
+            .thread_list_ = 584,
+            .class_linker_ = 600,
+            .java_vm_ = 632,
+            .jit_ = 640,
         };
     } else {
         __Runtime_offset__ = {
@@ -414,12 +414,12 @@ void Runtime::Init37() {
             .resolution_method_ = 64,
             .imt_conflict_method_ = 68,
             .imt_unimplemented_method_ = 72,
-            .heap_ = 308,
-            .monitor_pool_ = 340,
-            .thread_list_ = 344,
-            .class_linker_ = 352,
-            .java_vm_ = 368,
-            .jit_ = 372,
+            .heap_ = 296,
+            .monitor_pool_ = 328,
+            .thread_list_ = 332,
+            .class_linker_ = 340,
+            .java_vm_ = 356,
+            .jit_ = 360,
         };
     }
 
