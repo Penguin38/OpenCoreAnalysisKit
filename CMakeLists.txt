@@ -439,6 +439,22 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 add_definitions(-D__HTTPLIB__)
 endif()
 
+# Embed parser/daemon/http/index.html into a generated header index_html.h
+set(INDEX_HTML_INPUT  ${CMAKE_CURRENT_LIST_DIR}/parser/daemon/http/index.html)
+set(INDEX_HTML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/index_html.h)
+add_custom_command(
+    OUTPUT  ${INDEX_HTML_OUTPUT}
+    COMMAND ${CMAKE_COMMAND}
+            -DINPUT=${INDEX_HTML_INPUT}
+            -DOUTPUT=${INDEX_HTML_OUTPUT}
+            -DVAR_NAME=IndexHtml
+            -P ${CMAKE_CURRENT_LIST_DIR}/cmake/EmbedFile.cmake
+    DEPENDS ${INDEX_HTML_INPUT}
+    COMMENT "Embedding index.html -> index_html.h"
+)
+add_custom_target(gen_index_html DEPENDS ${INDEX_HTML_OUTPUT})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 add_executable(${TARGET_CORE_PARSER}
                parser/ui/ui_thread.cpp
                parser/ui/mini_shell.cpp
@@ -447,6 +463,7 @@ add_executable(${TARGET_CORE_PARSER}
                parser/daemon/http/server.cpp
                parser/daemon/mcp/server.cpp)
 target_link_libraries(${TARGET_CORE_PARSER} parser)
+add_dependencies(${TARGET_CORE_PARSER} gen_index_html)
 if (TARGET_BUILD_PAGESIZE STREQUAL "16K")
 target_link_options(${TARGET_CORE_PARSER} PRIVATE "-Wl,-z,max-page-size=16384")
 endif()

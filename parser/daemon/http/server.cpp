@@ -27,6 +27,7 @@
 
 #ifdef __HTTPLIB__
 #include "httplib.h"
+#include "index_html.h"
 #endif // __HTTPLIB__
 
 namespace {
@@ -91,26 +92,8 @@ bool HttpServer::start(const char* host) {
     Logger::SetHighLight(false);
     httplib::Server svr;
 
-    std::string licenses;
-    licenses += "<p>Copyright (C) 2024-present, Guanyou.Chen. All rights reserved.<br>";
-    licenses += "<br>";
-    licenses += "Licensed under the Apache License, Version 2.0 (the \"License\");<br>";
-    licenses += "you may not use this file except in compliance with the License.<br>";
-    licenses += "You may obtain a copy of the License at<br>";
-    licenses += "<br>";
-    licenses += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://www.apache.org/licenses/LICENSE-2.0<br>";
-    licenses += "<br>";
-    licenses += "Unless required by applicable law or agreed to in writing, software<br>";
-    licenses += "distributed under the License is distributed on an \"AS IS\" BASIS,<br>";
-    licenses += "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<br>";
-    licenses += "See the License for the specific language governing permissions and<br>";
-    licenses += "limitations under the License.<br>";
-    licenses += "<br>";
-    licenses += "For bug reporting instructions, please see:<br>";
-    licenses += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/Penguin38/OpenCoreAnalysisKit<br></p>";
-
     svr.Get("/", [&](const httplib::Request& req, httplib::Response& res) {
-        res.set_content(licenses.c_str(), "text/html");
+        res.set_content(IndexHtml, IndexHtmlSize, "text/html; charset=utf-8");
     });
 
     svr.Get("/core-parser", [&](const httplib::Request& req, httplib::Response& res) {
@@ -125,6 +108,8 @@ bool HttpServer::start(const char* host) {
         json.append(Env::CurrentDir());
         json.append("/core-parser-resp.");
         json.append(std::to_string(tv.tv_sec));
+        json.append(".");
+        json.append(std::to_string(tv.tv_usec));
         json.append(".json");
         int fd = Utils::FreopenWrite(json.c_str());
         WorkThread work(cmd);
@@ -141,6 +126,7 @@ bool HttpServer::start(const char* host) {
         content += "{\"result\":\"";
         content += JsonEscape(output);
         content += "\"}";
+        res.set_header("Access-Control-Allow-Origin", "*");
         res.set_content(content.c_str(), "application/json");
     });
 
