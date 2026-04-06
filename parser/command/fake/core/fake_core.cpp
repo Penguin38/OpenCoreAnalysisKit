@@ -186,30 +186,27 @@ uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps
         if (vma.file != libname
                 || (buildid.length() && vma.buildid != buildid))
             continue;
+        tmps.push_back(vma);
+    }
 
-        if (vma.flags[2] == 'x' || vma.flags[2] == 'X') {
-            if (tmps.size() == 0) {
-                module_load = vma.begin;
-                break;
-            }
-            for (const auto& phdr : tmps) {
+    if (tmps.size() >= 1) {
+        for (int i = 0; i < tmps.size() - 1; i++) {
+            auto vma = tmps[i];
+            for (int k = i + 1; k < tmps.size(); k++) {
+                auto phdr = tmps[k];
                 uint64_t cloc_vaddr = vma.begin - vma.offset + phdr.offset;
                 if (phdr.begin > cloc_vaddr)
                     continue;
 
-                if (phdr.begin <= cloc_vaddr)
-                    module_load = phdr.begin;
-
-                if (phdr.begin == cloc_vaddr)
+                if (phdr.begin <= cloc_vaddr) {
+                    module_load = vma.begin;
                     break;
+                }
             }
-        } else
-            tmps.push_back(vma);
-
-        if (module_load)
-            break;
+            if (module_load) break;
+        }
+        if (!module_load) module_load = tmps[0].begin;
     }
-
     LOGI("0x%" PRIx64 " %s\n", module_load, name);
     return module_load;
 }

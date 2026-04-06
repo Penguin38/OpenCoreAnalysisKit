@@ -122,29 +122,29 @@ uint64_t FakeLinkMap::FindModuleFromLoadBlock(const char* name) {
         if (block->filename() != name)
             return false;
 
-        if (block->flags() & Block::FLAG_X) {
-            if (tmps.size() == 0) {
-                module_load = block->vaddr();
-                return true;
-            }
+        tmps.push_back(block);
+        return false;
+    };
+    CoreApi::ForeachLoadBlock(callback, false, false);
 
-            for (const auto& link : tmps) {
+    if (tmps.size() >= 1) {
+        for (int i = 0; i < tmps.size() - 1; i++) {
+            LoadBlock *block = tmps[i];
+            for (int k = i + 1; k < tmps.size(); k++) {
+                LoadBlock *link = tmps[k];
                 uint64_t cloc_vaddr = block->vaddr() - block->pageoffset() + link->pageoffset();
                 if (link->vaddr() > cloc_vaddr)
                     continue;
 
-                if (link->vaddr() <= cloc_vaddr)
-                    module_load = link->vaddr();
-
-                if (link->vaddr() == cloc_vaddr)
-                    return true;
+                if (link->vaddr() <= cloc_vaddr) {
+                    module_load = block->vaddr();
+                    break;
+                }
             }
-        } else {
-            tmps.push_back(block);
+            if (module_load) break;
         }
-        return false;
-    };
-    CoreApi::ForeachLoadBlock(callback, false, false);
+        if (!module_load) module_load = tmps[0]->vaddr();
+    }
     LOGI("0x%" PRIx64 " %s\n", module_load, name);
     return module_load;
 }
