@@ -37,6 +37,8 @@ public:
         static constexpr uint32_t MODE_64 = 1 << 3;
         static constexpr uint32_t MODE_THUMB = 1 << 4;
 
+        static constexpr uint32_t INVALID_NUM = 0xFFFFFFFF;
+
         Option(int64_t s, uint32_t n) : start(s), num(n), force(false) {}
         void SetArchMode(uint32_t a, uint32_t m) {
             force = true;
@@ -75,7 +77,7 @@ public:
         Dump(prefix, begin, size, begin.Ptr(), opt);
     }
     static void Dump(const char* prefix, api::MemoryRef& begin, uint32_t size, uint64_t address) {
-        Option opt(0, -1);
+        Option opt(0, Option::INVALID_NUM);
         Dump(prefix, begin, size, address, opt);
     }
 

@@ -52,17 +52,23 @@ int SysRootCommand::main(int argc, char* const argv[]) {
     if (optind >= argc)
         return 0;
 
+    return Load(argv[optind], root);
+}
+
+int SysRootCommand::Load(const char* path, int root) {
+    if (!CoreApi::IsReady())
+        return 0;
+
     if (root & MAP_ROOT)
-        CoreApi::SysRoot(argv[optind]);
+        CoreApi::SysRoot(path);
 
     if (root & DEX_ROOT) {
         if (Android::IsSdkReady()) {
-            Android::SysRoot(argv[optind]);
+            Android::SysRoot(path);
         } else {
             LOGW("Android sdk no ready, You can enter command:\n         env config --sdk <version>\n");
         }
     }
-
     return 0;
 }
 

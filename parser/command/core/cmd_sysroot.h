@@ -27,6 +27,8 @@ public:
     SysRootCommand() : Command("sysroot") {}
     ~SysRootCommand() {}
     int main(int argc, char* const argv[]);
+    static int Load(const char* path) { return Load(path, MAP_ROOT | DEX_ROOT); }
+    static int Load(const char* path, int root);
     void usage();
 };
 

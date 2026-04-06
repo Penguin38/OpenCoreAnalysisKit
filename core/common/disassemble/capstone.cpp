@@ -93,6 +93,9 @@ void Disassember::Dump(const char* prefix, uint8_t* begin, uint32_t size, uint64
     if (cs_open(arch, mode, &handle) != CS_ERR_OK)
         return;
 
+    cs_option(handle, CS_OPT_SKIPDATA, CS_OPT_ON);
+    cs_opt_skipdata sd = { .mnemonic = ".inst" };
+    cs_option(handle, CS_OPT_SKIPDATA_SETUP, (size_t)&sd);
     count = cs_disasm(handle, begin, size, address, 0, &insn);
     if (count > 0) {
         uint32_t num = 0;

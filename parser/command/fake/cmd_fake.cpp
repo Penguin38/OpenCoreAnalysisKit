@@ -32,7 +32,7 @@ struct FakeOption {
 };
 
 static FakeOption fake_option[] = {
-    { "core", FakeCore::OptionCore, true },
+    { "core", FakeCore::OptionCore, false },
     { "map", FakeLinkMap::OptionMap, false },
     { "exec", FakeExecutable::OptionExec, false },
     { "stack", FakeJavaStack::OptionJavaStack, false },

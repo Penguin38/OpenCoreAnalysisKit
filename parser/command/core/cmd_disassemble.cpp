@@ -66,9 +66,10 @@ int DisassembleCommand::prepare(int argc, char* const argv[]) {
 }
 
 int DisassembleCommand::main(int argc, char* const argv[]) {
+    bool need_disas = true;
     char* symbol = argv[options.optind];
     uint64_t addr = Utils::atol(symbol);
-    uint32_t num = -1;
+    uint32_t num = capstone::Disassember::Option::INVALID_NUM;
     if (options.optind + 1 < argc)
         num = std::atoi(argv[options.optind + 1]);
 
@@ -108,7 +109,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
                 }
             }
 
-            capstone::Disassember::Option opt((argv_addr && num > 0)? addr : vaddr, num);
+            capstone::Disassember::Option opt((argv_addr && num != capstone::Disassember::Option::INVALID_NUM)? addr : vaddr, num);
             if (CoreApi::GetMachine() == EM_ARM) {
                 opt.SetArchMode(capstone::Disassember::Option::ARCH_ARM, thumb?
                         capstone::Disassember::Option::MODE_THUMB : capstone::Disassember::Option::MODE_ARM);
@@ -120,12 +121,19 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
                         d_symbol.c_str(), vaddr, vaddr + entry.size);
                 capstone::Disassember::Dump("  ", data, entry.size, vaddr, opt);
             }
+            need_disas = false;
         } else {
             LOGI("  * %s: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, d_symbol.c_str(), vaddr);
         }
         return true;
     };
     CoreApi::ForeachLinkMap(callback);
+
+    if (need_disas) {
+        capstone::Disassember::Option opt(addr, (num != capstone::Disassember::Option::INVALID_NUM)? num : 8);
+        uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(addr, options.read_opt));
+        if (data) capstone::Disassember::Dump("", data, (num != capstone::Disassember::Option::INVALID_NUM)? num * 0x10 : 8 * 0x10, addr, opt);
+    }
     return 0;
 }
 

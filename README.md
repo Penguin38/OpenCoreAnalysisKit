@@ -1004,6 +1004,7 @@ Option:
         --va_bits <BITS>      set virtual invalid addr bits
         --page_size <SIZE>    set target core page size
         --no-fake-phdr [EXE]  rebuild fakecore phdr
+        --load                loaded fakecore
     -r, --rebuild             rebuild current environment core
     -m, --map                 overlay linkmap's name on rebuild
     -o, --output <COREFILE>   set current fakecore path

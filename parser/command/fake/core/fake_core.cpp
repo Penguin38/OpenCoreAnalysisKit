@@ -26,6 +26,8 @@
 #include "command/fake/core/x86/fake_core.h"
 #include "command/fake/core/riscv64/fake_core.h"
 #include "command/fake/core/tombstone.h"
+#include "command/core/cmd_core.h"
+#include "command/core/cmd_sysroot.h"
 #include <unistd.h>
 #include <getopt.h>
 
@@ -43,6 +45,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         {"no-fake-phdr",no_argument,       0,  4 },
         {"output",      required_argument, 0, 'o'},
         {"map",         no_argument,       0, 'm'},
+        {"load",        no_argument,       0, 'l'},
         {0,             0,                 0,  0 },
     };
 
@@ -51,12 +54,13 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
     bool rebuild = false;
     char* output = nullptr;
     bool need_overlay_map = false;
+    bool need_load = false;
     char* sysroot_dir = nullptr;
     uint64_t page_size = ELF_PAGE_SIZE;
     uint64_t va_bits = 0;
     uint32_t fake_mask = 0;
 
-    while ((opt = getopt_long(argc, argv, "t:ro:m",
+    while ((opt = getopt_long(argc, argv, "t:ro:ml",
                 long_options, &option_index)) != -1) {
         switch (opt) {
             case 't':
@@ -73,6 +77,9 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
                 break;
             case 'm':
                 need_overlay_map = true;
+                break;
+            case 'l':
+                need_load = true;
                 break;
             case 1:
                 sysroot_dir = optarg;
@@ -128,7 +135,14 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
     else
         filename = output;
 
-    return impl ? impl->execute(filename.c_str()) : 0;
+    if (impl)
+        impl->execute(filename.c_str());
+
+    if (need_load) {
+        if (CoreCommand::Load(filename.c_str()))
+            if (sysroot_dir) SysRootCommand::Load(sysroot_dir);
+    }
+    return 0;
 }
 
 std::unique_ptr<FakeCore> FakeCore::Make(int bits) {
@@ -219,6 +233,7 @@ void FakeCore::Usage() {
     LOGI("        --va_bits <BITS>      set virtual invalid addr bits\n");
     LOGI("        --page_size <SIZE>    set target core page size\n");
     LOGI("        --no-fake-phdr [EXE]  rebuild fakecore phdr\n");
+    LOGI("        --load                loaded fakecore\n");
     LOGI("    -r, --rebuild             rebuild current environment core\n");
     LOGI("    -m, --map                 overlay linkmap's name on rebuild\n");
     LOGI("    -o, --output <COREFILE>   set current fakecore path\n");
