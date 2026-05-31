@@ -18,7 +18,6 @@
 #include "api/core.h"
 
 struct MemMap_OffsetTable __MemMap_offset__;
-struct MemMap_SizeTable __MemMap_size__;
 
 namespace art {
 
@@ -29,19 +28,11 @@ void MemMap::Init() {
             .begin_ = 24,
             .size_ = 32,
         };
-
-        __MemMap_size__ = {
-            .THIS = 72,
-        };
     } else {
         __MemMap_offset__ = {
             .name_ = 0,
             .begin_ = 12,
             .size_ = 16,
-        };
-
-        __MemMap_size__ = {
-            .THIS = 40,
         };
     }
 }

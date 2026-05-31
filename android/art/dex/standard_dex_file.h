@@ -29,12 +29,7 @@ struct StandardDexFile_CodeItem_OffsetTable {
     uint32_t insns_;
 };
 
-struct StandardDexFile_CodeItem_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct StandardDexFile_CodeItem_OffsetTable __StandardDexFile_CodeItem_offset__;
-extern struct StandardDexFile_CodeItem_SizeTable __StandardDexFile_CodeItem_size__;
 
 namespace art {
 

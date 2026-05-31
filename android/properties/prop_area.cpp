@@ -19,7 +19,6 @@
 #include <string.h>
 
 struct PropArea_OffsetTable __PropArea_offset__;
-struct PropArea_SizeTable __PropArea_size__;
 
 void android::PropArea::Init() {
     __PropArea_offset__ = {
@@ -29,14 +28,9 @@ void android::PropArea::Init() {
         .version_ = 12,
         .data_ = 128,
     };
-
-    __PropArea_size__ = {
-        .THIS = 128,
-    };
 }
 
 struct Propbt_OffsetTable __Propbt_offset__;
-struct Propbt_SizeTable __Propbt_size__;
 
 void android::Propbt::Init() {
     __Propbt_offset__ = {
@@ -46,10 +40,6 @@ void android::Propbt::Init() {
         .right = 12,
         .children = 16,
         .name = 20,
-    };
-
-    __Propbt_size__ = {
-        .THIS = 20,
     };
 }
 

@@ -26,12 +26,7 @@ struct CompactDexFile_CodeItem_OffsetTable {
     uint32_t insns_;
 };
 
-struct CompactDexFile_CodeItem_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct CompactDexFile_CodeItem_OffsetTable __CompactDexFile_CodeItem_offset__;
-extern struct CompactDexFile_CodeItem_SizeTable __CompactDexFile_CodeItem_size__;
 
 namespace art {
 

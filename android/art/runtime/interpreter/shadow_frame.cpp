@@ -19,7 +19,6 @@
 #include "runtime/interpreter/shadow_frame.h"
 
 struct ShadowFrame_OffsetTable __ShadowFrame_offset__;
-struct ShadowFrame_SizeTable __ShadowFrame_size__;
 
 namespace art {
 
@@ -44,10 +43,6 @@ void ShadowFrame::Init23() {
             .frame_flags_ = 60,
             .vregs_ = 64,
         };
-
-        __ShadowFrame_size__ = {
-            .THIS = 64,
-        };
     } else {
         __ShadowFrame_offset__ = {
             .link_ = 0,
@@ -62,10 +57,6 @@ void ShadowFrame::Init23() {
             .hotness_countdown_ = 32,
             .frame_flags_ = 36,
             .vregs_ = 40,
-        };
-
-        __ShadowFrame_size__ = {
-            .THIS = 40,
         };
     }
 }
@@ -86,10 +77,6 @@ void ShadowFrame::Init36() {
             .frame_flags_ = 32,
             .vregs_ = 36,
         };
-
-        __ShadowFrame_size__ = {
-            .THIS = 40,
-        };
     } else {
         __ShadowFrame_offset__ = {
             .link_ = 0,
@@ -104,10 +91,6 @@ void ShadowFrame::Init36() {
             .hotness_countdown_ = 0,
             .frame_flags_ = 20,
             .vregs_ = 24,
-        };
-
-        __ShadowFrame_size__ = {
-            .THIS = 24,
         };
     }
 }

@@ -50,12 +50,7 @@ struct DexCache_OffsetTable {
     uint32_t strings_array_;
 };
 
-struct DexCache_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct DexCache_OffsetTable __DexCache_offset__;
-extern struct DexCache_SizeTable __DexCache_size__;
 
 namespace art {
 namespace mirror {

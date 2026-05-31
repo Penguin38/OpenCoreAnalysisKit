@@ -26,12 +26,7 @@ struct MemMap_OffsetTable {
     uint32_t size_;
 };
 
-struct MemMap_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct MemMap_OffsetTable __MemMap_offset__;
-extern struct MemMap_SizeTable __MemMap_size__;
 
 namespace art {
 

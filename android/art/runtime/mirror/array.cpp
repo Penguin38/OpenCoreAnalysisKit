@@ -19,7 +19,6 @@
 #include "common/bit.h"
 
 struct Array_OffsetTable __Array_offset__;
-struct Array_SizeTable __Array_size__;
 
 namespace art {
 namespace mirror {
@@ -30,9 +29,6 @@ void Array::Init() {
         .first_element_ = 12,
     };
 
-    __Array_size__ = {
-        .THIS = 12,
-    };
 }
 
 int32_t Array::GetLength() {

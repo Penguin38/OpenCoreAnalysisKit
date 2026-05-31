@@ -27,12 +27,7 @@ struct ManagedStack_OffsetTable {
     uint32_t top_shadow_frame_;
 };
 
-struct ManagedStack_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct ManagedStack_OffsetTable __ManagedStack_offset__;
-extern struct ManagedStack_SizeTable __ManagedStack_size__;
 
 namespace art {
 

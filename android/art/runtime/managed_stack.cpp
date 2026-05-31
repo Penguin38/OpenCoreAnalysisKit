@@ -18,7 +18,6 @@
 #include "runtime/managed_stack.h"
 
 struct ManagedStack_OffsetTable __ManagedStack_offset__;
-struct ManagedStack_SizeTable __ManagedStack_size__;
 
 namespace art {
 
@@ -28,10 +27,6 @@ void ManagedStack::Init() {
         .tagged_top_quick_frame_ = 0,
         .link_ = 8 / cap,
         .top_shadow_frame_ = 16 / cap,
-    };
-
-    __ManagedStack_size__ = {
-        .THIS = 24 / cap,
     };
 }
 

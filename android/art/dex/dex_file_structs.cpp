@@ -27,7 +27,6 @@ struct MethodId_SizeTable __MethodId_size__;
 struct ProtoId_OffsetTable __ProtoId_offset__;
 struct ProtoId_SizeTable __ProtoId_size__;
 struct TypeList_OffsetTable __TypeList_offset__;
-struct TypeList_SizeTable __TypeList_size__;
 struct TypeItem_OffsetTable __TypeItem_offset__;
 struct TypeItem_SizeTable __TypeItem_size__;
 
@@ -97,9 +96,6 @@ void TypeList::Init() {
         .list_ = 4,
     };
 
-    __TypeList_size__ = {
-        .THIS = 8,
-    };
 }
 
 void TypeItem::Init() {

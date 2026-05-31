@@ -86,12 +86,7 @@ struct TypeList_OffsetTable {
     uint32_t list_;
 };
 
-struct TypeList_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct TypeList_OffsetTable __TypeList_offset__;
-extern struct TypeList_SizeTable __TypeList_size__;
 
 struct TypeItem_OffsetTable {
     uint32_t type_idx_;

@@ -28,12 +28,7 @@ struct PropArea_OffsetTable {
     uint32_t data_;
 };
 
-struct PropArea_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct PropArea_OffsetTable __PropArea_offset__;
-extern struct PropArea_SizeTable __PropArea_size__;
 
 struct Propbt_OffsetTable {
     uint32_t namelen;
@@ -44,12 +39,7 @@ struct Propbt_OffsetTable {
     uint32_t name;
 };
 
-struct Propbt_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Propbt_OffsetTable __Propbt_offset__;
-extern struct Propbt_SizeTable __Propbt_size__;
 
 namespace android {
 class Propbt : public api::MemoryRef {

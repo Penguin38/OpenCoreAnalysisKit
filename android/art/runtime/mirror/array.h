@@ -25,12 +25,7 @@ struct Array_OffsetTable {
     uint32_t first_element_;
 };
 
-struct Array_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct Array_OffsetTable __Array_offset__;
-extern struct Array_SizeTable __Array_size__;
 
 namespace art {
 namespace mirror {

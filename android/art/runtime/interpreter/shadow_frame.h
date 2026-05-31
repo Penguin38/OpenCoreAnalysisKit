@@ -36,12 +36,7 @@ struct ShadowFrame_OffsetTable {
     uint32_t vregs_;
 };
 
-struct ShadowFrame_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct ShadowFrame_OffsetTable __ShadowFrame_offset__;
-extern struct ShadowFrame_SizeTable __ShadowFrame_size__;
 
 namespace art {
 

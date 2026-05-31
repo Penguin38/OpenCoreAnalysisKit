@@ -22,7 +22,6 @@
 #include "dex/descriptors_names.h"
 
 struct DexFile_OffsetTable __DexFile_offset__;
-struct DexFile_SizeTable __DexFile_size__;
 
 namespace art {
 
@@ -53,10 +52,6 @@ void DexFile::Init23() {
             .class_defs_ = 112,
             .oat_dex_file_ = 136,
         };
-
-         __DexFile_size__ = {
-            .THIS = 144,
-        };
     } else {
         __DexFile_offset__ = {
             .begin_ = 4,
@@ -73,10 +68,6 @@ void DexFile::Init23() {
             .proto_ids_ = 52,
             .class_defs_ = 56,
             .oat_dex_file_ = 68,
-        };
-
-         __DexFile_size__ = {
-            .THIS = 72,
         };
     }
 }
@@ -99,10 +90,6 @@ void DexFile::Init24() {
             .class_defs_ = 112,
             .oat_dex_file_ = 120,
         };
-
-         __DexFile_size__ = {
-            .THIS = 128,
-        };
     } else {
         __DexFile_offset__ = {
             .begin_ = 4,
@@ -119,10 +106,6 @@ void DexFile::Init24() {
             .proto_ids_ = 52,
             .class_defs_ = 56,
             .oat_dex_file_ = 60,
-        };
-
-         __DexFile_size__ = {
-            .THIS = 64,
         };
     }
 }
@@ -149,10 +132,6 @@ void DexFile::Init26() {
             .num_call_site_ids_ = 144,
             .oat_dex_file_ = 152,
         };
-
-         __DexFile_size__ = {
-            .THIS = 160,
-        };
     } else {
         __DexFile_offset__ = {
             .begin_ = 4,
@@ -173,10 +152,6 @@ void DexFile::Init26() {
             .call_site_ids_ = 68,
             .num_call_site_ids_ = 72,
             .oat_dex_file_ = 76,
-        };
-
-         __DexFile_size__ = {
-            .THIS = 80,
         };
     }
 }
@@ -206,10 +181,6 @@ void DexFile::Init28() {
             .container_ = 168,
             .is_compact_dex_ = 176,
         };
-
-         __DexFile_size__ = {
-            .THIS = 184,
-        };
     } else {
         __DexFile_offset__ = {
             .begin_ = 4,
@@ -233,10 +204,6 @@ void DexFile::Init28() {
             .oat_dex_file_ = 80,
             .container_ = 84,
             .is_compact_dex_ = 88,
-        };
-
-        __DexFile_size__ = {
-            .THIS = 92,
         };
     }
 }
@@ -268,10 +235,6 @@ void DexFile::Init29() {
             .container_ = 176,
             .is_compact_dex_ = 184,
         };
-
-         __DexFile_size__ = {
-            .THIS = 192,
-        };
     } else {
         __DexFile_offset__ = {
             .begin_ = 4,
@@ -295,10 +258,6 @@ void DexFile::Init29() {
             .oat_dex_file_ = 84,
             .container_ = 88,
             .is_compact_dex_ = 92,
-        };
-
-        __DexFile_size__ = {
-            .THIS = 100,
         };
     }
 }
@@ -329,10 +288,6 @@ void DexFile::Init34() {
             .container_ = 176,
             .is_compact_dex_ = 192,
         };
-
-         __DexFile_size__ = {
-            .THIS = 200,
-        };
     } else {
         __DexFile_offset__ = {
             .begin_ = 4,
@@ -356,10 +311,6 @@ void DexFile::Init34() {
             .oat_dex_file_ = 84,
             .container_ = 88,
             .is_compact_dex_ = 96,
-        };
-
-        __DexFile_size__ = {
-            .THIS = 100,
         };
     }
 }

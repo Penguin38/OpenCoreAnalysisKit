@@ -24,12 +24,7 @@ struct LengthPrefixedArray_OffsetTable {
     uint32_t data_;
 };
 
-struct LengthPrefixedArray_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct LengthPrefixedArray_OffsetTable __LengthPrefixedArray_offset__;
-extern struct LengthPrefixedArray_SizeTable __LengthPrefixedArray_size__;
 
 namespace art {
 

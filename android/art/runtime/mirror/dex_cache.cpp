@@ -18,7 +18,6 @@
 #include "android.h"
 
 struct DexCache_OffsetTable __DexCache_offset__;
-struct DexCache_SizeTable __DexCache_size__;
 
 namespace art {
 namespace mirror {
@@ -40,10 +39,6 @@ void DexCache::Init23() {
         .resolved_types_ = 24,
         .strings_ = 28,
     };
-
-    __DexCache_size__ = {
-        .THIS = 40,
-    };
 }
 
 void DexCache::Init24() {
@@ -59,10 +54,6 @@ void DexCache::Init24() {
         .num_resolved_methods_ = 60,
         .num_resolved_types_ = 64,
         .num_strings_ = 68,
-    };
-
-    __DexCache_size__ = {
-        .THIS = 72,
     };
 }
 
@@ -82,10 +73,6 @@ void DexCache::Init26() {
         .num_resolved_methods_ = 80,
         .num_resolved_types_ = 84,
         .num_strings_ = 88,
-    };
-
-    __DexCache_size__ = {
-        .THIS = 92,
     };
 }
 
@@ -109,10 +96,6 @@ void DexCache::Init30() {
         .num_resolved_types_ = 100,
         .num_strings_ = 104,
     };
-
-    __DexCache_size__ = {
-        .THIS = 108,
-    };
 }
 
 void DexCache::Init34() {
@@ -131,10 +114,6 @@ void DexCache::Init34() {
         .resolved_methods_array_ = 72,
         .resolved_types_array_ = 88,
         .strings_array_ = 104,
-    };
-
-    __DexCache_size__ = {
-        .THIS = 112,
     };
 }
 

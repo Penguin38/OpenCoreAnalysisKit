@@ -47,12 +47,7 @@ struct DexFile_OffsetTable {
     uint32_t is_compact_dex_;
 };
 
-struct DexFile_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct DexFile_OffsetTable __DexFile_offset__;
-extern struct DexFile_SizeTable __DexFile_size__;
 
 namespace art {
 

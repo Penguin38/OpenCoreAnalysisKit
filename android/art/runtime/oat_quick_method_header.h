@@ -35,12 +35,7 @@ struct OatQuickMethodHeader_OffsetTable {
     uint32_t gc_map_offset_;
 };
 
-struct OatQuickMethodHeader_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct OatQuickMethodHeader_OffsetTable __OatQuickMethodHeader_offset__;
-extern struct OatQuickMethodHeader_SizeTable __OatQuickMethodHeader_size__;
 
 namespace art {
 

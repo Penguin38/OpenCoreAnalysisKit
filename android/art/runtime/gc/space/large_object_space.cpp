@@ -21,17 +21,12 @@
 #include <string.h>
 
 struct LargeObjectSpace_OffsetTable __LargeObjectSpace_offset__;
-struct LargeObjectSpace_SizeTable __LargeObjectSpace_size__;
 struct LargeObjectMapSpace_OffsetTable __LargeObjectMapSpace_offset__;
-struct LargeObjectMapSpace_SizeTable __LargeObjectMapSpace_size__;
 struct LargeObject_OffsetTable __LargeObject_offset__;
-struct LargeObject_SizeTable __LargeObject_size__;
 struct LargeObjectsPair_OffsetTable __LargeObjectsPair_offset__;
-struct LargeObjectsPair_SizeTable __LargeObjectsPair_size__;
 struct AllocationInfo_OffsetTable __AllocationInfo_offset__;
 struct AllocationInfo_SizeTable __AllocationInfo_size__;
 struct FreeListSpace_OffsetTable __FreeListSpace_offset__;
-struct FreeListSpace_SizeTable __FreeListSpace_size__;
 
 namespace art {
 namespace gc {
@@ -69,10 +64,6 @@ void LargeObjectSpace::Init23() {
             .begin_ = 96,
             .end_ = 104,
         };
-
-        __LargeObjectSpace_size__ = {
-            .THIS = 112,
-        };
     } else {
         __LargeObjectSpace_offset__ = {
             .num_bytes_allocated_ = 32,
@@ -81,10 +72,6 @@ void LargeObjectSpace::Init23() {
             .total_objects_allocated_ = 56,
             .begin_ = 64,
             .end_ = 68,
-        };
-
-        __LargeObjectSpace_size__ = {
-            .THIS = 72,
         };
     }
 }
@@ -99,10 +86,6 @@ void LargeObjectSpace::Init29() {
             .begin_ = 136,
             .end_ = 144,
         };
-
-        __LargeObjectSpace_size__ = {
-            .THIS = 152,
-        };
     } else {
         __LargeObjectSpace_offset__ = {
             .num_bytes_allocated_ = 64,
@@ -111,10 +94,6 @@ void LargeObjectSpace::Init29() {
             .total_objects_allocated_ = 88,
             .begin_ = 96,
             .end_ = 100,
-        };
-
-        __LargeObjectSpace_size__ = {
-            .THIS = 104,
         };
     }
 }
@@ -130,10 +109,6 @@ void LargeObjectSpace::Init30() {
             .begin_ = 376,
             .end_ = 384,
         };
-
-        __LargeObjectSpace_size__ = {
-            .THIS = 392,
-        };
     } else {
         __LargeObjectSpace_offset__ = {
             .lock_ = 160,
@@ -144,10 +119,6 @@ void LargeObjectSpace::Init30() {
             .begin_ = 224,
             .end_ = 228,
         };
-
-        __LargeObjectSpace_size__ = {
-            .THIS = 232,
-        };
     }
 }
 
@@ -156,23 +127,14 @@ void LargeObjectMapSpace::Init23() {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 168,
         };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 192,
-        };
     } else {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 112,
         };
 
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 128,
-        };
-
         /* 6.0.1 */
         if (Android::Patch() >= 1) {
             __LargeObjectMapSpace_offset__.large_objects_ = 120;
-            __LargeObjectMapSpace_size__.THIS = 136;
         }
     }
 }
@@ -182,17 +144,9 @@ void LargeObjectMapSpace::Init24() {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 168,
         };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 192,
-        };
     } else {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 112,
-        };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 124,
         };
     }
 }
@@ -202,17 +156,9 @@ void LargeObjectMapSpace::Init26() {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 176,
         };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 200,
-        };
     } else {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 112,
-        };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 124,
         };
     }
 }
@@ -222,17 +168,9 @@ void LargeObjectMapSpace::Init28() {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 168,
         };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 192,
-        };
     } else {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 112,
-        };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 124,
         };
     }
 }
@@ -242,17 +180,9 @@ void LargeObjectMapSpace::Init29() {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 152,
         };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 176,
-        };
     } else {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 104,
-        };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 116,
         };
     }
 }
@@ -262,17 +192,9 @@ void LargeObjectMapSpace::Init30() {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 392,
         };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 416,
-        };
     } else {
         __LargeObjectMapSpace_offset__ = {
             .large_objects_ = 232,
-        };
-
-        __LargeObjectMapSpace_size__ = {
-            .THIS = 244,
         };
     }
 }
@@ -325,10 +247,6 @@ void FreeListSpace::Init23() {
             .free_end_ = 176,
             .free_blocks_ = 184,
         };
-
-        __FreeListSpace_size__ = {
-            .THIS = 208,
-        };
     } else {
         __FreeListSpace_offset__ = {
             .mem_map_ = 72,
@@ -336,10 +254,6 @@ void FreeListSpace::Init23() {
             .allocation_info_ = 80,
             .free_end_ = 136,
             .free_blocks_ = 140,
-        };
-
-        __FreeListSpace_size__ = {
-            .THIS = 152,
         };
     }
 }
@@ -353,10 +267,6 @@ void FreeListSpace::Init26() {
             .free_end_ = 176,
             .free_blocks_ = 184,
         };
-
-        __FreeListSpace_size__ = {
-            .THIS = 208,
-        };
     } else {
         __FreeListSpace_offset__ = {
             .mem_map_ = 72,
@@ -364,10 +274,6 @@ void FreeListSpace::Init26() {
             .allocation_info_ = 80,
             .free_end_ = 116,
             .free_blocks_ = 120,
-        };
-
-        __FreeListSpace_size__ = {
-            .THIS = 132,
         };
     }
 }
@@ -381,10 +287,6 @@ void FreeListSpace::Init29() {
             .free_end_ = 304,
             .free_blocks_ = 312,
         };
-
-        __FreeListSpace_size__ = {
-            .THIS = 336,
-        };
     } else {
         __FreeListSpace_offset__ = {
             .mem_map_ = 104,
@@ -392,10 +294,6 @@ void FreeListSpace::Init29() {
             .allocation_info_ = 184,
             .free_end_ = 188,
             .free_blocks_ = 192,
-        };
-
-        __FreeListSpace_size__ = {
-            .THIS = 204,
         };
     }
 }
@@ -409,10 +307,6 @@ void FreeListSpace::Init30() {
             .free_end_ = 544,
             .free_blocks_ = 552,
         };
-
-        __FreeListSpace_size__ = {
-            .THIS = 576,
-        };
     } else {
         __FreeListSpace_offset__ = {
             .mem_map_ = 232,
@@ -420,10 +314,6 @@ void FreeListSpace::Init30() {
             .allocation_info_ = 312,
             .free_end_ = 316,
             .free_blocks_ = 320,
-        };
-
-        __FreeListSpace_size__ = {
-            .THIS = 332,
         };
     }
 }

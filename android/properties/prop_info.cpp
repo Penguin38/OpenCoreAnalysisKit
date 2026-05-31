@@ -17,7 +17,6 @@
 #include "properties/prop_info.h"
 
 struct PropInfo_OffsetTable __PropInfo_offset__;
-struct PropInfo_SizeTable __PropInfo_size__;
 
 void android::PropInfo::Init() {
     __PropInfo_offset__ = {
@@ -25,10 +24,6 @@ void android::PropInfo::Init() {
         .value = 4,
         .name = 96,
         .long_offset = kLongLegacyErrorBufferSize + 4,
-    };
-
-    __PropInfo_size__ = {
-        .THIS = 96,
     };
 }
 

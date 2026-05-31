@@ -17,7 +17,6 @@
 #include "base/length_prefixed_array.h"
 
 struct LengthPrefixedArray_OffsetTable __LengthPrefixedArray_offset__;
-struct LengthPrefixedArray_SizeTable __LengthPrefixedArray_size__;
 
 namespace art {
 
@@ -25,10 +24,6 @@ void LengthPrefixedArray::Init() {
     __LengthPrefixedArray_offset__ = {
         .size_ = 0,
         .data_ = 4,
-    };
-
-    __LengthPrefixedArray_size__ = {
-        .THIS = 4,
     };
 }
 

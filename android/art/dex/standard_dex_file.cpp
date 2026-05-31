@@ -17,7 +17,6 @@
 #include "dex/standard_dex_file.h"
 
 struct StandardDexFile_CodeItem_OffsetTable __StandardDexFile_CodeItem_offset__;
-struct StandardDexFile_CodeItem_SizeTable __StandardDexFile_CodeItem_size__;
 
 namespace art {
 
@@ -34,10 +33,6 @@ void StandardDexFile::CodeItem::Init() {
         .debug_info_off_ = 8,
         .insns_size_in_code_units_ = 12,
         .insns_ = 16,
-    };
-
-    __StandardDexFile_CodeItem_size__ = {
-        .THIS = 20,
     };
 }
 

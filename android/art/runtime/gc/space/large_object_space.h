@@ -30,47 +30,27 @@ struct LargeObjectSpace_OffsetTable {
     uint32_t end_;
 };
 
-struct LargeObjectSpace_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct LargeObjectSpace_OffsetTable __LargeObjectSpace_offset__;
-extern struct LargeObjectSpace_SizeTable __LargeObjectSpace_size__;
 
 struct LargeObjectMapSpace_OffsetTable {
     uint32_t large_objects_;
 };
 
-struct LargeObjectMapSpace_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct LargeObjectMapSpace_OffsetTable __LargeObjectMapSpace_offset__;
-extern struct LargeObjectMapSpace_SizeTable __LargeObjectMapSpace_size__;
 
 struct LargeObject_OffsetTable {
     uint32_t mem_map;
     uint32_t is_zygote;
 };
 
-struct LargeObject_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct LargeObject_OffsetTable __LargeObject_offset__;
-extern struct LargeObject_SizeTable __LargeObject_size__;
 
 struct LargeObjectsPair_OffsetTable {
     uint32_t first;
     uint32_t second;
 };
 
-struct LargeObjectsPair_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct LargeObjectsPair_OffsetTable __LargeObjectsPair_offset__;
-extern struct LargeObjectsPair_SizeTable __LargeObjectsPair_size__;
 
 struct AllocationInfo_OffsetTable {
     uint32_t prev_free_;
@@ -92,12 +72,7 @@ struct FreeListSpace_OffsetTable {
     uint32_t free_blocks_;
 };
 
-struct FreeListSpace_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct FreeListSpace_OffsetTable __FreeListSpace_offset__;
-extern struct FreeListSpace_SizeTable __FreeListSpace_size__;
 
 namespace art {
 namespace gc {

@@ -23,7 +23,6 @@
 #include "runtime/cache_helpers.h"
 
 struct OatQuickMethodHeader_OffsetTable __OatQuickMethodHeader_offset__;
-struct OatQuickMethodHeader_SizeTable __OatQuickMethodHeader_size__;
 
 namespace art {
 
@@ -51,10 +50,6 @@ void OatQuickMethodHeader::OatInit64() {
         .mapping_table_offset_ = 0,
         .gc_map_offset_ = 8,
     };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 28,
-    };
 }
 
 void OatQuickMethodHeader::OatInit79() {
@@ -63,10 +58,6 @@ void OatQuickMethodHeader::OatInit79() {
         .frame_info_ = 4,
         .code_size_ = 16,
         .code_ = 20,
-    };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 20,
     };
 }
 
@@ -80,10 +71,6 @@ void OatQuickMethodHeader::OatInit124() {
         .code_size_ = 20,
         .code_ = 24,
     };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 24,
-    };
 }
 
 void OatQuickMethodHeader::OatInit156() {
@@ -93,10 +80,6 @@ void OatQuickMethodHeader::OatInit156() {
         .code_size_ = 8,
         .code_ = 12,
     };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 12,
-    };
 }
 
 void OatQuickMethodHeader::OatInit158() {
@@ -104,10 +87,6 @@ void OatQuickMethodHeader::OatInit158() {
         .vmap_table_offset_ = 0,
         .code_size_ = 4,
         .code_ = 8,
-    };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 8,
     };
 }
 
@@ -119,10 +98,6 @@ void OatQuickMethodHeader::OatInit192() {
     __OatQuickMethodHeader_offset__ = {
         .data_ = 0,
         .code_ = 4,
-    };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 4,
     };
 }
 
@@ -136,10 +111,6 @@ void OatQuickMethodHeader::OatInit239() {
     __OatQuickMethodHeader_offset__ = {
         .code_info_offset_ = 0,
         .code_ = 4,
-    };
-
-    __OatQuickMethodHeader_size__ = {
-        .THIS = 4,
     };
 }
 

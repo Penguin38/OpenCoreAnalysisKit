@@ -29,12 +29,7 @@ struct PropInfo_OffsetTable {
     uint32_t long_offset;
 };
 
-struct PropInfo_SizeTable {
-    uint32_t THIS;
-};
-
 extern struct PropInfo_OffsetTable __PropInfo_offset__;
-extern struct PropInfo_SizeTable __PropInfo_size__;
 
 namespace android {
 class PropInfo : public api::MemoryRef {

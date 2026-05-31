@@ -17,7 +17,6 @@
 #include "dex/compact_dex_file.h"
 
 struct CompactDexFile_CodeItem_OffsetTable __CompactDexFile_CodeItem_offset__;
-struct CompactDexFile_CodeItem_SizeTable __CompactDexFile_CodeItem_size__;
 
 namespace art {
 
@@ -30,10 +29,6 @@ void CompactDexFile::CodeItem::Init() {
         .fields_ = 0,
         .insns_count_and_flags_ = 2,
         .insns_ = 4,
-    };
-
-    __CompactDexFile_CodeItem_size__ = {
-        .THIS = 8,
     };
 }
 
