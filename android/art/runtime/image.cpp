@@ -43,7 +43,7 @@ void ImageHeader::Init23() {
     };
 
     __ImageHeader_size__ = {
-        .THIS = 144,
+        .THIS = 140,
     };
 
     kNumImageMethodsCount = 6;

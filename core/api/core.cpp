@@ -36,6 +36,7 @@
 std::unique_ptr<CoreApi> CoreApi::INSTANCE = nullptr;
 bool CoreApi::QUICK_LOAD_ENABLED = true;
 uint64_t CoreApi::VA_BITS = 0;
+std::function<void (LinkMap *)> CoreApi::SYSROOT_CALLBACK = nullptr;
 
 void CoreApi::Init() {
     api::Elf::Init();
@@ -422,6 +423,8 @@ void CoreApi::SysRoot(const char* path) {
         if (filepath.length() > 0) {
             if (INSTANCE->sysroot(map, filepath.c_str(), sub_file)) {
                 map->ReadSymbols();
+                if (SYSROOT_CALLBACK)
+                    SYSROOT_CALLBACK(map);
             }
         }
         return false;

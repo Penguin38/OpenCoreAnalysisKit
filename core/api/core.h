@@ -178,7 +178,7 @@ public:
     }
     static uint64_t NewLoadBlock(uint64_t vaddr, uint64_t size, int flags);
     static void RegisterSysRootListener(std::function<void (LinkMap *)> fn) {
-        INSTANCE->mSysRootCallback = fn;
+        SYSROOT_CALLBACK = fn;
     }
 
     CoreApi(std::unique_ptr<MemoryMap>& map)
@@ -274,7 +274,7 @@ private:
     std::vector<std::shared_ptr<LoadBlock>> mQuickLoad;
     std::vector<std::unique_ptr<NoteBlock>> mNote;
     std::vector<std::unique_ptr<LinkMap>> mLinkMap;
-    std::function<void (LinkMap *)> mSysRootCallback;
+    static std::function<void (LinkMap *)> SYSROOT_CALLBACK;
     bool mRemote = false;
 };
 

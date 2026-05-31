@@ -41,6 +41,13 @@ struct DexCache_OffsetTable {
     uint32_t num_resolved_methods_;
     uint32_t num_resolved_types_;
     uint32_t num_strings_;
+
+    // 34 +
+    uint32_t resolved_fields_array_;
+    uint32_t resolved_method_types_array_;
+    uint32_t resolved_methods_array_;
+    uint32_t resolved_types_array_;
+    uint32_t strings_array_;
 };
 
 struct DexCache_SizeTable {
@@ -69,6 +76,7 @@ public:
     static void Init24();
     static void Init26();
     static void Init30();
+    static void Init34();
     inline uint32_t class_loader() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(DexCache, class_loader_)); }
     inline uint32_t location() { return *reinterpret_cast<uint32_t *>(Real() + OFFSET(DexCache, location_)); }
     inline uint64_t dex_file() { return *reinterpret_cast<uint64_t *>(Real() + OFFSET(DexCache, dex_file_)); }

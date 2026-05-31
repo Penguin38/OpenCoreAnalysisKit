@@ -129,7 +129,6 @@ void Android::init() {
     time = android::Property::Get("ro.build.date.utc", INVALID_VALUE);
     debuggable = android::Property::Get("ro.debuggable", INVALID_VALUE);
     preLoadLater();
-    CoreApi::RegisterSysRootListener(OnLibartLoad);
 }
 
 void Android::preLoad() {
@@ -604,9 +603,6 @@ void Android::OatPrepare() {
     }
 }
 
-void Android::onLibartLoad(LinkMap *map) {
-    // do nothing
-}
 
 void Android::RegisterIniListener(std::function<void ()> fn) {
     RESETINI = fn;

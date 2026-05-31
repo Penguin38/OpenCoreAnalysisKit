@@ -28,6 +28,7 @@ void DexCache::Init() {
     Android::RegisterSdkListener(Android::N, art::mirror::DexCache::Init24);
     Android::RegisterSdkListener(Android::O, art::mirror::DexCache::Init26);
     Android::RegisterSdkListener(Android::R, art::mirror::DexCache::Init30);
+    Android::RegisterSdkListener(Android::U, art::mirror::DexCache::Init34);
 }
 
 void DexCache::Init23() {
@@ -111,6 +112,29 @@ void DexCache::Init30() {
 
     __DexCache_size__ = {
         .THIS = 108,
+    };
+}
+
+void DexCache::Init34() {
+    __DexCache_offset__ = {
+        .class_loader_ = 8,
+        .location_ = 12,
+        .dex_file_ = 16,
+        .resolved_call_sites_ = 24,
+        .resolved_fields_ = 32,
+        .resolved_method_types_ = 48,
+        .resolved_methods_ = 64,
+        .resolved_types_ = 80,
+        .strings_ = 96,
+        .resolved_fields_array_ = 40,
+        .resolved_method_types_array_ = 56,
+        .resolved_methods_array_ = 72,
+        .resolved_types_array_ = 88,
+        .strings_array_ = 104,
+    };
+
+    __DexCache_size__ = {
+        .THIS = 112,
     };
 }
 

@@ -18,6 +18,7 @@
 #include "runtime/gc/space/image_space.h"
 #include "runtime/runtime_globals.h"
 #include "runtime/image.h"
+#include "common/bit.h"
 
 namespace art {
 namespace gc {
@@ -28,7 +29,7 @@ void ImageSpace::Init() {
 }
 
 void ImageSpace::Walk(std::function<bool (mirror::Object& object)> visitor, bool check) {
-    uint64_t pos = Begin() + SIZEOF(ImageHeader);
+    uint64_t pos = RoundUp(Begin() + SIZEOF(ImageHeader), kObjectAlignment);
     uint64_t top = End();
     mirror::Object object_cache = pos;
     object_cache.Prepare(false);

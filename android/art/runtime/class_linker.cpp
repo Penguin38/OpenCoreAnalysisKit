@@ -34,6 +34,7 @@ void ClassLinker::Init() {
     Android::RegisterSdkListener(Android::O, art::ClassLinker::DexCacheData::Init26);
     Android::RegisterSdkListener(Android::P, art::ClassLinker::DexCacheData::Init28);
     Android::RegisterSdkListener(Android::T, art::ClassLinker::DexCacheData::Init33);
+    Android::RegisterSdkListener(Android::X, art::ClassLinker::DexCacheData::Init37);
 }
 
 void ClassLinker::Init23() {
@@ -146,6 +147,24 @@ void ClassLinker::DexCacheData::Init33() {
     }
 }
 
+void ClassLinker::DexCacheData::Init37() {
+    if (CoreApi::Bits() == 64) {
+        __DexCacheData_offset__ = {
+            .weak_root = 0,
+            .dex_file = 24,
+            .class_table = 8,
+            .registration_index = 16,
+        };
+    } else {
+        __DexCacheData_offset__ = {
+            .weak_root = 0,
+            .dex_file = 12,
+            .class_table = 4,
+            .registration_index = 8,
+        };
+    }
+}
+
 uint32_t ClassLinker::GetDexCacheCount() {
     if (Android::Sdk() >= Android::T) {
         return GetDexCachesData_v33().size();
@@ -184,6 +203,15 @@ cxx::unordered_map& ClassLinker::GetDexCachesData_v33() {
     return dex_caches_v33_cache;
 }
 
+cxx::map& ClassLinker::GetDexCachesData_v37() {
+    if (!dex_caches_v37_cache.Ptr()) {
+        dex_caches_v37_cache = dex_caches();
+        dex_caches_v37_cache.copyRef(this);
+        dex_caches_v37_cache.Prepare(false);
+    }
+    return dex_caches_v37_cache;
+}
+
 std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCacheDatas() {
     if (!dex_caches_second_cache.empty())
         return dex_caches_second_cache;
@@ -191,7 +219,14 @@ std::vector<std::unique_ptr<ClassLinker::DexCacheData>>& ClassLinker::GetDexCach
     Runtime& runtime = art::Runtime::Current();
     JavaVMExt& vm = runtime.GetJavaVM();
 
-    if (Android::Sdk() >= Android::T) {
+    if (Android::Sdk() >= Android::X) {
+        for (const auto& value : GetDexCachesData_v37()) {
+            // SafeMap<const uint8_t*, DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
+            std::unique_ptr<ClassLinker::DexCacheData> data = std::make_unique<ClassLinker::DexCacheData>(value + 0x8);
+            data->InitCache(vm.Decode(data->weak_root()), data->dex_file());
+            dex_caches_second_cache.push_back(std::move(data));
+        }
+    } else if (Android::Sdk() >= Android::T) {
         for (const auto& value : GetDexCachesData_v33()) {
             // std::unordered_map<const DexFile*, DexCacheData> dex_caches_ GUARDED_BY(Locks::dex_lock_);
             api::MemoryRef ref = value;

@@ -33,13 +33,11 @@ public:
         bool store;
         bool clear;
         bool dump_all;
-        bool dwarf;
     };
 
     int main(int argc, char* const argv[]);
     int prepare(int argc, char* const argv[]);
     void usage();
-    bool ApplyDwarf(const char* elf_path);
     int ApplyDwarfStruct(const dwarf::StructInfo& si);
     static uint32_t OffsetValue(void* offset);
     static void SetValue(void* offset, uint32_t value);

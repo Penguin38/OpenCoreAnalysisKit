@@ -165,7 +165,6 @@ public:
     inline static uint64_t DlSym(const char* symbol) { return CoreApi::DlSym(INSTANCE->realLibart.c_str(), symbol); }
     static inline std::string& GetRealLibart() { return INSTANCE->realLibart; }
     static inline art::OatHeader& GetOatHeader() { return INSTANCE->oat_header(); }
-    static void OnLibartLoad(LinkMap* map) { if (INSTANCE) INSTANCE->onLibartLoad(map); }
     static void RegisterIniListener(std::function<void ()> fn);
     static std::vector<uint32_t>& GetClassesCache() { return INSTANCE->mClassesCache; }
 
@@ -207,7 +206,6 @@ private:
     void oatPreLoadLater();
     inline art::Runtime& current() { return instance_; }
     inline art::OatHeader& oat_header() { return oat_header_; }
-    void onLibartLoad(LinkMap* map);
 
     int trunk;
     int sdk;

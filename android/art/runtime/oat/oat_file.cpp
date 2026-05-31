@@ -37,6 +37,7 @@ void OatDexFile::Init() {
     Android::RegisterSdkListener(Android::P, art::OatDexFile::Init28);
     Android::RegisterSdkListener(Android::S, art::OatDexFile::Init31);
     Android::RegisterSdkListener(Android::V, art::OatDexFile::Init35);
+    Android::RegisterSdkListener(Android::X, art::OatDexFile::Init37);
 }
 
 void OatFile::Init23() {
@@ -155,6 +156,20 @@ void OatDexFile::Init35() {
     }
 }
 
+void OatDexFile::Init37() {
+    if (CoreApi::Bits() == 64) {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 176,
+        };
+    } else {
+        __OatDexFile_offset__ = {
+            .oat_file_ = 0,
+            .oat_class_offsets_pointer_ = 108,
+        };
+    }
+}
+
 VdexFile& OatFile::GetVdexFile() {
     if (!vdex_cache.Ptr()) {
         vdex_cache = vdex();
@@ -165,8 +180,9 @@ VdexFile& OatFile::GetVdexFile() {
 
 uint64_t OatFile::GetVdexBegin() {
     VdexFile& vdex = GetVdexFile();
-    if (vdex.Ptr())
-        return vdex.Begin();
+    if (Android::Sdk() >= Android::O)
+        if (vdex.Ptr())
+            return vdex.Begin();
     return 0;
 }
 

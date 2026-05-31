@@ -20,6 +20,7 @@
 #include "api/memory_ref.h"
 #include "cxx/list.h"
 #include "cxx/vector.h"
+#include "cxx/map.h"
 #include "cxx/unordered_map.h"
 #include "runtime/mirror/dex_cache.h"
 #include <vector>
@@ -67,6 +68,7 @@ public:
         static void Init26();
         static void Init28();
         static void Init33();
+        static void Init37();
         inline uint64_t weak_root() { return VALUEOF(DexCacheData, weak_root); }
         inline uint64_t dex_file() { return VALUEOF(DexCacheData, dex_file); }
 
@@ -86,6 +88,7 @@ public:
     cxx::vector& GetDexCachesData_v23();
     cxx::list& GetDexCachesData();
     cxx::unordered_map& GetDexCachesData_v33();
+    cxx::map& GetDexCachesData_v37();
     std::vector<std::unique_ptr<DexCacheData>>& GetDexCacheDatas();
     bool IsQuickGenericJniStub(uint64_t entry_point);
     bool IsQuickResolutionStub(uint64_t entry_point);
@@ -98,6 +101,7 @@ private:
     cxx::vector dex_caches_v23_cache = 0x0;
     cxx::list dex_caches_cache = 0x0;
     cxx::unordered_map dex_caches_v33_cache = 0x0;
+    cxx::map dex_caches_v37_cache = 0x0;
 
     // second cache
     std::vector<std::unique_ptr<DexCacheData>> dex_caches_second_cache;

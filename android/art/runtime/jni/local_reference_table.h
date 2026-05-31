@@ -22,9 +22,7 @@
 #include <functional>
 
 struct LocalReferenceTable_OffsetTable {
-    uint32_t previous_state_;
     uint32_t segment_state_;
-    uint32_t small_table_;
     uint32_t tables_;
 };
 
@@ -69,7 +67,6 @@ public:
     static void Init34();
     static void Init35();
     inline uint32_t segment_state() { return value32Of(OFFSET(LocalReferenceTable, segment_state_)); }
-    inline uint64_t small_table() { return VALUEOF(LocalReferenceTable, small_table_); }
     inline uint64_t tables() { return Ptr() + OFFSET(LocalReferenceTable, tables_); }
 
     mirror::Object DecodeReference(uint64_t iref);
