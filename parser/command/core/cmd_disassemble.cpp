@@ -129,7 +129,8 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
     };
     CoreApi::ForeachLinkMap(callback);
 
-    if (need_disas) {
+    api::MemoryRef addr_ref = addr;
+    if (need_disas && addr_ref.IsValid()) {
         capstone::Disassember::Option opt(addr, (num != capstone::Disassember::Option::INVALID_NUM)? num : 8);
         uint8_t* data = reinterpret_cast<uint8_t*>(CoreApi::GetReal(addr, options.read_opt));
         if (data) capstone::Disassember::Dump("", data, (num != capstone::Disassember::Option::INVALID_NUM)? num * 0x10 : 8 * 0x10, addr, opt);
