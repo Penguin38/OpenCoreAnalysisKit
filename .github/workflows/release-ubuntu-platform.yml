@@ -1,0 +1,25 @@
+name: release on ubuntu platforms
+
+on:
+  push:
+    tags: [ "v*" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build
+      run: |
+        bash ./script/build.sh
+        tar -czvf core-parser_${GITHUB_REF_NAME}_linux.tar.gz output/aosp/release/linux/bin/core-parser
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: core-parser_${GITHUB_REF_NAME}_linux.tar.gz

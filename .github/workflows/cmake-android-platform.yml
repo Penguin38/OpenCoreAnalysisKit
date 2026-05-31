@@ -1,5 +1,3 @@
-# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 name: cmake on android platforms
 
 on:
@@ -28,13 +26,14 @@ jobs:
     - name: Build
       run: |
         bash ./script/build_android.sh
-        tar -czvf core-parser_26.3.29.tar.gz output/aosp/debug/android/arm64-v8a/bin/core-parser \
-                                           output/aosp/debug/android/x86_64/bin/core-parser \
-                                           output/aosp/debug/android/armeabi-v7a/bin/core-parser \
-                                           output/aosp/debug/android/x86/bin/core-parser
+        VERSION=$(git describe --tags --always)
+        tar -czvf core-parser_${VERSION}_android.tar.gz output/aosp/debug/android/arm64-v8a/bin/core-parser \
+                                                        output/aosp/debug/android/x86_64/bin/core-parser \
+                                                        output/aosp/debug/android/armeabi-v7a/bin/core-parser \
+                                                        output/aosp/debug/android/x86/bin/core-parser
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: core-parser_26.3.29_for_android.tar.gz
-        path: core-parser_26.3.29.tar.gz
+        name: core-parser_android
+        path: core-parser_*_android.tar.gz

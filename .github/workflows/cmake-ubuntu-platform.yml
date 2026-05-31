@@ -1,5 +1,3 @@
-# This starter workflow is for a CMake project running on a single platform. There is a different starter workflow if you need cross-platform coverage.
-# See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 name: cmake on ubuntu platforms
 
 on:
@@ -21,10 +19,11 @@ jobs:
     - name: Build
       run: |
         bash ./script/build.sh
-        tar -czvf core-parser_26.3.29.tar.gz output/aosp/debug/linux/bin/core-parser
+        VERSION=$(git describe --tags --always)
+        tar -czvf core-parser_${VERSION}_linux.tar.gz output/aosp/debug/linux/bin/core-parser
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: core-parser_26.3.29_for_ubuntu.tar.gz
-        path: core-parser_26.3.29.tar.gz
+        name: core-parser_linux
+        path: core-parser_*_linux.tar.gz

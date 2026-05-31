@@ -1,0 +1,35 @@
+name: release on android platforms
+
+on:
+  push:
+    tags: [ "v*" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Android NDK
+      id: setup-ndk
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: r25c
+        local-cache: true
+
+    - name: Build
+      run: |
+        bash ./script/build_android.sh
+        tar -czvf core-parser_${GITHUB_REF_NAME}_android.tar.gz output/aosp/release/android/arm64-v8a/bin/core-parser \
+                                                                 output/aosp/release/android/x86_64/bin/core-parser \
+                                                                 output/aosp/release/android/armeabi-v7a/bin/core-parser \
+                                                                 output/aosp/release/android/x86/bin/core-parser
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: core-parser_${GITHUB_REF_NAME}_android.tar.gz
