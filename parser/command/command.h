@@ -44,7 +44,7 @@ public:
     virtual int main(int argc, char* const argv[]) = 0;
     virtual int exitMain(int argc, char* const argv[]) { return 0; }
     virtual void usage() = 0;
-    static void Exit(int) { _exit(ERREXIT); }
+    static void Exit(int) { fflush(stdout); _exit(ERREXIT); }
     int execute(int argc, char* const argv[]);
 private:
     std::string command;

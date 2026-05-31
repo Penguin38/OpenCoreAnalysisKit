@@ -38,7 +38,8 @@ int Command::execute(int argc, char* const argv[]) {
             } catch (InvalidAddressException& e) {
                 LOGE("%s\n", e.what());
             }
-            exit(0);
+            fflush(stdout);
+            _exit(0);
         } else if (pid > 0) {
             waitpid(pid, &status, 0);
             if (WIFEXITED(status) && WEXITSTATUS(status) != ERREXIT) {
