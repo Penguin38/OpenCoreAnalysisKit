@@ -21,14 +21,14 @@
 #include <getopt.h>
 #if defined(__MACOS__)
 #include <pthread.h>
-#else
+#elif !defined(__WINDOWS__)
 #include <sys/prctl.h>
 #endif
 
 void WorkThread::prepare() {
 #if defined(__MACOS__)
     pthread_setname_np("parser:worker");
-#else
+#elif !defined(__WINDOWS__)
     prctl(PR_SET_NAME, "parser:worker");
 #endif
     char* line = strdup(cmdline.c_str());

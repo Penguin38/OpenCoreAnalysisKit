@@ -21,11 +21,38 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#ifdef __WINDOWS__
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <io.h>
+#include <fcntl.h>
+#undef THIS
+#define sock_read(fd, buf, len)   recv(fd, (char*)(buf), len, 0)
+#define sock_write(fd, buf, len)  send(fd, (const char*)(buf), len, 0)
+#define sock_close(fd)            closesocket(fd)
+#define dup(fd)                   _dup(fd)
+#define fd_close(fd)              _close(fd)
+#define write(fd, buf, len)       _write(fd, buf, (unsigned int)(len))
+static int gettimeofday(struct timeval* tp, void*) {
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    uint64_t t = ((uint64_t)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+    t -= 116444736000000000ULL;
+    tp->tv_sec = (long)(t / 10000000ULL);
+    tp->tv_usec = (long)((t % 10000000ULL) / 10);
+    return 0;
+}
+#else
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#define sock_read(fd, buf, len)   read(fd, buf, len)
+#define sock_write(fd, buf, len)  write(fd, buf, len)
+#define sock_close(fd)            close(fd)
+#define fd_close(fd)              close(fd)
+#endif
 
 #ifndef __PARSER_VERSION__
 #define __PARSER_VERSION__ "unknown"
@@ -182,7 +209,7 @@ static std::string HttpGet(const std::string& host, int port,
     int fd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (fd < 0) { freeaddrinfo(res); return "[http-error] socket()"; }
     if (connect(fd, res->ai_addr, res->ai_addrlen) != 0) {
-        close(fd); freeaddrinfo(res);
+        sock_close(fd); freeaddrinfo(res);
         return "[http-error] connect to " + host + ":" + port_str;
     }
     freeaddrinfo(res);
@@ -192,12 +219,12 @@ static std::string HttpGet(const std::string& host, int port,
     req += "Host: " + host + "\r\n";
     req += "Connection: close\r\n\r\n";
     const char* p = req.c_str(); size_t rem = req.size();
-    while (rem > 0) { ssize_t n = write(fd, p, rem); if (n <= 0) break; p += n; rem -= n; }
+    while (rem > 0) { ssize_t n = sock_write(fd, p, rem); if (n <= 0) break; p += n; rem -= n; }
 
     std::string resp;
     char buf[4096];
-    for (;;) { ssize_t n = read(fd, buf, sizeof(buf)); if (n <= 0) break; resp.append(buf, n); }
-    close(fd);
+    for (;;) { ssize_t n = sock_read(fd, buf, sizeof(buf)); if (n <= 0) break; resp.append(buf, n); }
+    sock_close(fd);
 
     // Split headers / body at \r\n\r\n
     size_t sep = resp.find("\r\n\r\n");
@@ -486,5 +513,5 @@ void McpServer::start() {
         }
     }
 
-    close(stdout_fd);
+    fd_close(stdout_fd);
 }

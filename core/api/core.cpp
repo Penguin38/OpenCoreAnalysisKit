@@ -344,7 +344,7 @@ LinkMap* CoreApi::FindLinkMap(const char* path) {
         if (!strcmp(map->name(), path))
             handle = map;
 
-        if (strstr(map->name(), file.filename().c_str()))
+        if (strstr(map->name(), file.filename().string().c_str()))
             second = map;
 
         LoadBlock* block = map->block();
@@ -356,7 +356,7 @@ LinkMap* CoreApi::FindLinkMap(const char* path) {
                     handle = map;
             }
 
-            index = block->name().find(file.filename());
+            index = block->name().find(file.filename().string());
             if (index != std::string::npos) {
                 std::filesystem::path outer(block->name());
                 if (file.filename() == outer.filename())

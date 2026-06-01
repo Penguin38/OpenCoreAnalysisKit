@@ -54,7 +54,9 @@
 #include "command/android/cmd_fdtrack.h"
 #include "command/llvm/cmd_cxx.h"
 #include "command/llvm/cmd_scudo.h"
+#if !defined(__MACOS__) && !defined(__WINDOWS__)
 #include "command/remote/cmd_remote.h"
+#endif
 #include "command/fake/cmd_fake.h"
 #include "common/exception.h"
 #include "base/utils.h"
@@ -143,7 +145,7 @@ void CommandManager::Init() {
     INSTANCE->plugin = new PluginCommand();
     CommandManager::PushInlineCommand(INSTANCE->plugin);
     CommandManager::PushInlineCommand(new Help());
-#if !defined(__MACOS__)
+#if !defined(__MACOS__) && !defined(__WINDOWS__)
     CommandManager::PushInlineCommand(new RemoteCommand());
 #endif
     CommandManager::PushInlineCommand(new FakeCommand());

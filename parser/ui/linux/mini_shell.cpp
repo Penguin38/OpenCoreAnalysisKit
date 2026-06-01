@@ -17,10 +17,10 @@
 #include "logger/log.h"
 #include "ui/mini_shell.h"
 #include <stdio.h>
+#include <string.h>
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 
 void MiniShell::Init(const char* sh) {
     if (sh) shell = sh;
@@ -153,7 +153,7 @@ char* MiniShell::HandleCommand() {
                 }
             }
         } else {
-            if (seq[0] == KEYCODE_ENTER) {
+            if (seq[0] == KEYCODE_ENTER || seq[0] == KEYCODE_LF) {
                 SaveHistory(command);
                 ENTER();
                 break;
@@ -161,7 +161,7 @@ char* MiniShell::HandleCommand() {
 
             if (seq[0] == KEYCODE_TAB) {
                 continue;
-            } else if (seq[0] == KEYCODE_BACK) {
+            } else if (seq[0] == KEYCODE_BACK || seq[0] == KEYCODE_DEL) {
                 if (curX > minX + 1) {
                     for (int i = curX - 1; i < totalX; ++i) {
                         command[i - (minX + 1)] = command[i + 1 - (minX + 1)];

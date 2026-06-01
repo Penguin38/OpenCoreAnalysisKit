@@ -18,6 +18,7 @@
 #define UTILS_BASE_UTILS_H_
 
 #include <string>
+#include <stdint.h>
 
 class Utils {
 public:

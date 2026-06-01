@@ -18,8 +18,10 @@
 #define UTILS_BASE_MEMORY_MAP_H_
 
 #include <stdint.h>
-#include <sys/types.h>
 #include <string>
+#ifndef __WINDOWS__
+#include <sys/types.h>
+#endif
 
 class MemoryMap {
 public:
@@ -38,7 +40,9 @@ public:
     void setFile(const char* file, uint64_t off);
     ~MemoryMap();
 private:
+#ifndef __WINDOWS__
     static MemoryMap* MmapFile(int fd, uint64_t size, uint64_t off);
+#endif
     MemoryMap(void *m, uint64_t s, uint64_t off, uint64_t max)
         : mBegin(m), mSize(s), mOffset(off), mMaxSize(max) {}
 

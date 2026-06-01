@@ -17,9 +17,18 @@
 #include "logger/log.h"
 #include "command/cmd_plugin.h"
 #include "command/command_manager.h"
-#include <unistd.h>
 #include <getopt.h>
+
+#ifdef __WINDOWS__
+#include <windows.h>
+#undef THIS
+#define dlopen(path, flags) ((void*)LoadLibraryA(path))
+#define dlsym(handle, sym)  ((void*)GetProcAddress((HMODULE)(handle), sym))
+#define dlclose(handle)     FreeLibrary((HMODULE)(handle))
+#else
+#include <unistd.h>
 #include <dlfcn.h>
+#endif
 
 int PluginCommand::main(int argc, char* const argv[]) {
     int need_unload = false;

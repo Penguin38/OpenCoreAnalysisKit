@@ -41,8 +41,10 @@
 #define MOVE_LEFT    "\x1b[%dD"
 
 #define KEYCODE_ESC    0x1B
-#define KEYCODE_ENTER  0x0A
-#define KEYCODE_BACK   0x7F
+#define KEYCODE_ENTER  0x0D
+#define KEYCODE_BACK   0x08
+#define KEYCODE_LF     0x0A
+#define KEYCODE_DEL    0x7F
 #define KEYCODE_TAB    0x09
 
 class MiniShell {

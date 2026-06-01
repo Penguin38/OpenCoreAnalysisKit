@@ -30,7 +30,10 @@ Dowload NDK r22+, please see:
 ```
 https://github.com/android/ndk/wiki/Unsupported-Downloads
 ```
-
+Dowload LLVM-MINGW, please see:
+```
+https://github.com/mstorsjo/llvm-mingw/releases
+```
 ## Build For Ubuntu
 ```
 Optional:
@@ -63,6 +66,16 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 ./script/build_android.sh
 ```
 
+## Build For Windows
+```
+Optional:
+export BUILD_TYPE="Debug"
+
+Required:
+export WINDOWS_MINGW_HOME=<MINGW_DIR>
+./script/build_windows.sh
+```
+
 # Build Artifacts
 
 | Platform          | Path |
@@ -71,6 +84,7 @@ export ANDROID_NDK_HOME=<NDK_DIR>
 |Phone| output/aosp/<BUILD_TYPE>/android/arm64-v8a/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/armeabi-v7a/bin/core-parser|
 |Ubuntu| output/aosp/<BUILD_TYPE>/linux/bin/core-parser |
 |MacOS| output/aosp/<BUILD_TYPE>/macos/bin/core-parser  |
+|Windows| output/aosp/<BUILD_TYPE>/windos/bin/core-parser.exe  |
 
 # Compatible
 

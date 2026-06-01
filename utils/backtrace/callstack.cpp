@@ -17,7 +17,9 @@
 #include "logger/log.h"
 #include "backtrace/callstack.h"
 #include <stdlib.h>
+#ifndef __WINDOWS__
 #include <dlfcn.h>
+#endif
 
 #if defined(__LINUX__) || defined(__MACOS__)
 #include <cxxabi.h>

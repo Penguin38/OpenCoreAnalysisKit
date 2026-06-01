@@ -19,7 +19,18 @@
 #include "common/bit.h"
 #include "common/load_block.h"
 #include "base/utils.h"
+#ifdef __WINDOWS__
+#include <windows.h>
+#undef THIS
+static long GetPageSize() {
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    return si.dwPageSize;
+}
+#define sysconf(_SC_PAGE_SIZE) GetPageSize()
+#else
 #include <unistd.h>
+#endif
 
 void LoadBlock::setMmapFile(const char* file, uint64_t offset) {
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapFile(file, memsz(), offset));

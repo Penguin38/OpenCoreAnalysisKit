@@ -131,11 +131,19 @@ set(ZSTD_LIB zstd)
 endif()
 
 include_directories(utils)
+if (TARGET_BUILD_PLATFORM STREQUAL "WINDOWS")
+include_directories(compat)
+set(PLATFORM_UTILS_SRCS utils/base/windows/memory_map.cpp
+                        utils/base/windows/utils.cpp)
+else()
+set(PLATFORM_UTILS_SRCS utils/base/linux/memory_map.cpp
+                        utils/base/linux/utils.cpp)
+endif()
 add_library(utils STATIC
             utils/base/utils.cpp
-            utils/base/memory_map.cpp
-            utils/logger/log.cpp
+            ${PLATFORM_UTILS_SRCS}
             utils/backtrace/callstack.cpp
+            utils/logger/log.cpp
             utils/zip/zip_file.cpp
             utils/zip/zip_entry.cpp)
 if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
@@ -177,7 +185,7 @@ add_library(core STATIC
             core/common/xz/lzma.cpp)
 
 if (TARGET_BUILD_PLATFORM STREQUAL "MACOS")
-target_include_directories(core PUBLIC ${CMAKE_CURRENT_LIST_DIR}/macos)
+target_include_directories(core PUBLIC ${CMAKE_CURRENT_LIST_DIR}/compat)
 endif()
 target_link_libraries(core utils ${CAPSTONE_LIB} ${LZMA_LIB} ${ZSTD_LIB})
 
@@ -331,14 +339,24 @@ set(LINKER_PTHREAD "")
 if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
 set(LINKER_PTHREAD "-lpthread")
 endif()
+if (TARGET_BUILD_PLATFORM STREQUAL "WINDOWS")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -lws2_32")
+else()
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic -ldl ${LINKER_PTHREAD}")
+endif()
 
 include_directories(ini)
 include_directories(parser)
+if (TARGET_BUILD_PLATFORM STREQUAL "WINDOWS")
+set(PLATFORM_COMMAND_SRC parser/command/windows/command.cpp)
+else()
+set(PLATFORM_COMMAND_SRC parser/command/linux/command.cpp)
+endif()
+
 set(CORE_PARSER_SOURCES
     ini/ini.cpp
     parser/command/env.cpp
-    parser/command/command.cpp
+    ${PLATFORM_COMMAND_SRC}
     parser/command/command_manager.cpp
     parser/command/help.cpp
     parser/command/cmd_time.cpp
@@ -403,7 +421,7 @@ set(CORE_PARSER_SOURCES
     parser/command/fake/load/fake_load_block.cpp
     parser/command/fake/stack/fake_java_stack.cpp)
 
-if (NOT TARGET_BUILD_PLATFORM STREQUAL "MACOS")
+if (NOT TARGET_BUILD_PLATFORM STREQUAL "MACOS" AND NOT TARGET_BUILD_PLATFORM STREQUAL "WINDOWS")
     list(APPEND CORE_PARSER_SOURCES
         parser/command/remote/cmd_remote.cpp
         parser/command/remote/opencore/opencore.cpp
@@ -455,9 +473,15 @@ add_custom_command(
 add_custom_target(gen_index_html DEPENDS ${INDEX_HTML_OUTPUT})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+if (TARGET_BUILD_PLATFORM STREQUAL "WINDOWS")
+set(MINI_SHELL_SRC parser/ui/windows/mini_shell.cpp)
+else()
+set(MINI_SHELL_SRC parser/ui/linux/mini_shell.cpp)
+endif()
+
 add_executable(${TARGET_CORE_PARSER}
                parser/ui/ui_thread.cpp
-               parser/ui/mini_shell.cpp
+               ${MINI_SHELL_SRC}
                parser/work/work_thread.cpp
                parser/core_parser.cpp
                parser/daemon/http/server.cpp

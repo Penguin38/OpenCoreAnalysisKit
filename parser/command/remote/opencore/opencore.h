@@ -19,7 +19,18 @@
 
 #include "common/elf.h"
 #include <stdint.h>
+#ifdef __WINDOWS__
+#include <windows.h>
+#undef THIS
+static inline long GetPageSize() {
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    return si.dwPageSize;
+}
+#define sysconf(_SC_PAGE_SIZE) GetPageSize()
+#else
 #include <unistd.h>
+#endif
 #include <string>
 #include <vector>
 #include <map>

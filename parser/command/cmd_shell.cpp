@@ -18,15 +18,37 @@
 #include "command/cmd_shell.h"
 #include "base/utils.h"
 #include "api/core.h"
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <stdio.h>
 #include <errno.h>
 
 int ShellCommand::main(int argc, char* const argv[]) {
     return main(argc, argv, nullptr);
 }
+
+#ifdef __WINDOWS__
+#include <windows.h>
+#undef THIS
+#include <string>
+
+int ShellCommand::main(int argc, char* const argv[], std::function<void ()> callback) {
+    if (!(argc > 1))
+        return 0;
+
+    std::string cmdline;
+    for (int i = 1; i < argc; i++) {
+        if (i > 1) cmdline += " ";
+        cmdline += argv[i];
+    }
+
+    if (callback) callback();
+    system(cmdline.c_str());
+    return 0;
+}
+#else
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string.h>
 
 int ShellCommand::main(int argc, char* const argv[], std::function<void ()> callback) {
     if (!(argc > 1))
@@ -61,6 +83,7 @@ int ShellCommand::main(int argc, char* const argv[], std::function<void ()> call
 
     return 0;
 }
+#endif
 
 void ShellCommand::usage() {
     LOGI("Usage: shell|sh cmd ...\n");

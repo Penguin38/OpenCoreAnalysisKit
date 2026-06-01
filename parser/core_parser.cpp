@@ -28,7 +28,12 @@
 #include "command/command_manager.h"
 #include "command/remote/opencore/opencore.h"
 #include "command/fake/core/fake_core.h"
+#ifdef __WINDOWS__
+#include <windows.h>
+#undef THIS
+#else
 #include <unistd.h>
+#endif
 #include <fcntl.h>
 #include <getopt.h>
 #include <signal.h>
@@ -304,11 +309,24 @@ int command_preload(int argc, char* const argv[]) {
 }
 
 int main(int argc, char* const argv[]) {
+#ifdef __WINDOWS__
+    // Enable UTF-8 output and VT100 escape sequences on Windows console
+    SetConsoleOutputCP(65001);
+    SetConsoleCP(65001);
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    SetConsoleMode(hOut, dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+    signal(SIGINT, WorkThread::Stop);
+    signal(SIGTERM, WorkThread::Stop);
+#else
     struct sigaction stact;
     memset(&stact, 0, sizeof(stact));
     stact.sa_handler = WorkThread::Stop;
     sigaction(SIGINT, &stact, NULL);
     sigaction(SIGTERM, &stact, NULL);
+#endif
 
     CommandManager::Init();
     CommandManager::PushInlineCommand(new QuitCommand());
