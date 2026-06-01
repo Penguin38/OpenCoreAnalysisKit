@@ -28,6 +28,7 @@ namespace art {
 void OatFile::Init() {
     Android::RegisterSdkListener(Android::M, art::OatFile::Init23);
     Android::RegisterSdkListener(Android::O, art::OatFile::Init26);
+    Android::RegisterSdkListener(Android::W, art::OatFile::Init36);
     Android::RegisterSdkListener(Android::X, art::OatFile::Init37);
 }
 
@@ -66,6 +67,22 @@ void OatFile::Init26() {
             .vdex_ = 16,
             .begin_ = 20,
             .is_executable_ = 52,
+        };
+    }
+}
+
+void OatFile::Init36() {
+    if (CoreApi::Bits() == 64) {
+        __OatFile_offset__ = {
+            .vdex_ = 32,
+            .begin_ = 40,
+            .is_executable_ = 112,
+        };
+    } else {
+        __OatFile_offset__ = {
+            .vdex_ = 16,
+            .begin_ = 20,
+            .is_executable_ = 56,
         };
     }
 }
