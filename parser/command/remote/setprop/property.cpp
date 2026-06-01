@@ -119,14 +119,25 @@ int AndroidProperty::Set(std::string& name, std::string& value) {
     if (!RemoteCommand::Read(1, prop_info_ptr, sizeof(prop_info), (uint8_t *)&new_info))
         return -1;
 
-    uint32_t count = (new_info.serial >> 24);
-    memset(&new_info.value, 0x0, count);
+    bool is_long = (new_info.serial & prop_info::kLongFlag) != 0;
 
-    new_info.serial &= 0xFFFFFF;
-    new_info.serial |= (strlen(new_value) << 24);
-    memcpy(&new_info.value, new_value, strlen(new_value));
+    if (is_long) {
+        uint64_t long_value_ptr = prop_info_ptr + new_info.long_property.offset;
+        uint32_t new_len = strlen(new_value);
+        RemoteCommand::Write(1, long_value_ptr, (void *)new_value, new_len + 1);
+    } else if (strlen(new_value) >= PROP_VALUE_MAX) {
+        LOGE("Value too long for short property, need long property support.\n");
+        return -1;
+    } else {
+        uint32_t count = (new_info.serial >> 24);
+        memset(&new_info.value, 0x0, count);
 
-    RemoteCommand::Write(1, prop_info_ptr, (void *)&new_info, sizeof(prop_info));
+        new_info.serial &= 0xFFFFFF;
+        new_info.serial |= (strlen(new_value) << 24);
+        memcpy(&new_info.value, new_value, strlen(new_value));
+
+        RemoteCommand::Write(1, prop_info_ptr, (void *)&new_info, sizeof(prop_info));
+    }
     return 0;
 }
 

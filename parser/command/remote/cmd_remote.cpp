@@ -102,9 +102,8 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
         }
     }
 
-    if (optind >= argc) {
+    if (optind >= argc)
         return 0;
-    }
 
     std::unique_ptr<Opencore> opencore = std::make_unique<Opencore>();
     opencore->StopTheWorld(pid);
@@ -113,6 +112,9 @@ int RemoteCommand::OptionRead(int argc, char* const argv[]) {
     memset(value, 0x0, ELF_PAGE_SIZE);
 
     uint64_t begin = Utils::atol(argv[optind]);
+    if (optind < argc - 1)
+        end = begin + std::atoi(argv[optind + 1]) * 0x8;
+
     if (!RemoteCommand::Read(pid, begin, sizeof(value), (uint8_t *)&value))
         return 0;
 
