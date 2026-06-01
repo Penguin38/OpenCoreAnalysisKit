@@ -1,0 +1,34 @@
+name: cmake on windows platforms
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download llvm-mingw toolchain
+      run: |
+        curl -L -o llvm-mingw.tar.xz https://github.com/mstorsjo/llvm-mingw/releases/download/20240619/llvm-mingw-20240619-ucrt-ubuntu-20.04-x86_64.tar.xz
+        tar -xf llvm-mingw.tar.xz
+
+    - name: Build
+      run: |
+        export WINDOWS_MINGW_HOME=$PWD/llvm-mingw-20240619-ucrt-ubuntu-20.04-x86_64
+        bash ./script/build_windows.sh
+        tar -czvf core-parser_26.6.1.tar.gz output/aosp/debug/windows/bin/core-parser.exe
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: core-parser_26.6.1_for_windows.tar.gz
+        path: core-parser_26.6.1.tar.gz
