@@ -84,7 +84,7 @@ export WINDOWS_MINGW_HOME=<MINGW_DIR>
 |Phone| output/aosp/<BUILD_TYPE>/android/arm64-v8a/bin/core-parser</br>output/aosp/<BUILD_TYPE>/android/armeabi-v7a/bin/core-parser|
 |Ubuntu| output/aosp/<BUILD_TYPE>/linux/bin/core-parser |
 |MacOS| output/aosp/<BUILD_TYPE>/macos/bin/core-parser  |
-|Windows| output/aosp/<BUILD_TYPE>/windos/bin/core-parser.exe  |
+|Windows| output/aosp/<BUILD_TYPE>/windows/bin/core-parser.exe  |
 
 # Compatible
 
