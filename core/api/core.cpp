@@ -164,7 +164,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
     int idxInLoad = 0;
     int idxInQuick = 0;
 
-    uint64_t begin = RoundUp(vaddr & getVabitsMask(), ELF_PAGE_SIZE);
+    uint64_t begin = RoundUp(vaddr & vabits_mask, ELF_PAGE_SIZE);
     uint64_t size = RoundUp(old_size, ELF_PAGE_SIZE);
 
     if (!size) {
@@ -174,7 +174,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
 
     if (mLoad.empty()) {
         if (!begin) begin = FAKE_LOAD_BEGIN;
-        if ((begin + size) > getVabitsMask()) {
+        if ((begin + size) > vabits_mask) {
             LOGE("Can not fake malloc size 0x%" PRIx64 "\n", size);
             return 0;
         }
@@ -190,7 +190,7 @@ uint64_t CoreApi::newLoadBlock(uint64_t vaddr, uint64_t old_size, int flags) {
                 if (mLoad[idxInLoad]->vaddr() > begin || idxInLoad == mLoad.size() - 1) {
                     uint64_t endaddr = mLoad[idxInLoad]->vaddr();
                     if (idxInLoad == mLoad.size() - 1)
-                        endaddr = getVabitsMask();
+                        endaddr = vabits_mask;
                     if ((begin + size) > endaddr) {
                         LOGE("Can not fake malloc vaddr 0x%" PRIx64 ", size(0x%" PRIx64 ") bigger.\n", begin, size);
                         return 0;

@@ -35,7 +35,6 @@ private:
     int getMachine() { return EM_X86_64; }
     int bits() { return 64; }
     int getPointSize() { return 8; }
-    uint64_t getVabitsMask() { return 0xFFFFFFFFFFFFFFFFULL; }
     void loadLinkMap() { loadLinkMap64(this); }
     bool exec(uint64_t phdr, const char* file) { return exec64(this, phdr, file); }
     bool sysroot(LinkMap* handle, const char* file, const char* subfile) { return dlopen64(this, handle, file, subfile); }

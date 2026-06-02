@@ -205,7 +205,7 @@ public:
 
         int left = 0;
         int right = loads.size();
-        uint64_t clocaddr = vaddr & getVabitsMask();
+        uint64_t clocaddr = vaddr & vabits_mask;
 
         if (clocaddr < loads[left]->vaddr()
                 || clocaddr >= (loads[right - 1]->vaddr() + loads[right - 1]->memsz()))
@@ -263,7 +263,6 @@ private:
     virtual int bits() = 0;
     virtual int getMachine() = 0;
     virtual int getPointSize() = 0;
-    virtual uint64_t getVabitsMask() = 0;
     virtual void loadLinkMap() = 0;
     virtual bool exec(uint64_t phdr, const char* file) = 0;
     virtual bool sysroot(LinkMap* handle, const char* file, const char* subfile) = 0;
