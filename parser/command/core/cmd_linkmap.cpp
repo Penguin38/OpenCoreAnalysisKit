@@ -60,7 +60,7 @@ int LinkMapCommand::prepare(int argc, char* const argv[]) {
     if (options.optind < argc)
         options.num = std::atoi(argv[options.optind]);
 
-    return Command::ONCHLD;
+    return Command::CONTINUE;
 }
 
 int LinkMapCommand::main(int argc, char* const argv[]) {
