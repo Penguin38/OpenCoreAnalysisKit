@@ -3,6 +3,7 @@
 [XZ Utils](https://github.com/tukaani-project/xz)
 [HttpLib](https://github.com/yhirose/cpp-httplib)
 [Zstd](https://github.com/facebook/zstd)
+[LLVM Demangle](https://github.com/llvm/llvm-project/tree/main/llvm/lib/Demangle)
 
 # Techincal System
 ![core-analysis](https://raw.githubusercontent.com/Penguin38/OpenCoreAnalysisKit/refs/heads/main/doc/OpenCoreAnalyzer.jpg)

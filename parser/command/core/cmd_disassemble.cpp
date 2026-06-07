@@ -16,6 +16,7 @@
 
 #include "logger/log.h"
 #include "base/utils.h"
+#include "llvm/Demangle/Demangle.h"
 #include "command/core/cmd_disassemble.h"
 #include "common/native_frame.h"
 #include "common/disassemble/capstone.h"
@@ -25,7 +26,6 @@
 #include "api/core.h"
 #include <unistd.h>
 #include <getopt.h>
-#include <cxxabi.h>
 
 int DisassembleCommand::prepare(int argc, char* const argv[]) {
     if (!CoreApi::IsReady() || argc < 2)
@@ -87,9 +87,10 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
         LOGI("LIB: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, map->name());
 
         std::string d_symbol;
-        int status;
-        char* demangled_name = abi::__cxa_demangle(entry.symbol.data(), nullptr, nullptr, &status);
-        if (status == 0) {
+        char* demangled_name = llvm::itaniumDemangle(entry.symbol.data());
+        if (!demangled_name)
+            demangled_name = llvm::rustDemangle(entry.symbol.data());
+        if (demangled_name) {
             LOGI("SYMBOL: " ANSI_COLOR_GREEN "%s\n" ANSI_COLOR_RESET, entry.symbol.c_str());
             d_symbol = demangled_name;
             std::free(demangled_name);

@@ -19,7 +19,7 @@
 #include "android.h"
 #include "api/core.h"
 #include "cxx/string.h"
-#include <cxxabi.h>
+#include "llvm/Demangle/Demangle.h"
 
 struct FrameData_OffsetTable __FrameData_offset__;
 struct FrameData_SizeTable __FrameData_size__;
@@ -92,8 +92,10 @@ std::string UnwindStack::FrameData::GetMethod() {
         return method;
     }
     std::string symbol = name.c_str();
-    char* demangled_name = abi::__cxa_demangle(symbol.c_str(), nullptr, nullptr, &status);
-    if (status == 0) {
+    char* demangled_name = llvm::itaniumDemangle(symbol.c_str());
+    if (!demangled_name)
+        demangled_name = llvm::rustDemangle(symbol.c_str());
+    if (demangled_name) {
         method = demangled_name;
         std::free(demangled_name);
     } else {

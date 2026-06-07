@@ -18,3 +18,7 @@ The following software may be included in this product:
 - ZSTD (https://github.com/facebook/zstd)
   Copyright (c) Meta Platforms, Inc. and affiliates
   See https://github.com/facebook/zstd/blob/dev/LICENSE for full license text.
+
+- LLVM Demangle (https://github.com/llvm/llvm-project)
+  Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+  See https://github.com/llvm/llvm-project/blob/main/llvm/LICENSE.TXT for full license text.

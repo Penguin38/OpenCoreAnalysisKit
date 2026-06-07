@@ -139,13 +139,16 @@ else()
 set(PLATFORM_UTILS_SRCS utils/base/linux/memory_map.cpp
                         utils/base/linux/utils.cpp)
 endif()
+include_directories(3rd-party/llvm-demangle)
 add_library(utils STATIC
             utils/base/utils.cpp
             ${PLATFORM_UTILS_SRCS}
             utils/backtrace/callstack.cpp
             utils/logger/log.cpp
             utils/zip/zip_file.cpp
-            utils/zip/zip_entry.cpp)
+            utils/zip/zip_entry.cpp
+            3rd-party/llvm-demangle/RustDemangle.cpp
+            3rd-party/llvm-demangle/ItaniumDemangle.cpp)
 if (TARGET_BUILD_PLATFORM STREQUAL "LINUX")
 target_link_libraries(utils stdc++fs)
 endif()

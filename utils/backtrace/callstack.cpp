@@ -22,7 +22,6 @@
 #endif
 
 #if defined(__LINUX__) || defined(__MACOS__)
-#include <cxxabi.h>
 #include <execinfo.h>
 #endif
 

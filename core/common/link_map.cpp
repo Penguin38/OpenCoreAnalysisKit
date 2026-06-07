@@ -24,7 +24,7 @@
 #include "common/load_block.h"
 #include "common/elf.h"
 #include <linux/elf.h>
-#include <cxxabi.h>
+#include "llvm/Demangle/Demangle.h"
 
 struct LinkMap_OffsetTable __LinkMap_offset__;
 struct LinkMap_SizeTable __LinkMap_size__;
@@ -191,9 +191,10 @@ std::unordered_set<SymbolEntry, SymbolEntry::Hash>& LinkMap::GetCurrentSymbols()
 
 std::string& LinkMap::NiceSymbol::GetMethod() {
     if (method.length() == 0) {
-        int status;
-        char* demangled_name = abi::__cxa_demangle(symbol.data(), nullptr, nullptr, &status);
-        if (status == 0) {
+        char* demangled_name = llvm::itaniumDemangle(symbol.data());
+        if (!demangled_name)
+            demangled_name = llvm::rustDemangle(symbol.data());
+        if (demangled_name) {
             method = demangled_name;
             std::free(demangled_name);
         } else {
