@@ -153,7 +153,7 @@ char* MiniShell::HandleCommand() {
                 }
             }
         } else {
-            if (seq[0] == KEYCODE_ENTER || seq[0] == KEYCODE_LF) {
+            if (seq[0] == KEYCODE_ENTER) {
                 SaveHistory(command);
                 ENTER();
                 break;
@@ -161,7 +161,7 @@ char* MiniShell::HandleCommand() {
 
             if (seq[0] == KEYCODE_TAB) {
                 continue;
-            } else if (seq[0] == KEYCODE_BACK || seq[0] == KEYCODE_DEL) {
+            } else if (seq[0] == KEYCODE_BACK) {
                 if (curX > minX + 1) {
                     for (int i = curX - 1; i < totalX; ++i) {
                         command[i - (minX + 1)] = command[i + 1 - (minX + 1)];
