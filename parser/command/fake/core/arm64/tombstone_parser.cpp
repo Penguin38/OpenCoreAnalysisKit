@@ -67,13 +67,15 @@ bool TombstoneParser::parseCmdline() {
     LOGD("%s ...\n", __func__);
     char value[256] = {'\0'};
     while (fgets(kLine, sizeof(kLine), mFp)) {
-        if (sscanf(kLine, "Cmdline: %s", value)) {
+        if (sscanf(kLine, "Executable: %s", value)
+                || sscanf(kLine, "Cmdline: %s", value)) {
             mExecutable = value;
             return true;
         }
 
-        int pid, tid;
-        if (sscanf(kLine, "pid: %d, tid: %d", &pid, &tid)) {
+        int pid, ppid, tid;
+        if (sscanf(kLine, "pid: %d, ppid: %d, tid: %d", &pid, &ppid, &tid) == 3
+                || sscanf(kLine, "pid: %d, tid: %d", &pid, &tid) == 2) {
             rewind(mFp);
             return true;
         }
@@ -83,9 +85,10 @@ bool TombstoneParser::parseCmdline() {
 
 bool TombstoneParser::parseTid() {
     LOGD("%s ...\n", __func__);
-    int pid;
+    int pid, ppid;
     while (fgets(kLine, sizeof(kLine), mFp)) {
-        if (sscanf(kLine, "pid: %d, tid: %d", &pid, &mCrashTid))
+        if (sscanf(kLine, "pid: %d, ppid: %d, tid: %d", &pid, &ppid, &mCrashTid) == 3
+                || sscanf(kLine, "pid: %d, tid: %d", &pid, &mCrashTid) == 2)
             return true;
     }
     return false;
@@ -188,7 +191,7 @@ bool TombstoneParser::parseMemory() {
             if (!strcmp(kLine, "\n"))
                 break;
 
-            if (sscanf(kLine, "    %" PRIx64 " %" PRIx64 " %" PRIx64 "", &addr, &value1, &value2)) {
+            if (sscanf(kLine, "    %" PRIx64 " %" PRIx64 " %" PRIx64 "", &addr, &value1, &value2) == 3) {
                 mMemorys.insert({addr, value1});
                 mMemorys.insert({addr + 8, value2});
             }
@@ -226,16 +229,16 @@ bool TombstoneParser::parseMaps() {
             char filename[256] = {'\0'};
 
             if (!strncmp(kLine, "--->", 4)) {
-                if (!sscanf(kLine, "--->%" PRIx64 "\'%" PRIx64 "-%*17c %c%c%c %x %" PRIx64 " %255[^\n] %n",
+                if (sscanf(kLine, "--->%" PRIx64 "\'%" PRIx64 "-%*17c %c%c%c %x %" PRIx64 " %255[^\n] %n",
                             &high, &low,
                             &vma.flags[0], &vma.flags[1], &vma.flags[2],
-                            &vma.offset, &memsz, filename, &m))
+                            &vma.offset, &memsz, filename, &m) < 7)
                     continue;
             } else {
-                if (!sscanf(kLine, "%" PRIx64 "\'%" PRIx64 "-%*17c %c%c%c %x %" PRIx64 " %255[^\n] %n",
+                if (sscanf(kLine, "%" PRIx64 "\'%" PRIx64 "-%*17c %c%c%c %x %" PRIx64 " %255[^\n] %n",
                             &high, &low,
                             &vma.flags[0], &vma.flags[1], &vma.flags[2],
-                            &vma.offset, &memsz, filename, &m))
+                            &vma.offset, &memsz, filename, &m) < 7)
                     continue;
             }
 
