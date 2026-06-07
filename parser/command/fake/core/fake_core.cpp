@@ -16,7 +16,9 @@
 
 #include "logger/log.h"
 #include "api/core.h"
+#include "common/bit.h"
 #include "base/utils.h"
+#include "zip/zip_file.h"
 #include "command/fake/core/fake_core.h"
 #include "command/fake/core/lp64/fake_core.h"
 #include "command/fake/core/lp32/fake_core.h"
@@ -43,6 +45,7 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
         {"va_bits",     required_argument, 0,  2 },
         {"page_size",   required_argument, 0,  3 },
         {"no-fake-phdr",no_argument,       0,  4 },
+        {"resolve-apk", no_argument,       0,  5 },
         {"output",      required_argument, 0, 'o'},
         {"map",         no_argument,       0, 'm'},
         {"load",        no_argument,       0, 'l'},
@@ -92,6 +95,9 @@ int FakeCore::OptionCore(int argc, char* const argv[]) {
                 break;
             case 4:
                 fake_mask |= NO_FAKE_PHDR;
+                break;
+            case 5:
+                fake_mask |= RESOLVE_APK;
                 break;
         }
     }
@@ -204,11 +210,11 @@ uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps
     }
 
     if (tmps.size() >= 1) {
-        for (int i = 0; i < tmps.size() - 1; i++) {
+        for (int i = 0; i < (int)tmps.size() - 1; i++) {
             auto vma = tmps[i];
-            for (int k = i + 1; k < tmps.size(); k++) {
+            for (int k = i + 1; k < (int)tmps.size(); k++) {
                 auto phdr = tmps[k];
-                uint64_t cloc_vaddr = vma.begin - vma.offset + phdr.offset;
+                uint64_t cloc_vaddr = vma.begin - vma.offset + phdr.offset + vma.load_bias;
                 if (phdr.begin > cloc_vaddr)
                     continue;
 
@@ -225,6 +231,97 @@ uint64_t FakeCore::FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps
     return module_load;
 }
 
+void FakeCore::ResolveApkEmbeddedSo(std::vector<Opencore::VirtualMemoryArea>& maps) {
+    if (!NeedResolveApk() || !GetSysRootDir().length())
+        return;
+
+    std::unique_ptr<FakeCore::Stream>& stream = GetInputStream();
+
+    // step 1: collect unique apk paths from maps with offset != 0
+    std::set<std::string> apk_paths;
+    for (const auto& vma : maps) {
+        if (vma.offset != 0 && vma.file.find(".apk") != std::string::npos
+                && vma.file.find("!") == std::string::npos)
+            apk_paths.insert(vma.file);
+    }
+
+    // step 2: for each apk, open zip and build entry ranges
+    for (const auto& apk_path : apk_paths) {
+        std::string apk_file;
+        std::unique_ptr<char[], void(*)(void*)> sysroot_copy(strdup(GetSysRootDir().c_str()), free);
+        char *token = strtok(sysroot_copy.get(), ":");
+        while (token) {
+            if (Utils::SearchFile(token, &apk_file, apk_path.c_str()))
+                break;
+            token = strtok(nullptr, ":");
+        }
+        if (!apk_file.length())
+            continue;
+
+        ZipFile zip;
+        if (zip.open(apk_file.c_str()) != 0)
+            continue;
+
+        // build entry list with precise range
+        struct ApkEntry { uint64_t begin; uint64_t end; std::string name; };
+        std::vector<ApkEntry> entries;
+        uint64_t ps = page_size ? page_size : ELF_PAGE_SIZE;
+        for (int i = 0; i < zip.getNumEntries(); i++) {
+            ZipEntry* ze = zip.getEntryByIndex(i);
+            if (!ze || !ze->IsUncompressed()) continue;
+            uint64_t file_offset = ze->getFileOffset();
+            uint64_t file_size = ze->getLHFOffset() + ze->getEntryTotalMemsz() - file_offset;
+            uint64_t start = RoundDown(file_offset, ps);
+            uint64_t end = RoundUp(file_offset + file_size, ps);
+            entries.push_back({start, end, ze->getFileName()});
+        }
+
+        // step 3: rename all matching VMAs by range
+        for (auto& vma : maps) {
+            if (vma.file != apk_path || vma.offset == 0)
+                continue;
+            for (const auto& ent : entries) {
+                uint64_t vma_end_offset = vma.offset + (vma.end - vma.begin);
+                if (vma.offset >= ent.begin && vma_end_offset <= ent.end) {
+                    vma.file = apk_path + "!" + ent.name;
+                    break;
+                }
+            }
+        }
+    }
+
+    // step 4: replace .apk libs with all renamed apk!so entries from maps
+    std::set<std::string> updated_libs;
+    for (const auto& lib : stream->Libs()) {
+        std::size_t colon_pos = lib.find(":");
+        std::string libname = (colon_pos != std::string::npos) ? lib.substr(0, colon_pos) : lib;
+
+        if (libname.find(".apk") == std::string::npos || libname.find("!") != std::string::npos) {
+            updated_libs.insert(lib);
+            continue;
+        }
+    }
+
+    // add all unique apk!so entries from renamed maps
+    std::set<std::string> seen;
+    for (const auto& vma : maps) {
+        if (vma.file.find(".apk!") == std::string::npos)
+            continue;
+        if (vma.file.find(".so") == std::string::npos)
+            continue;
+        if (seen.count(vma.file))
+            continue;
+        seen.insert(vma.file);
+
+        std::string new_lib = vma.file;
+        if (vma.buildid.length())
+            new_lib += ":" + vma.buildid;
+        updated_libs.insert(new_lib);
+        LOGI("%s\n", vma.file.c_str());
+    }
+    stream->Libs() = updated_libs;
+}
+
 void FakeCore::Usage() {
     LOGI("Usage: fake core <OPTION...>\n");
     LOGI("Option:\n");
@@ -233,6 +330,7 @@ void FakeCore::Usage() {
     LOGI("        --va_bits <BITS>      set virtual invalid addr bits\n");
     LOGI("        --page_size <SIZE>    set target core page size\n");
     LOGI("        --no-fake-phdr [EXE]  rebuild fakecore phdr\n");
+    LOGI("        --resolve-apk         fake core parse embedded library\n");
     LOGI("        --load                loaded fakecore\n");
     LOGI("    -r, --rebuild             rebuild current environment core\n");
     LOGI("    -m, --map                 overlay linkmap's name on rebuild\n");

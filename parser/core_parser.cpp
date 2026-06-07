@@ -152,6 +152,7 @@ int command_preload(int argc, char* const argv[]) {
         {"no-filter-any", no_argument,     0,  2 },
         {"no-load",   no_argument,         0,  6 },
         {"no-fake-phdr",no_argument,       0,  7 },
+        {"resolve-apk", no_argument,       0, 10 },
         {"debug",     required_argument,   0, 'd'},
         {"help",      no_argument,         0, 'h'},
         {"http",      no_argument,         0,  8 },
@@ -170,6 +171,7 @@ int command_preload(int argc, char* const argv[]) {
     bool remote = false;
     bool need_load = true;
     bool no_fake_phdr = false;
+    bool resolve_apk = false;
     bool need_http = false;
     int lv = 0;
     int filter = Opencore::FILTER_SPECIAL_VMA
@@ -223,6 +225,9 @@ int command_preload(int argc, char* const argv[]) {
                 break;
             case 9:
                 /* --mcp is handled in main() */
+                break;
+            case 10:
+                resolve_apk = true;
                 break;
             case 'd':
                 lv = std::atoi(optarg);
@@ -287,6 +292,8 @@ int command_preload(int argc, char* const argv[]) {
             cmdline.append(" --no-fake-phdr ");
             if (optind < argc) cmdline.append(argv[optind]);
         }
+        if (resolve_apk)
+            cmdline.append(" --resolve-apk");
         output = tombstone;
         output.append(FakeCore::FILE_EXTENSIONS);
         WorkThread work(cmdline);

@@ -43,6 +43,9 @@ int FakeCore::execute(const char* output) {
     has_taggle_addr = (stream->TaggedAddr() != -1);
     std::vector<Opencore::VirtualMemoryArea>& maps = stream->Maps();
 
+    /** RESOLVE APK EMBEDDED SO */
+    ResolveApkEmbeddedSo(maps);
+
     Prepare(output);
     ParseProcessMapsVma(maps);
     CreateCoreHeader();

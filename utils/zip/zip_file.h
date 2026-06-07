@@ -33,6 +33,9 @@ public:
     void discardEntries(void);
     int getNumEntries(void) const { return mEntries.size(); }
     ZipEntry* getEntryByName(const char* fileName) const;
+    ZipEntry* getEntryByIndex(int idx) const {
+        return (idx >= 0 && idx < (int)mEntries.size()) ? mEntries[idx] : nullptr;
+    }
 
 private:
     class EndOfCentralDir {

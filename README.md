@@ -133,6 +133,7 @@ Option:
         --page_size <SIZE>   set target core page size
         --no-load            no auto load corefile
         --no-fake-phdr [EXE] rebuild fakecore phdr
+        --resolve-apk        fake core parse embedded library
 Exp:
     core-parser -c /tmp/tmp.core
     core-parser -p 1 -m arm64
@@ -1018,6 +1019,7 @@ Option:
         --va_bits <BITS>      set virtual invalid addr bits
         --page_size <SIZE>    set target core page size
         --no-fake-phdr [EXE]  rebuild fakecore phdr
+        --resolve-apk        fake core parse embedded library
         --load                loaded fakecore
     -r, --rebuild             rebuild current environment core
     -m, --map                 overlay linkmap's name on rebuild

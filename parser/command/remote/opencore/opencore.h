@@ -107,8 +107,11 @@ public:
         uint32_t major;
         uint32_t minor;
         uint64_t inode;
+        uint64_t load_bias;
         std::string file;
         std::string buildid;
+        VirtualMemoryArea() : begin(0), end(0), flags{}, offset(0),
+                              major(0), minor(0), inode(0), load_bias(0) {}
     };
 
     struct ThreadRecord {

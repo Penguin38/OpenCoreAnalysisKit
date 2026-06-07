@@ -36,6 +36,9 @@ int FakeCore::execute(const char* output) {
 
     std::vector<Opencore::VirtualMemoryArea>& maps = stream->Maps();
 
+    /** RESOLVE APK EMBEDDED SO */
+    ResolveApkEmbeddedSo(maps);
+
     Prepare(output);
     ParseProcessMapsVma(maps);
     CreateCoreHeader();

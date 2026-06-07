@@ -257,6 +257,12 @@ bool TombstoneParser::parseMaps() {
                 }
             }
 
+            l_pos = vma.file.find(" (load bias 0x");
+            if (l_pos != std::string::npos) {
+                sscanf(vma.file.c_str() + l_pos, " (load bias 0x%" PRIx64 "", &vma.load_bias);
+                vma.file = vma.file.substr(0, l_pos);
+            }
+
             mMaps.push_back(vma);
 
             if (!IsForce()) {

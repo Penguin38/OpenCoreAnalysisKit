@@ -84,6 +84,7 @@ public:
 
     static constexpr int NO_FAKE_PHDR = 1 << 0;
     static constexpr int NO_FAKE_REBUILD = 1 << 1;
+    static constexpr int RESOLVE_APK = 1 << 2;
     class Stream {
     public:
         virtual ~Stream() {}
@@ -116,6 +117,7 @@ public:
     bool NeedRebuild() { return !NoFakeRebuild(); }
     bool NoFakeRebuild() { return (fake_mask & NO_FAKE_REBUILD) != 0x0; }
     bool NoFakePhdr() { return (fake_mask & NO_FAKE_PHDR) != 0x0; }
+    bool NeedResolveApk() { return (fake_mask & RESOLVE_APK) != 0x0; }
 
     virtual ~FakeCore() {}
     virtual int execute(const char* output) { return 0; }
@@ -126,6 +128,7 @@ public:
     static std::unique_ptr<FakeCore> Make(int bits);
     static std::unique_ptr<FakeCore> Make(std::unique_ptr<FakeCore::Stream>& stream);
     static uint64_t FindModuleLoad(std::vector<Opencore::VirtualMemoryArea>& maps, const char* name);
+    void ResolveApkEmbeddedSo(std::vector<Opencore::VirtualMemoryArea>& maps);
 
     std::unique_ptr<FakeCore::Stream>& GetInputStream() { return stream; }
     std::string& GetSysRootDir() { return sysroot; }
