@@ -309,8 +309,8 @@ void Elf::ReadSymbols(LinkMap* handle) {
 
             SymbolEntry entry = SymbolEntry(symbols.st_value(), symbols.st_info(), symbols.st_size(),
                                             reinterpret_cast<const char* >(symname.Real()));
-            // skip code section tag
-            if (entry.symbol == "$x")
+            // skip mapping symbols and internal labels
+            if (entry.symbol.size() > 0 && (entry.symbol[0] == '$' || entry.symbol[0] == '.'))
                 continue;
             dynsyms.insert(entry);
         }

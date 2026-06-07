@@ -294,8 +294,8 @@ static void ReadSymbolEntry64(std::unique_ptr<MemoryMap>& map, int symndx, int s
         if (symtab[i].st_value && symtab[i].st_size) {
             SymbolEntry entry = SymbolEntry(symtab[i].st_value, symtab[i].st_info, symtab[i].st_size,
                     const_cast<const char*>(strtab + symtab[i].st_name));
-            // skip code section tag
-            if (entry.symbol == "$x")
+            // skip mapping symbols and internal labels
+            if (entry.symbol.size() > 0 && (entry.symbol[0] == '$' || entry.symbol[0] == '.'))
                 continue;
             symbols.insert(entry);
         }
