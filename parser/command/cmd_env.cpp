@@ -237,31 +237,44 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
         {"quick-load", no_argument,   0, 4},
         {"note",   no_argument,       0, 5},
         {"clean-cache",   no_argument, 0, 'c'},
+        {"origin",    no_argument,    0, 'o'},
         {0,        0,                 0, 0},
     };
 
     bool crc = false;
+    bool ori = false;
+    bool load = false;
+    bool quick = false;
     int num = 0;
-    while ((opt = getopt_long(argc, argv, "12:3:4n:c",
+    while ((opt = getopt_long(argc, argv, "12:3:4n:co",
                 long_options, &option_index)) != -1) {
         switch (opt) {
-            case 1: return showLoadEnv(false);
+            case 1:
+                load = true;
+                break;
             case 2:
                 capstone::Disassember::SetArmMode(optarg);
                 return 0;
             case 3:
                 crc = true;
                 break;
-            case 4: return showLoadEnv(true);
+            case 4:
+                load = true;
+                quick = true;
+                break;
             case 5: return showNoteEnv();
             case 'n':
                 num = std::atoi(optarg);
+                break;
+            case 'o':
+                ori = true;
                 break;
             case 'c':
                 CoreApi::CleanCache();
                 return 0;
         }
     }
+    if (load) return showLoadEnv(quick, ori);
     if (crc) {
         clocLoadCRC32(num);
     } else {
@@ -275,17 +288,18 @@ int EnvCommand::showCoreEnv(int argc, char* const argv[]) {
     return 0;
 }
 
-int EnvCommand::showLoadEnv(bool quick) {
+int EnvCommand::showLoadEnv(bool quick, bool ori) {
     if (!CoreApi::IsReady())
         return 0;
 
     int index = 0;
-    auto callback = [&index](LoadBlock *block) -> bool {
+    auto callback = [&index, ori](LoadBlock *block) -> bool {
         index++;
         std::string name;
-        if (block->name().length() > 0) {
+        std::string& display = (ori || !block->isMmapBlock()) ? block->filename() : block->name();
+        if (display.length() > 0) {
             name.append(Logger::Green());
-            name.append(block->name());
+            name.append(display);
             name.append(Logger::End());
         } else {
             name.append("[]");

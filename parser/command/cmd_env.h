@@ -32,7 +32,7 @@ public:
     static int onSizeChanged(int argc, char* const argv[]);
     static int showArtEnv(int argc, char* const argv[]);
     static int showCoreEnv(int argc, char* const argv[]);
-    static int showLoadEnv(bool quick);
+    static int showLoadEnv(bool quick, bool ori = false);
     static int showNoteEnv();
     static int clocLoadCRC32(int num);
 };

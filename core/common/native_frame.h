@@ -32,6 +32,8 @@ public:
     uint64_t GetMethodOffset();
     uint64_t GetMethodSize();
     std::string GetLibrary();
+    std::string GetOrigin();
+    bool IsMmap();
     bool IsThumbMode();
     void SetThumbMode() { thumb = true; }
 private:

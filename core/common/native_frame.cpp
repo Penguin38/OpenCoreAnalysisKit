@@ -67,6 +67,19 @@ std::string NativeFrame::GetLibrary() {
     return name;
 }
 
+std::string NativeFrame::GetOrigin() {
+    if (!map)
+        return "";
+    return map->name();
+}
+
+bool NativeFrame::IsMmap() {
+    if (!map)
+        return false;
+    LoadBlock* block = map->block();
+    return block && block->isMmapBlock();
+}
+
 uint64_t NativeFrame::GetMethodOffset() {
     return frame_symbol.GetOffset();
 }
