@@ -207,7 +207,7 @@ void BacktraceCommand::DumpNativeStack(void *thread, ThreadApi* api) {
 
             if (!method_desc.length() && native_frame->GetLinkMap()
                     && native_frame->GetLinkMap()->begin()) {
-                method_desc.append(native_frame->GetLibrary());
+                method_desc.append(options.dump_detail ? native_frame->GetOrigin() : native_frame->GetLibrary());
                 method_desc.append("+").append(Utils::ToHex(offset-native_frame->GetLinkMap()->begin()));
             }
             LOGI(format.c_str(), frameid, native_frame->GetFramePc(), method_desc.c_str());
@@ -318,7 +318,7 @@ void BacktraceCommand::DumpJavaJniStack(uint32_t *subjni, ThreadApi* api) {
 
             if (!method_desc.length() && native_frame->GetLinkMap()
                     && native_frame->GetLinkMap()->begin()) {
-                method_desc.append(native_frame->GetLibrary());
+                method_desc.append(options.dump_detail ? native_frame->GetOrigin() : native_frame->GetLibrary());
                 method_desc.append("+").append(Utils::ToHex(offset-native_frame->GetLinkMap()->begin()));
             }
             LOGI(sub_format.c_str(), sub_frameid, native_frame->GetFramePc(), method_desc.c_str());
