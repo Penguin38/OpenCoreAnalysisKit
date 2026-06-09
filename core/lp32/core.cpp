@@ -29,8 +29,15 @@
 bool lp32::Core::load32(CoreApi* api, std::function<void* (OptionArgs&)> callback) {
     Elf32_Ehdr *ehdr = reinterpret_cast<Elf32_Ehdr *>(api->begin());
     Elf32_Phdr *phdr = reinterpret_cast<Elf32_Phdr *>(api->begin() + sizeof(Elf32_Ehdr));
+    int actual_phnum = ehdr->e_phnum;
+    if (ehdr->e_phnum == PN_XNUM) {
+        if (ehdr->e_shnum == 0)
+            return false;
+        Elf32_Shdr* shdr = reinterpret_cast<Elf32_Shdr*>(api->begin() + ehdr->e_shoff);
+        actual_phnum = shdr[0].sh_info;
+    }
 
-    for (int num = 0; num < ehdr->e_phnum; ++num) {
+    for (int num = 0; num < actual_phnum; ++num) {
         if (phdr[num].p_type == PT_LOAD) {
             std::shared_ptr<LoadBlock> block(new LoadBlock(phdr[num].p_flags,
                                              phdr[num].p_offset,
