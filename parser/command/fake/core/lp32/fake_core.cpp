@@ -182,15 +182,27 @@ void FakeCore::CreateCoreHeader() {
     ehdr.e_flags = 0x0;
     ehdr.e_ehsize = sizeof(Elf32_Ehdr);
     ehdr.e_phentsize = sizeof(Elf32_Phdr);
-    ehdr.e_phnum = (int)phdr.size() + 1;
-    ehdr.e_shentsize = 0x0;
-    ehdr.e_shnum = 0x0;
-    ehdr.e_shstrndx = 0x0;
+    uint32_t actual_phnum = (uint32_t)phdr.size() + 1;
+    if (actual_phnum >= PN_XNUM) {
+        ehdr.e_phnum = PN_XNUM;
+        ehdr.e_shnum = 1;
+        ehdr.e_shentsize = sizeof(Elf32_Shdr);
+        ehdr.e_shoff = 0x0;
+
+        shdr.sh_type = SHT_NULL;
+        shdr.sh_info = actual_phnum;
+        shdr.sh_size = 0x0;
+        shdr.sh_link = 0x0;
+    } else {
+        ehdr.e_phnum = actual_phnum;
+        ehdr.e_shnum = 0x0;
+        ehdr.e_shoff = 0x0;
+    }
 }
 
 void FakeCore::CreateCoreNoteHeader() {
     note.p_type = PT_NOTE;
-    note.p_offset = sizeof(Elf32_Ehdr) + ehdr.e_phnum * sizeof(Elf32_Phdr);
+    note.p_offset = sizeof(Elf32_Ehdr) + ActualPhnum() * sizeof(Elf32_Phdr);
 }
 
 void FakeCore::CreateCoreAUXV() {
@@ -207,6 +219,28 @@ void FakeCore::ClocNoteFileSize() {
     note.p_filesz += sizeof(lp32::Auxv) * auxvnum + sizeof(Elf32_Nhdr) + 8;
     note.p_filesz += extra_note_filesz;
     note.p_filesz += sizeof(lp32::File) * phdr.size() + sizeof(Elf32_Nhdr) + 8 + 2 * 4 + RoundUp(fileslen, 4);
+}
+
+void FakeCore::ClocSectionOffset() {
+    if (HasSection())
+        ehdr.e_shoff = RoundUp(note.p_offset + note.p_filesz, align_size);
+}
+
+bool FakeCore::HasSection() {
+    return ehdr.e_phnum == PN_XNUM;
+}
+
+uint32_t FakeCore::ActualPhnum() {
+    if (HasSection())
+        return shdr.sh_info;
+    return ehdr.e_phnum;
+}
+
+uint32_t FakeCore::WriteExtendSection(std::unique_ptr<MemoryMap>& map, uint32_t off) {
+    if (!HasSection())
+        return 0;
+    memcpy(reinterpret_cast<void *>(map->data() + off), (void *)&shdr, sizeof(Elf32_Shdr));
+    return sizeof(Elf32_Shdr);
 }
 
 uint32_t FakeCore::WriteCoreHeader(std::unique_ptr<MemoryMap>& map, uint32_t off) {
@@ -439,6 +473,7 @@ void FakeCore::CreateFakeStrtab(uint32_t fake_strtab, uint32_t fake_link_map, st
 void FakeCore::Prepare(const char* filename) {
     LOGI("Create Fakecore %s ...\n", filename ? filename : "[anon::coredump]");
     memset(&ehdr, 0, sizeof(Elf32_Ehdr));
+    memset(&shdr, 0, sizeof(Elf32_Shdr));
     memset(&note, 0, sizeof(Elf32_Phdr));
 }
 

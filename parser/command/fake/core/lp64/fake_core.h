@@ -36,12 +36,16 @@ public:
     void CreateCoreNoteHeader();
     void CreateCoreAUXV();
     void ClocNoteFileSize();
+    void ClocSectionOffset();
+    bool HasSection();
+    uint32_t ActualPhnum();
 
     uint64_t WriteCoreHeader(std::unique_ptr<MemoryMap>& map, uint64_t off);
     uint64_t WriteCoreNoteHeader(std::unique_ptr<MemoryMap>& map, uint64_t off);
     uint64_t WriteCoreProgramHeaders(std::unique_ptr<MemoryMap>& map, uint64_t off);
     uint64_t WriteCoreAUXV(std::unique_ptr<MemoryMap>& map, uint64_t off);
     uint64_t WriteNtFile(std::unique_ptr<MemoryMap>& map, uint64_t off, std::vector<Opencore::VirtualMemoryArea>& maps);
+    uint64_t WriteExtendSection(std::unique_ptr<MemoryMap>& map, uint64_t off);
 
     static void CreateFakePhdr(uint64_t fake_phdr, uint64_t fake_dynamic);
     static void CreateFakeDynamic(uint64_t fake_dynamic, uint64_t fake_link_map);
@@ -51,6 +55,7 @@ public:
 
 protected:
     Elf64_Ehdr ehdr;
+    Elf64_Shdr shdr;
     std::vector<Elf64_Phdr> phdr;
     Elf64_Phdr note;
     std::vector<Auxv> auxv;

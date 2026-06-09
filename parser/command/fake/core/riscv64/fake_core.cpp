@@ -46,8 +46,9 @@ int FakeCore::execute(const char* output) {
     CreateCorePrStatus();
     CreateCoreAUXV();
     ClocNoteFileSize();
+    ClocSectionOffset();
 
-    uint64_t core_size = RoundUp(note.p_offset + note.p_filesz, align_size);
+    uint64_t core_size = RoundUp(note.p_offset + note.p_filesz, align_size) + ehdr.e_shentsize * ehdr.e_shnum;
     std::unique_ptr<MemoryMap> map(MemoryMap::MmapZeroMem(core_size));
     if (!map) {
         LOGE("alloc size(0x%" PRIx64 ") fail, no vma!!\n", core_size);
@@ -61,6 +62,8 @@ int FakeCore::execute(const char* output) {
     current_offset += WriteCorePrStatus(map, current_offset);
     current_offset += WriteCoreAUXV(map, current_offset);
     current_offset += WriteNtFile(map, current_offset, maps);
+    current_offset = RoundUp(note.p_offset + note.p_filesz, align_size);
+    current_offset += WriteExtendSection(map, current_offset);
 
     if (!CoreApi::Load(map, false, Env::Init))
         return 0;

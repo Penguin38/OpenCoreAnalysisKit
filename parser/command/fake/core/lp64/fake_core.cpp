@@ -42,13 +42,26 @@ int FakeCore::execute(const char* output) {
     // Write ELF Header
     Elf64_Ehdr ehdr;
     memcpy(&ehdr, (void *)CoreApi::GetBegin(), sizeof(Elf64_Ehdr));
-    ehdr.e_phnum = CoreApi::GetLoads(false).size() + CoreApi::GetNotes().size();
+    uint32_t real_phnum = CoreApi::GetLoads(false).size() + CoreApi::GetNotes().size();
+    bool extended = (real_phnum >= PN_XNUM);
+    if (extended) {
+        ehdr.e_phnum = PN_XNUM;
+        ehdr.e_shentsize = sizeof(Elf64_Shdr);
+        ehdr.e_shnum = 1;
+        ehdr.e_shstrndx = 0;
+    } else {
+        ehdr.e_phnum = real_phnum;
+        ehdr.e_shoff = 0;
+        ehdr.e_shentsize = 0;
+        ehdr.e_shnum = 0;
+    }
+
     fwrite(&ehdr, sizeof(Elf64_Ehdr), 1, fp);
 
     // Write Program Headers
-    uint64_t current_offset = sizeof(Elf64_Ehdr) + ehdr.e_phnum * sizeof(Elf64_Phdr);;
+    uint64_t current_offset = sizeof(Elf64_Ehdr) + (uint64_t)real_phnum * sizeof(Elf64_Phdr);
     std::vector<Elf64_Phdr> tmp;
-    tmp.assign(ehdr.e_phnum, {});
+    tmp.assign(real_phnum, {});
 
     int num = 0;
     // PT_NOTE
@@ -91,7 +104,7 @@ int FakeCore::execute(const char* output) {
         ++num;
     }
 
-    uint64_t current_filesz = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) * ehdr.e_phnum;
+    uint64_t current_filesz = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr) * (uint64_t)real_phnum;
     // Write Segment
     std::vector<uint8_t> zero_buf(ELF_PAGE_SIZE, 0);
 
@@ -119,6 +132,19 @@ int FakeCore::execute(const char* output) {
             fwrite(reinterpret_cast<void *>(block->begin()), tmp[num].p_filesz, 1, fp);
         }
         ++num;
+    }
+
+    // Write Section Header (extended phnum)
+    if (extended) {
+        ehdr.e_shoff = current_filesz;
+        Elf64_Shdr shdr = {};
+        shdr.sh_type = SHT_NULL;
+        shdr.sh_info = real_phnum;
+        fwrite(&shdr, sizeof(Elf64_Shdr), 1, fp);
+
+        // rewrite ehdr with e_shoff
+        fseek(fp, 0, SEEK_SET);
+        fwrite(&ehdr, sizeof(Elf64_Ehdr), 1, fp);
     }
 
     fclose(fp);
@@ -182,15 +208,28 @@ void FakeCore::CreateCoreHeader() {
     ehdr.e_flags = 0x0;
     ehdr.e_ehsize = sizeof(Elf64_Ehdr);
     ehdr.e_phentsize = sizeof(Elf64_Phdr);
-    ehdr.e_phnum = (int)phdr.size() + 1;
-    ehdr.e_shentsize = 0x0;
-    ehdr.e_shnum = 0x0;
-    ehdr.e_shstrndx = 0x0;
+
+    uint32_t actual_phnum = (uint32_t)phdr.size() + 1;
+    if (actual_phnum >= PN_XNUM) {
+        ehdr.e_phnum = PN_XNUM;
+        ehdr.e_shnum = 1;
+        ehdr.e_shentsize = sizeof(Elf64_Shdr);
+        ehdr.e_shoff = 0x0;
+
+        shdr.sh_type = SHT_NULL;
+        shdr.sh_info = actual_phnum;
+        shdr.sh_size = 0x0;
+        shdr.sh_link = 0x0;
+    } else {
+        ehdr.e_phnum = actual_phnum;
+        ehdr.e_shnum = 0x0;
+        ehdr.e_shoff = 0x0;
+    }
 }
 
 void FakeCore::CreateCoreNoteHeader() {
     note.p_type = PT_NOTE;
-    note.p_offset = sizeof(Elf64_Ehdr) + ehdr.e_phnum * sizeof(Elf64_Phdr);
+    note.p_offset = sizeof(Elf64_Ehdr) + ActualPhnum() * sizeof(Elf64_Phdr);
 }
 
 void FakeCore::CreateCoreAUXV() {
@@ -207,6 +246,28 @@ void FakeCore::ClocNoteFileSize() {
     note.p_filesz += sizeof(lp64::Auxv) * auxvnum + sizeof(Elf64_Nhdr) + 8;
     note.p_filesz += extra_note_filesz;
     note.p_filesz += sizeof(lp64::File) * phdr.size() + sizeof(Elf64_Nhdr) + 8 + 2 * 8 + RoundUp(fileslen, 4);
+}
+
+void FakeCore::ClocSectionOffset() {
+    if (HasSection())
+        ehdr.e_shoff = RoundUp(note.p_offset + note.p_filesz, align_size);
+}
+
+uint64_t FakeCore::WriteExtendSection(std::unique_ptr<MemoryMap>& map, uint64_t off) {
+    if (!HasSection())
+        return 0;
+    memcpy(reinterpret_cast<void *>(map->data() + off), (void *)&shdr, sizeof(Elf64_Shdr));
+    return sizeof(Elf64_Shdr);
+}
+
+bool FakeCore::HasSection() {
+    return ehdr.e_phnum == PN_XNUM;
+}
+
+uint32_t FakeCore::ActualPhnum() {
+    if (HasSection())
+        return shdr.sh_info;
+    return ehdr.e_phnum;
 }
 
 uint64_t FakeCore::WriteCoreHeader(std::unique_ptr<MemoryMap>& map, uint64_t off) {
@@ -436,6 +497,7 @@ void FakeCore::CreateFakeStrtab(uint64_t fake_strtab, uint64_t fake_link_map, st
 void FakeCore::Prepare(const char* filename) {
     LOGI("Create Fakecore %s ...\n", filename ? filename : "[anon::coredump]");
     memset(&ehdr, 0, sizeof(Elf64_Ehdr));
+    memset(&shdr, 0, sizeof(Elf64_Shdr));
     memset(&note, 0, sizeof(Elf64_Phdr));
 }
 
