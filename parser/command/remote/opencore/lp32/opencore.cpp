@@ -84,15 +84,26 @@ void OpencoreImpl::CreateCoreHeader() {
     ehdr.e_flags = 0x0;
     ehdr.e_ehsize = sizeof(Elf32_Ehdr);
     ehdr.e_phentsize = sizeof(Elf32_Phdr);
-    ehdr.e_phnum = (int)phdr.size() + 1;
-    ehdr.e_shentsize = 0x0;
-    ehdr.e_shnum = 0x0;
-    ehdr.e_shstrndx = 0x0;
+    uint32_t actual_phnum = (uint32_t)phdr.size() + 1;
+    memset(&shdr, 0, sizeof(Elf32_Shdr));
+    if (actual_phnum >= PN_XNUM) {
+        ehdr.e_phnum = PN_XNUM;
+        ehdr.e_shnum = 1;
+        ehdr.e_shentsize = sizeof(Elf32_Shdr);
+        ehdr.e_shoff = 0x0;
+
+        shdr.sh_type = SHT_NULL;
+        shdr.sh_info = actual_phnum;
+    } else {
+        ehdr.e_phnum = actual_phnum;
+        ehdr.e_shnum = 0x0;
+        ehdr.e_shoff = 0x0;
+    }
 }
 
 void OpencoreImpl::CreateCoreNoteHeader() {
     note.p_type = PT_NOTE;
-    note.p_offset = sizeof(Elf32_Ehdr) + ehdr.e_phnum * sizeof(Elf32_Phdr);
+    note.p_offset = sizeof(Elf32_Ehdr) + ActualPhnum() * sizeof(Elf32_Phdr);
 }
 
 void OpencoreImpl::CreateCoreAUXV(int pid) {
@@ -205,6 +216,26 @@ void OpencoreImpl::WriteNtFile(FILE* fp) {
         fwrite(maps[index].file.data(), maps[index].file.length() + 1, 1, fp);
 }
 
+bool OpencoreImpl::HasSection() {
+    return ehdr.e_phnum == PN_XNUM;
+}
+
+uint32_t OpencoreImpl::ActualPhnum() {
+    if (HasSection())
+        return shdr.sh_info;
+    return ehdr.e_phnum;
+}
+
+void OpencoreImpl::WriteExtendSection(FILE* fp) {
+    if (!HasSection())
+        return;
+    ehdr.e_shoff = ftell(fp);
+    fwrite(&shdr, sizeof(Elf32_Shdr), 1, fp);
+    fseek(fp, 0, SEEK_SET);
+    fwrite(&ehdr, sizeof(Elf32_Ehdr), 1, fp);
+    fseek(fp, 0, SEEK_END);
+}
+
 void OpencoreImpl::AlignNoteSegment(FILE* fp) {
     memset(zero.data(), 0x0, align_size);
     uint32_t align_filesz = note.p_filesz - RoundUp(fileslen, 4) + fileslen;
@@ -293,6 +324,7 @@ bool OpencoreImpl::DoCoredump(const char* filename) {
     WriteNtFile(fp);
     AlignNoteSegment(fp);
     WriteCoreLoadSegment(getPid(), fp);
+    WriteExtendSection(fp);
 
     fflush(fp);
     fsync(fileno(fp));
@@ -337,6 +369,7 @@ void OpencoreImpl::Prepare(const char* filename) {
     LOGI("Coredump %s ...\n", filename);
     zero.assign(align_size, 0);
     memset(&ehdr, 0, sizeof(Elf32_Ehdr));
+    memset(&shdr, 0, sizeof(Elf32_Shdr));
     memset(&note, 0, sizeof(Elf32_Phdr));
 }
 

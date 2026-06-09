@@ -48,8 +48,11 @@ public:
     // Segments
     void WriteCoreAUXV(FILE* fp);
     void WriteNtFile(FILE* fp);
+    void WriteExtendSection(FILE* fp);
     void AlignNoteSegment(FILE* fp);
     void WriteCoreLoadSegment(int pid, FILE* fp);
+    bool HasSection();
+    uint32_t ActualPhnum();
 
     uint32_t FindAuxv(uint32_t type);
 
@@ -58,6 +61,7 @@ public:
     virtual int IsSpecialFilterSegment(Opencore::VirtualMemoryArea& vma) = 0;
 protected:
     Elf32_Ehdr ehdr;
+    Elf32_Shdr shdr;
     std::vector<Elf32_Phdr> phdr;
     Elf32_Phdr note;
     std::vector<lp32::Auxv> auxv;
