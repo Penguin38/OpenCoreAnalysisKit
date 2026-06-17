@@ -276,6 +276,8 @@ void MethodCommand::Oatdump(art::ArtMethod& method) {
             uint64_t start = method_header.GetCodeStart();
             uint64_t code_size = 0;
             for (const auto& stack : submaps) {
+                if (stack.native_pc <= code_size)
+                    break;
                 capstone::Disassember::Dump("  ", start, stack.native_pc - code_size, opt);
                 LOGI("    GeneralStackMap[%" PRIu64 "] (NativePc=0x%" PRIx64 " DexPc=0x%" PRIx64 ")\n",
                         subid++, stack.native_pc + method_header.GetCodeStart(),
