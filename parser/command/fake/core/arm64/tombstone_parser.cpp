@@ -162,10 +162,10 @@ bool TombstoneParser::parseBacktrace() {
                 std::string libname_append_buildid = filename;
                 if (strlen(buildid)) {
                     std::string buildid_str = buildid;
-                    std::size_t l_pos = buildid_str.find(" (BuildId: ");
+                    std::size_t l_pos = buildid_str.find("(BuildId: ");
                     std::size_t r_pos = buildid_str.rfind(')');
                     if (l_pos != std::string::npos && r_pos != std::string::npos) {
-                        buildid_str = buildid_str.substr(l_pos + 11, 32);
+                        buildid_str = buildid_str.substr(l_pos + 10, 32);
                         libname_append_buildid.append(":");
                         libname_append_buildid.append(buildid_str);
                     }
@@ -246,7 +246,13 @@ bool TombstoneParser::parseMaps() {
             vma.end = vma.begin + memsz;
             vma.file = filename;
 
-            std::size_t l_pos = vma.file.find(" (BuildId: ");
+            std::size_t l_pos = vma.file.find(" (load bias 0x");
+            if (l_pos != std::string::npos) {
+                sscanf(vma.file.c_str() + l_pos, " (load bias 0x%x", &vma.load_bias);
+                vma.file = vma.file.substr(0, l_pos);
+            }
+
+            l_pos = vma.file.find(" (BuildId: ");
             if (l_pos != std::string::npos) {
                 vma.file = vma.file.substr(0, l_pos);
                 std::string buildid_str = filename;
@@ -255,12 +261,6 @@ bool TombstoneParser::parseMaps() {
                     buildid_str = buildid_str.substr(l_pos + 11, 32);
                     vma.buildid = buildid_str;
                 }
-            }
-
-            l_pos = vma.file.find(" (load bias 0x");
-            if (l_pos != std::string::npos) {
-                sscanf(vma.file.c_str() + l_pos, " (load bias 0x%" PRIx64 "", &vma.load_bias);
-                vma.file = vma.file.substr(0, l_pos);
             }
 
             mMaps.push_back(vma);

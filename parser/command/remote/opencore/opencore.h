@@ -107,7 +107,7 @@ public:
         uint32_t major;
         uint32_t minor;
         uint64_t inode;
-        uint64_t load_bias;
+        uint32_t load_bias;
         std::string file;
         std::string buildid;
         VirtualMemoryArea() : begin(0), end(0), flags{}, offset(0),
