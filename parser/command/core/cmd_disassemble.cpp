@@ -125,6 +125,7 @@ int DisassembleCommand::main(int argc, char* const argv[]) {
             need_disas = false;
         } else {
             LOGI("  * %s: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, d_symbol.c_str(), vaddr);
+            need_disas = false;
         }
         return true;
     };
