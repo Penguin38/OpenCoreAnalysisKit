@@ -17,6 +17,7 @@
 #include "logger/log.h"
 #include "command/llvm/cmd_scudo.h"
 #include "scudo/standalone/chunk.h"
+#include "scudo/standalone/secondary.h"
 #include "api/core.h"
 #include "api/memory_ref.h"
 #include "base/utils.h"
@@ -28,13 +29,30 @@ int ScudoCommand::main(int argc, char* const argv[]) {
     uint64_t address = Utils::atol(argv[1]) & CoreApi::GetVabitsMask();
     api::MemoryRef ref = address - 0x10;
     scudo::Chunk::UnpackedHeader* chunk_header = reinterpret_cast<scudo::Chunk::UnpackedHeader*>(ref.Real());
-    LOGI("scudo::Chunk::UnpackedHeader\n");
+    LOGI("scudo::Chunk::UnpackedHeader (" ANSI_COLOR_LIGHTMAGENTA "0x%lx" ANSI_COLOR_RESET ")\n", ref.Ptr());
     LOGI("  * ClassId: " ANSI_COLOR_LIGHTMAGENTA "0x%0x" ANSI_COLOR_RESET "\n", chunk_header->ClassId);
     LOGI("  * State: " ANSI_COLOR_LIGHTMAGENTA "0x%x" ANSI_COLOR_RESET "\n", chunk_header->State);
     LOGI("  * OriginOrWasZeroed: " ANSI_COLOR_LIGHTMAGENTA "0x%x" ANSI_COLOR_RESET "\n", chunk_header->OriginOrWasZeroed);
     LOGI("  * SizeOrUnusedBytes: " ANSI_COLOR_LIGHTMAGENTA "0x%x" ANSI_COLOR_RESET "\n", chunk_header->SizeOrUnusedBytes);
     LOGI("  * Offset: " ANSI_COLOR_LIGHTMAGENTA "0x%x" ANSI_COLOR_RESET "\n", chunk_header->Offset);
     LOGI("  * Checksum: " ANSI_COLOR_LIGHTMAGENTA "0x%x" ANSI_COLOR_RESET "\n", chunk_header->Checksum);
+
+    if (chunk_header->ClassId == 0x0) {
+        scudo::LargeBlock::Header block = ref.Ptr() - SIZEOF(scudo_LargeBlock_Header);
+        LOGI("scudo::LargeBlock::Header (" ANSI_COLOR_LIGHTMAGENTA "0x%lx" ANSI_COLOR_RESET ")\n", block.Ptr());
+        LOGI("  * Prev: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n", block.Prev());
+        if (block.Prev() != 0x0)
+            LOGI("  *   PrevPtr: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n",
+                    (block.Prev() + 0x10 + SIZEOF(scudo_LargeBlock_Header)) & CoreApi::GetVabitsMask());
+        LOGI("  * Next: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n", block.Next());
+        if (block.Next() != 0x0)
+            LOGI("  *   NextPtr: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n",
+                    (block.Next() + 0x10 + SIZEOF(scudo_LargeBlock_Header)) & CoreApi::GetVabitsMask());
+        LOGI("  * CommitBase: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n", block.CommitBase());
+        LOGI("  * CommitSize: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n", block.CommitSize());
+        LOGI("  * MapBase: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n", block.MapBase());
+        LOGI("  * MapCapacity: " ANSI_COLOR_LIGHTMAGENTA "0x%0lx" ANSI_COLOR_RESET "\n", block.MapCapacity());
+    }
     return 0;
 }
 

@@ -25,6 +25,7 @@
 #include "cxx/deque.h"
 #include "cxx/split_buffer.h"
 #include "cxx/mutex.h"
+#include "scudo/standalone/secondary.h"
 
 void LLVM::Init() {
     cxx::string::Init();
@@ -39,4 +40,5 @@ void LLVM::Init() {
     cxx::deque::Init();
     cxx::split_buffer::Init();
     cxx::mutex::Init();
+    scudo::LargeBlock::Header::Init();
 }

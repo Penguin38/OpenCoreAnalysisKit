@@ -204,7 +204,8 @@ add_library(llvm STATIC
             llvm/cxx/unordered_set.cpp
             llvm/cxx/deque.cpp
             llvm/cxx/split_buffer.cpp
-            llvm/cxx/mutex.cpp)
+            llvm/cxx/mutex.cpp
+            llvm/scudo/standalone/secondary.cpp)
 target_link_libraries(llvm core)
 
 include_directories(android)

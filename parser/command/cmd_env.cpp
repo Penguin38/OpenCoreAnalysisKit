@@ -194,30 +194,30 @@ int EnvCommand::showArtEnv(int argc, char* const argv[]) {
 
     LOGI("  * art::gc::Heap: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().Ptr());
     if (runtime.GetHeap().Ptr()) {
-        LOGI("  *     continuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().GetContinuousSpacesCache().Ptr());
-        LOGI("  *     discontinuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().GetDiscontinuousSpacesCache().Ptr());
+        LOGI("  *   continuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().GetContinuousSpacesCache().Ptr());
+        LOGI("  *   discontinuous_spaces_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetHeap().GetDiscontinuousSpacesCache().Ptr());
     }
     LOGI("  * art::MonitorPool: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetMonitorPool().Ptr());
     LOGI("  * art::ThreadList: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetThreadList().Ptr());
     if (runtime.GetThreadList().Ptr()) {
-        LOGI("  *     list_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetThreadList().GetListCache().Ptr());
+        LOGI("  *   list_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetThreadList().GetListCache().Ptr());
     }
     LOGI("  * art::ClassLinker: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().Ptr());
     if (runtime.GetClassLinker().Ptr()) {
         if (Android::Sdk() < Android::T) {
-            LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData().Ptr());
+            LOGI("  *   dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData().Ptr());
         } else {
-            LOGI("  *     dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData_v33().Ptr());
+            LOGI("  *   dex_caches_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetClassLinker().GetDexCachesData_v33().Ptr());
         }
     }
     LOGI("  * art::JavaVMExt: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().Ptr());
     if (runtime.GetJavaVM().Ptr()) {
-        LOGI("  *     globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetGlobalsTable().Ptr());
-        LOGI("  *     weak_globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetWeakGlobalsTable().Ptr());
+        LOGI("  *   globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetGlobalsTable().Ptr());
+        LOGI("  *   weak_globals_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJavaVM().GetWeakGlobalsTable().Ptr());
     }
     LOGI("  * art::jit::Jit: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJit().Ptr());
     if (runtime.GetJit().Ptr()) {
-        LOGI("  *     code_cache_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJit().GetCodeCache().Ptr());
+        LOGI("  *   code_cache_: " ANSI_COLOR_LIGHTMAGENTA "0x%" PRIx64 "\n" ANSI_COLOR_RESET, runtime.GetJit().GetCodeCache().Ptr());
     }
     return 0;
 }
