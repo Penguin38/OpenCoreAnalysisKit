@@ -58,7 +58,7 @@ public:
     inline bool virtualContains(uint64_t addr) {
         uint64_t clocaddr = addr & mVabitsMask;
         if ((clocaddr < vaddr())
-                || (clocaddr >= (vaddr() + size())))
+                || (clocaddr >= (vaddr() + memsz())))
             return false;
         return true;
     }
