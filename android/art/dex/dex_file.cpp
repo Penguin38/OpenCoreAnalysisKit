@@ -501,13 +501,13 @@ const char* DexFile::GetMethodShorty(dex::MethodId& method_id, uint32_t* length)
 }
 
 bool DexFile::IsCompactDexFile() {
-    if (Android::Sdk() >= Android::X)
+    if (Android::Sdk() >= Android::W)
         return false;
     return !!is_compact_dex();
 }
 
 bool DexFile::IsStandardDexFile() {
-    if (Android::Sdk() >= Android::X)
+    if (Android::Sdk() >= Android::W)
         return true;
     return !is_compact_dex();
 }
